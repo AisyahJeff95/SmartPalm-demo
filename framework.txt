@@ -1,0 +1,22 @@
+import data
+
+input > sentinel data > Sentinel-1 and Sentinel-2
+output > lab N P K data (nutrient data)
+
+    Set up 80% training, 20% testing 
+
+algorithm > random forest regression
+
+
+
+
+
+How to use the SmartPalm:
+
+1. User choose location based on coordinates/ mapping
+2. Use the coordinates as input using sentinel 1 and 2.
+3. The algorithm will compute the output
+4. Output of nutrient data of that coordinate
+
+
+
