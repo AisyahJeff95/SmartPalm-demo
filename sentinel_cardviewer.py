@@ -31,10 +31,10 @@ IDENTITY_URL = (
 )
 DOWNLOAD_URL = "https://download.dataspace.copernicus.eu/odata/v1/Products"
 
-
-DEFAULT_LAT = 3.1390
-DEFAULT_LON = 101.6869
-DEFAULT_PLACE = "Kuala Lumpur, Malaysia"
+# cant access exact location. 
+DEFAULT_LAT = 3.882036
+DEFAULT_LON = 100.903912
+DEFAULT_PLACE = "Perak, Malaysia"
 
 
 def request_json(url: str, headers: dict[str, str] | None = None) -> dict[str, Any]:
@@ -170,7 +170,9 @@ def product_rows(products: list[dict[str, Any]], label: str) -> str:
         )
     return f"<section><h2>{html.escape(label)}</h2>{''.join(cards)}</section>"
 
-
+# build the HTML viewer with Leaflet map and product listings. what product? 
+# The products are the Sentinel-1 and Sentinel-2 products found in the search, passed as s1 and s2 lists of dicts. 
+# Each product's metadata and quicklook image (if available) are included in the HTML, along with a button to zoom to the product's footprint on the map.
 def build_html(
     output: Path,
     place: str,
@@ -403,7 +405,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--limit", type=int, default=8, help="Products per Sentinel mission.")
     parser.add_argument("--s1-type", default="IW_GRDH_1S", help="Sentinel-1 product type.")
     parser.add_argument("--s2-type", default="S2MSI2A", help="Sentinel-2 product type.")
-    parser.add_argument("--output", default="sentinel_viewer.html", help="HTML file to create.")
+    parser.add_argument("--output", default="sentinel_cardviewer.html", help="HTML file to create.")
     parser.add_argument("--no-open", action="store_true", help="Create the HTML but do not open it.")
     parser.add_argument("--download", help="Optional product ID to download after authenticating with CDSE.")
     parser.add_argument("--download-dir", default="downloads", help="Folder for --download output.")

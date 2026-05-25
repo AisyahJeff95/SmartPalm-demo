@@ -1,0 +1,28 @@
+It can show real Earth imagery, but what I made currently shows **quicklook previews** from Copernicus, not full-resolution analysis-ready imagery.
+
+For Sentinel:
+
+- **Sentinel-2** is optical imagery. This can look like real satellite photos of land, clouds, coastlines, vegetation, cities, etc.
+- **Sentinel-1** is radar imagery. It is real Earth observation data, but it does not look like a normal photograph. It often appears grayscale or false-color because it measures radar backscatter, not visible light.
+- The map background in the viewer is OpenStreetMap, not Sentinel imagery.
+- The product “quicklooks” are real preview images when Copernicus provides them, but they are low-resolution browse images.
+
+So: **not illustrations**, but also **not yet full-resolution Sentinel image rendering**.
+
+To show actual Sentinel-2 image tiles more like a satellite photo, the next step would be to add a true-color render using bands:
+
+- `B04` red
+- `B03` green
+- `B02` blue
+
+For Sentinel-1, we would render radar bands such as `VV` and `VH` as grayscale or false color.
+
+
+
+====================
+sentinel_earthviewer.py:
+
+The current viewer shows true-color Sentinel-2, so it is a good start.
+The next useful upgrade would be adding an NDVI layer and a false-color vegetation layer so oil palm areas stand out much more clearly.
+
+

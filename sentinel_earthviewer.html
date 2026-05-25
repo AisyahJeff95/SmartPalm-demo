@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sentinel Viewer - Perak, Malaysia</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+    :root {
+      color-scheme: light;
+      --ink: #17202a;
+      --muted: #5f6c7b;
+      --line: #d6dde5;
+      --surface: #f6f8fa;
+      --accent: #087f5b;
+    }
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background: white;
+    }
+    header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface);
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-size: 24px;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+    .meta {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .imagery-panel {
+      padding: 14px 24px;
+      border-bottom: 1px solid var(--line);
+      background: white;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .imagery-card {
+      border-left: 4px solid var(--accent);
+      padding: 0 0 0 12px;
+      min-width: 0;
+    }
+    .imagery-card strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    .imagery-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+    #map {
+      width: 100%;
+      height: min(58vh, 560px);
+      min-height: 360px;
+      border-bottom: 1px solid var(--line);
+    }
+    main {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+    section + section {
+      margin-top: 30px;
+    }
+    h2 {
+      font-size: 18px;
+      margin: 0 0 12px;
+      letter-spacing: 0;
+    }
+    .product {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 16px;
+      padding: 14px 0;
+      border-top: 1px solid var(--line);
+    }
+    .preview {
+      width: 260px;
+      aspect-ratio: 4 / 3;
+      background: #e9eef3;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+    .preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .missing {
+      color: var(--muted);
+      font-size: 13px;
+      padding: 10px;
+      text-align: center;
+    }
+    h3 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      overflow-wrap: anywhere;
+      letter-spacing: 0;
+    }
+    dl {
+      display: grid;
+      grid-template-columns: 86px 1fr;
+      gap: 6px 12px;
+      margin: 0 0 12px;
+      font-size: 13px;
+    }
+    dt {
+      color: var(--muted);
+    }
+    dd {
+      margin: 0;
+      overflow-wrap: anywhere;
+    }
+    button {
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: white;
+      height: 32px;
+      padding: 0 12px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    @media (max-width: 720px) {
+      main { padding: 16px; }
+      .imagery-panel { grid-template-columns: 1fr; padding: 12px 16px; }
+      .product { grid-template-columns: 1fr; }
+      .preview { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Sentinel Viewer</h1>
+    <div class="meta">
+      <span>Perak, Malaysia</span>
+      <span>Lat 3.88204, Lon 100.90391</span>
+      <span>2026-01-01 to 2026-05-25</span>
+      <span>8 Sentinel-1, 8 Sentinel-2 products</span>
+    </div>
+  </header>
+  <div class="imagery-panel" id="imagery-panel"></div>
+  <div id="map"></div>
+  <main>
+    <section><h2>Sentinel-2 optical products</h2>
+            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[99.90040130160244,3.59067056896004],[99.90033474301202,3.530141158504758],[100.88863514982945,3.52865295114872],[100.89092488097882,4.521454754404889],[100.10499329847374,4.52297055434645],[100.10383325412612,4.517668883587299],[100.07127991471457,4.368986239841383],[100.03870955627802,4.220371054517087],[100.00607021029948,4.071780900096828],[99.97343141214527,3.923207723225123],[99.94081048047566,3.774655342457342],[99.90818358371494,3.626126099662972],[99.90040130160244,3.59067056896004]]]}'>
+              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
+              <div class="details">
+                <h3>S2B_MSIL2A_20260522T032509_N0512_R018_T47NPE_20260522T071539.SAFE</h3>
+                <dl>
+                  <dt>Date</dt><dd>2026-05-22T03:25:09.024000Z</dd>
+                  <dt>Product ID</dt><dd><code>7713745a-82bb-43a3-afd9-78aa240b2422</code></dd>
+                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-2/MSI/L2A/2026/05/22/S2B_MSIL2A_20260522T032509_N0512_R018_T47NPE_20260522T071539.SAFE</code></dd>
+                </dl>
+                <button type="button" class="zoom">Show footprint</button>
+              </div>
+            </article>
+            
+            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[100.80226743511805,4.521680895168684],[100.80008491485933,3.528829299105823],[101.78788060440182,3.526382783847958],[101.7912576651501,4.518543595367358],[100.80226743511805,4.521680895168684]]]}'>
+              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
+              <div class="details">
+                <h3>S2B_MSIL2A_20260522T032509_N0512_R018_T47NQE_20260522T071539.SAFE</h3>
+                <dl>
+                  <dt>Date</dt><dd>2026-05-22T03:25:09.024000Z</dd>
+                  <dt>Product ID</dt><dd><code>b3bf05e4-85ba-48db-9c6b-c16cade65714</code></dd>
+                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-2/MSI/L2A/2026/05/22/S2B_MSIL2A_20260522T032509_N0512_R018_T47NQE_20260522T071539.SAFE</code></dd>
+                </dl>
+                <button type="button" class="zoom">Show footprint</button>
+              </div>
+            </article>
+            
+            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[100.80226743511805,4.521680895168684],[100.80008491485933,3.528829299105823],[101.78788060440182,3.526382783847958],[101.7912576651501,4.518543595367358],[100.80226743511805,4.521680895168684]]]}'>
+              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
+              <div class="details">
+                <h3>S2C_MSIL2A_20260517T032511_N0512_R018_T47NQE_20260517T082717.SAFE</h3>
+                <dl>
+                  <dt>Date</dt><dd>2026-05-17T03:25:11.025000Z</dd>
+                  <dt>Product ID</dt><dd><code>b211dba6-3da5-4d4e-92d2-eb75ef5c6b0d</code></dd>
+                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-2/MSI/L2A/2026/05/17/S2C_MSIL2A_20260517T032511_N0512_R018_T47NQE_20260517T082717.SAFE</code></dd>
+                </dl>
+                <button type="button" class="zoom">Show footprint</button>
+              </div>
+            </article>
+            
+            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[99.90047945545952,3.661744894061264],[99.90033474301202,3.530141158504758],[100.88863514982945,3.52865295114872],[100.89092488097882,4.521454754404889],[100.08940574081215,4.523000617547267],[100.06995756200192,4.434425923090808],[100.03729817890166,4.285840149338267],[100.00732186632352,4.149327652117256],[100.00497447089256,4.13861895083087],[100.00246251047443,4.127180185461461],[99.9720790960165,3.988566348650578],[99.93953190781306,3.839908661465006],[99.90696238022205,3.691267199127987],[99.90047945545952,3.661744894061264]]]}'>
+              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
+              <div class="details">
+                <h3>S2C_MSIL2A_20260517T032511_N0512_R018_T47NPE_20260517T082717.SAFE</h3>
+                <dl>
+                  <dt>Date</dt><dd>2026-05-17T03:25:11.025000Z</dd>
+                  <dt>Product ID</dt><dd><code>f5561bbb-61c2-4f7f-84ce-7ed815bdb79c</code></dd>
+                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-2/MSI/L2A/2026/05/17/S2C_MSIL2A_20260517T032511_N0512_R018_T47NPE_20260517T082717.SAFE</code></dd>
+                </dl>
+                <button type="button" class="zoom">Show footprint</button>
+              </div>
+            </article>
+            
+            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[99.90043806008222,3.624099298393688],[99.90033474301202,3.530141158504758],[100.88863514982945,3.52865295114872],[100.89092488097882,4.521454754404889],[100.09717224608656,4.522985638548454],[100.09563394826253,4.51596362848674],[100.06307903125314,4.367274031632975],[100.03055597384189,4.218570833983532],[99.99804799239662,4.069862042445886],[99.96552899262227,3.921163186203354],[99.93296914506361,3.772522139560958],[99.90043806008222,3.624099298393688]]]}'>
+              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
+              <div class="details">
+                <h3>S2B_MSIL2A_20260512T032509_N0512_R018_T47NPE_20260512T071751.SAFE</h3>
+                <dl>
+                  <dt>Date</dt><dd>2026-05-12T03:25:09.024000Z</dd>
+                  <dt>Product ID</dt><dd><code>2b76007a-399d-439b-8f91-180b25697da2</code></dd>
+                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-2/MSI/L2A/2026/05/12/S2B_MSIL2A_20260512T032509_N0512_R018_T47NPE_20260512T071751.SAFE</code></dd>
+                </dl>
+                <button type="button" class="zoom">Show footprint</button>
+              </div>
+            </article>
+            
+            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[100.80226743511805,4.521680895168684],[100.80008491485933,3.528829299105823],[101.78788060440182,3.526382783847958],[101.7912576651501,4.518543595367358],[100.80226743511805,4.521680895168684]]]}'>
+              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
+              <div class="details">
+                <h3>S2B_MSIL2A_20260512T032509_N0512_R018_T47NQE_20260512T071751.SAFE</h3>
+                <dl>
+                  <dt>Date</dt><dd>2026-05-12T03:25:09.024000Z</dd>
+                  <dt>Product ID</dt><dd><code>d606b9fd-d6bb-4501-ac78-9ac1a9659722</code></dd>
+                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-2/MSI/L2A/2026/05/12/S2B_MSIL2A_20260512T032509_N0512_R018_T47NQE_20260512T071751.SAFE</code></dd>
+                </dl>
+                <button type="button" class="zoom">Show footprint</button>
+              </div>
+            </article>
+            
+            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[100.80226743511805,4.521680895168684],[100.80008491485933,3.528829299105823],[101.78788060440182,3.526382783847958],[101.7912576651501,4.518543595367358],[100.80226743511805,4.521680895168684]]]}'>
+              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
+              <div class="details">
+                <h3>S2A_MSIL2A_20260509T033151_N0512_R018_T47NQE_20260509T100517.SAFE</h3>
+                <dl>
+                  <dt>Date</dt><dd>2026-05-09T03:31:51.024000Z</dd>
+                  <dt>Product ID</dt><dd><code>2d1d4a44-de7b-42c5-9777-851037c6ac8f</code></dd>
+                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-2/MSI/L2A/2026/05/09/S2A_MSIL2A_20260509T033151_N0512_R018_T47NQE_20260509T100517.SAFE</code></dd>
+                </dl>
+                <button type="button" class="zoom">Show footprint</button>
+              </div>
+            </article>
+            
+            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[99.90038129862158,3.572479549126379],[99.90033474301202,3.530141158504758],[100.88863514982945,3.52865295114872],[100.89092488097882,4.521454754404889],[100.1088439201852,4.522963127781219],[100.09558855264832,4.462287790139226],[100.06307588326291,4.313521940712655],[100.03053754354487,4.1648015400785],[99.99793812488296,4.016167434151113],[99.96530623835788,3.867633597279184],[99.9326573671188,3.719128744751262],[99.90038129862158,3.572479549126379]]]}'>
+              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
+              <div class="details">
+                <h3>S2A_MSIL2A_20260509T033151_N0512_R018_T47NPE_20260509T100517.SAFE</h3>
+                <dl>
+                  <dt>Date</dt><dd>2026-05-09T03:31:51.024000Z</dd>
+                  <dt>Product ID</dt><dd><code>ff3213db-b3e7-4a7d-b199-1af933b27085</code></dd>
+                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-2/MSI/L2A/2026/05/09/S2A_MSIL2A_20260509T033151_N0512_R018_T47NPE_20260509T100517.SAFE</code></dd>
+                </dl>
+                <button type="button" class="zoom">Show footprint</button>
+              </div>
+            </article>
+            </section>
+    <section><h2>Sentinel-1 radar products</h2>
+            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[99.290764,4.407796],[99.604019,2.895545],[101.841461,3.366286],[101.533081,4.874226],[99.290764,4.407796]]]}'>
+              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
+              <div class="details">
+                <h3>S1A_IW_GRDH_1SDV_20260516T113423_20260516T113448_064542_08211E_0D17.SAFE</h3>
+                <dl>
+                  <dt>Date</dt><dd>2026-05-16T11:34:23.844503Z</dd>
+                  <dt>Product ID</dt><dd><code>39f6a25d-c5ab-4196-af9b-3b788fb905e5</code></dd>
+                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/05/16/S1A_IW_GRDH_1SDV_20260516T113423_20260516T113448_064542_08211E_0D17.SAFE</code></dd>
+                </dl>
+                <button type="button" class="zoom">Show footprint</button>
+              </div>
+            </article>
+            
+            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[99.291,4.407942],[99.604301,2.895604],[101.841652,3.366372],[101.533226,4.874398],[99.291,4.407942]]]}'>
+              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
+              <div class="details">
+                <h3>S1A_IW_GRDH_1SDV_20260504T113424_20260504T113449_064367_081AF1_ABD0.SAFE</h3>
+                <dl>
+                  <dt>Date</dt><dd>2026-05-04T11:34:24.241997Z</dd>
+                  <dt>Product ID</dt><dd><code>14b9c77c-4b0d-41e4-84c4-75331ba26658</code></dd>
+                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/05/04/S1A_IW_GRDH_1SDV_20260504T113424_20260504T113449_064367_081AF1_ABD0.SAFE</code></dd>
+                </dl>
+                <button type="button" class="zoom">Show footprint</button>
+              </div>
+            </article>
+            
+            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[99.289894,4.407882],[99.603218,2.89564],[101.840553,3.36647],[101.532104,4.874401],[99.289894,4.407882]]]}'>
+              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
+              <div class="details">
+                <h3>S1A_IW_GRDH_1SDV_20260422T113424_20260422T113449_064192_081475_4450.SAFE</h3>
+                <dl>
+                  <dt>Date</dt><dd>2026-04-22T11:34:24.755842Z</dd>
+                  <dt>Product ID</dt><dd><code>1ae9766d-daf9-4b69-9c38-c05fc55f0e50</code></dd>
+                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/04/22/S1A_IW_GRDH_1SDV_20260422T113424_20260422T113449_064192_081475_4450.SAFE</code></dd>
+                </dl>
+                <button type="button" class="zoom">Show footprint</button>
+              </div>
+            </article>
+            
+            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[99.290268,4.407784],[99.603615,2.895572],[101.840942,3.366437],[101.532471,4.874339],[99.290268,4.407784]]]}'>
+              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
+              <div class="details">
+                <h3>S1A_IW_GRDH_1SDV_20260410T113424_20260410T113449_064017_080DEC_F8F5.SAFE</h3>
+                <dl>
+                  <dt>Date</dt><dd>2026-04-10T11:34:24.543115Z</dd>
+                  <dt>Product ID</dt><dd><code>16623c63-4a8a-409d-b9ba-a0d72c4bef32</code></dd>
+                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/04/10/S1A_IW_GRDH_1SDV_20260410T113424_20260410T113449_064017_080DEC_F8F5.SAFE</code></dd>
+                </dl>
+                <button type="button" class="zoom">Show footprint</button>
+              </div>
+            </article>
+            
+            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[101.298004,3.012183],[101.602333,4.526374],[99.370148,4.990346],[99.070564,3.480511],[101.298004,3.012183]]]}'>
+              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
+              <div class="details">
+                <h3>S1A_IW_GRDH_1SDV_20260404T230352_20260404T230417_063936_080ADE_B40E.SAFE</h3>
+                <dl>
+                  <dt>Date</dt><dd>2026-04-04T23:03:52.040626Z</dd>
+                  <dt>Product ID</dt><dd><code>efff8136-246b-439a-9718-16ce373ff836</code></dd>
+                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/04/04/S1A_IW_GRDH_1SDV_20260404T230352_20260404T230417_063936_080ADE_B40E.SAFE</code></dd>
+                </dl>
+                <button type="button" class="zoom">Show footprint</button>
+              </div>
+            </article>
+            
+            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[99.290466,4.407891],[99.603821,2.895652],[101.841148,3.366506],[101.532677,4.874435],[99.290466,4.407891]]]}'>
+              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
+              <div class="details">
+                <h3>S1A_IW_GRDH_1SDV_20260329T113424_20260329T113449_063842_08075C_0D35.SAFE</h3>
+                <dl>
+                  <dt>Date</dt><dd>2026-03-29T11:34:24.423833Z</dd>
+                  <dt>Product ID</dt><dd><code>42f39ab4-eb23-4469-b44e-b94c3dcf1ca9</code></dd>
+                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/03/29/S1A_IW_GRDH_1SDV_20260329T113424_20260329T113449_063842_08075C_0D35.SAFE</code></dd>
+                </dl>
+                <button type="button" class="zoom">Show footprint</button>
+              </div>
+            </article>
+            
+            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[99.290565,4.407968],[99.60392,2.895728],[101.841248,3.366578],[101.532776,4.874507],[99.290565,4.407968]]]}'>
+              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
+              <div class="details">
+                <h3>S1A_IW_GRDH_1SDV_20260317T113424_20260317T113449_063667_0800D5_DDCA.SAFE</h3>
+                <dl>
+                  <dt>Date</dt><dd>2026-03-17T11:34:24.266580Z</dd>
+                  <dt>Product ID</dt><dd><code>2215c87f-498b-4b85-a161-65b054ec107a</code></dd>
+                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/03/17/S1A_IW_GRDH_1SDV_20260317T113424_20260317T113449_063667_0800D5_DDCA.SAFE</code></dd>
+                </dl>
+                <button type="button" class="zoom">Show footprint</button>
+              </div>
+            </article>
+            
+            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[99.60392,2.895707],[101.841339,3.366588],[101.532852,4.874516],[99.290558,4.407945],[99.60392,2.895707]]]}'>
+              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
+              <div class="details">
+                <h3>S1A_IW_GRDH_1SDV_20260305T113424_20260305T113449_063492_07FA3F_CE16.SAFE</h3>
+                <dl>
+                  <dt>Date</dt><dd>2026-03-05T11:34:24.203903Z</dd>
+                  <dt>Product ID</dt><dd><code>a22dee6f-af0d-4b10-bc9e-69ef7c24220d</code></dd>
+                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/03/05/S1A_IW_GRDH_1SDV_20260305T113424_20260305T113449_063492_07FA3F_CE16.SAFE</code></dd>
+                </dl>
+                <button type="button" class="zoom">Show footprint</button>
+              </div>
+            </article>
+            </section>
+  </main>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map').setView([3.882036, 100.903912], 11);
+    const streetMap = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    });
+    streetMap.addTo(map);
+
+    const realLayers = {"sentinel2": {"name": "Sentinel-2 true color image", "item_id": "S2B_MSIL2A_20260112T033019_R018_T47NPE_20260112T071021", "datetime": "2026-01-12T03:30:19.024000Z", "cloud_cover": 12.669818, "tile_url": "https://planetarycomputer.microsoft.com/api/data/v1/item/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?collection=sentinel-2-l2a&item=S2B_MSIL2A_20260112T033019_R018_T47NPE_20260112T071021&assets=visual", "bounds": [99.9003347, 3.528653, 100.8909249, 4.5229702], "attribution": "Sentinel-2 L2A via Microsoft Planetary Computer"}, "sentinel1": {"name": "Sentinel-1 VV radar image", "item_id": "S1A_IW_GRDH_1SDV_20260516T113423_20260516T113448_064542_08211E_rtc", "datetime": "2026-05-16T11:34:36.343583Z", "cloud_cover": null, "tile_url": "https://planetarycomputer.microsoft.com/api/data/v1/item/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?collection=sentinel-1-rtc&item=S1A_IW_GRDH_1SDV_20260516T113423_20260516T113448_064542_08211E_rtc&assets=vv&rescale=0%2C0.4&colormap_name=gray", "bounds": [99.29337957045387, 2.896670175845218, 101.82759761022317, 4.872991220478405], "attribution": "Sentinel-1 RTC via Microsoft Planetary Computer"}};
+    const baseLayers = { 'OpenStreetMap': streetMap };
+    const overlayLayers = {};
+    const panel = document.getElementById('imagery-panel');
+    const layerEntries = [
+      ['Sentinel-2 true color', realLayers.sentinel2],
+      ['Sentinel-1 radar VV', realLayers.sentinel1],
+    ];
+    layerEntries.forEach(([label, info], index) => {
+      const card = document.createElement('div');
+      card.className = 'imagery-card';
+      if (info && info.tile_url) {
+        const layer = L.tileLayer(info.tile_url, {
+          maxZoom: 24,
+          attribution: info.attribution || ''
+        });
+        overlayLayers[label] = layer;
+        if (index === 0) {
+          layer.addTo(map);
+        }
+        const cloud = info.cloud_cover === null || info.cloud_cover === undefined
+          ? ''
+          : `Cloud cover: ${Number(info.cloud_cover).toFixed(1)}%`;
+        card.innerHTML = `<strong>${label}</strong><span>${info.datetime || 'Date unavailable'}</span><span>${cloud}</span><span>${info.item_id}</span>`;
+      } else {
+        card.innerHTML = `<strong>${label}</strong><span>No renderable image found for this search.</span>`;
+      }
+      panel.appendChild(card);
+    });
+    L.control.layers(baseLayers, overlayLayers, { collapsed: false }).addTo(map);
+
+    const searchArea = {"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[100.81387429591365, 3.792204882500898], [100.99394970408636, 3.792204882500898], [100.99394970408636, 3.9718671174991016], [100.81387429591365, 3.9718671174991016], [100.81387429591365, 3.792204882500898]]]}, "properties": {"name": "Search area"}};
+    const searchLayer = L.geoJSON(searchArea, {
+      style: { color: '#087f5b', weight: 2, fillOpacity: 0.06 }
+    }).addTo(map);
+    L.marker([3.882036, 100.903912]).addTo(map).bindPopup("Perak, Malaysia");
+    const productLayer = L.geoJSON(null, {
+      style: { color: '#d9480f', weight: 2, fillOpacity: 0.04 }
+    }).addTo(map);
+    map.fitBounds(searchLayer.getBounds(), { padding: [24, 24] });
+
+    document.querySelectorAll('.product').forEach((card) => {
+      const button = card.querySelector('.zoom');
+      button.addEventListener('click', () => {
+        const footprint = JSON.parse(card.dataset.footprint);
+        productLayer.clearLayers();
+        if (footprint) {
+          productLayer.addData({ type: 'Feature', geometry: footprint, properties: {} });
+          map.fitBounds(productLayer.getBounds(), { padding: [24, 24] });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
