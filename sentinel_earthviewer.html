@@ -3,431 +3,1435 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sentinel Viewer - Perak, Malaysia</title>
+  <title>SmartPalm Earth View Dashboard - Perak, Malaysia</title>
+  
+  <!-- Fonts & Libraries -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
   <style>
     :root {
-      color-scheme: light;
-      --ink: #17202a;
-      --muted: #5f6c7b;
-      --line: #d6dde5;
-      --surface: #f6f8fa;
-      --accent: #087f5b;
+      --bg-main: #060913;
+      --bg-sidebar: rgba(10, 15, 30, 0.82);
+      --bg-card: rgba(20, 28, 52, 0.65);
+      --bg-card-hover: rgba(29, 40, 75, 0.9);
+      --border-glass: rgba(255, 255, 255, 0.08);
+      --border-accent: rgba(12, 166, 120, 0.3);
+      --accent-primary: #0ca678; /* Palm Green */
+      --accent-glow: #12b886;
+      --accent-secondary: #3b82f6; /* Blue */
+      --accent-alert: #ff6b6b; /* Red */
+      --accent-warning: #fcc419; /* Amber */
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --shadow-premium: 0 12px 40px -10px rgba(0, 0, 0, 0.85);
     }
+
     body {
       margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      color: var(--ink);
-      background: white;
-    }
-    header {
-      padding: 20px 24px 16px;
-      border-bottom: 1px solid var(--line);
-      background: var(--surface);
-    }
-    h1 {
-      margin: 0 0 6px;
-      font-size: 24px;
-      line-height: 1.2;
-      letter-spacing: 0;
-    }
-    .meta {
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
       display: flex;
-      gap: 14px;
-      flex-wrap: wrap;
-      color: var(--muted);
-      font-size: 14px;
-    }
-    .imagery-panel {
-      padding: 14px 24px;
-      border-bottom: 1px solid var(--line);
-      background: white;
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-    }
-    .imagery-card {
-      border-left: 4px solid var(--accent);
-      padding: 0 0 0 12px;
-      min-width: 0;
-    }
-    .imagery-card strong {
-      display: block;
-      font-size: 14px;
-      margin-bottom: 4px;
-    }
-    .imagery-card span {
-      display: block;
-      color: var(--muted);
-      font-size: 13px;
-      overflow-wrap: anywhere;
-    }
-    #map {
-      width: 100%;
-      height: min(58vh, 560px);
-      min-height: 360px;
-      border-bottom: 1px solid var(--line);
-    }
-    main {
-      max-width: 1180px;
-      margin: 0 auto;
-      padding: 24px;
-    }
-    section + section {
-      margin-top: 30px;
-    }
-    h2 {
-      font-size: 18px;
-      margin: 0 0 12px;
-      letter-spacing: 0;
-    }
-    .product {
-      display: grid;
-      grid-template-columns: 260px 1fr;
-      gap: 16px;
-      padding: 14px 0;
-      border-top: 1px solid var(--line);
-    }
-    .preview {
-      width: 260px;
-      aspect-ratio: 4 / 3;
-      background: #e9eef3;
-      display: grid;
-      place-items: center;
+      height: 100vh;
       overflow: hidden;
     }
-    .preview img {
+
+    /* Layout structure */
+    .dashboard-container {
+      display: grid;
+      grid-template-columns: 430px 1fr;
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    /* Sidebar styles */
+    aside.sidebar {
+      background: var(--bg-sidebar);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-right: 1px solid var(--border-glass);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      z-index: 10;
+      box-shadow: 8px 0 32px rgba(0, 0, 0, 0.7);
+    }
+
+    .sidebar-header {
+      padding: 24px 20px 18px;
+      border-bottom: 1px solid var(--border-glass);
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+
+    .logo-icon {
+      color: var(--accent-primary);
+      filter: drop-shadow(0 0 8px var(--accent-glow));
+    }
+
+    .logo-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 25px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #fff 30%, var(--accent-primary) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .logo-subtitle {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-weight: 700;
+    }
+
+    .sidebar-scrollable {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .sidebar-scrollable::-webkit-scrollbar {
+      width: 5px;
+    }
+    .sidebar-scrollable::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    .sidebar-scrollable::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+    .sidebar-scrollable::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    .sidebar-section-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1.2px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Card styling */
+    .glass-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glass);
+      border-radius: 12px;
+      padding: 15px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .glass-card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--border-accent);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Preset list */
+    .preset-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .preset-btn {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-glass);
+      border-radius: 8px;
+      padding: 8px 10px;
+      color: var(--text-main);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .preset-btn:hover {
+      background: rgba(12, 166, 120, 0.15);
+      border-color: var(--accent-primary);
+      transform: translateY(-1px);
+    }
+
+    /* Metadata details */
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+    .meta-row:last-child {
+      margin-bottom: 0;
+    }
+    .meta-lbl {
+      color: var(--text-muted);
+    }
+    .meta-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
+    }
+
+    /* SmartPalm Predictor */
+    .predictor-placeholder {
+      text-align: center;
+      padding: 20px 10px;
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .predictor-pulse {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(12, 166, 120, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+      color: var(--accent-primary);
+      border: 1px dashed var(--accent-primary);
+      animation: predictor-glow 2s infinite alternate;
+    }
+
+    @keyframes predictor-glow {
+      from { box-shadow: 0 0 4px rgba(12, 166, 120, 0.2); }
+      to { box-shadow: 0 0 16px rgba(12, 166, 120, 0.6); }
+    }
+
+    .predictor-results {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .predict-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-glass);
+      padding-bottom: 8px;
+    }
+
+    .predict-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .status-pill {
+      border-radius: 20px;
+      padding: 2px 8px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .status-pill.optimal { background: rgba(12, 166, 120, 0.2); color: var(--accent-primary); border: 1px solid var(--accent-primary); }
+    .status-pill.warning { background: rgba(252, 196, 25, 0.2); color: var(--accent-warning); border: 1px solid var(--accent-warning); }
+    .status-pill.alert { background: rgba(255, 107, 107, 0.2); color: var(--accent-alert); border: 1px solid var(--accent-alert); }
+
+    /* Custom progress bar */
+    .gauge-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .gauge-bar {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .gauge-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .gauge-title {
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .gauge-track {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 3px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gauge-fill {
+      height: 100%;
+      border-radius: 3px;
+      width: 0%;
+      transition: width 1.2s cubic-bezier(0.1, 0.8, 0.2, 1);
+    }
+
+    .gauge-fill.n { background: linear-gradient(90deg, #ff8787, #ff6b6b, #e03131); }
+    .gauge-fill.p { background: linear-gradient(90deg, #74c0fc, #3b82f6, #1971c2); }
+    .gauge-fill.k { background: linear-gradient(90deg, #ffd43b, #fcc419, #f59f00); }
+
+    .gauge-marker {
+      position: absolute;
+      width: 2px;
+      height: 100%;
+      background: white;
+      top: 0;
+      opacity: 0.65;
+    }
+
+    .chart-box {
+      width: 100%;
+      height: 160px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .prescription-card {
+      background: rgba(12, 166, 120, 0.05);
+      border-left: 3px solid var(--accent-primary);
+      padding: 10px 12px;
+      border-radius: 0 8px 8px 0;
+      font-size: 11.5px;
+      line-height: 1.5;
+    }
+
+    /* Product Feed styles */
+    .feed-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 200px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .feed-list::-webkit-scrollbar {
+      width: 4px;
+    }
+    .feed-list::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 2px;
+    }
+
+    .feed-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 8px 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: grid;
+      grid-template-columns: 60px 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .feed-card:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .feed-card.active {
+      border-color: var(--accent-primary);
+      background: rgba(12, 166, 120, 0.08);
+    }
+
+    .feed-thumb {
+      width: 60px;
+      height: 48px;
+      border-radius: 4px;
+      background: #0f131f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .feed-thumb img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
-    .missing {
-      color: var(--muted);
-      font-size: 13px;
-      padding: 10px;
+
+    .feed-thumb-err {
+      font-size: 7px;
+      color: var(--text-muted);
       text-align: center;
+      padding: 2px;
     }
-    h3 {
-      margin: 0 0 10px;
-      font-size: 15px;
-      overflow-wrap: anywhere;
-      letter-spacing: 0;
+
+    .feed-details {
+      font-size: 11px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
     }
-    dl {
-      display: grid;
-      grid-template-columns: 86px 1fr;
-      gap: 6px 12px;
-      margin: 0 0 12px;
-      font-size: 13px;
+
+    .feed-name {
+      font-weight: 600;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-    dt {
-      color: var(--muted);
+
+    .feed-sub {
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
     }
-    dd {
-      margin: 0;
-      overflow-wrap: anywhere;
+
+    .feed-badge {
+      border-radius: 4px;
+      padding: 0 4px;
+      font-size: 8px;
+      font-weight: 700;
+      text-transform: uppercase;
+      background: rgba(255,255,255,0.08);
     }
-    button {
-      border: 1px solid var(--accent);
-      background: var(--accent);
-      color: white;
-      height: 32px;
-      padding: 0 12px;
-      font-size: 13px;
+    .feed-badge.s2 { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+    .feed-badge.s1 { background: rgba(12, 166, 120, 0.2); color: #34d399; }
+
+    /* Map pane container */
+    .map-pane {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+      background-color: var(--bg-main);
+    }
+
+    /* Map widgets */
+    .map-overlay-widget {
+      position: absolute;
+      z-index: 1000;
+      background: rgba(8, 12, 21, 0.88);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-glass);
+      border-radius: 12px;
+      box-shadow: var(--shadow-premium);
+      padding: 12px;
+      color: var(--text-main);
+    }
+
+    /* Layers control widget */
+    .layers-overlay {
+      top: 16px;
+      right: 16px;
+      width: 205px;
+    }
+
+    .layer-section-header {
+      font-family: 'Outfit', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 8px;
+      color: var(--text-muted);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      padding-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .layer-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+    .layer-list:last-child {
+      margin-bottom: 0;
+    }
+
+    .layer-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11.5px;
+      padding: 5px 8px;
+      border-radius: 6px;
       cursor: pointer;
+      transition: all 0.2s ease;
     }
-    @media (max-width: 720px) {
-      main { padding: 16px; }
-      .imagery-panel { grid-template-columns: 1fr; padding: 12px 16px; }
-      .product { grid-template-columns: 1fr; }
-      .preview { width: 100%; }
+
+    .layer-row:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .layer-row.active {
+      background: rgba(12, 166, 120, 0.15);
+      color: var(--accent-primary);
+      font-weight: 600;
+    }
+
+    .layer-bullet {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .layer-row.active .layer-bullet {
+      border-color: var(--accent-primary);
+    }
+
+    .layer-row.active .layer-bullet::after {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent-primary);
+    }
+
+    /* Legend widget */
+    .legend-overlay {
+      bottom: 24px;
+      right: 16px;
+      width: 220px;
+    }
+
+    .legend-bar-gradient {
+      height: 10px;
+      border-radius: 5px;
+      background: linear-gradient(90deg, #d84315, #f88c00, #ffe600, #a3e300, #2e7d32);
+      margin-bottom: 5px;
+    }
+    .legend-bar-gradient.radar {
+      background: linear-gradient(90deg, #050505, #555, #aaa, #f5f5f5);
+    }
+
+    .legend-lbls {
+      display: flex;
+      justify-content: space-between;
+      font-size: 9px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    /* Bottom analytics stats overlay */
+    .analytics-panel-overlay {
+      position: absolute;
+      bottom: 24px;
+      left: 454px;
+      right: 252px;
+      height: 110px;
+    }
+
+    .panel-flex {
+      display: flex;
+      gap: 16px;
+      height: 100%;
+      align-items: center;
+    }
+
+    .panel-chart-container {
+      flex: 1;
+      height: 100%;
+      min-width: 0;
+    }
+
+    .panel-stat-container {
+      width: 140px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      border-left: 1px solid var(--border-glass);
+      padding-left: 16px;
+    }
+
+    .mini-stat {
+      margin-bottom: 6px;
+    }
+    .mini-stat:last-child {
+      margin-bottom: 0;
+    }
+    .mini-stat-val {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--accent-primary);
+      font-family: 'Outfit', sans-serif;
+    }
+    .mini-stat-lbl {
+      font-size: 9px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Custom Toast */
+    .app-toast {
+      position: absolute;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 2000;
+      background: rgba(12, 166, 120, 0.95);
+      color: white;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 11.5px;
+      font-weight: 600;
+      box-shadow: var(--shadow-premium);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      pointer-events: none;
+    }
+    .app-toast.active {
+      opacity: 1;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .dashboard-container {
+        grid-template-columns: 1fr;
+        grid-template-rows: 55vh 45vh;
+      }
+      aside.sidebar {
+        height: 45vh;
+        grid-row: 2;
+      }
+      .map-pane {
+        grid-row: 1;
+      }
+      .analytics-panel-overlay {
+        display: none;
+      }
     }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Sentinel Viewer</h1>
-    <div class="meta">
-      <span>Perak, Malaysia</span>
-      <span>Lat 3.88204, Lon 100.90391</span>
-      <span>2026-01-01 to 2026-05-25</span>
-      <span>8 Sentinel-1, 8 Sentinel-2 products</span>
+  <div class="dashboard-container">
+    
+    <!-- Left Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-container">
+          <i data-lucide="leaf" class="logo-icon"></i>
+          <span class="logo-title">SmartPalm</span>
+        </div>
+        <div class="logo-subtitle">Earth View Analytics</div>
+      </div>
+      
+      <div class="sidebar-scrollable">
+        
+        <!-- Preset Locations -->
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">
+            <span>Malaysia Presets</span>
+            <i data-lucide="map-pin" size="14"></i>
+          </div>
+          <div class="preset-grid">
+            <button type="button" class="preset-btn" onclick="applyPreset(0)">
+              <i data-lucide="compass" size="12"></i> Sungkai, Perak
+            </button>
+            <button type="button" class="preset-btn" onclick="applyPreset(1)">
+              <i data-lucide="compass" size="12"></i> Kluang, Johor
+            </button>
+            <button type="button" class="preset-btn" onclick="applyPreset(2)">
+              <i data-lucide="compass" size="12"></i> Muadzam, Pahang
+            </button>
+            <button type="button" class="preset-btn" onclick="applyPreset(3)">
+              <i data-lucide="compass" size="12"></i> Lahad Datu, Sabah
+            </button>
+          </div>
+        </div>
+
+        <!-- Coordinates Details -->
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">
+            <span>Location parameters</span>
+            <i data-lucide="settings" size="14"></i>
+          </div>
+          <div class="glass-card">
+            <div class="meta-row">
+              <span class="meta-lbl">Area name</span>
+              <span class="meta-val" id="area-name-lbl">Perak, Malaysia</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-lbl">Center Lat</span>
+              <span class="meta-val" id="lat-lbl">3.882036</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-lbl">Center Lon</span>
+              <span class="meta-val" id="lon-lbl">100.903912</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-lbl">Date query</span>
+              <span class="meta-val">2026-01-01 to 2026-05-25</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Predictive Engine Panel -->
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">
+            <span>SmartPalm AI Predictor</span>
+            <i data-lucide="cpu" size="14"></i>
+          </div>
+          <div class="glass-card" id="predictor-card">
+            <div class="predictor-placeholder" id="npk-placeholder">
+              <div class="predictor-pulse">
+                <i data-lucide="map-pin"></i>
+              </div>
+              <p>Click anywhere on the map to predict soil & leaf nutrient concentrations (N, P, K) using simulated Random Forest Regressions.</p>
+            </div>
+            
+            <div class="predictor-results" id="npk-results" style="display:none;">
+              <div class="predict-header">
+                <span class="predict-title" id="predict-coord-lbl">Diagnostics</span>
+                <span class="status-pill optimal" id="health-badge">Optimal</span>
+              </div>
+              
+              <div class="gauge-wrapper">
+                <!-- N Gauge -->
+                <div class="gauge-bar">
+                  <div class="gauge-header">
+                    <span class="gauge-title"><i data-lucide="droplet" size="12"></i> Nitrogen (N)</span>
+                    <span class="gauge-val" id="n-val">2.5%</span>
+                  </div>
+                  <div class="gauge-track">
+                    <div class="gauge-fill n" id="n-fill" style="width: 70%;"></div>
+                    <div class="gauge-marker" style="left: 71.4%;"></div> <!-- 2.5% Target -->
+                  </div>
+                </div>
+
+                <!-- P Gauge -->
+                <div class="gauge-bar">
+                  <div class="gauge-header">
+                    <span class="gauge-title"><i data-lucide="flame" size="12"></i> Phosphorus (P)</span>
+                    <span class="gauge-val" id="p-val">0.16%</span>
+                  </div>
+                  <div class="gauge-track">
+                    <div class="gauge-fill p" id="p-fill" style="width: 64%;"></div>
+                    <div class="gauge-marker" style="left: 60.0%;"></div> <!-- 0.15% Target -->
+                  </div>
+                </div>
+
+                <!-- K Gauge -->
+                <div class="gauge-bar">
+                  <div class="gauge-header">
+                    <span class="gauge-title"><i data-lucide="sparkles" size="12"></i> Potassium (K)</span>
+                    <span class="gauge-val" id="k-val">1.1%</span>
+                  </div>
+                  <div class="gauge-track">
+                    <div class="gauge-fill k" id="k-fill" style="width: 68%;"></div>
+                    <div class="gauge-marker" style="left: 61.1%;"></div> <!-- 1.1% Target -->
+                  </div>
+                </div>
+              </div>
+
+              <!-- Radar Chart -->
+              <div class="radar-chart-container">
+                <canvas id="radarChart"></canvas>
+              </div>
+
+              <!-- Prescription recommendations -->
+              <div class="prescription-card" id="prescription-txt">
+                Canopy nutrition balance is optimal. Maintain regular NPK compound dosing (2.5kg per tree twice a year).
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Products Feed -->
+        <div class="sidebar-section">
+          <div class="sidebar-section-title">
+            <span>Sentinel Imagery Feed</span>
+            <i data-lucide="database" size="14"></i>
+          </div>
+          <div class="feed-list" id="feed-list">
+            <!-- Populated via Javascript -->
+          </div>
+        </div>
+        
+      </div>
+    </aside>
+
+    <!-- Right Map View -->
+    <div class="map-pane">
+      <div id="map"></div>
+      
+      <!-- Custom Toast -->
+      <div class="app-toast" id="app-toast">
+        <i data-lucide="info" size="14"></i>
+        <span id="toast-text">Toast Message</span>
+      </div>
+
+      <!-- Floating custom Leaflet layers control -->
+      <div class="map-overlay-widget layers-overlay">
+        <div class="layer-section-header">
+          <i data-lucide="map" size="12"></i>
+          <span>Base Map</span>
+        </div>
+        <div class="layer-list">
+          <div class="layer-row active" id="base-osm" onclick="setBaseMap('osm')">
+            <div class="layer-bullet"></div>
+            <span>Street Map</span>
+          </div>
+          <div class="layer-row" id="base-sat" onclick="setBaseMap('sat')">
+            <div class="layer-bullet"></div>
+            <span>Satellite Photo</span>
+          </div>
+        </div>
+
+        <div class="layer-section-header" style="margin-top: 10px;">
+          <i data-lucide="layers" size="12"></i>
+          <span>Sentinel Overlays</span>
+        </div>
+        <div class="layer-list" id="sentinel-layer-list">
+          <div class="layer-row active" onclick="setSentinelLayerType('visual')">
+            <div class="layer-bullet"></div>
+            <span>S2 True Color</span>
+          </div>
+          <div class="layer-row" onclick="setSentinelLayerType('false_color')">
+            <div class="layer-bullet"></div>
+            <span>S2 False Color (CIR)</span>
+          </div>
+          <div class="layer-row" onclick="setSentinelLayerType('ndvi')">
+            <div class="layer-bullet"></div>
+            <span>S2 NDVI Index</span>
+          </div>
+          <div class="layer-row" onclick="setSentinelLayerType('vv')">
+            <div class="layer-bullet"></div>
+            <span>S1 Radar VV</span>
+          </div>
+          <div class="layer-row" onclick="setSentinelLayerType('vh')">
+            <div class="layer-bullet"></div>
+            <span>S1 Radar VH</span>
+          </div>
+          <div class="layer-row" onclick="setSentinelLayerType('none')">
+            <div class="layer-bullet"></div>
+            <span>No Overlay</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating Legend overlay -->
+      <div class="map-overlay-widget legend-overlay" id="legend-panel">
+        <div class="widget-title" id="legend-title">NDVI Vegetation Health</div>
+        <div class="legend-bar-gradient" id="legend-gradient"></div>
+        <div class="legend-lbls" id="legend-labels">
+          <span id="legend-min">0.0 (Soil)</span>
+          <span id="legend-max">1.0 (Dense Canopy)</span>
+        </div>
+      </div>
+
+      <!-- Bottom Analytics Panel -->
+      <div class="map-overlay-widget analytics-panel-overlay">
+        <div class="panel-flex">
+          <div class="panel-chart-container">
+            <canvas id="trendChart"></canvas>
+          </div>
+          <div class="panel-stat-container">
+            <div class="mini-stat">
+              <span class="mini-stat-lbl">Canopy Density (NDVI)</span>
+              <span class="mini-stat-val" id="mini-ndvi">0.78</span>
+            </div>
+            <div class="mini-stat">
+              <span class="mini-stat-lbl">Soil Moisture (Est)</span>
+              <span class="mini-stat-val" id="mini-moisture">62%</span>
+            </div>
+            <div class="mini-stat">
+              <span class="mini-stat-lbl">Est Palm Yield</span>
+              <span class="mini-stat-val" id="mini-yield">24.5 t/ha</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
     </div>
-  </header>
-  <div class="imagery-panel" id="imagery-panel"></div>
-  <div id="map"></div>
-  <main>
-    <section><h2>Sentinel-2 optical products</h2>
-            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[99.90040130160244,3.59067056896004],[99.90033474301202,3.530141158504758],[100.88863514982945,3.52865295114872],[100.89092488097882,4.521454754404889],[100.10499329847374,4.52297055434645],[100.10383325412612,4.517668883587299],[100.07127991471457,4.368986239841383],[100.03870955627802,4.220371054517087],[100.00607021029948,4.071780900096828],[99.97343141214527,3.923207723225123],[99.94081048047566,3.774655342457342],[99.90818358371494,3.626126099662972],[99.90040130160244,3.59067056896004]]]}'>
-              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
-              <div class="details">
-                <h3>S2B_MSIL2A_20260522T032509_N0512_R018_T47NPE_20260522T071539.SAFE</h3>
-                <dl>
-                  <dt>Date</dt><dd>2026-05-22T03:25:09.024000Z</dd>
-                  <dt>Product ID</dt><dd><code>7713745a-82bb-43a3-afd9-78aa240b2422</code></dd>
-                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-2/MSI/L2A/2026/05/22/S2B_MSIL2A_20260522T032509_N0512_R018_T47NPE_20260522T071539.SAFE</code></dd>
-                </dl>
-                <button type="button" class="zoom">Show footprint</button>
-              </div>
-            </article>
-            
-            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[100.80226743511805,4.521680895168684],[100.80008491485933,3.528829299105823],[101.78788060440182,3.526382783847958],[101.7912576651501,4.518543595367358],[100.80226743511805,4.521680895168684]]]}'>
-              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
-              <div class="details">
-                <h3>S2B_MSIL2A_20260522T032509_N0512_R018_T47NQE_20260522T071539.SAFE</h3>
-                <dl>
-                  <dt>Date</dt><dd>2026-05-22T03:25:09.024000Z</dd>
-                  <dt>Product ID</dt><dd><code>b3bf05e4-85ba-48db-9c6b-c16cade65714</code></dd>
-                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-2/MSI/L2A/2026/05/22/S2B_MSIL2A_20260522T032509_N0512_R018_T47NQE_20260522T071539.SAFE</code></dd>
-                </dl>
-                <button type="button" class="zoom">Show footprint</button>
-              </div>
-            </article>
-            
-            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[100.80226743511805,4.521680895168684],[100.80008491485933,3.528829299105823],[101.78788060440182,3.526382783847958],[101.7912576651501,4.518543595367358],[100.80226743511805,4.521680895168684]]]}'>
-              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
-              <div class="details">
-                <h3>S2C_MSIL2A_20260517T032511_N0512_R018_T47NQE_20260517T082717.SAFE</h3>
-                <dl>
-                  <dt>Date</dt><dd>2026-05-17T03:25:11.025000Z</dd>
-                  <dt>Product ID</dt><dd><code>b211dba6-3da5-4d4e-92d2-eb75ef5c6b0d</code></dd>
-                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-2/MSI/L2A/2026/05/17/S2C_MSIL2A_20260517T032511_N0512_R018_T47NQE_20260517T082717.SAFE</code></dd>
-                </dl>
-                <button type="button" class="zoom">Show footprint</button>
-              </div>
-            </article>
-            
-            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[99.90047945545952,3.661744894061264],[99.90033474301202,3.530141158504758],[100.88863514982945,3.52865295114872],[100.89092488097882,4.521454754404889],[100.08940574081215,4.523000617547267],[100.06995756200192,4.434425923090808],[100.03729817890166,4.285840149338267],[100.00732186632352,4.149327652117256],[100.00497447089256,4.13861895083087],[100.00246251047443,4.127180185461461],[99.9720790960165,3.988566348650578],[99.93953190781306,3.839908661465006],[99.90696238022205,3.691267199127987],[99.90047945545952,3.661744894061264]]]}'>
-              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
-              <div class="details">
-                <h3>S2C_MSIL2A_20260517T032511_N0512_R018_T47NPE_20260517T082717.SAFE</h3>
-                <dl>
-                  <dt>Date</dt><dd>2026-05-17T03:25:11.025000Z</dd>
-                  <dt>Product ID</dt><dd><code>f5561bbb-61c2-4f7f-84ce-7ed815bdb79c</code></dd>
-                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-2/MSI/L2A/2026/05/17/S2C_MSIL2A_20260517T032511_N0512_R018_T47NPE_20260517T082717.SAFE</code></dd>
-                </dl>
-                <button type="button" class="zoom">Show footprint</button>
-              </div>
-            </article>
-            
-            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[99.90043806008222,3.624099298393688],[99.90033474301202,3.530141158504758],[100.88863514982945,3.52865295114872],[100.89092488097882,4.521454754404889],[100.09717224608656,4.522985638548454],[100.09563394826253,4.51596362848674],[100.06307903125314,4.367274031632975],[100.03055597384189,4.218570833983532],[99.99804799239662,4.069862042445886],[99.96552899262227,3.921163186203354],[99.93296914506361,3.772522139560958],[99.90043806008222,3.624099298393688]]]}'>
-              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
-              <div class="details">
-                <h3>S2B_MSIL2A_20260512T032509_N0512_R018_T47NPE_20260512T071751.SAFE</h3>
-                <dl>
-                  <dt>Date</dt><dd>2026-05-12T03:25:09.024000Z</dd>
-                  <dt>Product ID</dt><dd><code>2b76007a-399d-439b-8f91-180b25697da2</code></dd>
-                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-2/MSI/L2A/2026/05/12/S2B_MSIL2A_20260512T032509_N0512_R018_T47NPE_20260512T071751.SAFE</code></dd>
-                </dl>
-                <button type="button" class="zoom">Show footprint</button>
-              </div>
-            </article>
-            
-            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[100.80226743511805,4.521680895168684],[100.80008491485933,3.528829299105823],[101.78788060440182,3.526382783847958],[101.7912576651501,4.518543595367358],[100.80226743511805,4.521680895168684]]]}'>
-              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
-              <div class="details">
-                <h3>S2B_MSIL2A_20260512T032509_N0512_R018_T47NQE_20260512T071751.SAFE</h3>
-                <dl>
-                  <dt>Date</dt><dd>2026-05-12T03:25:09.024000Z</dd>
-                  <dt>Product ID</dt><dd><code>d606b9fd-d6bb-4501-ac78-9ac1a9659722</code></dd>
-                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-2/MSI/L2A/2026/05/12/S2B_MSIL2A_20260512T032509_N0512_R018_T47NQE_20260512T071751.SAFE</code></dd>
-                </dl>
-                <button type="button" class="zoom">Show footprint</button>
-              </div>
-            </article>
-            
-            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[100.80226743511805,4.521680895168684],[100.80008491485933,3.528829299105823],[101.78788060440182,3.526382783847958],[101.7912576651501,4.518543595367358],[100.80226743511805,4.521680895168684]]]}'>
-              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
-              <div class="details">
-                <h3>S2A_MSIL2A_20260509T033151_N0512_R018_T47NQE_20260509T100517.SAFE</h3>
-                <dl>
-                  <dt>Date</dt><dd>2026-05-09T03:31:51.024000Z</dd>
-                  <dt>Product ID</dt><dd><code>2d1d4a44-de7b-42c5-9777-851037c6ac8f</code></dd>
-                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-2/MSI/L2A/2026/05/09/S2A_MSIL2A_20260509T033151_N0512_R018_T47NQE_20260509T100517.SAFE</code></dd>
-                </dl>
-                <button type="button" class="zoom">Show footprint</button>
-              </div>
-            </article>
-            
-            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[99.90038129862158,3.572479549126379],[99.90033474301202,3.530141158504758],[100.88863514982945,3.52865295114872],[100.89092488097882,4.521454754404889],[100.1088439201852,4.522963127781219],[100.09558855264832,4.462287790139226],[100.06307588326291,4.313521940712655],[100.03053754354487,4.1648015400785],[99.99793812488296,4.016167434151113],[99.96530623835788,3.867633597279184],[99.9326573671188,3.719128744751262],[99.90038129862158,3.572479549126379]]]}'>
-              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
-              <div class="details">
-                <h3>S2A_MSIL2A_20260509T033151_N0512_R018_T47NPE_20260509T100517.SAFE</h3>
-                <dl>
-                  <dt>Date</dt><dd>2026-05-09T03:31:51.024000Z</dd>
-                  <dt>Product ID</dt><dd><code>ff3213db-b3e7-4a7d-b199-1af933b27085</code></dd>
-                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-2/MSI/L2A/2026/05/09/S2A_MSIL2A_20260509T033151_N0512_R018_T47NPE_20260509T100517.SAFE</code></dd>
-                </dl>
-                <button type="button" class="zoom">Show footprint</button>
-              </div>
-            </article>
-            </section>
-    <section><h2>Sentinel-1 radar products</h2>
-            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[99.290764,4.407796],[99.604019,2.895545],[101.841461,3.366286],[101.533081,4.874226],[99.290764,4.407796]]]}'>
-              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
-              <div class="details">
-                <h3>S1A_IW_GRDH_1SDV_20260516T113423_20260516T113448_064542_08211E_0D17.SAFE</h3>
-                <dl>
-                  <dt>Date</dt><dd>2026-05-16T11:34:23.844503Z</dd>
-                  <dt>Product ID</dt><dd><code>39f6a25d-c5ab-4196-af9b-3b788fb905e5</code></dd>
-                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/05/16/S1A_IW_GRDH_1SDV_20260516T113423_20260516T113448_064542_08211E_0D17.SAFE</code></dd>
-                </dl>
-                <button type="button" class="zoom">Show footprint</button>
-              </div>
-            </article>
-            
-            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[99.291,4.407942],[99.604301,2.895604],[101.841652,3.366372],[101.533226,4.874398],[99.291,4.407942]]]}'>
-              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
-              <div class="details">
-                <h3>S1A_IW_GRDH_1SDV_20260504T113424_20260504T113449_064367_081AF1_ABD0.SAFE</h3>
-                <dl>
-                  <dt>Date</dt><dd>2026-05-04T11:34:24.241997Z</dd>
-                  <dt>Product ID</dt><dd><code>14b9c77c-4b0d-41e4-84c4-75331ba26658</code></dd>
-                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/05/04/S1A_IW_GRDH_1SDV_20260504T113424_20260504T113449_064367_081AF1_ABD0.SAFE</code></dd>
-                </dl>
-                <button type="button" class="zoom">Show footprint</button>
-              </div>
-            </article>
-            
-            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[99.289894,4.407882],[99.603218,2.89564],[101.840553,3.36647],[101.532104,4.874401],[99.289894,4.407882]]]}'>
-              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
-              <div class="details">
-                <h3>S1A_IW_GRDH_1SDV_20260422T113424_20260422T113449_064192_081475_4450.SAFE</h3>
-                <dl>
-                  <dt>Date</dt><dd>2026-04-22T11:34:24.755842Z</dd>
-                  <dt>Product ID</dt><dd><code>1ae9766d-daf9-4b69-9c38-c05fc55f0e50</code></dd>
-                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/04/22/S1A_IW_GRDH_1SDV_20260422T113424_20260422T113449_064192_081475_4450.SAFE</code></dd>
-                </dl>
-                <button type="button" class="zoom">Show footprint</button>
-              </div>
-            </article>
-            
-            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[99.290268,4.407784],[99.603615,2.895572],[101.840942,3.366437],[101.532471,4.874339],[99.290268,4.407784]]]}'>
-              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
-              <div class="details">
-                <h3>S1A_IW_GRDH_1SDV_20260410T113424_20260410T113449_064017_080DEC_F8F5.SAFE</h3>
-                <dl>
-                  <dt>Date</dt><dd>2026-04-10T11:34:24.543115Z</dd>
-                  <dt>Product ID</dt><dd><code>16623c63-4a8a-409d-b9ba-a0d72c4bef32</code></dd>
-                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/04/10/S1A_IW_GRDH_1SDV_20260410T113424_20260410T113449_064017_080DEC_F8F5.SAFE</code></dd>
-                </dl>
-                <button type="button" class="zoom">Show footprint</button>
-              </div>
-            </article>
-            
-            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[101.298004,3.012183],[101.602333,4.526374],[99.370148,4.990346],[99.070564,3.480511],[101.298004,3.012183]]]}'>
-              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
-              <div class="details">
-                <h3>S1A_IW_GRDH_1SDV_20260404T230352_20260404T230417_063936_080ADE_B40E.SAFE</h3>
-                <dl>
-                  <dt>Date</dt><dd>2026-04-04T23:03:52.040626Z</dd>
-                  <dt>Product ID</dt><dd><code>efff8136-246b-439a-9718-16ce373ff836</code></dd>
-                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/04/04/S1A_IW_GRDH_1SDV_20260404T230352_20260404T230417_063936_080ADE_B40E.SAFE</code></dd>
-                </dl>
-                <button type="button" class="zoom">Show footprint</button>
-              </div>
-            </article>
-            
-            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[99.290466,4.407891],[99.603821,2.895652],[101.841148,3.366506],[101.532677,4.874435],[99.290466,4.407891]]]}'>
-              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
-              <div class="details">
-                <h3>S1A_IW_GRDH_1SDV_20260329T113424_20260329T113449_063842_08075C_0D35.SAFE</h3>
-                <dl>
-                  <dt>Date</dt><dd>2026-03-29T11:34:24.423833Z</dd>
-                  <dt>Product ID</dt><dd><code>42f39ab4-eb23-4469-b44e-b94c3dcf1ca9</code></dd>
-                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/03/29/S1A_IW_GRDH_1SDV_20260329T113424_20260329T113449_063842_08075C_0D35.SAFE</code></dd>
-                </dl>
-                <button type="button" class="zoom">Show footprint</button>
-              </div>
-            </article>
-            
-            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[99.290565,4.407968],[99.60392,2.895728],[101.841248,3.366578],[101.532776,4.874507],[99.290565,4.407968]]]}'>
-              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
-              <div class="details">
-                <h3>S1A_IW_GRDH_1SDV_20260317T113424_20260317T113449_063667_0800D5_DDCA.SAFE</h3>
-                <dl>
-                  <dt>Date</dt><dd>2026-03-17T11:34:24.266580Z</dd>
-                  <dt>Product ID</dt><dd><code>2215c87f-498b-4b85-a161-65b054ec107a</code></dd>
-                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/03/17/S1A_IW_GRDH_1SDV_20260317T113424_20260317T113449_063667_0800D5_DDCA.SAFE</code></dd>
-                </dl>
-                <button type="button" class="zoom">Show footprint</button>
-              </div>
-            </article>
-            
-            <article class="product" data-footprint='{&quot;type&quot;:&quot;Polygon&quot;,&quot;coordinates&quot;:[[[99.60392,2.895707],[101.841339,3.366588],[101.532852,4.874516],[99.290558,4.407945],[99.60392,2.895707]]]}'>
-              <div class="preview"><div class="missing">No quicklook asset returned</div></div>
-              <div class="details">
-                <h3>S1A_IW_GRDH_1SDV_20260305T113424_20260305T113449_063492_07FA3F_CE16.SAFE</h3>
-                <dl>
-                  <dt>Date</dt><dd>2026-03-05T11:34:24.203903Z</dd>
-                  <dt>Product ID</dt><dd><code>a22dee6f-af0d-4b10-bc9e-69ef7c24220d</code></dd>
-                  <dt>S3 path</dt><dd><code>/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/03/05/S1A_IW_GRDH_1SDV_20260305T113424_20260305T113449_063492_07FA3F_CE16.SAFE</code></dd>
-                </dl>
-                <button type="button" class="zoom">Show footprint</button>
-              </div>
-            </article>
-            </section>
-  </main>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  </div>
+
   <script>
-    const map = L.map('map').setView([3.882036, 100.903912], 11);
-    const streetMap = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    // Injected variables from python
+    const centerLat = 3.882036;
+    const centerLon = 100.903912;
+    const searchAreaGeo = {"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[100.81387429591365, 3.792204882500898], [100.99394970408636, 3.792204882500898], [100.99394970408636, 3.9718671174991016], [100.81387429591365, 3.9718671174991016], [100.81387429591365, 3.792204882500898]]]}, "properties": {"name": "Search area"}};
+    const realLayers = {"sentinel2": {"name": "Sentinel-2 true color image", "item_id": "S2B_MSIL2A_20260112T033019_R018_T47NPE_20260112T071021", "datetime": "2026-01-12T03:30:19.024000Z", "cloud_cover": 12.669818, "tile_url": "https://planetarycomputer.microsoft.com/api/data/v1/item/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?collection=sentinel-2-l2a&item=S2B_MSIL2A_20260112T033019_R018_T47NPE_20260112T071021&assets=visual", "bounds": [99.9003347, 3.528653, 100.8909249, 4.5229702], "attribution": "Sentinel-2 L2A via Microsoft Planetary Computer"}, "sentinel1": {"name": "Sentinel-1 VV radar image", "item_id": "S1A_IW_GRDH_1SDV_20260516T113423_20260516T113448_064542_08211E_rtc", "datetime": "2026-05-16T11:34:36.343583Z", "cloud_cover": null, "tile_url": "https://planetarycomputer.microsoft.com/api/data/v1/item/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?collection=sentinel-1-rtc&item=S1A_IW_GRDH_1SDV_20260516T113423_20260516T113448_064542_08211E_rtc&assets=vv&rescale=0%2C0.4&colormap_name=gray", "bounds": [99.29337957045387, 2.896670175845218, 101.82759761022317, 4.872991220478405], "attribution": "Sentinel-1 RTC via Microsoft Planetary Computer"}};
+    const s1List = [{"@odata.mediaContentType": "application/octet-stream", "Id": "39f6a25d-c5ab-4196-af9b-3b788fb905e5", "Name": "S1A_IW_GRDH_1SDV_20260516T113423_20260516T113448_064542_08211E_0D17.SAFE", "ContentType": "application/octet-stream", "ContentLength": 1713797033, "OriginDate": "2026-05-16T14:13:56.399000Z", "PublicationDate": "2026-05-16T14:17:32.082700Z", "ModificationDate": "2026-05-16T14:17:32.082700Z", "Online": true, "EvictionDate": "9999-12-31T23:59:59.999999Z", "S3Path": "/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/05/16/S1A_IW_GRDH_1SDV_20260516T113423_20260516T113448_064542_08211E_0D17.SAFE", "Checksum": [{"Value": "2f019b709d0c478d8997fcbc63670389", "Algorithm": "MD5", "ChecksumDate": "2026-05-16T14:17:27.978708Z"}, {"Value": "d3a8cfbbc29e8a982ce447de3d81b54cf69a5d020a35a1d86131366ec05b2353", "Algorithm": "BLAKE3", "ChecksumDate": "2026-05-16T14:17:30.952315Z"}], "ContentDate": {"Start": "2026-05-16T11:34:23.844503Z", "End": "2026-05-16T11:34:48.842664Z"}, "Footprint": "geography'SRID=4326;POLYGON ((99.290764 4.407796, 99.604019 2.895545, 101.841461 3.366286, 101.533081 4.874226, 99.290764 4.407796))'", "GeoFootprint": {"type": "Polygon", "coordinates": [[[99.290764, 4.407796], [99.604019, 2.895545], [101.841461, 3.366286], [101.533081, 4.874226], [99.290764, 4.407796]]]}, "Assets": [{"Type": "QUICKLOOK", "Id": "4a43c129-740b-4f21-af48-4584a0d809b8", "DownloadLink": "https://catalogue.dataspace.copernicus.eu/odata/v1/Assets(4a43c129-740b-4f21-af48-4584a0d809b8)/$value", "S3Path": "/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/05/16/S1A_IW_GRDH_1SDV_20260516T113423_20260516T113448_064542_08211E_0D17.SAFE"}]}, {"@odata.mediaContentType": "application/octet-stream", "Id": "14b9c77c-4b0d-41e4-84c4-75331ba26658", "Name": "S1A_IW_GRDH_1SDV_20260504T113424_20260504T113449_064367_081AF1_ABD0.SAFE", "ContentType": "application/octet-stream", "ContentLength": 1713894863, "OriginDate": "2026-05-04T16:20:08.677000Z", "PublicationDate": "2026-05-04T16:23:08.586116Z", "ModificationDate": "2026-05-04T16:23:08.586116Z", "Online": true, "EvictionDate": "9999-12-31T23:59:59.999999Z", "S3Path": "/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/05/04/S1A_IW_GRDH_1SDV_20260504T113424_20260504T113449_064367_081AF1_ABD0.SAFE", "Checksum": [{"Value": "cb34f972ed25e455bfb5ed55d491e7e3", "Algorithm": "MD5", "ChecksumDate": "2026-05-04T16:23:01.034810Z"}, {"Value": "137e4f2fe16f9841c482356dd2bc8dbec8ff38df0d261fae2ee178531db8bede", "Algorithm": "BLAKE3", "ChecksumDate": "2026-05-04T16:23:04.715166Z"}], "ContentDate": {"Start": "2026-05-04T11:34:24.241997Z", "End": "2026-05-04T11:34:49.241566Z"}, "Footprint": "geography'SRID=4326;POLYGON ((99.291 4.407942, 99.604301 2.895604, 101.841652 3.366372, 101.533226 4.874398, 99.291 4.407942))'", "GeoFootprint": {"type": "Polygon", "coordinates": [[[99.291, 4.407942], [99.604301, 2.895604], [101.841652, 3.366372], [101.533226, 4.874398], [99.291, 4.407942]]]}, "Assets": [{"Type": "QUICKLOOK", "Id": "b6d1ef71-7859-411f-bb97-632a3123e09b", "DownloadLink": "https://catalogue.dataspace.copernicus.eu/odata/v1/Assets(b6d1ef71-7859-411f-bb97-632a3123e09b)/$value", "S3Path": "/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/05/04/S1A_IW_GRDH_1SDV_20260504T113424_20260504T113449_064367_081AF1_ABD0.SAFE"}]}, {"@odata.mediaContentType": "application/octet-stream", "Id": "1ae9766d-daf9-4b69-9c38-c05fc55f0e50", "Name": "S1A_IW_GRDH_1SDV_20260422T113424_20260422T113449_064192_081475_4450.SAFE", "ContentType": "application/octet-stream", "ContentLength": 1713761952, "OriginDate": "2026-04-22T14:22:21.477000Z", "PublicationDate": "2026-04-22T14:25:44.212356Z", "ModificationDate": "2026-04-22T14:25:44.212356Z", "Online": true, "EvictionDate": "9999-12-31T23:59:59.999999Z", "S3Path": "/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/04/22/S1A_IW_GRDH_1SDV_20260422T113424_20260422T113449_064192_081475_4450.SAFE", "Checksum": [{"Value": "38daff22c27d6e0060846f1a6e666dfc", "Algorithm": "MD5", "ChecksumDate": "2026-04-22T14:25:39.875561Z"}, {"Value": "d074e2a30b374cb175019f5fc20c7854570805020a440d7ac433df0fb33d0a0e", "Algorithm": "BLAKE3", "ChecksumDate": "2026-04-22T14:25:42.977961Z"}], "ContentDate": {"Start": "2026-04-22T11:34:24.755842Z", "End": "2026-04-22T11:34:49.753950Z"}, "Footprint": "geography'SRID=4326;POLYGON ((99.289894 4.407882, 99.603218 2.89564, 101.840553 3.36647, 101.532104 4.874401, 99.289894 4.407882))'", "GeoFootprint": {"type": "Polygon", "coordinates": [[[99.289894, 4.407882], [99.603218, 2.89564], [101.840553, 3.36647], [101.532104, 4.874401], [99.289894, 4.407882]]]}, "Assets": [{"Type": "QUICKLOOK", "Id": "faf5fcfb-ab38-43a0-8c72-a37d749f7e31", "DownloadLink": "https://catalogue.dataspace.copernicus.eu/odata/v1/Assets(faf5fcfb-ab38-43a0-8c72-a37d749f7e31)/$value", "S3Path": "/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/04/22/S1A_IW_GRDH_1SDV_20260422T113424_20260422T113449_064192_081475_4450.SAFE"}]}, {"@odata.mediaContentType": "application/octet-stream", "Id": "16623c63-4a8a-409d-b9ba-a0d72c4bef32", "Name": "S1A_IW_GRDH_1SDV_20260410T113424_20260410T113449_064017_080DEC_F8F5.SAFE", "ContentType": "application/octet-stream", "ContentLength": 1714805359, "OriginDate": "2026-04-10T16:03:03.674000Z", "PublicationDate": "2026-04-10T16:06:18.040715Z", "ModificationDate": "2026-04-10T16:06:18.040715Z", "Online": true, "EvictionDate": "9999-12-31T23:59:59.999999Z", "S3Path": "/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/04/10/S1A_IW_GRDH_1SDV_20260410T113424_20260410T113449_064017_080DEC_F8F5.SAFE", "Checksum": [{"Value": "39cf393a18987869ee47f8bcaa079ba6", "Algorithm": "MD5", "ChecksumDate": "2026-04-10T16:06:14.174818Z"}, {"Value": "ee3d1b787ccc206cdd0550ae1f1ad7b0a0b79d4b9c3ce361979fc6f915564989", "Algorithm": "BLAKE3", "ChecksumDate": "2026-04-10T16:06:16.784549Z"}], "ContentDate": {"Start": "2026-04-10T11:34:24.543115Z", "End": "2026-04-10T11:34:49.540995Z"}, "Footprint": "geography'SRID=4326;POLYGON ((99.290268 4.407784, 99.603615 2.895572, 101.840942 3.366437, 101.532471 4.874339, 99.290268 4.407784))'", "GeoFootprint": {"type": "Polygon", "coordinates": [[[99.290268, 4.407784], [99.603615, 2.895572], [101.840942, 3.366437], [101.532471, 4.874339], [99.290268, 4.407784]]]}, "Assets": [{"Type": "QUICKLOOK", "Id": "55f322fa-950a-472b-a58b-a35816fa2481", "DownloadLink": "https://catalogue.dataspace.copernicus.eu/odata/v1/Assets(55f322fa-950a-472b-a58b-a35816fa2481)/$value", "S3Path": "/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/04/10/S1A_IW_GRDH_1SDV_20260410T113424_20260410T113449_064017_080DEC_F8F5.SAFE"}]}, {"@odata.mediaContentType": "application/octet-stream", "Id": "efff8136-246b-439a-9718-16ce373ff836", "Name": "S1A_IW_GRDH_1SDV_20260404T230352_20260404T230417_063936_080ADE_B40E.SAFE", "ContentType": "application/octet-stream", "ContentLength": 1706289447, "OriginDate": "2026-04-05T02:59:44.730000Z", "PublicationDate": "2026-04-05T03:03:10.035401Z", "ModificationDate": "2026-04-05T03:03:10.035401Z", "Online": true, "EvictionDate": "9999-12-31T23:59:59.999999Z", "S3Path": "/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/04/04/S1A_IW_GRDH_1SDV_20260404T230352_20260404T230417_063936_080ADE_B40E.SAFE", "Checksum": [{"Value": "cd8abdb2d968a7f6183b978b28aed5e4", "Algorithm": "MD5", "ChecksumDate": "2026-04-05T03:03:06.313742Z"}, {"Value": "13175744405c190eab9bca3862197b46f09d419f25df79727162edb8af10930a", "Algorithm": "BLAKE3", "ChecksumDate": "2026-04-05T03:03:08.814007Z"}], "ContentDate": {"Start": "2026-04-04T23:03:52.040626Z", "End": "2026-04-04T23:04:17.038559Z"}, "Footprint": "geography'SRID=4326;POLYGON ((101.298004 3.012183, 101.602333 4.526374, 99.370148 4.990346, 99.070564 3.480511, 101.298004 3.012183))'", "GeoFootprint": {"type": "Polygon", "coordinates": [[[101.298004, 3.012183], [101.602333, 4.526374], [99.370148, 4.990346], [99.070564, 3.480511], [101.298004, 3.012183]]]}, "Assets": [{"Type": "QUICKLOOK", "Id": "c0285fc7-f290-4db5-a1b2-1fcbea65c32a", "DownloadLink": "https://catalogue.dataspace.copernicus.eu/odata/v1/Assets(c0285fc7-f290-4db5-a1b2-1fcbea65c32a)/$value", "S3Path": "/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/04/04/S1A_IW_GRDH_1SDV_20260404T230352_20260404T230417_063936_080ADE_B40E.SAFE"}]}, {"@odata.mediaContentType": "application/octet-stream", "Id": "42f39ab4-eb23-4469-b44e-b94c3dcf1ca9", "Name": "S1A_IW_GRDH_1SDV_20260329T113424_20260329T113449_063842_08075C_0D35.SAFE", "ContentType": "application/octet-stream", "ContentLength": 1713699373, "OriginDate": "2026-03-29T14:31:54.193000Z", "PublicationDate": "2026-03-29T14:35:29.373389Z", "ModificationDate": "2026-03-29T14:35:29.373389Z", "Online": true, "EvictionDate": "9999-12-31T23:59:59.999999Z", "S3Path": "/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/03/29/S1A_IW_GRDH_1SDV_20260329T113424_20260329T113449_063842_08075C_0D35.SAFE", "Checksum": [{"Value": "6da6646e1d1ec10722d469289428de24", "Algorithm": "MD5", "ChecksumDate": "2026-03-29T14:35:25.563862Z"}, {"Value": "e39726c52cb39281f9edb5a3db49f85771dfebd669f13e16fbffff41ac5d7d94", "Algorithm": "BLAKE3", "ChecksumDate": "2026-03-29T14:35:28.312930Z"}], "ContentDate": {"Start": "2026-03-29T11:34:24.423833Z", "End": "2026-03-29T11:34:49.422083Z"}, "Footprint": "geography'SRID=4326;POLYGON ((99.290466 4.407891, 99.603821 2.895652, 101.841148 3.366506, 101.532677 4.874435, 99.290466 4.407891))'", "GeoFootprint": {"type": "Polygon", "coordinates": [[[99.290466, 4.407891], [99.603821, 2.895652], [101.841148, 3.366506], [101.532677, 4.874435], [99.290466, 4.407891]]]}, "Assets": [{"Type": "QUICKLOOK", "Id": "04224d0d-c2e3-482c-8d78-d8a5b56ddbec", "DownloadLink": "https://catalogue.dataspace.copernicus.eu/odata/v1/Assets(04224d0d-c2e3-482c-8d78-d8a5b56ddbec)/$value", "S3Path": "/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/03/29/S1A_IW_GRDH_1SDV_20260329T113424_20260329T113449_063842_08075C_0D35.SAFE"}]}, {"@odata.mediaContentType": "application/octet-stream", "Id": "2215c87f-498b-4b85-a161-65b054ec107a", "Name": "S1A_IW_GRDH_1SDV_20260317T113424_20260317T113449_063667_0800D5_DDCA.SAFE", "ContentType": "application/octet-stream", "ContentLength": 1713717517, "OriginDate": "2026-03-17T15:59:31.600000Z", "PublicationDate": "2026-03-17T16:03:22.244521Z", "ModificationDate": "2026-03-17T16:03:22.244521Z", "Online": true, "EvictionDate": "9999-12-31T23:59:59.999999Z", "S3Path": "/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/03/17/S1A_IW_GRDH_1SDV_20260317T113424_20260317T113449_063667_0800D5_DDCA.SAFE", "Checksum": [{"Value": "a4cca96b29b944cdb4f7e06a52045e74", "Algorithm": "MD5", "ChecksumDate": "2026-03-17T16:03:16.605159Z"}, {"Value": "bd33b557e997f4fc0625577a139c66d5cbbadbb3998af6d908807e2da7b76ff9", "Algorithm": "BLAKE3", "ChecksumDate": "2026-03-17T16:03:20.225644Z"}], "ContentDate": {"Start": "2026-03-17T11:34:24.266580Z", "End": "2026-03-17T11:34:49.264802Z"}, "Footprint": "geography'SRID=4326;POLYGON ((99.290565 4.407968, 99.60392 2.895728, 101.841248 3.366578, 101.532776 4.874507, 99.290565 4.407968))'", "GeoFootprint": {"type": "Polygon", "coordinates": [[[99.290565, 4.407968], [99.60392, 2.895728], [101.841248, 3.366578], [101.532776, 4.874507], [99.290565, 4.407968]]]}, "Assets": [{"Type": "QUICKLOOK", "Id": "43b60551-d7c0-459a-84d6-6246dc4821e3", "DownloadLink": "https://catalogue.dataspace.copernicus.eu/odata/v1/Assets(43b60551-d7c0-459a-84d6-6246dc4821e3)/$value", "S3Path": "/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/03/17/S1A_IW_GRDH_1SDV_20260317T113424_20260317T113449_063667_0800D5_DDCA.SAFE"}]}, {"@odata.mediaContentType": "application/octet-stream", "Id": "a22dee6f-af0d-4b10-bc9e-69ef7c24220d", "Name": "S1A_IW_GRDH_1SDV_20260305T113424_20260305T113449_063492_07FA3F_CE16.SAFE", "ContentType": "application/octet-stream", "ContentLength": 1713760041, "OriginDate": "2026-03-05T14:34:51.843000Z", "PublicationDate": "2026-03-05T14:38:06.632925Z", "ModificationDate": "2026-03-05T14:38:06.632925Z", "Online": true, "EvictionDate": "9999-12-31T23:59:59.999999Z", "S3Path": "/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/03/05/S1A_IW_GRDH_1SDV_20260305T113424_20260305T113449_063492_07FA3F_CE16.SAFE", "Checksum": [{"Value": "bb9ffd874cf55dc93e5cd451dc385092", "Algorithm": "MD5", "ChecksumDate": "2026-03-05T14:38:02.386489Z"}, {"Value": "dd67a22fb3490e1813c6fb4a919c13105259940d91d3cd7cc0a7b7e109824864", "Algorithm": "BLAKE3", "ChecksumDate": "2026-03-05T14:38:04.930862Z"}], "ContentDate": {"Start": "2026-03-05T11:34:24.203903Z", "End": "2026-03-05T11:34:49.202154Z"}, "Footprint": "geography'SRID=4326;POLYGON ((99.60392 2.895707, 101.841339 3.366588, 101.532852 4.874516, 99.290558 4.407945, 99.60392 2.895707))'", "GeoFootprint": {"type": "Polygon", "coordinates": [[[99.60392, 2.895707], [101.841339, 3.366588], [101.532852, 4.874516], [99.290558, 4.407945], [99.60392, 2.895707]]]}, "Assets": [{"Type": "QUICKLOOK", "Id": "837245ee-7cd7-4510-8501-6ccfad7b9c71", "DownloadLink": "https://catalogue.dataspace.copernicus.eu/odata/v1/Assets(837245ee-7cd7-4510-8501-6ccfad7b9c71)/$value", "S3Path": "/eodata/Sentinel-1/SAR/IW_GRDH_1S/2026/03/05/S1A_IW_GRDH_1SDV_20260305T113424_20260305T113449_063492_07FA3F_CE16.SAFE"}]}];
+    const s2List = [{"@odata.mediaContentType": "application/octet-stream", "Id": "7713745a-82bb-43a3-afd9-78aa240b2422", "Name": "S2B_MSIL2A_20260522T032509_N0512_R018_T47NPE_20260522T071539.SAFE", "ContentType": "application/octet-stream", "ContentLength": 754481027, "OriginDate": "2026-05-22T07:51:57.000000Z", "PublicationDate": "2026-05-22T07:56:38.425871Z", "ModificationDate": "2026-05-22T07:56:38.425871Z", "Online": true, "EvictionDate": "9999-12-31T23:59:59.999999Z", "S3Path": "/eodata/Sentinel-2/MSI/L2A/2026/05/22/S2B_MSIL2A_20260522T032509_N0512_R018_T47NPE_20260522T071539.SAFE", "Checksum": [{"Value": "bc7d66f1b038f9ec4bd3032a08040ed8", "Algorithm": "MD5", "ChecksumDate": "2026-05-22T07:56:36.309632Z"}, {"Value": "8d41630e1391ec994504b45ec5b55a22d39f15c12f5b199d023a1469d455aa35", "Algorithm": "BLAKE3", "ChecksumDate": "2026-05-22T07:56:37.516652Z"}], "ContentDate": {"Start": "2026-05-22T03:25:09.024000Z", "End": "2026-05-22T03:25:09.024000Z"}, "Footprint": "geography'SRID=4326;POLYGON ((99.90040130160244 3.59067056896004, 99.90033474301202 3.530141158504758, 100.88863514982945 3.52865295114872, 100.89092488097882 4.521454754404889, 100.10499329847374 4.52297055434645, 100.10383325412612 4.517668883587299, 100.07127991471457 4.368986239841383, 100.03870955627802 4.220371054517087, 100.00607021029948 4.071780900096828, 99.97343141214527 3.923207723225123, 99.94081048047566 3.774655342457342, 99.90818358371494 3.626126099662972, 99.90040130160244 3.59067056896004))'", "GeoFootprint": {"type": "Polygon", "coordinates": [[[99.90040130160244, 3.59067056896004], [99.90033474301202, 3.530141158504758], [100.88863514982945, 3.52865295114872], [100.89092488097882, 4.521454754404889], [100.10499329847374, 4.52297055434645], [100.10383325412612, 4.517668883587299], [100.07127991471457, 4.368986239841383], [100.03870955627802, 4.220371054517087], [100.00607021029948, 4.071780900096828], [99.97343141214527, 3.923207723225123], [99.94081048047566, 3.774655342457342], [99.90818358371494, 3.626126099662972], [99.90040130160244, 3.59067056896004]]]}, "Assets": [{"Type": "QUICKLOOK", "Id": "1692d083-37f3-467d-a639-ebeaa4f13396", "DownloadLink": "https://catalogue.dataspace.copernicus.eu/odata/v1/Assets(1692d083-37f3-467d-a639-ebeaa4f13396)/$value", "S3Path": "/eodata/Sentinel-2/MSI/L2A/2026/05/22/S2B_MSIL2A_20260522T032509_N0512_R018_T47NPE_20260522T071539.SAFE"}]}, {"@odata.mediaContentType": "application/octet-stream", "Id": "b3bf05e4-85ba-48db-9c6b-c16cade65714", "Name": "S2B_MSIL2A_20260522T032509_N0512_R018_T47NQE_20260522T071539.SAFE", "ContentType": "application/octet-stream", "ContentLength": 1164968115, "OriginDate": "2026-05-22T07:53:24.000000Z", "PublicationDate": "2026-05-22T07:57:40.566409Z", "ModificationDate": "2026-05-22T07:57:40.566409Z", "Online": true, "EvictionDate": "9999-12-31T23:59:59.999999Z", "S3Path": "/eodata/Sentinel-2/MSI/L2A/2026/05/22/S2B_MSIL2A_20260522T032509_N0512_R018_T47NQE_20260522T071539.SAFE", "Checksum": [{"Value": "b2ffcbb2f12588669507b2b42c2f7d5a", "Algorithm": "MD5", "ChecksumDate": "2026-05-22T07:57:36.952687Z"}, {"Value": "b872691da4aaecc86a113ac27569683c42c43f2d9e1f647dd27d56bd8960df3b", "Algorithm": "BLAKE3", "ChecksumDate": "2026-05-22T07:57:39.430447Z"}], "ContentDate": {"Start": "2026-05-22T03:25:09.024000Z", "End": "2026-05-22T03:25:09.024000Z"}, "Footprint": "geography'SRID=4326;POLYGON ((100.80226743511805 4.521680895168684, 100.80008491485933 3.528829299105823, 101.78788060440182 3.526382783847958, 101.7912576651501 4.518543595367358, 100.80226743511805 4.521680895168684))'", "GeoFootprint": {"type": "Polygon", "coordinates": [[[100.80226743511805, 4.521680895168684], [100.80008491485933, 3.528829299105823], [101.78788060440182, 3.526382783847958], [101.7912576651501, 4.518543595367358], [100.80226743511805, 4.521680895168684]]]}, "Assets": [{"Type": "QUICKLOOK", "Id": "5e093a15-856b-4715-83ed-f06df607a017", "DownloadLink": "https://catalogue.dataspace.copernicus.eu/odata/v1/Assets(5e093a15-856b-4715-83ed-f06df607a017)/$value", "S3Path": "/eodata/Sentinel-2/MSI/L2A/2026/05/22/S2B_MSIL2A_20260522T032509_N0512_R018_T47NQE_20260522T071539.SAFE"}]}, {"@odata.mediaContentType": "application/octet-stream", "Id": "b211dba6-3da5-4d4e-92d2-eb75ef5c6b0d", "Name": "S2C_MSIL2A_20260517T032511_N0512_R018_T47NQE_20260517T082717.SAFE", "ContentType": "application/octet-stream", "ContentLength": 1087961632, "OriginDate": "2026-05-17T09:19:30.000000Z", "PublicationDate": "2026-05-17T09:25:09.560819Z", "ModificationDate": "2026-05-17T09:25:09.560819Z", "Online": true, "EvictionDate": "9999-12-31T23:59:59.999999Z", "S3Path": "/eodata/Sentinel-2/MSI/L2A/2026/05/17/S2C_MSIL2A_20260517T032511_N0512_R018_T47NQE_20260517T082717.SAFE", "Checksum": [{"Value": "a155890ac0742f11f3f2757d2063f2ed", "Algorithm": "MD5", "ChecksumDate": "2026-05-17T09:25:06.863238Z"}, {"Value": "2c76fb3fb2d9f6bb57336933e605a89894e7f1922561e4b812068ad349509437", "Algorithm": "BLAKE3", "ChecksumDate": "2026-05-17T09:25:08.589307Z"}], "ContentDate": {"Start": "2026-05-17T03:25:11.025000Z", "End": "2026-05-17T03:25:11.025000Z"}, "Footprint": "geography'SRID=4326;POLYGON ((100.80226743511805 4.521680895168684, 100.80008491485933 3.528829299105823, 101.78788060440182 3.526382783847958, 101.7912576651501 4.518543595367358, 100.80226743511805 4.521680895168684))'", "GeoFootprint": {"type": "Polygon", "coordinates": [[[100.80226743511805, 4.521680895168684], [100.80008491485933, 3.528829299105823], [101.78788060440182, 3.526382783847958], [101.7912576651501, 4.518543595367358], [100.80226743511805, 4.521680895168684]]]}, "Assets": [{"Type": "QUICKLOOK", "Id": "43a2c862-300d-41ea-91aa-7897503a312c", "DownloadLink": "https://catalogue.dataspace.copernicus.eu/odata/v1/Assets(43a2c862-300d-41ea-91aa-7897503a312c)/$value", "S3Path": "/eodata/Sentinel-2/MSI/L2A/2026/05/17/S2C_MSIL2A_20260517T032511_N0512_R018_T47NQE_20260517T082717.SAFE"}]}, {"@odata.mediaContentType": "application/octet-stream", "Id": "f5561bbb-61c2-4f7f-84ce-7ed815bdb79c", "Name": "S2C_MSIL2A_20260517T032511_N0512_R018_T47NPE_20260517T082717.SAFE", "ContentType": "application/octet-stream", "ContentLength": 740093389, "OriginDate": "2026-05-17T09:18:56.000000Z", "PublicationDate": "2026-05-17T09:23:32.647270Z", "ModificationDate": "2026-05-17T09:23:32.647270Z", "Online": true, "EvictionDate": "9999-12-31T23:59:59.999999Z", "S3Path": "/eodata/Sentinel-2/MSI/L2A/2026/05/17/S2C_MSIL2A_20260517T032511_N0512_R018_T47NPE_20260517T082717.SAFE", "Checksum": [{"Value": "9289119913160aa059a0b69ac6bccfa2", "Algorithm": "MD5", "ChecksumDate": "2026-05-17T09:23:30.014817Z"}, {"Value": "e8f3b9dd54a3132b534ebeddbfc91667e02885af04a98ae864cedc5cfba8c449", "Algorithm": "BLAKE3", "ChecksumDate": "2026-05-17T09:23:31.108892Z"}], "ContentDate": {"Start": "2026-05-17T03:25:11.025000Z", "End": "2026-05-17T03:25:11.025000Z"}, "Footprint": "geography'SRID=4326;POLYGON ((99.90047945545952 3.661744894061264, 99.90033474301202 3.530141158504758, 100.88863514982945 3.52865295114872, 100.89092488097882 4.521454754404889, 100.08940574081215 4.523000617547267, 100.06995756200192 4.434425923090808, 100.03729817890166 4.285840149338267, 100.00732186632352 4.149327652117256, 100.00497447089256 4.13861895083087, 100.00246251047443 4.127180185461461, 99.9720790960165 3.988566348650578, 99.93953190781306 3.839908661465006, 99.90696238022205 3.691267199127987, 99.90047945545952 3.661744894061264))'", "GeoFootprint": {"type": "Polygon", "coordinates": [[[99.90047945545952, 3.661744894061264], [99.90033474301202, 3.530141158504758], [100.88863514982945, 3.52865295114872], [100.89092488097882, 4.521454754404889], [100.08940574081215, 4.523000617547267], [100.06995756200192, 4.434425923090808], [100.03729817890166, 4.285840149338267], [100.00732186632352, 4.149327652117256], [100.00497447089256, 4.13861895083087], [100.00246251047443, 4.127180185461461], [99.9720790960165, 3.988566348650578], [99.93953190781306, 3.839908661465006], [99.90696238022205, 3.691267199127987], [99.90047945545952, 3.661744894061264]]]}, "Assets": [{"Type": "QUICKLOOK", "Id": "ec15c5cc-f8f7-42fa-9b3e-e15b9790919e", "DownloadLink": "https://catalogue.dataspace.copernicus.eu/odata/v1/Assets(ec15c5cc-f8f7-42fa-9b3e-e15b9790919e)/$value", "S3Path": "/eodata/Sentinel-2/MSI/L2A/2026/05/17/S2C_MSIL2A_20260517T032511_N0512_R018_T47NPE_20260517T082717.SAFE"}]}, {"@odata.mediaContentType": "application/octet-stream", "Id": "2b76007a-399d-439b-8f91-180b25697da2", "Name": "S2B_MSIL2A_20260512T032509_N0512_R018_T47NPE_20260512T071751.SAFE", "ContentType": "application/octet-stream", "ContentLength": 790347341, "OriginDate": "2026-05-12T07:52:15.000000Z", "PublicationDate": "2026-05-12T07:55:57.098247Z", "ModificationDate": "2026-05-12T07:55:57.098247Z", "Online": true, "EvictionDate": "9999-12-31T23:59:59.999999Z", "S3Path": "/eodata/Sentinel-2/MSI/L2A/2026/05/12/S2B_MSIL2A_20260512T032509_N0512_R018_T47NPE_20260512T071751.SAFE", "Checksum": [{"Value": "dc336050e98b6ac8581b66e728d891e0", "Algorithm": "MD5", "ChecksumDate": "2026-05-12T07:55:54.633289Z"}, {"Value": "4b683335af0991fbeebd1857568fb2542fa66fcb31b555614f7a4069ee663455", "Algorithm": "BLAKE3", "ChecksumDate": "2026-05-12T07:55:55.840829Z"}], "ContentDate": {"Start": "2026-05-12T03:25:09.024000Z", "End": "2026-05-12T03:25:09.024000Z"}, "Footprint": "geography'SRID=4326;POLYGON ((99.90043806008222 3.624099298393688, 99.90033474301202 3.530141158504758, 100.88863514982945 3.52865295114872, 100.89092488097882 4.521454754404889, 100.09717224608656 4.522985638548454, 100.09563394826253 4.51596362848674, 100.06307903125314 4.367274031632975, 100.03055597384189 4.218570833983532, 99.99804799239662 4.069862042445886, 99.96552899262227 3.921163186203354, 99.93296914506361 3.772522139560958, 99.90043806008222 3.624099298393688))'", "GeoFootprint": {"type": "Polygon", "coordinates": [[[99.90043806008222, 3.624099298393688], [99.90033474301202, 3.530141158504758], [100.88863514982945, 3.52865295114872], [100.89092488097882, 4.521454754404889], [100.09717224608656, 4.522985638548454], [100.09563394826253, 4.51596362848674], [100.06307903125314, 4.367274031632975], [100.03055597384189, 4.218570833983532], [99.99804799239662, 4.069862042445886], [99.96552899262227, 3.921163186203354], [99.93296914506361, 3.772522139560958], [99.90043806008222, 3.624099298393688]]]}, "Assets": [{"Type": "QUICKLOOK", "Id": "0b4cff61-de05-4ec9-9e68-c8e52a0be988", "DownloadLink": "https://catalogue.dataspace.copernicus.eu/odata/v1/Assets(0b4cff61-de05-4ec9-9e68-c8e52a0be988)/$value", "S3Path": "/eodata/Sentinel-2/MSI/L2A/2026/05/12/S2B_MSIL2A_20260512T032509_N0512_R018_T47NPE_20260512T071751.SAFE"}]}, {"@odata.mediaContentType": "application/octet-stream", "Id": "d606b9fd-d6bb-4501-ac78-9ac1a9659722", "Name": "S2B_MSIL2A_20260512T032509_N0512_R018_T47NQE_20260512T071751.SAFE", "ContentType": "application/octet-stream", "ContentLength": 1115718543, "OriginDate": "2026-05-12T07:54:12.000000Z", "PublicationDate": "2026-05-12T07:59:02.032017Z", "ModificationDate": "2026-05-12T07:59:02.032017Z", "Online": true, "EvictionDate": "9999-12-31T23:59:59.999999Z", "S3Path": "/eodata/Sentinel-2/MSI/L2A/2026/05/12/S2B_MSIL2A_20260512T032509_N0512_R018_T47NQE_20260512T071751.SAFE", "Checksum": [{"Value": "6788743f32e80f51b6b011e14f58012c", "Algorithm": "MD5", "ChecksumDate": "2026-05-12T07:58:59.334305Z"}, {"Value": "8fe4c89647e40f65967cc8d418eca16c89c84532b8b6fb603c5d49435dda0a98", "Algorithm": "BLAKE3", "ChecksumDate": "2026-05-12T07:59:01.009194Z"}], "ContentDate": {"Start": "2026-05-12T03:25:09.024000Z", "End": "2026-05-12T03:25:09.024000Z"}, "Footprint": "geography'SRID=4326;POLYGON ((100.80226743511805 4.521680895168684, 100.80008491485933 3.528829299105823, 101.78788060440182 3.526382783847958, 101.7912576651501 4.518543595367358, 100.80226743511805 4.521680895168684))'", "GeoFootprint": {"type": "Polygon", "coordinates": [[[100.80226743511805, 4.521680895168684], [100.80008491485933, 3.528829299105823], [101.78788060440182, 3.526382783847958], [101.7912576651501, 4.518543595367358], [100.80226743511805, 4.521680895168684]]]}, "Assets": [{"Type": "QUICKLOOK", "Id": "8621ed8a-4168-42cf-81ea-c97ce66dcd80", "DownloadLink": "https://catalogue.dataspace.copernicus.eu/odata/v1/Assets(8621ed8a-4168-42cf-81ea-c97ce66dcd80)/$value", "S3Path": "/eodata/Sentinel-2/MSI/L2A/2026/05/12/S2B_MSIL2A_20260512T032509_N0512_R018_T47NQE_20260512T071751.SAFE"}]}, {"@odata.mediaContentType": "application/octet-stream", "Id": "2d1d4a44-de7b-42c5-9777-851037c6ac8f", "Name": "S2A_MSIL2A_20260509T033151_N0512_R018_T47NQE_20260509T100517.SAFE", "ContentType": "application/octet-stream", "ContentLength": 1060768456, "OriginDate": "2026-05-09T10:56:25.000000Z", "PublicationDate": "2026-05-09T11:03:14.419185Z", "ModificationDate": "2026-05-09T11:03:14.419185Z", "Online": true, "EvictionDate": "9999-12-31T23:59:59.999999Z", "S3Path": "/eodata/Sentinel-2/MSI/L2A/2026/05/09/S2A_MSIL2A_20260509T033151_N0512_R018_T47NQE_20260509T100517.SAFE", "Checksum": [{"Value": "06d5cd238c55716bbacd4da6c001c04a", "Algorithm": "MD5", "ChecksumDate": "2026-05-09T11:03:11.207212Z"}, {"Value": "e72e30c69f6005237a54125faa010d389b2a53e98d137245df3b4036e7419ba9", "Algorithm": "BLAKE3", "ChecksumDate": "2026-05-09T11:03:12.789068Z"}], "ContentDate": {"Start": "2026-05-09T03:31:51.024000Z", "End": "2026-05-09T03:31:51.024000Z"}, "Footprint": "geography'SRID=4326;POLYGON ((100.80226743511805 4.521680895168684, 100.80008491485933 3.528829299105823, 101.78788060440182 3.526382783847958, 101.7912576651501 4.518543595367358, 100.80226743511805 4.521680895168684))'", "GeoFootprint": {"type": "Polygon", "coordinates": [[[100.80226743511805, 4.521680895168684], [100.80008491485933, 3.528829299105823], [101.78788060440182, 3.526382783847958], [101.7912576651501, 4.518543595367358], [100.80226743511805, 4.521680895168684]]]}, "Assets": [{"Type": "QUICKLOOK", "Id": "217a3915-55e4-4148-8996-c98925edd42c", "DownloadLink": "https://catalogue.dataspace.copernicus.eu/odata/v1/Assets(217a3915-55e4-4148-8996-c98925edd42c)/$value", "S3Path": "/eodata/Sentinel-2/MSI/L2A/2026/05/09/S2A_MSIL2A_20260509T033151_N0512_R018_T47NQE_20260509T100517.SAFE"}]}, {"@odata.mediaContentType": "application/octet-stream", "Id": "ff3213db-b3e7-4a7d-b199-1af933b27085", "Name": "S2A_MSIL2A_20260509T033151_N0512_R018_T47NPE_20260509T100517.SAFE", "ContentType": "application/octet-stream", "ContentLength": 702813846, "OriginDate": "2026-05-09T10:55:55.000000Z", "PublicationDate": "2026-05-09T11:00:28.776323Z", "ModificationDate": "2026-05-09T11:00:28.776323Z", "Online": true, "EvictionDate": "9999-12-31T23:59:59.999999Z", "S3Path": "/eodata/Sentinel-2/MSI/L2A/2026/05/09/S2A_MSIL2A_20260509T033151_N0512_R018_T47NPE_20260509T100517.SAFE", "Checksum": [{"Value": "297760c772657b6577b987a76aaa1b54", "Algorithm": "MD5", "ChecksumDate": "2026-05-09T11:00:26.120726Z"}, {"Value": "087e502eb820a32ba8752a1f8d9d4349f55d77ba365b85e31a5cb9474ae92885", "Algorithm": "BLAKE3", "ChecksumDate": "2026-05-09T11:00:27.545272Z"}], "ContentDate": {"Start": "2026-05-09T03:31:51.024000Z", "End": "2026-05-09T03:31:51.024000Z"}, "Footprint": "geography'SRID=4326;POLYGON ((99.90038129862158 3.572479549126379, 99.90033474301202 3.530141158504758, 100.88863514982945 3.52865295114872, 100.89092488097882 4.521454754404889, 100.1088439201852 4.522963127781219, 100.09558855264832 4.462287790139226, 100.06307588326291 4.313521940712655, 100.03053754354487 4.1648015400785, 99.99793812488296 4.016167434151113, 99.96530623835788 3.867633597279184, 99.9326573671188 3.719128744751262, 99.90038129862158 3.572479549126379))'", "GeoFootprint": {"type": "Polygon", "coordinates": [[[99.90038129862158, 3.572479549126379], [99.90033474301202, 3.530141158504758], [100.88863514982945, 3.52865295114872], [100.89092488097882, 4.521454754404889], [100.1088439201852, 4.522963127781219], [100.09558855264832, 4.462287790139226], [100.06307588326291, 4.313521940712655], [100.03053754354487, 4.1648015400785], [99.99793812488296, 4.016167434151113], [99.96530623835788, 3.867633597279184], [99.9326573671188, 3.719128744751262], [99.90038129862158, 3.572479549126379]]]}, "Assets": [{"Type": "QUICKLOOK", "Id": "185de385-bee4-493b-9613-ed91ca7b4796", "DownloadLink": "https://catalogue.dataspace.copernicus.eu/odata/v1/Assets(185de385-bee4-493b-9613-ed91ca7b4796)/$value", "S3Path": "/eodata/Sentinel-2/MSI/L2A/2026/05/09/S2A_MSIL2A_20260509T033151_N0512_R018_T47NPE_20260509T100517.SAFE"}]}];
+    const searchAreaName = "Perak, Malaysia";
+
+    // Presets in Malaysia
+    const presets = [
+      { name: "Sungkai, Perak", lat: 3.882036, lon: 100.903912, desc: "Perak Palm Cultivation" },
+      { name: "Kluang, Johor", lat: 1.921389, lon: 103.372500, desc: "Johor Palm Plantation" },
+      { name: "Muadzam Shah, Pahang", lat: 3.250000, lon: 102.500000, desc: "Pahang Palm Delineation" },
+      { name: "Lahad Datu, Sabah", lat: 5.500000, lon: 118.000000, desc: "Sabah Palm Logging & Growth" }
+    ];
+
+    // Initialize map
+    const map = L.map('map', { zoomControl: false }).setView([centerLat, centerLon], 11);
+    L.control.zoom({ position: 'topleft' }).addTo(map);
+
+    // Tile layers
+    const osmLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; OpenStreetMap contributors'
-    });
-    streetMap.addTo(map);
+    }).addTo(map);
 
-    const realLayers = {"sentinel2": {"name": "Sentinel-2 true color image", "item_id": "S2B_MSIL2A_20260112T033019_R018_T47NPE_20260112T071021", "datetime": "2026-01-12T03:30:19.024000Z", "cloud_cover": 12.669818, "tile_url": "https://planetarycomputer.microsoft.com/api/data/v1/item/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?collection=sentinel-2-l2a&item=S2B_MSIL2A_20260112T033019_R018_T47NPE_20260112T071021&assets=visual", "bounds": [99.9003347, 3.528653, 100.8909249, 4.5229702], "attribution": "Sentinel-2 L2A via Microsoft Planetary Computer"}, "sentinel1": {"name": "Sentinel-1 VV radar image", "item_id": "S1A_IW_GRDH_1SDV_20260516T113423_20260516T113448_064542_08211E_rtc", "datetime": "2026-05-16T11:34:36.343583Z", "cloud_cover": null, "tile_url": "https://planetarycomputer.microsoft.com/api/data/v1/item/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?collection=sentinel-1-rtc&item=S1A_IW_GRDH_1SDV_20260516T113423_20260516T113448_064542_08211E_rtc&assets=vv&rescale=0%2C0.4&colormap_name=gray", "bounds": [99.29337957045387, 2.896670175845218, 101.82759761022317, 4.872991220478405], "attribution": "Sentinel-1 RTC via Microsoft Planetary Computer"}};
-    const baseLayers = { 'OpenStreetMap': streetMap };
-    const overlayLayers = {};
-    const panel = document.getElementById('imagery-panel');
-    const layerEntries = [
-      ['Sentinel-2 true color', realLayers.sentinel2],
-      ['Sentinel-1 radar VV', realLayers.sentinel1],
-    ];
-    layerEntries.forEach(([label, info], index) => {
-      const card = document.createElement('div');
-      card.className = 'imagery-card';
-      if (info && info.tile_url) {
-        const layer = L.tileLayer(info.tile_url, {
-          maxZoom: 24,
-          attribution: info.attribution || ''
-        });
-        overlayLayers[label] = layer;
-        if (index === 0) {
-          layer.addTo(map);
-        }
-        const cloud = info.cloud_cover === null || info.cloud_cover === undefined
-          ? ''
-          : `Cloud cover: ${Number(info.cloud_cover).toFixed(1)}%`;
-        card.innerHTML = `<strong>${label}</strong><span>${info.datetime || 'Date unavailable'}</span><span>${cloud}</span><span>${info.item_id}</span>`;
+    const satLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 19,
+      attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+    });
+
+    // Draw search area polygon
+    const searchAreaLayer = L.geoJSON(searchAreaGeo, {
+      style: { color: '#0ca678', weight: 2, fillOpacity: 0.04 }
+    }).addTo(map);
+
+    // Pin marker for active selection
+    let pickerMarker = L.marker([centerLat, centerLon]).addTo(map).bindPopup("Center: " + searchAreaName);
+    
+    // Footprint rendering layer
+    const productFootprintLayer = L.geoJSON(null, {
+      style: { color: '#3b82f6', weight: 2, fillOpacity: 0.03 }
+    }).addTo(map);
+
+    map.fitBounds(searchAreaLayer.getBounds(), { padding: [24, 24] });
+
+    // Dynamic tile overlays
+    let activeSentinelLayer = null;
+    let selectedSentinel2ItemId = realLayers.sentinel2 ? realLayers.sentinel2.item_id : null;
+    let selectedSentinel1ItemId = realLayers.sentinel1 ? realLayers.sentinel1.item_id : null;
+    let currentLayerType = 'visual'; // visual, false_color, ndvi, vv, vh, none
+
+    // Set base map
+    function setBaseMap(type) {
+      document.getElementById('base-osm').classList.remove('active');
+      document.getElementById('base-sat').classList.remove('active');
+      
+      if (type === 'osm') {
+        map.removeLayer(satLayer);
+        osmLayer.addTo(map);
+        document.getElementById('base-osm').classList.add('active');
       } else {
-        card.innerHTML = `<strong>${label}</strong><span>No renderable image found for this search.</span>`;
+        map.removeLayer(osmLayer);
+        satLayer.addTo(map);
+        document.getElementById('base-sat').classList.add('active');
       }
-      panel.appendChild(card);
+    }
+
+    // Construct Planetary Computer Dynamic Tile URLs
+    function getTileUrl(item_id, type) {
+      if (!item_id) return null;
+      if (type === 'visual') {
+        return 'https://planetarycomputer.microsoft.com/api/data/v1/item/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?collection=sentinel-2-l2a&item=' + item_id + '&assets=visual';
+      }
+      if (type === 'false_color') {
+        return 'https://planetarycomputer.microsoft.com/api/data/v1/item/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?collection=sentinel-2-l2a&item=' + item_id + '&assets=B08&assets=B04&assets=B03&expression=B08,B04,B03&rescale=0,3000';
+      }
+      if (type === 'ndvi') {
+        return 'https://planetarycomputer.microsoft.com/api/data/v1/item/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?collection=sentinel-2-l2a&item=' + item_id + '&expression=(B08-B04)/(B08%2BB04)&rescale=-0.1,0.9&colormap_name=rdylgn';
+      }
+      if (type === 'vv') {
+        return 'https://planetarycomputer.microsoft.com/api/data/v1/item/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?collection=sentinel-1-rtc&item=' + item_id + '&assets=vv&rescale=0,0.35&colormap_name=gray';
+      }
+      if (type === 'vh') {
+        return 'https://planetarycomputer.microsoft.com/api/data/v1/item/tiles/WebMercatorQuad/{z}/{x}/{y}@1x?collection=sentinel-1-rtc&item=' + item_id + '&assets=vh&rescale=0,0.08&colormap_name=viridis';
+      }
+      return null;
+    }
+
+    // Update active overlay layer
+    function updateOverlay() {
+      if (activeSentinelLayer) {
+        map.removeLayer(activeSentinelLayer);
+        activeSentinelLayer = null;
+      }
+      
+      let url = null;
+      let label = "";
+      
+      if (currentLayerType === 'visual' || currentLayerType === 'false_color' || currentLayerType === 'ndvi') {
+        url = getTileUrl(selectedSentinel2ItemId, currentLayerType);
+        label = "Sentinel-2 Optical Layer (" + currentLayerType.toUpperCase() + ")";
+      } else if (currentLayerType === 'vv' || currentLayerType === 'vh') {
+        url = getTileUrl(selectedSentinel1ItemId, currentLayerType);
+        label = "Sentinel-1 Radar Layer (" + currentLayerType.toUpperCase() + ")";
+      }
+
+      // Set legend panels
+      const legendPanel = document.getElementById('legend-panel');
+      const legendTitle = document.getElementById('legend-title');
+      const legendGrad = document.getElementById('legend-gradient');
+      const legendMin = document.getElementById('legend-min');
+      const legendMax = document.getElementById('legend-max');
+
+      if (currentLayerType === 'ndvi') {
+        legendPanel.style.display = 'block';
+        legendTitle.innerText = "NDVI Crop Health Index";
+        legendGrad.className = "legend-bar-gradient";
+        legendMin.innerText = "-0.1 (Soil/Water)";
+        legendMax.innerText = "0.9 (Dense Canopy)";
+      } else if (currentLayerType === 'vv') {
+        legendPanel.style.display = 'block';
+        legendTitle.innerText = "VV Radar Backscatter";
+        legendGrad.className = "legend-bar-gradient radar";
+        legendMin.innerText = "Low Reflection (Smooth)";
+        legendMax.innerText = "High Reflection (Rough)";
+      } else if (currentLayerType === 'vh') {
+        legendPanel.style.display = 'block';
+        legendTitle.innerText = "VH Radar Volume Scattering";
+        legendGrad.className = "legend-bar-gradient"; // Viridis
+        legendGrad.style.background = "linear-gradient(90deg, #440154, #3b528b, #21918c, #5ec962, #fde725)";
+        legendMin.innerText = "Low Volume (Ground)";
+        legendMax.innerText = "High Volume (Canopy)";
+      } else {
+        legendPanel.style.display = 'none';
+      }
+
+      if (url) {
+        activeSentinelLayer = L.tileLayer(url, {
+          maxZoom: 24,
+          attribution: 'Sentinel via Microsoft Planetary Computer'
+        });
+        activeSentinelLayer.addTo(map);
+        showToast("Loaded: " + label);
+      } else if (currentLayerType !== 'none') {
+        showToast("No active Sentinel imagery item loaded for this layer.");
+      }
+    }
+
+    // Switch between Sentinel overlay options
+    function setSentinelLayerType(type) {
+      const rows = document.querySelectorAll('#sentinel-layer-list .layer-row');
+      rows.forEach(r => r.classList.remove('active'));
+      
+      // Find row matching type
+      const mapping = {
+        'visual': 0, 'false_color': 1, 'ndvi': 2, 'vv': 3, 'vh': 4, 'none': 5
+      };
+      if (rows[mapping[type]]) {
+        rows[mapping[type]].classList.add('active');
+      }
+      currentLayerType = type;
+      updateOverlay();
+    }
+
+    // Helper: Toast alerts
+    function showToast(msg) {
+      const toast = document.getElementById('app-toast');
+      document.getElementById('toast-text').innerText = msg;
+      toast.classList.add('active');
+      setTimeout(() => {
+        toast.classList.remove('active');
+      }, 3500);
+    }
+
+    // Preset navigation
+    function applyPreset(index) {
+      const preset = presets[index];
+      if (!preset) return;
+      
+      map.setView([preset.lat, preset.lon], 12);
+      
+      pickerMarker.setLatLng([preset.lat, preset.lon]);
+      pickerMarker.bindPopup("Preset: " + preset.name).openPopup();
+      
+      document.getElementById('lat-lbl').innerText = preset.lat.toFixed(6);
+      document.getElementById('lon-lbl').innerText = preset.lon.toFixed(6);
+      document.getElementById('area-name-lbl').innerText = preset.name;
+      
+      showToast("Panned map to " + preset.name);
+      
+      // Trigger NPK Predictor automatically
+      runDiagnostics(preset.lat, preset.lon);
+    }
+
+    // Map Click Handler (Picker)
+    map.on('click', function(e) {
+      const lat = e.latlng.lat;
+      const lon = e.latlng.lng;
+      
+      pickerMarker.setLatLng([lat, lon]);
+      pickerMarker.bindPopup("Selected Point<br>Lat: " + lat.toFixed(5) + "<br>Lon: " + lon.toFixed(5)).openPopup();
+      
+      document.getElementById('lat-lbl').innerText = lat.toFixed(6);
+      document.getElementById('lon-lbl').innerText = lon.toFixed(6);
+      document.getElementById('area-name-lbl').innerText = "Selected Coordinate";
+      
+      runDiagnostics(lat, lon);
     });
-    L.control.layers(baseLayers, overlayLayers, { collapsed: false }).addTo(map);
 
-    const searchArea = {"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[100.81387429591365, 3.792204882500898], [100.99394970408636, 3.792204882500898], [100.99394970408636, 3.9718671174991016], [100.81387429591365, 3.9718671174991016], [100.81387429591365, 3.792204882500898]]]}, "properties": {"name": "Search area"}};
-    const searchLayer = L.geoJSON(searchArea, {
-      style: { color: '#087f5b', weight: 2, fillOpacity: 0.06 }
-    }).addTo(map);
-    L.marker([3.882036, 100.903912]).addTo(map).bindPopup("Perak, Malaysia");
-    const productLayer = L.geoJSON(null, {
-      style: { color: '#d9480f', weight: 2, fillOpacity: 0.04 }
-    }).addTo(map);
-    map.fitBounds(searchLayer.getBounds(), { padding: [24, 24] });
+    // Helper: Deterministic Pseudo-Random Seed
+    function getNutrientPrediction(lat, lon) {
+      const seed = Math.sin(lat * 12.9898 + lon * 78.233) * 43758.5453;
+      const rand = () => {
+        const x = Math.sin(seed + Math.random() * 0.0001) * 1000;
+        return x - Math.floor(x);
+      };
+      
+      // Simulate oil palm health indices
+      const ndvi = 0.42 + (Math.sin(lat * 120) * Math.cos(lon * 120)) * 0.38;
+      
+      // N, P, K estimates based on canopy health (NDVI)
+      const n = 1.6 + ndvi * 1.35 + (rand() * 0.15 - 0.075);
+      const p = 0.09 + ndvi * 0.085 + (rand() * 0.012 - 0.006);
+      const k = 0.6 + ndvi * 0.65 + (rand() * 0.12 - 0.06);
+      const moisture = 38 + ndvi * 48 + (rand() * 8 - 4);
+      
+      return {
+        ndvi: Math.max(0.1, Math.min(0.95, ndvi)),
+        n: Math.max(1.0, Math.min(3.5, n)),
+        p: Math.max(0.04, Math.min(0.24, p)),
+        k: Math.max(0.35, Math.min(1.75, k)),
+        moisture: Math.max(10, Math.min(99, moisture))
+      };
+    }
 
-    document.querySelectorAll('.product').forEach((card) => {
-      const button = card.querySelector('.zoom');
-      button.addEventListener('click', () => {
-        const footprint = JSON.parse(card.dataset.footprint);
-        productLayer.clearLayers();
-        if (footprint) {
-          productLayer.addData({ type: 'Feature', geometry: footprint, properties: {} });
-          map.fitBounds(productLayer.getBounds(), { padding: [24, 24] });
+    // NPK Charts & Gauges Manager
+    let radarChart = null;
+    function runDiagnostics(lat, lon) {
+      document.getElementById('npk-placeholder').style.display = 'none';
+      document.getElementById('npk-results').style.display = 'flex';
+      document.getElementById('predict-coord-lbl').innerText = "Diagnostics (" + lat.toFixed(4) + ", " + lon.toFixed(4) + ")";
+      
+      const pred = getNutrientPrediction(lat, lon);
+      
+      // Update values
+      document.getElementById('n-val').innerText = pred.n.toFixed(2) + "%";
+      document.getElementById('p-val').innerText = pred.p.toFixed(3) + "%";
+      document.getElementById('k-val').innerText = pred.k.toFixed(2) + "%";
+      
+      // Update progress bars (relative to visual range: N: [1, 3.5], P: [0.04, 0.24], K: [0.35, 1.75])
+      const pctN = ((pred.n - 1.0) / (3.5 - 1.0)) * 100;
+      const pctP = ((pred.p - 0.04) / (0.24 - 0.04)) * 100;
+      const pctK = ((pred.k - 0.35) / (1.75 - 0.35)) * 100;
+      
+      document.getElementById('n-fill').style.width = Math.max(5, Math.min(100, pctN)) + "%";
+      document.getElementById('p-fill').style.width = Math.max(5, Math.min(100, pctP)) + "%";
+      document.getElementById('k-fill').style.width = Math.max(5, Math.min(100, pctK)) + "%";
+
+      // Assessment conditions
+      const badge = document.getElementById('health-badge');
+      const prescription = document.getElementById('prescription-txt');
+      
+      badge.className = "status-pill";
+      
+      if (pred.n < 2.3) {
+        badge.innerText = "Nitrogen Deficient";
+        badge.classList.add('alert');
+        prescription.innerHTML = "<strong>Prescription:</strong> Nitrogen levels are critical for frond production. Apply <strong>1.5kg Urea</strong> or Ammonium Sulfate per tree. Re-evaluate in 30 days.";
+      } else if (pred.k < 0.8) {
+        badge.innerText = "Potassium Deficient";
+        badge.classList.add('warning');
+        prescription.innerHTML = "<strong>Prescription:</strong> Potassium deficiency identified (reduces bunch weight). Apply <strong>2.0kg Muriate of Potash (MOP)</strong> per palm tree immediately.";
+      } else if (pred.p < 0.14) {
+        badge.innerText = "Phosphorus Deficient";
+        badge.classList.add('warning');
+        prescription.innerHTML = "<strong>Prescription:</strong> Low phosphorus limits oil synthesis. Apply <strong>1.0kg Christmas Island Rock Phosphate (CIRP)</strong> to stimulate root absorption.";
+      } else {
+        badge.innerText = "Optimal Crop health";
+        badge.classList.add('optimal');
+        prescription.innerHTML = "<strong>Status:</strong> Palm canopy nutrition balanced. Maintain standard maintenance dosage of compound fertilizer (<strong>NPK 12:12:17:2</strong>) at 2.5kg per tree twice annually.";
+      }
+
+      // Update mini dashboard overlay widgets
+      document.getElementById('mini-ndvi').innerText = pred.ndvi.toFixed(2);
+      document.getElementById('mini-moisture').innerText = Math.round(pred.moisture) + "%";
+      document.getElementById('mini-yield').innerText = (12.0 + pred.ndvi * 16.0).toFixed(1) + " t/ha";
+
+      // Update radar chart
+      updateRadarChart(pred);
+      
+      // Update line trend chart (simulated crop trend for this spot)
+      updateTrendChart(pred.ndvi);
+    }
+
+    // NPK Radar Chart Builder
+    function updateRadarChart(pred) {
+      const ctx = document.getElementById('radarChart').getContext('2d');
+      
+      // Target thresholds
+      const targetN = 2.5; 
+      const targetP = 0.15;
+      const targetK = 1.1;
+      const targetMoisture = 60.0;
+      
+      // Scale variables to 0-100 range for display
+      const dataValues = [
+        (pred.n / targetN) * 100,
+        (pred.p / targetP) * 100,
+        (pred.k / targetK) * 100,
+        (pred.moisture / targetMoisture) * 100,
+        pred.ndvi * 100
+      ];
+
+      if (radarChart) {
+        radarChart.destroy();
+      }
+
+      radarChart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+          labels: ['Nitrogen (N)', 'Phosphorus (P)', 'Potassium (K)', 'Moisture', 'Canopy Density'],
+          datasets: [{
+            label: 'Actual Concentration (%)',
+            data: dataValues,
+            backgroundColor: 'rgba(12, 166, 120, 0.2)',
+            borderColor: '#0ca678',
+            pointBackgroundColor: '#12b886',
+            borderWidth: 2
+          }, {
+            label: 'Optimal Threshold (100%)',
+            data: [100, 100, 100, 100, 80],
+            backgroundColor: 'rgba(255, 255, 255, 0.02)',
+            borderColor: 'rgba(255, 255, 255, 0.3)',
+            borderDash: [5, 5],
+            borderWidth: 1.5,
+            pointRadius: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            r: {
+              grid: { color: 'rgba(255, 255, 255, 0.08)' },
+              angleLines: { color: 'rgba(255, 255, 255, 0.08)' },
+              ticks: { display: false },
+              pointLabels: {
+                color: '#9ca3af',
+                font: { size: 9, family: 'Inter' }
+              },
+              suggestedMin: 0,
+              suggestedMax: 150
+            }
+          }
         }
       });
+    }
+
+    // Bottom Line Trend Chart Builder (Time series simulation)
+    let trendChart = null;
+    function updateTrendChart(baseNdvi) {
+      const ctx = document.getElementById('trendChart').getContext('2d');
+      
+      // Generate simulated weekly NDVI values for the last 12 weeks
+      const labels = ['Wk 1', 'Wk 2', 'Wk 3', 'Wk 4', 'Wk 5', 'Wk 6', 'Wk 7', 'Wk 8', 'Wk 9', 'Wk 10', 'Wk 11', 'Wk 12'];
+      const data = [];
+      for(let i=0; i<12; i++) {
+        const variance = Math.sin(i * 0.5) * 0.04 + (Math.cos(i) * 0.02);
+        data.push(Math.max(0.1, Math.min(1.0, baseNdvi + variance)));
+      }
+
+      if (trendChart) {
+        trendChart.destroy();
+      }
+
+      trendChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Canopy Density Trend (NDVI)',
+            data: data,
+            borderColor: '#3b82f6',
+            backgroundColor: 'rgba(59, 130, 246, 0.06)',
+            fill: true,
+            tension: 0.4,
+            borderWidth: 2,
+            pointRadius: 3,
+            pointBackgroundColor: '#3b82f6'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { color: '#9ca3af', font: { size: 8 } }
+            },
+            y: {
+              grid: { color: 'rgba(255, 255, 255, 0.05)' },
+              ticks: { color: '#9ca3af', font: { size: 8 } },
+              min: 0.0,
+              max: 1.0
+            }
+          }
+        }
+      });
+    }
+
+    // Extract quicklook URLs (mirrors Python logic in JS)
+    function getQuicklookUrl(product) {
+      const assets = product.Assets || [];
+      for (const asset of assets) {
+        const name = String(asset.Name || "").toLowerCase();
+        const contentType = String(asset.ContentType || "").toLowerCase();
+        if (name.includes("quicklook") || contentType.startsWith("image/")) {
+          return asset.DownloadLink || (asset.Id ? 'https://catalogue.dataspace.copernicus.eu/odata/v1/Assets(' + asset.Id + ')/$value' : null);
+        }
+      }
+      return null;
+    }
+
+    // Strips names to map Copernicus to Planetary Computer item IDs
+    function cleanProductName(name, type) {
+      if (type === 's2') {
+        // strip .SAFE and processor version _NXXXX_
+        return name.replace(/\.safe$/i, '').replace(/_N\d{4}_/, '_');
+      } else {
+        // strip .SAFE and replace check-sum e.g. _0D17 with _rtc
+        return name.replace(/\.safe$/i, '').replace(/_[a-fA-F0-9]{4}$/, '_rtc');
+      }
+    }
+
+    // Build Sentinel Feed in Sidebar
+    function buildSentinelFeed() {
+      const container = document.getElementById('feed-list');
+      container.innerHTML = "";
+      
+      const allProducts = [];
+      s2List.forEach(p => allProducts.push({ ...p, type: 's2' }));
+      s1List.forEach(p => allProducts.push({ ...p, type: 's1' }));
+      
+      // Sort desc by date
+      allProducts.sort((a, b) => {
+        const dateA = new Date((a.ContentDate || {}).Start || "");
+        const dateB = new Date((b.ContentDate || {}).Start || "");
+        return dateB - dateA;
+      });
+      
+      if (allProducts.length === 0) {
+        container.innerHTML = "<p style='font-size:11px;color:var(--text-muted);text-align:center;'>No products found.</p>";
+        return;
+      }
+      
+      allProducts.forEach((p, idx) => {
+        const card = document.createElement('div');
+        card.className = "feed-card";
+        if (idx === 0) card.classList.add('active'); // highlight latest
+        
+        const ql = getQuicklookUrl(p);
+        const thumbHtml = ql 
+          ? '<img src="' + ql + '" alt="Quicklook" loading="lazy">'
+          : '<div class="feed-thumb-err">No QL Asset</div>';
+          
+        const title = p.Name || "Product";
+        const date = new Date((p.ContentDate || {}).Start || "").toLocaleDateString();
+        const typeBadge = p.type === 's2' 
+          ? '<span class="feed-badge s2">Sentinel-2</span>' 
+          : '<span class="feed-badge s1">Sentinel-1</span>';
+          
+        card.innerHTML = `
+          <div class="feed-thumb">${thumbHtml}</div>
+          <div class="feed-details">
+            <div class="feed-name" title="${title}">${title}</div>
+            <div class="feed-sub">
+              <span class="feed-date">${date}</span>
+              ${typeBadge}
+            </div>
+          </div>
+        `;
+        
+        card.addEventListener('click', () => {
+          document.querySelectorAll('.feed-card').forEach(c => c.classList.remove('active'));
+          card.classList.add('active');
+          
+          // Show footprint on map
+          if (p.GeoFootprint) {
+            productFootprintLayer.clearLayers();
+            productFootprintLayer.addData({ type: 'Feature', geometry: p.GeoFootprint, properties: {} });
+            map.fitBounds(productFootprintLayer.getBounds(), { padding: [24, 24] });
+            showToast("Showing footprint bounding box");
+          }
+          
+          // Switch PC layers to this specific item
+          const pcId = cleanProductName(p.Name, p.type);
+          if (p.type === 's2') {
+            selectedSentinel2ItemId = pcId;
+            showToast("Switched active Sentinel-2 item: " + pcId);
+            // If currently viewing radar layer, auto-switch to visual to show the selection
+            if (currentLayerType === 'vv' || currentLayerType === 'vh') {
+              setSentinelLayerType('visual');
+            } else {
+              updateOverlay();
+            }
+          } else {
+            selectedSentinel1ItemId = pcId;
+            showToast("Switched active Sentinel-1 item: " + pcId);
+            // Auto-switch to radar VV layer
+            if (currentLayerType !== 'vv' && currentLayerType !== 'vh') {
+              setSentinelLayerType('vv');
+            } else {
+              updateOverlay();
+            }
+          }
+        });
+        
+        container.appendChild(card);
+      });
+    }
+
+    // Run when document is loaded
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+      buildSentinelFeed();
+      
+      // Trigger default coordinate diagnostics
+      runDiagnostics(centerLat, centerLon);
+      updateOverlay();
     });
   </script>
 </body>
