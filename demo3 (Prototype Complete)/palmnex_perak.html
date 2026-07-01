@@ -10255,7 +10255,7 @@
 
       try {
         const bboxStr = bbox.join(',');
-        const response = await fetch(`http://127.0.0.1:5001/api/classify?bbox=${bboxStr}&format=json`);
+        const response = await fetch(`https://aisyjeff95-smartpalm-classifier.hf.space/api/classify?bbox=${bboxStr}&format=json`);
         
         if (!response.ok) {
           throw new Error(`Classification error: ${response.statusText}`);
