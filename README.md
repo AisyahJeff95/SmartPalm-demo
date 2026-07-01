@@ -1,3 +1,12 @@
+---
+title: Smartpalm Classifier
+emoji: 🌴
+colorFrom: green
+colorTo: emerald
+sdk: docker
+pinned: false
+---
+
 # Sentinel-1 and Sentinel-2 Malaysia Viewer
 
 This is a small Python script that searches the Copernicus Data Space catalogue for Sentinel-1 radar and Sentinel-2 optical products over a location in Malaysia, then creates an HTML map you can open in a browser.
