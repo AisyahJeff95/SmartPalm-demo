@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: smartpalm-classifier
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn detection_plantation.app:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.10.12

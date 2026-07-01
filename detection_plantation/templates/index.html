@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Global Land-Cover Classifier - Powered by PalmNex</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet Map CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --bg-dark: #0a0f1d;
+      --panel-bg: rgba(16, 22, 46, 0.75);
+      --border-color: rgba(255, 255, 255, 0.08);
+      --text-main: #f1f3f5;
+      --text-muted: #868e96;
+      --accent-color: #12b886;
+      --accent-hover: #0ca678;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+    }
+
+    /* Layout */
+    #sidebar {
+      width: 380px;
+      background: var(--panel-bg);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      z-index: 1000;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    #map-container {
+      flex: 1;
+      position: relative;
+      height: 100%;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+      background-color: #1c1c1c;
+    }
+
+    /* Header */
+    .header-container {
+      margin-bottom: 24px;
+    }
+
+    .brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .brand-logo i {
+      color: var(--accent-color);
+      font-size: 24px;
+    }
+
+    .brand-title {
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Card Panels */
+    .card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card-title i {
+      color: var(--accent-color);
+    }
+
+    /* Search Box */
+    .search-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    .search-input {
+      width: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px 36px 10px 12px;
+      color: var(--text-main);
+      font-size: 13px;
+      transition: all 0.2s ease;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 2px rgba(18, 184, 134, 0.15);
+    }
+
+    .search-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    /* Controls */
+    .control-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .control-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .opacity-slider {
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      outline: none;
+      accent-color: var(--accent-color);
+    }
+
+    /* Legend */
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+      font-size: 13px;
+    }
+
+    .legend-color {
+      width: 24px;
+      height: 14px;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .color-veg { background-color: rgba(34, 139, 34, 0.7); }
+    .color-water { background-color: rgba(0, 100, 255, 0.7); }
+    .color-urban { background-color: rgba(128, 128, 128, 0.7); }
+
+    /* Metadata details */
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      font-size: 12px;
+    }
+
+    .meta-row:last-child {
+      border-bottom: none;
+    }
+
+    .meta-lbl {
+      color: var(--text-muted);
+    }
+
+    .meta-val {
+      font-weight: 500;
+      font-family: monospace;
+    }
+
+    /* System Log Window */
+    .log-window {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px;
+      font-family: monospace;
+      font-size: 11px;
+      height: 100px;
+      overflow-y: auto;
+      color: #a5d6a7;
+    }
+
+    .log-line {
+      margin-bottom: 4px;
+    }
+
+    /* Spinner Layer */
+    #loading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(10, 15, 29, 0.6);
+      backdrop-filter: blur(4px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 2000;
+      gap: 16px;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(255, 255, 255, 0.1);
+      border-top-color: var(--accent-color);
+      border-radius: 50%;
+      animation: spin 1s infinite linear;
+    }
+
+    .loading-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-main);
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Leaflet customization */
+    .leaflet-control-zoom a {
+      background-color: var(--panel-bg) !important;
+      color: var(--text-main) !important;
+      border: 1px solid var(--border-color) !important;
+    }
+
+    /* Button */
+    .btn-classify {
+      width: 100%;
+      background: var(--accent-color);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background-color 0.2s ease;
+    }
+
+    .btn-classify:hover {
+      background-color: var(--accent-hover);
+    }
+
+    .btn-classify:disabled {
+      background-color: var(--text-muted);
+      cursor: not-allowed;
+    }
+
+    .btn-site {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .btn-site:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--accent-color);
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Sidebar -->
+  <div id="sidebar">
+    <div class="header-container">
+      <div class="brand-logo">
+        <i class="fa-solid fa-earth-americas"></i>
+        <div class="brand-title">SmartPalm Earth</div>
+      </div>
+      <div class="brand-subtitle">Global Land-Cover Classifier</div>
+    </div>
+
+    <!-- Search Card -->
+    <div class="card">
+      <div class="card-title">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <span>Go To Location</span>
+      </div>
+      <div class="search-wrapper">
+        <input type="text" id="location-search" class="search-input" placeholder="Search city, country or coordinate...">
+        <i class="fa-solid fa-arrow-right search-icon" onclick="performSearch()"></i>
+      </div>
+    </div>
+
+    <!-- Cultivation Sites Card -->
+    <div class="card">
+      <div class="card-title">
+        <i class="fa-solid fa-map-location-dot"></i>
+        <span>Cultivation Sites</span>
+      </div>
+      <div style="display: flex; gap: 8px;">
+        <button class="btn-site" onclick="goToSite('perak')">
+          <i class="fa-solid fa-location-dot" style="color: #22b8cf;"></i>
+          <span>Perak Site</span>
+        </button>
+        <button class="btn-site" onclick="goToSite('seraya')">
+          <i class="fa-solid fa-location-dot" style="color: #ff922b;"></i>
+          <span>Seraya Estate</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Controls Card -->
+    <div class="card">
+      <div class="card-title">
+        <i class="fa-solid fa-sliders"></i>
+        <span>Overlay Controls</span>
+      </div>
+      <div class="control-row">
+        <div class="control-label">
+          <span>Overlay Opacity</span>
+          <span id="opacity-val">80%</span>
+        </div>
+        <input type="range" id="opacity-slider" class="opacity-slider" min="0" max="100" value="80" oninput="updateOpacity(this.value)">
+      </div>
+      <button class="btn-classify" id="btn-trigger" onclick="triggerClassification()">
+        <i class="fa-solid fa-wand-magic-sparkles"></i>
+        <span>Classify Viewport</span>
+      </button>
+    </div>
+
+    <!-- Legend Card -->
+    <div class="card">
+      <div class="card-title">
+        <i class="fa-solid fa-list"></i>
+        <span>Classification Legend</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color color-veg"></div>
+        <span>Vegetation / Plantation</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color color-water"></div>
+        <span>Water Bodies</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color color-urban"></div>
+        <span>Urban Areas / Buildings</span>
+      </div>
+    </div>
+
+    <!-- Coordinates Card -->
+    <div class="card">
+      <div class="card-title">
+        <i class="fa-solid fa-location-crosshairs"></i>
+        <span>Map Viewport Info</span>
+      </div>
+      <div class="meta-row">
+        <span class="meta-lbl">Center Lat</span>
+        <span class="meta-val" id="val-lat">4.9633</span>
+      </div>
+      <div class="meta-row">
+        <span class="meta-lbl">Center Lng</span>
+        <span class="meta-val" id="val-lng">100.7701</span>
+      </div>
+      <div class="meta-row">
+        <span class="meta-lbl">Zoom Level</span>
+        <span class="meta-val" id="val-zoom">14</span>
+      </div>
+    </div>
+
+    <!-- System Log Card -->
+    <div class="card">
+      <div class="card-title">
+        <i class="fa-solid fa-terminal"></i>
+        <span>Classification Logs</span>
+      </div>
+      <div class="log-window" id="log-window">
+        <div class="log-line">System initialized. Move map to begin.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map Area -->
+  <div id="map-container">
+    <div id="map"></div>
+    
+    <!-- Spinner Overlay -->
+    <div id="loading-overlay">
+      <div class="spinner"></div>
+      <div class="loading-text" id="loading-status">Analyzing Sentinel-2 imagery...</div>
+    </div>
+  </div>
+
+  <!-- Leaflet Map JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <script>
+    // Initialize Map centered on Perak default site
+    const map = L.map('map', {
+      zoomControl: true,
+      attributionControl: true
+    }).setView([4.96330, 100.77008], 14);
+
+    // Dark base map tiles
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+      subdomains: 'abcd',
+      maxZoom: 20
+    }).addTo(map);
+
+    let overlayLayer = null;
+    let currentOpacity = 0.8;
+    let isClassifying = false;
+
+    // Track Viewport Updates
+    map.on('moveend', updateViewportStats);
+    map.on('zoomend', updateViewportStats);
+
+    function updateViewportStats() {
+      const center = map.getCenter();
+      document.getElementById('val-lat').innerText = center.lat.toFixed(5);
+      document.getElementById('val-lng').innerText = center.lng.toFixed(5);
+      document.getElementById('val-zoom').innerText = map.getZoom();
+    }
+
+    // Logger Utility
+    function logMessage(text) {
+      const logBox = document.getElementById('log-window');
+      const timeStr = new Date().toLocaleTimeString();
+      logBox.innerHTML += `<div class="log-line">[${timeStr}] ${text}</div>`;
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    // Change Overlay Opacity
+    function updateOpacity(val) {
+      currentOpacity = val / 100;
+      document.getElementById('opacity-val').innerText = val + "%";
+      if (overlayLayer) {
+        overlayLayer.setOpacity(currentOpacity);
+      }
+    }
+
+    // Location Search
+    async function performSearch() {
+      const query = document.getElementById('location-search').value.trim();
+      if (!query) return;
+      logMessage(`Searching for location: ${query}...`);
+      try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`);
+        const results = await response.json();
+        if (results && results.length > 0) {
+          const lat = parseFloat(results[0].lat);
+          const lon = parseFloat(results[0].lon);
+          map.setView([lat, lon], 13);
+          logMessage(`Moved to: ${results[0].display_name}`);
+        } else {
+          logMessage("Location not found.");
+        }
+      } catch (err) {
+        logMessage("Error search geocoding.");
+        console.error(err);
+      }
+    }
+
+    // Trigger classification for current view
+    async function triggerClassification() {
+      if (isClassifying) return;
+      isClassifying = true;
+      document.getElementById('btn-trigger').disabled = true;
+      
+      const bounds = map.getBounds();
+      const bbox = [
+        bounds.getWest(),
+        bounds.getSouth(),
+        bounds.getEast(),
+        bounds.getNorth()
+      ];
+
+      // Show loader
+      const loader = document.getElementById('loading-overlay');
+      const statusText = document.getElementById('loading-status');
+      loader.style.display = 'flex';
+      statusText.innerText = "Querying Planetary Computer STAC...";
+      logMessage("Sending viewport bounding box to backend...");
+
+      // Start event source or polling for status logs
+      const eventSource = new EventSource('/api/logs');
+      eventSource.onmessage = function(event) {
+        statusText.innerText = event.data;
+        logMessage(event.data);
+      };
+
+      try {
+        const bboxStr = bbox.join(',');
+        const response = await fetch(`/api/classify?bbox=${bboxStr}`);
+        
+        if (!response.ok) {
+          throw new Error(`Classification error: ${response.statusText}`);
+        }
+
+        const blob = await response.blob();
+        const imageUrl = URL.createObjectURL(blob);
+
+        // Remove old layer
+        if (overlayLayer) {
+          map.removeLayer(overlayLayer);
+        }
+
+        // Add new classified image overlay matching current bounds
+        const imageBounds = [
+          [bounds.getSouth(), bounds.getWest()],
+          [bounds.getNorth(), bounds.getEast()]
+        ];
+
+        overlayLayer = L.imageOverlay(imageUrl, imageBounds, {
+          opacity: currentOpacity,
+          interactive: false
+        }).addTo(map);
+
+        logMessage("Classification overlay rendered on map successfully!");
+      } catch (err) {
+        logMessage(`Error: ${err.message}`);
+        console.error(err);
+      } finally {
+        eventSource.close();
+        loader.style.display = 'none';
+        isClassifying = false;
+        document.getElementById('btn-trigger').disabled = false;
+      }
+    }
+
+    // Initialize stats
+    updateViewportStats();
+
+    // Map Boundaries
+    let serayaLayer = null;
+    let perakLayer = null;
+
+    // Fetch and load boundaries on startup
+    fetch('/api/boundaries')
+      .then(response => response.json())
+      .then(data => {
+        if (data.seraya) {
+          serayaLayer = L.geoJSON(data.seraya, {
+            style: {
+              color: '#ff922b', // Orange color
+              weight: 3,
+              opacity: 0.8,
+              fillColor: '#ff922b',
+              fillOpacity: 0.08
+            }
+          }).addTo(map).bindPopup('<b>Seraya Estate</b><br>Sabah, Malaysia');
+          
+          // Fit map bounds to Seraya by default if requested or centered
+          logMessage("Loaded Seraya Estate boundary.");
+        }
+        if (data.perak) {
+          perakLayer = L.geoJSON(data.perak, {
+            style: {
+              color: '#22b8cf', // Cyan/blue color
+              weight: 3,
+              opacity: 0.8,
+              fillColor: '#22b8cf',
+              fillOpacity: 0.08
+            }
+          }).addTo(map).bindPopup('<b>Perak Site</b><br>Perak, Malaysia');
+          
+          logMessage("Loaded Perak Site boundary.");
+        }
+      })
+      .catch(err => {
+        console.error('Error loading boundaries:', err);
+        logMessage("Error loading estate boundaries.");
+      });
+
+    function goToSite(siteName) {
+      if (siteName === 'perak') {
+        if (perakLayer) {
+          map.fitBounds(perakLayer.getBounds());
+          logMessage("Focused viewport on Perak Site.");
+        } else {
+          map.setView([4.96330, 100.77008], 14);
+          logMessage("Moved to Perak coordinates.");
+        }
+      } else if (siteName === 'seraya') {
+        if (serayaLayer) {
+          map.fitBounds(serayaLayer.getBounds());
+          logMessage("Focused viewport on Seraya Estate (Sabah).");
+        } else {
+          map.setView([4.56637, 117.57564], 13);
+          logMessage("Moved to Seraya coordinates.");
+        }
+      }
+    }
+  </script>
+</body>
+</html>
