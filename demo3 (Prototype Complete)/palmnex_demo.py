@@ -1231,6 +1231,7 @@ def build_html(
     let lastKVal = null;
     let lastMgVal = null;
     let isPalmZone = true;
+    let lastEstateName = "Outside Estate";
 
     // Viewport-based Sentinel-2 classification grid storage
     let classificationGrid = null;
@@ -1352,17 +1353,40 @@ def build_html(
         "#f59e0b"  // Bare Soil
       ];
 
-      const inside = isInsidePerimeter(lat, lon);
-      const zoneEl = document.getElementById('diag-zone');
-      
-      let classification = lcLabels[lcClass];
-      let classificationColor = lcColors[lcClass];
-      if (inside) {
-        classification = "Inside Batu 14 (" + classification + ")";
-      } else {
-        classification = "Outside Site (" + classification + ")";
+      let insidePerak = false;
+      for (let i = 0, j = perakPerimeter.length - 1; i < perakPerimeter.length; j = i++) {
+        const xi = perakPerimeter[i][0], yi = perakPerimeter[i][1];
+        const xj = perakPerimeter[j][0], yj = perakPerimeter[j][1];
+        const intersect = ((yi > lon) !== (yj > lon)) && (lat < (xj - xi) * (lon - yi) / (yj - yi) + xi);
+        if (intersect) insidePerak = !insidePerak;
       }
 
+      let insideSeraya = false;
+      for (let i = 0, j = serayaPerimeter.length - 1; i < serayaPerimeter.length; j = i++) {
+        const xi = serayaPerimeter[i][0], yi = serayaPerimeter[i][1];
+        const xj = serayaPerimeter[j][0], yj = serayaPerimeter[j][1];
+        const intersect = ((yi > lon) !== (yj > lon)) && (lat < (xj - xi) * (lon - yi) / (yj - yi) + xi);
+        if (intersect) insideSeraya = !insideSeraya;
+      }
+
+      let estateName = "Outside Estate";
+      let classification = lcLabels[lcClass];
+      let classificationColor = lcColors[lcClass];
+      
+      if (insidePerak) {
+        estateName = "Perak Site";
+        classification = "Inside Estate (" + classification + ")";
+      } else if (insideSeraya) {
+        estateName = "Seraya Estate";
+        classification = "Inside Estate (" + classification + ")";
+      } else {
+        estateName = "Outside Estate";
+        classification = "Outside Estate (" + classification + ")";
+      }
+      
+      lastEstateName = estateName;
+
+      const zoneEl = document.getElementById('diag-zone');
       zoneEl.innerText = classification;
       zoneEl.style.color = classificationColor;
 
@@ -1543,7 +1567,7 @@ def build_html(
             </tr>
             <tr>
               <td style="padding: 4px 0; color: #718096;">Estate Zone / Site</td>
-              <td style="padding: 4px 0; font-weight: 600; color: #2d3748;">${zoneText}</td>
+              <td style="padding: 4px 0; font-weight: 600; color: #2d3748;">${lastEstateName}</td>
             </tr>
             <tr>
               <td style="padding: 4px 0; color: #718096;">Recommended Fertilizer</td>

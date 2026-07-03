@@ -21,7 +21,9 @@ from typing import Any, Dict, List, Optional
 # # View the first five rows of the dataset
 # data.head()
 # Find the null values in each of the features
-data.isnull().sum()
+# data.isnull().sum()
+
+
 
 FALLBACK_BAND_DATA = {
     "Aug/2021": {"B02": 380, "B03": 720, "B04": 280, "B05": 1380, "B08": 3200, "B11": 1950, "B12": 950},
