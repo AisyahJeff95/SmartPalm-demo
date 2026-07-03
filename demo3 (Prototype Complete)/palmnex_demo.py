@@ -1296,13 +1296,14 @@ def build_html(
       const features = getLocalFeatures(lat, lon);
       const ndvi = features[6];
 
-      // Run ML predictions for N, P, and K
-      const nVal = smartpalmModel.trees_N_S2 ? predictRandomForest(features, smartpalmModel.trees_N_S2) : 2.5;
-      const pVal = smartpalmModel.trees_P_S2 ? predictRandomForest(features, smartpalmModel.trees_P_S2) : 0.15;
-      const kVal = smartpalmModel.trees_K_S2 ? predictRandomForest(features, smartpalmModel.trees_K_S2) : 0.90;
-      
-      // Calculate realistic Mg Leaf Level based on NDVI (varying slightly around optimum 0.25%)
-      const mgVal = 0.24 + (ndvi * 0.02);
+      // Calculate stress level based on NDVI (high NDVI = low stress, low NDVI = high stress)
+      const stress = Math.max(0.0, Math.min(1.0, 1.0 - ndvi));
+
+      // Predict N, P, K, and Mg based on stress level to simulate spatial variance
+      const nVal = 2.65 - (stress * 1.5);
+      const pVal = 0.165 - (stress * 0.1);
+      const kVal = 0.98 - (stress * 0.6);
+      const mgVal = 0.27 - (stress * 0.16);
 
       // Store predicted values for dynamic recalculations
       lastNVal = nVal;
@@ -1477,13 +1478,12 @@ def build_html(
         return;
       }
       
-      // 3. Calculate corrective dosages for N, P, K, Mg, B
+      // 3. Calculate corrective dosages for N, P, K, Mg (excluding B)
       const nutrients = [
         { key: "N", name: "Nitrogen (N)", pct: fert.n, actual: lastNVal, target: 2.50, color: "#12b886" },
         { key: "P", name: "Phosphorus (P)", pct: fert.p, actual: lastPVal, target: 0.15, color: "#ff922b" },
         { key: "K", name: "Potassium (K)", pct: fert.k, actual: lastKVal, target: 0.90, color: "#cc5de8" },
-        { key: "Mg", name: "Magnesium (Mg)", pct: fert.mg, actual: lastMgVal, target: 0.25, color: "#a9e34b" },
-        { key: "B", name: "Boron (B)", pct: fert.b, actual: 0.0015, target: 0.0015, color: "#f783ac" }
+        { key: "Mg", name: "Magnesium (Mg)", pct: fert.mg, actual: lastMgVal, target: 0.25, color: "#a9e34b" }
       ];
       
       nutrients.forEach(nut => {
@@ -1531,8 +1531,7 @@ def build_html(
         { key: "N", actual: lastNVal, target: 2.50, pct: fert.n },
         { key: "P", actual: lastPVal, target: 0.15, pct: fert.p },
         { key: "K", actual: lastKVal, target: 0.90, pct: fert.k },
-        { key: "Mg", actual: lastMgVal, target: 0.25, pct: fert.mg },
-        { key: "B", actual: 0.0015, target: 0.0015, pct: fert.b }
+        { key: "Mg", actual: lastMgVal, target: 0.25, pct: fert.mg }
       ];
 
       // Build a clean, styled HTML structure for the PDF print
