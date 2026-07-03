@@ -661,7 +661,7 @@ def build_html(
                   <span class="meta-val" id="diag-fert-palm" style="font-family:'JetBrains Mono'; font-weight:600; color:var(--text-main);">-</span>
                 </div>
                 <div class="meta-row">
-                  <span class="meta-lbl">Req. per Block (3,947 palms)</span>
+                  <span class="meta-lbl">Req. per 10 Hectares (1,430 palms)</span>
                   <span class="meta-val" id="diag-fert-block" style="font-family:'JetBrains Mono'; font-weight:600; color:var(--text-main);">-</span>
                 </div>
                 
@@ -1455,7 +1455,7 @@ def build_html(
       if (lastNVal === null) return;
       
       const fert = fertilizers[selectedFertilizerIndex];
-      const palmsPerBlock = 3946.918;
+      const palmsPerBlock = 1430; // 10 Hectares @ 143 palms/ha
 
       // 1. Calculate standard dosage per palm (kg)
       const nPct = fert.n / 100;
@@ -1518,7 +1518,7 @@ def build_html(
       if (lastNVal === null) return;
       
       const fert = fertilizers[selectedFertilizerIndex];
-      const palmsPerBlock = 3946.918;
+      const palmsPerBlock = 1430; // 10 Hectares @ 143 palms/ha
 
       const nPct = fert.n / 100;
       const dosagePerPalm = isPalmZone ? (nPct > 0 ? (0.622 / nPct) : 0) : 0;
@@ -1573,7 +1573,7 @@ def build_html(
               <td style="padding: 4px 0; font-weight: 600; color: #2d3748;">${isPalmZone ? `${dosagePerPalm.toFixed(2)} kg` : "N/A"}</td>
             </tr>
             <tr>
-              <td style="padding: 4px 0; color: #718096;">Total Req. per Block (${palmsPerBlock} palms)</td>
+              <td style="padding: 4px 0; color: #718096;">Total Req. per 10 Hectares (1,430 palms)</td>
               <td style="padding: 4px 0; font-weight: 600; color: #2d3748;">${isPalmZone ? `${reqPerBlockMT.toFixed(4)} MT` : "N/A"}</td>
             </tr>
           </table>
@@ -1589,7 +1589,7 @@ def build_html(
                 <th style="padding: 6px 8px;">Optimum Target</th>
                 <th style="padding: 6px 8px;">Fertilizer Content (%)</th>
                 <th style="padding: 6px 8px;">Corrective Deficit (kg/palm)</th>
-                <th style="padding: 6px 8px;">Corrective Deficit (kg/block)</th>
+                <th style="padding: 6px 8px;">Corrective Deficit (kg/10 ha)</th>
               </tr>
             </thead>
             <tbody>
