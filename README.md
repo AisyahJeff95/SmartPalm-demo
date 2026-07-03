@@ -2,7 +2,7 @@
 title: Smartpalm Classifier
 emoji: 🌴
 colorFrom: green
-colorTo: emerald
+colorTo: green
 sdk: docker
 pinned: false
 ---
