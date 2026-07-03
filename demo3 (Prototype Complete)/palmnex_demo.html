@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   
   <style>
     :root {
@@ -514,7 +515,7 @@
               <!-- Download button -->
               <button class="download-btn" id="download-report-btn" onclick="downloadReport()">
                 <i data-lucide="download" size="14"></i>
-                <span>Download Report (CSV)</span>
+                <span>Download Report (PDF)</span>
               </button>
             </div>
           </div>
@@ -10508,40 +10509,110 @@
         { key: "B", actual: 0.0015, target: 0.0015, pct: fert.b }
       ];
 
-      let csvContent = "data:text/csv;charset=utf-8,";
-      csvContent += "Precipalm Analysis Report\n";
-      csvContent += `Generated,${new Date().toISOString()}\n`;
-      csvContent += `Coordinates,"${coordText}"\n`;
-      csvContent += `Zone,${zoneText}\n`;
-      csvContent += `Selected Fertilizer,${isPalmZone ? fert.name : "N/A"}\n`;
-      csvContent += `Dosage per Palm (kg),${isPalmZone ? dosagePerPalm.toFixed(2) : "N/A"}\n`;
-      csvContent += `Requirement per Block (MT),${isPalmZone ? reqPerBlockMT.toFixed(5) : "N/A"}\n\n`;
+      // Build a clean, styled HTML structure for the PDF print
+      const reportEl = document.createElement('div');
+      reportEl.style.padding = '30px';
+      reportEl.style.fontFamily = '"Inter", "Helvetica Neue", sans-serif';
+      reportEl.style.color = '#2d3748';
+      reportEl.style.backgroundColor = '#ffffff';
       
-      csvContent += "Nutrient,Actual Leaf Level,Optimum Target,Fertilizer Content (%),Corrective Deficit (kg/palm),Corrective Deficit (kg/block)\n";
-      
-      nutrients.forEach(nut => {
-        const nutPct = nut.pct / 100;
-        const supplied = dosagePerPalm * nutPct;
-        const deficitRatio = (isPalmZone && nut.actual < nut.target) ? (nut.target / nut.actual) : 1.0;
-        const targetVal = supplied * deficitRatio;
-        const correctivePalm = isPalmZone ? Math.max(0, targetVal - supplied) : 0;
-        const correctiveBlock = isPalmZone ? (correctivePalm * palmsPerBlock) : 0;
+      reportEl.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #2d6a4f; padding-bottom: 12px; margin-bottom: 20px;">
+          <div>
+            <h1 style="margin: 0; color: #2d6a4f; font-size: 22px; font-weight: 700; letter-spacing: -0.5px; font-family: 'Outfit', sans-serif;">PRECIPALM</h1>
+            <div style="font-size: 10px; color: #718096; font-weight: 600; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px;">Crop Nutrient Analytics Report</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-size: 11px; font-weight: 700; color: #2d3748;">PALMNEX SYSTEM</div>
+            <div style="font-size: 9px; color: #a0aec0; margin-top: 2px;">Powered by Palmnex</div>
+          </div>
+        </div>
         
-        const actualText = isPalmZone ? `${(nut.actual * (nut.key === "B" ? 10000 : 1)).toFixed(4)}${nut.key === "B" ? " ppm" : "%"}` : "N/A";
-        const targetText = `${(nut.target * (nut.key === "B" ? 10000 : 1)).toFixed(4)}${nut.key === "B" ? " ppm" : "%"}`;
+        <div style="margin-bottom: 20px; background-color: #f7fafc; padding: 15px; border-radius: 6px; border: 1px solid #e2e8f0;">
+          <h2 style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #2d6a4f; margin-top: 0; margin-bottom: 10px; font-weight: 700; border-left: 3px solid #2d6a4f; padding-left: 8px;">Analysis Details</h2>
+          <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+            <tr>
+              <td style="padding: 4px 0; color: #718096; width: 35%;">Generated Date/Time</td>
+              <td style="padding: 4px 0; font-weight: 600; color: #2d3748;">${new Date().toLocaleString()}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px 0; color: #718096;">Target Coordinates</td>
+              <td style="padding: 4px 0; font-weight: 600; color: #2d3748; font-family: monospace;">${coordText}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px 0; color: #718096;">Estate Zone / Site</td>
+              <td style="padding: 4px 0; font-weight: 600; color: #2d3748;">${zoneText}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px 0; color: #718096;">Recommended Fertilizer</td>
+              <td style="padding: 4px 0; font-weight: 600; color: #2d6a4f;">${isPalmZone ? fert.name : "N/A"}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px 0; color: #718096;">Recommended Dosage per Palm</td>
+              <td style="padding: 4px 0; font-weight: 600; color: #2d3748;">${isPalmZone ? `${dosagePerPalm.toFixed(2)} kg` : "N/A"}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px 0; color: #718096;">Total Req. per Block (${palmsPerBlock} palms)</td>
+              <td style="padding: 4px 0; font-weight: 600; color: #2d3748;">${isPalmZone ? `${reqPerBlockMT.toFixed(4)} MT` : "N/A"}</td>
+            </tr>
+          </table>
+        </div>
         
-        csvContent += `${nut.key},${actualText},${targetText},${nut.pct.toFixed(1)}%,${correctivePalm.toFixed(4)},${correctiveBlock.toFixed(2)}\n`;
-      });
-      
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      
+        <div>
+          <h2 style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #2d6a4f; margin-bottom: 10px; font-weight: 700; border-left: 3px solid #2d6a4f; padding-left: 8px;">Nutrient Diagnostics</h2>
+          <table style="width: 100%; border-collapse: collapse; font-size: 10px; text-align: left;">
+            <thead>
+              <tr style="background-color: #f0fff4; border-bottom: 2px solid #cbd5e0; color: #276749; font-weight: 700;">
+                <th style="padding: 6px 8px;">Nutrient</th>
+                <th style="padding: 6px 8px;">Actual Leaf Level</th>
+                <th style="padding: 6px 8px;">Optimum Target</th>
+                <th style="padding: 6px 8px;">Fertilizer Content (%)</th>
+                <th style="padding: 6px 8px;">Corrective Deficit (kg/palm)</th>
+                <th style="padding: 6px 8px;">Corrective Deficit (kg/block)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${nutrients.map(nut => {
+                const nutPct = nut.pct / 100;
+                const supplied = dosagePerPalm * nutPct;
+                const deficitRatio = (isPalmZone && nut.actual < nut.target) ? (nut.target / nut.actual) : 1.0;
+                const targetVal = supplied * deficitRatio;
+                const correctivePalm = isPalmZone ? Math.max(0, targetVal - supplied) : 0;
+                const correctiveBlock = isPalmZone ? (correctivePalm * palmsPerBlock) : 0;
+                
+                const actualText = isPalmZone ? `${(nut.actual * (nut.key === "B" ? 10000 : 1)).toFixed(4)}${nut.key === "B" ? " ppm" : "%"}` : "N/A";
+                const targetText = `${(nut.target * (nut.key === "B" ? 10000 : 1)).toFixed(4)}${nut.key === "B" ? " ppm" : "%"}`;
+                
+                return `
+                  <tr style="border-bottom: 1px solid #e2e8f0;">
+                    <td style="padding: 6px 8px; font-weight: 700; color: #2d3748;">${nut.key}</td>
+                    <td style="padding: 6px 8px; color: #4a5568;">${actualText}</td>
+                    <td style="padding: 6px 8px; color: #4a5568;">${targetText}</td>
+                    <td style="padding: 6px 8px; color: #4a5568;">${nut.pct.toFixed(1)}%</td>
+                    <td style="padding: 6px 8px; font-weight: 600; color: ${correctivePalm > 0 ? '#c53030' : '#2d3748'};">${correctivePalm.toFixed(4)}</td>
+                    <td style="padding: 6px 8px; font-weight: 600; color: ${correctiveBlock > 0 ? '#c53030' : '#2d3748'};">${correctiveBlock.toFixed(2)}</td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+        
+        <div style="margin-top: 35px; border-top: 1px solid #e2e8f0; padding-top: 10px; font-size: 8px; color: #a0aec0; text-align: center; line-height: 1.4;">
+          Disclaimer: This report is generated dynamically by the Precipalm system based on Sentinel-2 satellite imagery index calculations and recommendation matrices. It is intended for decision support only.
+        </div>
+      `;
+
       const cleanCoord = coordText.replace(/[\s,]+/g, "_");
-      link.setAttribute("download", `precipalm_report_${cleanCoord}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const options = {
+        margin: 10,
+        filename: `precipalm_report_${cleanCoord}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      
+      html2pdf().from(reportEl).set(options).save();
     }
 
     let searchTimeout = null;
