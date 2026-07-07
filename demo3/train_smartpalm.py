@@ -24,7 +24,6 @@ from typing import Any, Dict, List, Optional
 # data.isnull().sum()
 
 
-
 FALLBACK_BAND_DATA = {
     "Aug/2021": {"B02": 380, "B03": 720, "B04": 280, "B05": 1380, "B08": 3200, "B11": 1950, "B12": 950},
     "Jul/2022": {"B02": 350, "B03": 760, "B04": 260, "B05": 1450, "B08": 3320, "B11": 1820, "B12": 890},
