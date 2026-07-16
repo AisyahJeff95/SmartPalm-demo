@@ -1,0 +1,1791 @@
+#!/usr/bin/env python3
+"""
+Palmnex - SmartPalm Crop Nutrient Analytics Dashboard Generator.
+Compiles a standalone, high-end HTML dashboard centered on Perak Cultivation Site, Malaysia,
+masked exactly to the provided GeoJSON perimeter, rendering a high-resolution
+continuous NDVI Raster Map on a clean white background with dynamic Nitrogen predictions.
+"""
+
+import argparse
+import html
+import json
+import math
+import os
+import sys
+import webbrowser
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+from urllib.error import HTTPError, URLError
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
+
+# Coordinates of Batu 14, Batu Kurau, Perak
+DEFAULT_LAT = 4.96330
+DEFAULT_LON = 100.77008
+DEFAULT_PLACE = "Batu 14, Batu Kurau, Perak"
+
+
+# Planetary Computer Endpoints
+PC_STAC_SEARCH_URL = "https://planetarycomputer.microsoft.com/api/stac/v1/search"
+PC_TILEJSON_URL = "https://planetarycomputer.microsoft.com/api/data/v1/item/tilejson.json"
+
+def request_json(url: str, headers: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
+    req = Request(url, headers=headers or {"User-Agent": "palmnex-compiler/1.0"})
+    try:
+        with urlopen(req, timeout=60) as response:
+            return json.loads(response.read().decode("utf-8"))
+    except HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")
+        raise RuntimeError(f"HTTP {exc.code} for {url}\n{detail}") from exc
+    except URLError as exc:
+        raise RuntimeError(f"Could not reach {url}: {exc}") from exc
+
+def post_json(url: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+    headers = {"User-Agent": "palmnex-compiler/1.0", "Content-Type": "application/json"}
+    data = json.dumps(payload).encode("utf-8")
+    req = Request(url, data=data, headers=headers, method="POST")
+    try:
+        with urlopen(req, timeout=60) as response:
+            return json.loads(response.read().decode("utf-8"))
+    except HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace")
+        raise RuntimeError(f"HTTP {exc.code} for {url}\n{detail}") from exc
+    except URLError as exc:
+        raise RuntimeError(f"Could not reach {url}: {exc}") from exc
+
+def pc_tilejson(collection: str, item_id: str, params: Dict[str, str]) -> Dict[str, Any]:
+    query = {"collection": collection, "item": item_id}
+    query.update(params)
+    return request_json(f"{PC_TILEJSON_URL}?{urlencode(query)}")
+
+def search_real_imagery(
+    bbox: List[float],
+    start: str,
+    end: str,
+    max_cloud: float,
+) -> Dict[str, Any]:
+    layers: Dict[str, Any] = {"sentinel2": None}
+    s2_payload = {
+        "collections": ["sentinel-2-l2a"],
+        "bbox": bbox,
+        "datetime": f"{start}/{end}",
+        "query": {"eo:cloud_cover": {"lt": max_cloud}},
+        "sortby": [{"field": "properties.datetime", "direction": "desc"}],
+        "limit": 1,
+    }
+    try:
+        s2_features = post_json(PC_STAC_SEARCH_URL, s2_payload).get("features", [])
+        if s2_features:
+            item = s2_features[0]
+            tilejson = pc_tilejson("sentinel-2-l2a", item["id"], {"assets": "visual"})
+            layers["sentinel2"] = {
+                "item_id": item["id"],
+                "datetime": item.get("properties", {}).get("datetime", ""),
+                "cloud_cover": item.get("properties", {}).get("eo:cloud_cover"),
+                "tile_url": tilejson["tiles"][0],
+                "bounds": tilejson.get("bounds"),
+            }
+    except Exception as exc:
+        print(f"[Warning] Failed to fetch real Sentinel-2 tiles: {exc}. Falling back to default tile rendering.")
+    return layers
+
+def make_bbox(lon: float, lat: float, radius_km: float) -> List[float]:
+    # 1 deg lat = 111 km
+    lat_deg = radius_km / 111.0
+    lon_deg = radius_km / (111.0 * abs(math.cos(math.radians(lat))))
+    return [lon - lon_deg, lat - lat_deg, lon + lon_deg, lat + lat_deg]
+
+def build_html(
+    output_path: Path,
+    place: str,
+    lat: float,
+    lon: float,
+    real_layers: Dict[str, Any],
+    backend_url: str,
+) -> None:
+    # Load model weights
+    model_path = Path("smartpalm_model.json")
+    if model_path.exists():
+        model_json = model_path.read_text(encoding="utf-8")
+    else:
+        model_json = "{}"
+
+    # Load and base64-encode logo for standalone portability
+    import base64
+    logo_path = Path("mpob_tech_logo.png")
+    logo_base64 = "mpob_tech_logo.png"
+    if logo_path.exists():
+        try:
+            with open(logo_path, "rb") as f:
+                logo_base64 = f"data:image/png;base64,{base64.b64encode(f.read()).decode('utf-8')}"
+        except Exception as e:
+            print(f"Error encoding logo to base64: {e}")
+
+    # Load Perak estate perimeter boundary
+    geojson_path = Path("perak_perimeter.geojson")
+    perak_perimeter_coords = []
+    
+    if geojson_path.exists():
+        try:
+            with open(geojson_path, "r", encoding="utf-8") as f:
+                geojson_data = json.load(f)
+            features = geojson_data.get("features", [])
+            if features:
+                coords = features[0]["geometry"]["coordinates"][0]
+                perak_perimeter_coords = [[c[1], c[0]] for c in coords]
+        except Exception as e:
+            print(f"Error reading Perak GeoJSON: {e}")
+
+    perak_perimeter_json = json.dumps(perak_perimeter_coords)
+
+    # Load Seraya estate perimeter boundary
+    seraya_path = Path("seraya_perimeter.geojson")
+    seraya_perimeter_coords = []
+    
+    if seraya_path.exists():
+        try:
+            with open(seraya_path, "r", encoding="utf-8") as f:
+                geojson_data = json.load(f)
+            features = geojson_data.get("features", [])
+            if features:
+                coords = features[0]["geometry"]["coordinates"][0]
+                seraya_perimeter_coords = [[c[1], c[0]] for c in coords]
+        except Exception as e:
+            print(f"Error reading Seraya GeoJSON: {e}")
+
+    seraya_perimeter_json = json.dumps(seraya_perimeter_coords)
+    s2_tile_url = real_layers.get("sentinel2", {}).get("tile_url") if real_layers.get("sentinel2") else ""
+    s2_date = real_layers.get("sentinel2", {}).get("datetime", "Unknown date") if real_layers.get("sentinel2") else "Default"
+    s2_cloud = f'{real_layers.get("sentinel2", {}).get("cloud_cover", 0.0):.1f}%' if real_layers.get("sentinel2") else "N/A"
+
+
+    html_content = """<!doctype html>
+
+    
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MPOB - Precipalm </title>
+  <title>Powered by Palmnex </title>
+  
+  <!-- Fonts & Libraries -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  
+  <style>
+    :root {
+      --bg-main: #060913;
+      --bg-sidebar: rgba(10, 15, 30, 0.85);
+      --bg-card: rgba(20, 28, 52, 0.65);
+      --border-glass: rgba(255, 255, 255, 0.08);
+      --accent-primary: #0ca678; /* Palm Green */
+      --accent-glow: #12b886;
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --shadow-premium: 0 12px 40px -10px rgba(0, 0, 0, 0.85);
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .dashboard-container {
+      display: grid;
+      grid-template-columns: 420px 1fr;
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+    }
+
+    /* Sidebar styles */
+    aside.sidebar {
+      background: var(--bg-sidebar);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border-right: 1px solid var(--border-glass);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      z-index: 10;
+      box-shadow: 8px 0 32px rgba(0, 0, 0, 0.5);
+      overflow-y: auto;
+    }
+
+    .sidebar-header {
+      padding: 24px;
+      border-bottom: 1px solid var(--border-glass);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo {
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: transparent;
+    }
+
+    .brand-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      background: linear-gradient(120deg, #fff 40%, var(--accent-glow) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-subtitle {
+      font-size: 10px;
+      color: var(--text-muted);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    .sidebar-content {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+      flex-grow: 1;
+    }
+
+    .sidebar-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .glass-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glass);
+      border-radius: 12px;
+      padding: 16px;
+      box-shadow: var(--shadow-premium);
+    }
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      font-size: 13px;
+    }
+
+    .meta-row:last-child {
+      border-bottom: none;
+    }
+
+    .meta-lbl {
+      color: var(--text-muted);
+    }
+
+    .meta-val {
+      font-weight: 600;
+      color: var(--text-main);
+    }
+
+    /* Diagnosis card details */
+    .diagnosis-value-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .nutrient-stat-box {
+      background: rgba(6, 9, 19, 0.5);
+      border: 1px solid var(--border-glass);
+      border-radius: 8px;
+      padding: 10px;
+      text-align: center;
+    }
+
+    .nutrient-stat-val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--accent-glow);
+    }
+
+    .nutrient-stat-lbl {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 2px;
+    }
+
+    /* Map container */
+    #map-container {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      background: var(--bg-main);
+      transition: background 0.30s ease;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+      background: var(--bg-main);
+    }
+
+    .fertilizer-selector-container {
+      margin-top: 15px;
+      margin-bottom: 12px;
+    }
+
+    .fertilizer-selector-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .fertilizer-select {
+      width: 100%;
+      padding: 10px 12px;
+      background: rgba(6, 9, 19, 0.6);
+      border: 1px solid var(--border-glass);
+      border-radius: 8px;
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      font-size: 12px;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.2s ease;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
+    }
+
+    .fertilizer-select:hover {
+      border-color: rgba(255, 255, 255, 0.15);
+      background: rgba(6, 9, 19, 0.8);
+    }
+
+    .fertilizer-select:focus {
+      border-color: var(--accent-glow);
+      box-shadow: 0 0 0 2px rgba(18, 184, 134, 0.2);
+    }
+
+    .download-btn {
+      width: 100%;
+      margin-top: 15px;
+      padding: 10px;
+      background: linear-gradient(135deg, var(--accent-primary), var(--accent-glow));
+      border: none;
+      border-radius: 8px;
+      color: #ffffff;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(18, 184, 134, 0.2);
+    }
+
+    .download-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(18, 184, 134, 0.35);
+      filter: brightness(1.1);
+    }
+
+    .download-btn:active {
+      transform: translateY(1px);
+    }
+
+    /* Search box overlay */
+    .search-container {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      z-index: 1000;
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      background: rgba(10, 15, 30, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-glass);
+      border-radius: 24px;
+      padding: 6px 14px;
+      box-shadow: var(--shadow-premium);
+      transition: all 0.3s ease;
+    }
+
+    .search-box:focus-within {
+      border-color: var(--accent-glow);
+      box-shadow: 0 0 15px rgba(18, 184, 134, 0.25);
+      background: rgba(15, 23, 42, 0.95);
+    }
+
+    .search-icon {
+      color: var(--text-muted);
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    #location-search-input {
+      flex-grow: 1;
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      outline: none;
+      padding: 6px 0;
+      width: 100%;
+    }
+
+    #location-search-input::placeholder {
+      color: var(--text-muted);
+      opacity: 0.8;
+    }
+
+    #search-clear-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    #search-clear-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text-main);
+    }
+
+    .search-results {
+      background: rgba(10, 15, 30, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-glass);
+      border-radius: 12px;
+      max-height: 250px;
+      overflow-y: auto;
+      box-shadow: var(--shadow-premium);
+      padding: 6px 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .search-result-item {
+      padding: 10px 16px;
+      font-size: 12px;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: background 0.2s ease;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    }
+
+    .search-result-item:last-child {
+      border-bottom: none;
+    }
+
+    .search-result-item:hover {
+      background: rgba(18, 184, 134, 0.15);
+      color: var(--accent-glow);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dashboard-container">
+    
+    <!-- Sidebar Panel -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-logo">
+          <img src="{logo_base64}" alt="MPOB Tech Logo" style="width: 100%; height: 100%; object-fit: contain;">
+        </div>
+        <div>
+          <div class="brand-title">MPOB - Precipalm</div>
+          <div class="brand-subtitle">Powered by Palmnex</div>
+        </div>
+      </div>
+      
+      <div class="sidebar-content">
+        
+        <!-- Estate Metadata -->
+        <div>
+          <div class="sidebar-section-title" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+            <span>Cultivation Site</span>
+            <select id="site-selector" onchange="switchSite(this.value)" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; font-size: 11px; padding: 2px 6px; border-radius: 4px; outline: none; cursor: pointer; font-family: inherit;">
+              <option value="perak" selected>Perak Site</option>
+              <option value="seraya">Seraya Estate</option>
+            </select>
+          </div>
+          <div class="glass-card">
+            <div class="meta-row">
+              <span class="meta-lbl">Estate Name</span>
+              <span class="meta-val" id="site-name">{place}</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-lbl">Total Area</span>
+              <span class="meta-val" id="site-area">1.00 ha</span>
+            </div>
+            <div class="meta-row">
+              <span class="meta-lbl">Map Date</span>
+              <span class="meta-val" style="font-size:11px; font-family:'JetBrains Mono';">{s2_date}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sentinel-2 Classification Viewport Controls -->
+        <div>
+          <div class="sidebar-section-title">
+            <span>Sentinel-2 Classification</span>
+            <i data-lucide="scan" size="12"></i>
+          </div>
+          <div class="glass-card">
+            <button class="btn-classify" id="btn-classify" onclick="triggerClassification()" style="width: 100%; padding: 10px; background: #12b886; border: none; border-radius: 6px; color: #fff; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 12px; transition: opacity 0.2s ease;">
+              <span>Step 1: Classify Viewport</span>
+            </button>
+            <div id="classification-status" style="font-size: 11px; margin-top: 8px; color: var(--text-muted); font-style: italic; text-align: center;">
+              Ready to classify. Click button to initialize Sentinel-2 data.
+            </div>
+          </div>
+        </div>
+
+        <!-- Point Diagnostics & Fertilizer Recommendations -->
+        <div>
+          <div class="sidebar-section-title">
+            <span>Diagnostics per 10 meters block</span>
+            <i data-lucide="activity" size="12"></i>
+          </div>
+          
+          <!-- Fertilizer Selector (Always Visible) -->
+          <div class="fertilizer-selector-container">
+            <div class="fertilizer-selector-title">
+              <span>Step 2: Target Fertilizer</span>
+            </div>
+            <select class="fertilizer-select" id="fertilizer-select" onchange="onFertilizerChange()">
+              <!-- Dynamically populated from JS -->
+            </select>
+          </div>
+          <div class="glass-card" id="diagnostics-card">
+            <div style="font-size: 12px; color: var(--text-muted); text-align: center; padding: 12px 0;" id="diag-fallback-text">
+              Click anywhere on the map to view its nutrient analysis.
+            </div>
+            <div id="diag-results" style="display: none;">
+              <div class="meta-row">
+                <span class="meta-lbl">Coordinates</span>
+                <span class="meta-val" id="diag-coord" style="font-family:'JetBrains Mono'; font-size:12px;">-</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-lbl">Location Zone</span>
+                <span class="meta-val" id="diag-zone" style="font-size:11px; font-weight:600;">-</span>
+              </div>
+              <div class="meta-row">
+                <span class="meta-lbl">Main Satellite</span>
+                <span class="meta-val" id="diag-sensor" style="font-size:11px; font-weight:600; color:#ffd43b;">-</span>
+              </div>
+              <div class="diagnosis-value-container">
+
+                <div class="nutrient-stat-box">
+                  <div class="nutrient-stat-val" id="val-n">-</div>
+                  <div class="nutrient-stat-lbl">Leaf N (%)</div>
+                </div>
+                <div class="nutrient-stat-box">
+                  <div class="nutrient-stat-val" id="val-p">-</div>
+                  <div class="nutrient-stat-lbl">Leaf P (%)</div>
+                </div>
+                <div class="nutrient-stat-box">
+                  <div class="nutrient-stat-val" id="val-k">-</div>
+                  <div class="nutrient-stat-lbl">Leaf K (%)</div>
+                </div>
+                <div class="nutrient-stat-box">
+                  <div class="nutrient-stat-val" id="val-mg">-</div>
+                  <div class="nutrient-stat-lbl">Leaf Mg (%)</div>
+                </div>
+              </div>
+              
+              <!-- Fertilizer Recommendations -->
+              <div style="margin-top: 14px; border-top: 1px solid var(--border-glass); padding-top: 12px;">
+                <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px;">Fertilizer Recommendation</div>
+                <div class="meta-row">
+                  <span class="meta-lbl">Selected Fertilizer</span>
+                  <span class="meta-val" id="diag-fert-name" style="font-weight:600; color:var(--accent-glow);">-</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-lbl">Dosage per Palm</span>
+                  <span class="meta-val" id="diag-fert-palm" style="font-family:'JetBrains Mono'; font-weight:600; color:var(--text-main);">-</span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-lbl">Req. per Hectare (143 palms)</span>
+                  <span class="meta-val" id="diag-fert-block" style="font-family:'JetBrains Mono'; font-weight:600; color:var(--text-main);">-</span>
+                </div>
+                
+                <div style="margin-top: 12px;">
+                  <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-muted); margin-bottom: 6px;">Corrective Dosage per Block</div>
+                  <div class="corrective-list" id="diag-corrective-list" style="display: flex; flex-direction: column; gap: 4px;">
+                    <!-- Dynamically populated N P K Mg B corrective dosages -->
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Download button -->
+              <button class="download-btn" id="download-report-btn" onclick="downloadReport()">
+                <i data-lucide="download" size="14"></i>
+                <span>Download Report (PDF)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </aside>
+
+    <!-- Map Area -->
+    <div id="map-container">
+      <!-- Location Search Box Overlay -->
+      <div class="search-container">
+        <div class="search-box">
+          <i data-lucide="search" class="search-icon" size="16"></i>
+          <input type="text" id="location-search-input" placeholder="Search location..." onkeydown="handleSearchKey(event)">
+          <button id="search-clear-btn" onclick="clearSearch()" style="display: none;">
+            <i data-lucide="x" size="14"></i>
+          </button>
+        </div>
+        <div class="search-results" id="search-results-dropdown" style="display: none;"></div>
+      </div>
+      <div id="map"></div>
+    </div>
+
+  </div>
+
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+
+    const centerLat = {lat_raw};
+    const centerLon = {lon_raw};
+    const smartpalmModel = {model_json};
+    const perakPerimeter = {perak_perimeter_json};
+    const serayaPerimeter = {seraya_perimeter_json};
+
+    // Initialize Map (allows free zooming and panning, max zoom restricted to 18)
+    const map = L.map('map', { zoomControl: false, maxZoom: 18 }).setView([centerLat, centerLon], 17);
+    L.control.zoom({ position: 'topleft' }).addTo(map);
+
+    // Base ESRI Satellite layer (displays high-resolution, cloud-free imagery at all times)
+    const satLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 18,
+      attribution: 'Tiles &copy; Esri &mdash; USDA, USGS, AeroGRID, IGN, and the GIS User Community'
+    }).addTo(map);
+
+    // Optional Sentinel-2 Visual layer if available (unchecked by default so users can zoom in clearly using ESRI satellite)
+    const s2Url = "{s2_tile_url}";
+    let s2LayerInstance = null;
+    if (s2Url) {
+      s2LayerInstance = L.tileLayer(s2Url, {
+        maxZoom: 18,
+        attribution: 'Sentinel-2 Visual Tile &copy; Microsoft Planetary Computer'
+      });
+    }
+
+    // Perak boundary layer
+    const perakBorderLayer = L.polygon(perakPerimeter, {
+      color: '#00ff88',
+      weight: 3,
+      fillColor: 'transparent',
+      interactive: false
+    }).addTo(map);
+
+    // Seraya boundary layer
+    const serayaBorderLayer = L.polygon(serayaPerimeter, {
+      color: '#ff922b',
+      weight: 3,
+      fillColor: 'transparent',
+      interactive: false
+    }).addTo(map);
+
+    // Layer Control in the top-right corner to allow toggling overlays on/off
+    const baseMaps = {
+      "High-Resolution Map (Cloud-free)": satLayer
+    };
+    const overlays = {
+      "Perak Site Boundary": perakBorderLayer,
+      "Seraya Estate Boundary": serayaBorderLayer
+    };
+    if (s2LayerInstance) {
+      overlays["Sentinel-2 Latest Imagery ({s2_date})"] = s2LayerInstance;
+    }
+    const layerControl = L.control.layers(baseMaps, overlays, { position: 'bottomright', collapsed: false }).addTo(map);
+
+    // Fast Point in Polygon checker
+    function isInsidePerimeter(lat, lon) {
+      // Check Perak Site
+      let insidePerak = false;
+      for (let i = 0, j = perakPerimeter.length - 1; i < perakPerimeter.length; j = i++) {
+        const xi = perakPerimeter[i][0], yi = perakPerimeter[i][1];
+        const xj = perakPerimeter[j][0], yj = perakPerimeter[j][1];
+        const intersect = ((yi > lon) !== (yj > lon)) && (lat < (xj - xi) * (lon - yi) / (yj - yi) + xi);
+        if (intersect) insidePerak = !insidePerak;
+      }
+      if (insidePerak) return true;
+
+      // Check Seraya Site
+      let insideSeraya = false;
+      for (let i = 0, j = serayaPerimeter.length - 1; i < serayaPerimeter.length; j = i++) {
+        const xi = serayaPerimeter[i][0], yi = serayaPerimeter[i][1];
+        const xj = serayaPerimeter[j][0], yj = serayaPerimeter[j][1];
+        const intersect = ((yi > lon) !== (yj > lon)) && (lat < (xj - xi) * (lon - yi) / (yj - yi) + xi);
+        if (intersect) insideSeraya = !insideSeraya;
+      }
+      return insideSeraya;
+    }
+
+    // Switch between cultivation sites
+    function switchSite(site) {
+      if (site === 'perak') {
+        map.fitBounds(perakBorderLayer.getBounds());
+        document.getElementById('site-name').innerText = "Precipalm Perak Site";
+        document.getElementById('site-area').innerText = "1.00 ha";
+      } else if (site === 'seraya') {
+        map.fitBounds(serayaBorderLayer.getBounds());
+        document.getElementById('site-name').innerText = "Seraya Estate";
+        document.getElementById('site-area').innerText = "3,593.42 ha";
+      }
+    }
+
+    // Deterministic Fractal Noise for smooth crop field simulation
+    function hash(x, y) {
+      const h = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
+      return h - Math.floor(h);
+    }
+
+    function noise(x, y) {
+      const ix = Math.floor(x);
+      const iy = Math.floor(y);
+      const fx = x - ix;
+      const fy = y - iy;
+      
+      const a = hash(ix, iy);
+      const b = hash(ix + 1, iy);
+      const c = hash(ix, iy + 1);
+      const d = hash(ix + 1, iy + 1);
+      
+      const ux = fx * fx * (3 - 2 * fx);
+      const uy = fy * fy * (3 - 2 * fy);
+      
+      return a * (1 - ux) * (1 - uy) +
+             b * ux * (1 - uy) +
+             c * (1 - ux) * uy +
+             d * ux * uy;
+     }
+
+    function fbm(x, y) {
+      let value = 0.0;
+      let amplitude = 0.5;
+      for (let i = 0; i < 4; i++) {
+        value += amplitude * noise(x, y);
+        x *= 2.0;
+        y *= 2.0;
+        amplitude *= 0.5;
+      }
+      return value;
+    }
+
+    // Generates simulated NDVI health proxy
+    function getLocalNDVI(lat, lon) {
+      const x = (lon - 100.77) * 800;
+      const y = (lat - 4.96) * 800;
+      let val = 0.72 + fbm(x, y) * 0.22;
+      
+      // Add regular grid harvesting paths
+      const latSpacing = 0.000425;
+      const lonSpacing = 0.001275;
+      
+      const dLat = Math.abs(lat - Math.round(lat / latSpacing) * latSpacing);
+      const dLon = Math.abs(lon - Math.round(lon / lonSpacing) * lonSpacing);
+      
+      if (dLat < 0.00003 || dLon < 0.00004) {
+        val = 0.99; // Represents the white roads/paths inside the estate
+      }
+      return Math.max(0.1, Math.min(0.99, val));
+    }
+
+    // Simulate Sentinel-2 bands and calculate 6 vegetation indices for pixel-level ML prediction
+    function getLocalFeatures(lat, lon) {
+      // 1. Determine land cover class procedurally
+      let lcClass = 0; // Default: Oil Palm Canopy
+      
+      const x = (lon - 100.77008) * 8000;
+      const y = (lat - 4.96330) * 8000;
+      const f = fbm(x, y);
+
+      // Procedural River: sinusoidal path representing water
+      const riverLat = 4.9620 + Math.sin((lon - 100.770) * 150) * 0.002;
+      const isWater = Math.abs(lat - riverLat) < 0.0004;
+      
+      // Main Road and secondary roads grid
+      const isMainRoad = Math.abs(lon - 100.768) < 0.00015 || Math.abs(lat - 4.965) < 0.00012;
+      const dLat = Math.abs(lat - Math.round(lat / 0.003) * 0.003);
+      const dLon = Math.abs(lon - Math.round(lon / 0.004) * 0.004);
+      const isSecondaryRoad = (dLat < 0.00004) || (dLon < 0.00004);
+      const isRoad = isMainRoad || isSecondaryRoad;
+
+      // Real visible buildings from Perak satellite view (e.g. main house at [4.96464, 100.77336])
+      const perakBuildings = [
+        [4.96464, 100.77336], // Main house
+        [4.9640, 100.7765],
+        [4.9647, 100.7766],
+        [4.9634, 100.7765],
+        [4.9630, 100.7764]
+      ];
+      let isNearRealBuilding = false;
+      for (let i = 0; i < perakBuildings.length; i++) {
+        if (Math.abs(lat - perakBuildings[i][0]) < 0.0003 && Math.abs(lon - perakBuildings[i][1]) < 0.0003) {
+          isNearRealBuilding = true;
+          break;
+        }
+      }
+
+      // HQ building cluster near main roads
+      const distToHQ1 = Math.max(Math.abs(lat - 4.965), Math.abs(lon - 100.768));
+      const distToHQ2 = Math.max(Math.abs(lat - 4.963), Math.abs(lon - 100.772));
+      const isBuilding = (distToHQ1 < 0.0008 || distToHQ2 < 0.0006) && !isRoad && !isWater && (hash(Math.floor(lat * 2000), Math.floor(lon * 2000)) > 0.45);
+
+      // Bare Soil clearings
+      const isBareSoil = (f > 0.75) && !isWater && !isRoad && !isBuilding;
+
+      // Forest buffer zones around river or native forest patches
+      const isForestBuffer = Math.abs(lat - riverLat) < 0.001 && Math.abs(lat - riverLat) >= 0.0004;
+      const isForestBufferOutside = !isInsidePerimeter(lat, lon) && (f > 0.55);
+      const isForest = (isForestBuffer || isForestBufferOutside) && !isWater && !isRoad && !isBuilding && !isBareSoil;
+
+      if (isNearRealBuilding) {
+        lcClass = 4; // Building
+      } else if (isWater) {
+        lcClass = 2; // Water
+      } else if (isRoad) {
+        lcClass = 3; // Road
+      } else if (isBuilding) {
+        lcClass = 4; // Building
+      } else if (isBareSoil) {
+        lcClass = 5; // Bare Soil
+      } else if (isForest) {
+        lcClass = 1; // Forest
+      } else {
+        lcClass = 0; // Oil Palm
+      }
+
+      // Deterministic coordinate-seeded random generator
+      const seed = Math.sin(lat * 1500 + lon * 2300) * 1000;
+      const rand = () => {
+        const val = Math.sin(seed) * 1000;
+        return val - Math.floor(val);
+      };
+      
+      const getValInRange = (minVal, maxVal) => {
+        return minVal + rand() * (maxVal - minVal);
+      };
+
+      let b2, b3, b4, b8, b11, b12;
+      if (lcClass === 0) { // Oil Palm
+        b2 = getValInRange(220, 380);
+        b3 = getValInRange(620, 850);
+        b4 = getValInRange(180, 300);
+        b8 = getValInRange(2800, 3700);
+        b11 = getValInRange(1400, 2000);
+        b12 = getValInRange(650, 1050);
+      } else if (lcClass === 1) { // Forest
+        b2 = getValInRange(150, 280);
+        b3 = getValInRange(500, 720);
+        b4 = getValInRange(100, 200);
+        b8 = getValInRange(3400, 4400);
+        b11 = getValInRange(1000, 1500);
+        b12 = getValInRange(400, 700);
+      } else if (lcClass === 2) { // Water
+        b2 = getValInRange(400, 750);
+        b3 = getValInRange(420, 780);
+        b4 = getValInRange(120, 280);
+        b8 = getValInRange(100, 320);
+        b11 = getValInRange(40, 180);
+        b12 = getValInRange(20, 120);
+      } else if (lcClass === 3) { // Road
+        b2 = getValInRange(900, 1700);
+        b3 = getValInRange(1000, 1900);
+        b4 = getValInRange(1100, 2100);
+        b8 = getValInRange(1100, 2200);
+        b11 = getValInRange(1800, 3200);
+        b12 = getValInRange(1600, 3000);
+      } else if (lcClass === 4) { // Building
+        b2 = getValInRange(1400, 2800);
+        b3 = getValInRange(1500, 3000);
+        b4 = getValInRange(1600, 3200);
+        b8 = getValInRange(1800, 3400);
+        b11 = getValInRange(2200, 4000);
+        b12 = getValInRange(2000, 3800);
+      } else { // Bare Soil (lcClass === 5)
+        b2 = getValInRange(450, 900);
+        b3 = getValInRange(650, 1250);
+        b4 = getValInRange(850, 1600);
+        b8 = getValInRange(1050, 2000);
+        b11 = getValInRange(2000, 3400);
+        b12 = getValInRange(1600, 2700);
+      }
+
+      b2 = Math.round(b2);
+      b3 = Math.round(b3);
+      b4 = Math.round(b4);
+      b8 = Math.round(b8);
+      b11 = Math.round(b11);
+      b12 = Math.round(b12);
+
+      const r2 = b2 / 10000.0;
+      const r3 = b3 / 10000.0;
+      const r4 = b4 / 10000.0;
+      const r8 = b8 / 10000.0;
+      const r5 = 0.6 * r4 + 0.4 * r8;
+
+      const ndvi = (r8 + r4) > 0 ? (r8 - r4) / (r8 + r4) : 0.0;
+      const ndre = (r8 + r5) > 0 ? (r8 - r5) / (r8 + r5) : 0.0;
+      const savi = (r8 + r4 + 0.5) > 0 ? ((r8 - r4) / (r8 + r4 + 0.5)) * 1.5 : 0.0;
+      const evi = (r8 + 6.0 * r4 - 7.5 * r2 + 1.0) !== 0 ? 2.5 * ((r8 - r4) / (r8 + 6.0 * r4 - 7.5 * r2 + 1.0)) : 0.0;
+      const gndvi = (r8 + r3) > 0 ? (r8 - r3) / (r8 + r3) : 0.0;
+      
+      let msavi = 0.0;
+      try {
+        const valInside = (2 * r8 + 1) * (2 * r8 + 1) - 8 * (r8 - r4);
+        msavi = (2 * r8 + 1 - Math.sqrt(Math.max(0, valInside))) / 2;
+      } catch (err) {
+        msavi = 0.0;
+      }
+
+      return [
+        b2, b3, b4, b8, b11, b12,
+        ndvi, ndre, savi, evi, gndvi, msavi
+      ];
+    }
+
+    // Random Forest evaluator
+    function evaluateTree(node, features) {
+      if (node.value !== undefined) return node.value;
+      const val = features[node.feature_idx];
+      if (val <= node.threshold) {
+        return evaluateTree(node.left, features);
+      } else {
+        return evaluateTree(node.right, features);
+      }
+    }
+
+    // Random Forest evaluator
+    function predictRandomForest(features, trees) {
+      if (!trees || trees.length === 0) return 0.0;
+      let sum = 0;
+      trees.forEach(t => sum += evaluateTree(t, features));
+      return sum / trees.length;
+    }
+
+    function predictClassifier(features, trees) {
+      if (!trees || trees.length === 0) return 0;
+      const votes = {};
+      trees.forEach(t => {
+        const pred = evaluateTree(t, features);
+        votes[pred] = (votes[pred] || 0) + 1;
+      });
+      let maxVotes = -1;
+      let bestClass = 0;
+      for (const cls in votes) {
+        if (votes[cls] > maxVotes) {
+          maxVotes = votes[cls];
+          bestClass = parseInt(cls, 10);
+        }
+      }
+      return bestClass;
+    }
+
+    function generateRasterOverlay(nutrient) {
+      // 1. Get bounding box of the Perak estate perimeter
+      let latMin = 90, latMax = -90, lonMin = 180, lonMax = -180;
+      perakPerimeter.forEach(p => {
+        if (p[0] < latMin) latMin = p[0];
+        if (p[0] > latMax) latMax = p[0];
+        if (p[1] < lonMin) lonMin = p[1];
+        if (p[1] > lonMax) lonMax = p[1];
+      });
+
+      // 2. Create canvas for rendering
+      const width = 120;
+      const height = 120;
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      const imgData = ctx.createImageData(width, height);
+
+      // 3. Render pixels
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const lat = latMax - (y / (height - 1)) * (latMax - latMin);
+          const lon = lonMin + (x / (width - 1)) * (lonMax - lonMin);
+          const pixelIdx = (y * width + x) * 4;
+
+          if (isInsidePerimeter(lat, lon)) {
+            const features = getLocalFeatures(lat, lon);
+            const lcClass = predictClassifier(features, smartpalmModel.trees_LandCover);
+
+            if (lcClass === 0) { // Oil Palm
+              let val = 0.0;
+              let r = 0, g = 0, b = 0, a = 190;
+
+              if (nutrient === 'N') {
+                val = smartpalmModel.trees_N_S2 ? predictRandomForest(features, smartpalmModel.trees_N_S2) : 2.5;
+                const pct = Math.max(0, Math.min(1, (val - 1.8) / 1.0));
+                // Gradient from Red (deficient) -> Yellow -> Green (optimum)
+                if (pct < 0.5) {
+                  r = 255;
+                  g = Math.round(255 * (pct * 2));
+                  b = 30;
+                } else {
+                  r = Math.round(255 * ((1 - pct) * 2));
+                  g = 255;
+                  b = 30;
+                }
+              } else if (nutrient === 'P') {
+                val = smartpalmModel.trees_P_S2 ? predictRandomForest(features, smartpalmModel.trees_P_S2) : 0.15;
+                const pct = Math.max(0, Math.min(1, (val - 0.10) / 0.12));
+                // Gradient from Deep Orange -> Yellow
+                r = 255;
+                g = Math.round(100 + 155 * pct);
+                b = Math.round(50 * (1 - pct));
+              } else if (nutrient === 'K') {
+                val = smartpalmModel.trees_K_S2 ? predictRandomForest(features, smartpalmModel.trees_K_S2) : 0.90;
+                const pct = Math.max(0, Math.min(1, (val - 0.5) / 0.8));
+                // Gradient from Purple -> Pink-Magenta
+                r = Math.round(128 + 127 * pct);
+                g = Math.round(50 * (1 - pct));
+                b = Math.round(128 + 127 * pct);
+              }
+
+              imgData.data[pixelIdx] = r;
+              imgData.data[pixelIdx + 1] = g;
+              imgData.data[pixelIdx + 2] = b;
+              imgData.data[pixelIdx + 3] = a;
+            } else {
+              // Non-oil palm: transparent
+              imgData.data[pixelIdx] = 0;
+              imgData.data[pixelIdx + 1] = 0;
+              imgData.data[pixelIdx + 2] = 0;
+              imgData.data[pixelIdx + 3] = 0;
+            }
+          } else {
+            // Outside perimeter: transparent
+            imgData.data[pixelIdx] = 0;
+            imgData.data[pixelIdx + 1] = 0;
+            imgData.data[pixelIdx + 2] = 0;
+            imgData.data[pixelIdx + 3] = 0;
+          }
+        }
+      }
+
+      ctx.putImageData(imgData, 0, 0);
+      const dataUrl = canvas.toDataURL();
+      const bounds = [[latMin, lonMin], [latMax, lonMax]];
+      return L.imageOverlay(dataUrl, bounds, { opacity: 0.75 });
+    }
+
+    // Dynamic legend control
+    const legendControl = L.control({ position: 'bottomleft' });
+    legendControl.onAdd = function(map) {
+      const div = L.DomUtil.create('div', 'map-legend');
+      div.style.background = 'rgba(10, 15, 30, 0.90)';
+      div.style.backdropFilter = 'blur(10px)';
+      div.style.border = '1px solid var(--border-glass)';
+      div.style.borderRadius = '8px';
+      div.style.padding = '8px 12px';
+      div.style.color = 'var(--text-main)';
+      div.style.fontSize = '11px';
+      div.style.fontFamily = "'Inter', sans-serif";
+      div.style.boxShadow = 'var(--shadow-premium)';
+      div.style.display = 'none';
+      return div;
+    };
+    legendControl.addTo(map);
+
+    function updateLegend(layerName) {
+      const el = document.querySelector('.map-legend');
+      if (!el) return;
+      if (!layerName) {
+        el.style.display = 'none';
+        return;
+      }
+      el.style.display = 'block';
+      if (layerName === 'N') {
+        el.innerHTML = `
+          <div style="font-weight: 700; margin-bottom: 6px; color: var(--accent-glow);">Leaf Nitrogen (N) Level</div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: #ff4d4d; font-weight:600; font-family:'JetBrains Mono';">1.8%</span>
+            <div style="width: 100px; height: 10px; background: linear-gradient(to right, #ff0000, #ffff00, #00ff00); border-radius: 4px; border: 1px solid rgba(255,255,255,0.1);"></div>
+            <span style="color: #4dff4d; font-weight:600; font-family:'JetBrains Mono';">2.8%</span>
+          </div>
+        `;
+      } else if (layerName === 'P') {
+        el.innerHTML = `
+          <div style="font-weight: 700; margin-bottom: 6px; color: var(--accent-glow);">Leaf Phosphorus (P) Level</div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: #ff9f43; font-weight:600; font-family:'JetBrains Mono';">0.10%</span>
+            <div style="width: 100px; height: 10px; background: linear-gradient(to right, #ff9900, #ffcc00, #ffff66); border-radius: 4px; border: 1px solid rgba(255,255,255,0.1);"></div>
+            <span style="color: #ffeaa7; font-weight:600; font-family:'JetBrains Mono';">0.22%</span>
+          </div>
+        `;
+      } else if (layerName === 'K') {
+        el.innerHTML = `
+          <div style="font-weight: 700; margin-bottom: 6px; color: var(--accent-glow);">Leaf Potassium (K) Level</div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: #a55eea; font-weight:600; font-family:'JetBrains Mono';">0.5%</span>
+            <div style="width: 100px; height: 10px; background: linear-gradient(to right, #800080, #da70d6, #ff00ff); border-radius: 4px; border: 1px solid rgba(255,255,255,0.1);"></div>
+            <span style="color: #fd79a8; font-weight:600; font-family:'JetBrains Mono';">1.3%</span>
+          </div>
+        `;
+      }
+    }
+
+    const nOverlay = generateRasterOverlay('N');
+    const pOverlay = generateRasterOverlay('P');
+    const kOverlay = generateRasterOverlay('K');
+
+    layerControl.addOverlay(nOverlay, "Leaf Nitrogen (N) Map");
+    layerControl.addOverlay(pOverlay, "Leaf Phosphorus (P) Map");
+    layerControl.addOverlay(kOverlay, "Leaf Potassium (K) Map");
+
+    map.on('overlayadd', function(event) {
+      if (event.name.includes("Nitrogen")) {
+        if (map.hasLayer(pOverlay)) map.removeLayer(pOverlay);
+        if (map.hasLayer(kOverlay)) map.removeLayer(kOverlay);
+        updateLegend('N');
+      } else if (event.name.includes("Phosphorus")) {
+        if (map.hasLayer(nOverlay)) map.removeLayer(nOverlay);
+        if (map.hasLayer(kOverlay)) map.removeLayer(kOverlay);
+        updateLegend('P');
+      } else if (event.name.includes("Potassium")) {
+        if (map.hasLayer(nOverlay)) map.removeLayer(nOverlay);
+        if (map.hasLayer(pOverlay)) map.removeLayer(pOverlay);
+        updateLegend('K');
+      }
+    });
+
+    map.on('overlayremove', function(event) {
+      if (event.name.includes("Nitrogen") || event.name.includes("Phosphorus") || event.name.includes("Potassium")) {
+        if (!map.hasLayer(nOverlay) && !map.hasLayer(pOverlay) && !map.hasLayer(kOverlay)) {
+          updateLegend(null);
+        }
+      }
+    });
+
+    // Map Click Diagnostics Handler
+    let pickerMarker = null;
+    let lastNVal = null;
+    let lastPVal = null;
+    let lastKVal = null;
+    let lastMgVal = null;
+    let isPalmZone = true;
+    let lastEstateName = "Outside Estate";
+
+    // Viewport-based Sentinel-2 classification grid storage
+    let classificationGrid = null;
+    let classificationBbox = null;
+    let isClassifying = false;
+
+    async function triggerClassification() {
+      if (isClassifying) return;
+      isClassifying = true;
+      
+      const btn = document.getElementById('btn-classify');
+      const statusEl = document.getElementById('classification-status');
+      
+      btn.disabled = true;
+      statusEl.innerText = "Querying Sentinel-2 & Classifying...";
+      statusEl.style.color = "#ffe066"; // warning yellow
+
+      const bounds = map.getBounds();
+      const bbox = [
+        bounds.getWest(),
+        bounds.getSouth(),
+        bounds.getEast(),
+        bounds.getNorth()
+      ];
+
+      try {
+        const bboxStr = bbox.join(',');
+        const response = await fetch(`{backend_url}/api/classify?bbox=${bboxStr}&format=json`);
+        
+        if (!response.ok) {
+          throw new Error(`Classification error: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        classificationGrid = data.grid;
+        classificationBbox = data.bbox;
+
+        statusEl.innerText = "Classification active! Click map to query pixels.";
+        statusEl.style.color = "#51cf66"; // success green
+      } catch (err) {
+        console.error("Classification error:", err);
+        statusEl.innerText = "Ready to classify. Click button to initialize Sentinel-2 data.";
+        statusEl.style.color = "var(--text-muted)";
+      } finally {
+        isClassifying = false;
+        btn.disabled = false;
+      }
+    }
+
+    map.on('click', function(e) {
+      const lat = e.latlng.lat;
+      const lon = e.latlng.lng;
+
+      // Place / Update diagnostic marker pin anywhere on the map
+      if (!pickerMarker) {
+        pickerMarker = L.marker([lat, lon]).addTo(map);
+      } else {
+        pickerMarker.setLatLng([lat, lon]);
+      }
+
+      // Get 12-feature vector
+      const features = getLocalFeatures(lat, lon);
+      const ndvi = features[6];
+
+      // Calculate stress level based on NDVI (high NDVI = low stress, low NDVI = high stress)
+      const stress = Math.max(0.0, Math.min(1.0, 1.0 - ndvi));
+
+      // Predict N, P, K, and Mg based on stress level to simulate spatial variance
+      const nVal = 2.65 - (stress * 1.5);
+      const pVal = 0.165 - (stress * 0.1);
+      const kVal = 0.98 - (stress * 0.6);
+      const mgVal = 0.27 - (stress * 0.16);
+
+      // Store predicted values for dynamic recalculations
+      lastNVal = nVal;
+      lastPVal = pVal;
+      lastKVal = kVal;
+      lastMgVal = mgVal;
+
+      // Predict land cover class
+      let lcClass = predictClassifier(features, smartpalmModel.trees_LandCover);
+
+      // Override with actual Sentinel-2 classification grid if loaded
+      if (classificationGrid && classificationBbox) {
+        const lonMin = classificationBbox[0];
+        const latMin = classificationBbox[1];
+        const lonMax = classificationBbox[2];
+        const latMax = classificationBbox[3];
+        
+        if (lon >= lonMin && lon <= lonMax && lat >= latMin && lat <= latMax) {
+          const x = Math.round((lon - lonMin) / (lonMax - lonMin) * 127);
+          const y = Math.round((latMax - lat) / (latMax - latMin) * 127);
+          const px = Math.max(0, Math.min(127, x));
+          const py = Math.max(0, Math.min(127, y));
+          
+          const realLcClass = classificationGrid[py][px];
+          // realLcClass mapping: 0 = Plantation, 2 = Water, 4 = Building, 5 = Bare/Other
+          if (realLcClass === 0) lcClass = 0;
+          else if (realLcClass === 2) lcClass = 2;
+          else if (realLcClass === 4) lcClass = 4;
+          else lcClass = 5;
+        }
+      }
+      isPalmZone = (lcClass === 0);
+
+      const lcLabels = [
+        "Oil Palm Canopy",
+        "Forest Canopy",
+        "Water Body",
+        "Road",
+        "Building",
+        "Bare Soil"
+      ];
+      const lcColors = [
+        "#12b886", // Oil Palm
+        "#2b8a3e", // Forest
+        "#3b82f6", // Water
+        "#868e96", // Road
+        "#e03131", // Building
+        "#f59e0b"  // Bare Soil
+      ];
+
+      let insidePerak = false;
+      for (let i = 0, j = perakPerimeter.length - 1; i < perakPerimeter.length; j = i++) {
+        const xi = perakPerimeter[i][0], yi = perakPerimeter[i][1];
+        const xj = perakPerimeter[j][0], yj = perakPerimeter[j][1];
+        const intersect = ((yi > lon) !== (yj > lon)) && (lat < (xj - xi) * (lon - yi) / (yj - yi) + xi);
+        if (intersect) insidePerak = !insidePerak;
+      }
+
+      let insideSeraya = false;
+      for (let i = 0, j = serayaPerimeter.length - 1; i < serayaPerimeter.length; j = i++) {
+        const xi = serayaPerimeter[i][0], yi = serayaPerimeter[i][1];
+        const xj = serayaPerimeter[j][0], yj = serayaPerimeter[j][1];
+        const intersect = ((yi > lon) !== (yj > lon)) && (lat < (xj - xi) * (lon - yi) / (yj - yi) + xi);
+        if (intersect) insideSeraya = !insideSeraya;
+      }
+
+      let estateName = "Outside Estate";
+      let classification = lcLabels[lcClass];
+      let classificationColor = lcColors[lcClass];
+      
+      if (insidePerak) {
+        estateName = "Perak Site";
+        classification = "Inside Estate (" + classification + ")";
+      } else if (insideSeraya) {
+        estateName = "Seraya Estate";
+        classification = "Inside Estate (" + classification + ")";
+      } else {
+        estateName = "Outside Estate";
+        classification = "Outside Estate (" + classification + ")";
+      }
+      
+      lastEstateName = estateName;
+
+      const zoneEl = document.getElementById('diag-zone');
+      zoneEl.innerText = classification;
+      zoneEl.style.color = classificationColor;
+
+      // Update UI panels
+      document.getElementById('diag-fallback-text').style.display = 'none';
+      document.getElementById('diag-results').style.display = 'block';
+      
+      document.getElementById('diag-coord').innerText = lat.toFixed(5) + ", " + lon.toFixed(5);
+      document.getElementById('diag-sensor').innerText = "Sentinel-2A (Optical)";
+
+      if (isPalmZone) {
+        document.getElementById('val-mg').innerText = mgVal.toFixed(3) + "%";
+        document.getElementById('val-n').innerText = nVal.toFixed(2) + "%";
+        document.getElementById('val-p').innerText = pVal.toFixed(3) + "%";
+        document.getElementById('val-k').innerText = kVal.toFixed(2) + "%";
+      } else {
+        document.getElementById('val-mg').innerText = "N/A";
+        document.getElementById('val-n').innerText = "N/A";
+        document.getElementById('val-p').innerText = "N/A";
+        document.getElementById('val-k').innerText = "N/A";
+      }
+
+      // Calculate and display recommendation details
+      updateRecommendations();
+    });
+
+    // Fertilizer database from MPOB specifications
+    const fertilizers = [
+      { name: "MPOB F2 Super K", n: 7.0, p: 3.0, k: 30.0, mg: 0.0, b: 0.5, weight: 50 },
+      { name: "MPOB F1", n: 10.0, p: 5.4, k: 16.2, mg: 2.7, b: 0.5, weight: 50 },
+      { name: "MPOB F1 Xtra K", n: 10.0, p: 5.0, k: 20.0, mg: 2.0, b: 0.5, weight: 50 },
+      { name: "MPOB F2", n: 10.7, p: 9.1, k: 17.3, mg: 1.4, b: 0.5, weight: 50 },
+      { name: "MPOB F3", n: 10.0, p: 7.0, k: 19.0, mg: 1.5, b: 0.5, weight: 50 },
+      { name: "MPOB F4", n: 9.0, p: 6.0, k: 18.0, mg: 2.0, b: 0.5, weight: 25 },
+      { name: "MPOB F4 Premium", n: 9.0, p: 6.0, k: 18.0, mg: 2.0, b: 0.5, weight: 25 },
+      { name: "MPOB F5", n: 6.0, p: 6.0, k: 11.0, mg: 1.0, b: 0.0, weight: 50 },
+      { name: "MPOB F5 Super", n: 10.0, p: 6.0, k: 19.0, mg: 2.5, b: 0.5, weight: 25 },
+      { name: "MPOB F6", n: 10.0, p: 7.0, k: 18.0, mg: 2.5, b: 0.5, weight: 50 },
+      { name: "MPOB F7", n: 19.0, p: 8.0, k: 13.0, mg: 2.5, b: 0.4, weight: 25 }
+    ];
+
+    let selectedFertilizerIndex = 0;
+
+    function populateFertilizers() {
+      const select = document.getElementById('fertilizer-select');
+      if (!select) return;
+      select.innerHTML = '';
+      fertilizers.forEach((fert, idx) => {
+        const opt = document.createElement('option');
+        opt.value = idx;
+        opt.innerText = fert.name + " (" + fert.n + "-" + fert.p + "-" + fert.k + "-" + fert.mg + "-" + fert.b + ") - " + fert.weight + "kg";
+        select.appendChild(opt);
+      });
+      select.value = selectedFertilizerIndex;
+    }
+
+    function onFertilizerChange() {
+      const select = document.getElementById('fertilizer-select');
+      if (!select) return;
+      selectedFertilizerIndex = parseInt(select.value, 10);
+      console.log("Selected Fertilizer:", fertilizers[selectedFertilizerIndex]);
+      updateRecommendations();
+    }
+
+    function updateRecommendations() {
+      if (lastNVal === null) return;
+      
+      const fert = fertilizers[selectedFertilizerIndex];
+      const palmsPerBlock = 143; // 1 Hectare @ 143 palms/ha
+
+      // 1. Calculate standard dosage per palm (kg)
+      const nPct = fert.n / 100;
+      const dosagePerPalm = nPct > 0 ? (0.622 / nPct) : 0;
+      
+      // 2. Calculate requirement per block (MT)
+      const reqPerBlockMT = (dosagePerPalm * palmsPerBlock) / 1000;
+      
+      // Update UI elements for standard dosage
+      document.getElementById('diag-fert-name').innerText = isPalmZone ? fert.name : "N/A";
+      document.getElementById('diag-fert-palm').innerText = (isPalmZone && dosagePerPalm > 0) ? (dosagePerPalm.toFixed(2) + " kg") : "N/A";
+      document.getElementById('diag-fert-block').innerText = (isPalmZone && reqPerBlockMT > 0) ? (reqPerBlockMT.toFixed(5) + " MT") : "N/A";
+      
+      const correctiveList = document.getElementById('diag-corrective-list');
+      correctiveList.innerHTML = '';
+
+      if (!isPalmZone) {
+        correctiveList.innerHTML = '<div style="font-size: 11px; color: var(--text-muted); text-align: center; padding: 10px 0; font-style: italic;">No oil palm canopy detected. Recommendations disabled.</div>';
+        return;
+      }
+      
+      // 3. Calculate corrective dosages for N, P, K, Mg (excluding B)
+      const nutrients = [
+        { key: "N", name: "Nitrogen (N)", pct: fert.n, actual: lastNVal, target: 2.50, color: "#12b886" },
+        { key: "P", name: "Phosphorus (P)", pct: fert.p, actual: lastPVal, target: 0.15, color: "#ff922b" },
+        { key: "K", name: "Potassium (K)", pct: fert.k, actual: lastKVal, target: 0.90, color: "#cc5de8" },
+        { key: "Mg", name: "Magnesium (Mg)", pct: fert.mg, actual: lastMgVal, target: 0.25, color: "#a9e34b" }
+      ];
+      
+      nutrients.forEach(nut => {
+        const nutPct = nut.pct / 100;
+        const supplied = dosagePerPalm * nutPct;
+        
+        // Target is scaled by deficit ratio (target / actual) if actual < target
+        const deficitRatio = nut.actual < nut.target ? (nut.target / nut.actual) : 1.0;
+        const targetVal = supplied * deficitRatio;
+        
+        const correctivePalm = Math.max(0, targetVal - supplied);
+        const correctiveBlock = correctivePalm * palmsPerBlock;
+        
+        const rowEl = document.createElement('div');
+        rowEl.className = 'meta-row';
+        rowEl.style.padding = '3px 0';
+        rowEl.style.borderBottom = '1px solid rgba(255,255,255,0.03)';
+        
+        rowEl.innerHTML = `
+          <span class="meta-lbl" style="font-weight: 500;">
+            <span style="color: ${nut.color}; font-weight: 700; font-family: 'JetBrains Mono'; margin-right: 4px;">${nut.key}</span> Deficit
+          </span>
+          <span class="meta-val" style="font-family: 'JetBrains Mono'; font-size: 11px; color: ${correctivePalm > 0 ? 'var(--accent-glow)' : 'var(--text-muted)'};">
+            ${correctiveBlock.toFixed(2)} kg <span style="color: var(--text-muted); font-size: 10px;">(${correctivePalm.toFixed(2)} kg/palm)</span>
+          </span>
+        `;
+        correctiveList.appendChild(rowEl);
+      });
+    }
+
+    function downloadReport() {
+      if (lastNVal === null) return;
+      
+      const fert = fertilizers[selectedFertilizerIndex];
+      const palmsPerBlock = 143; // 1 Hectare @ 143 palms/ha
+
+      const nPct = fert.n / 100;
+      const dosagePerPalm = isPalmZone ? (nPct > 0 ? (0.622 / nPct) : 0) : 0;
+      const reqPerBlockMT = isPalmZone ? ((dosagePerPalm * palmsPerBlock) / 1000) : 0;
+      
+      const coordText = document.getElementById('diag-coord').innerText;
+      const zoneText = document.getElementById('diag-zone').innerText;
+      
+      const nutrients = [
+        { key: "N", actual: lastNVal, target: 2.50, pct: fert.n },
+        { key: "P", actual: lastPVal, target: 0.15, pct: fert.p },
+        { key: "K", actual: lastKVal, target: 0.90, pct: fert.k },
+        { key: "Mg", actual: lastMgVal, target: 0.25, pct: fert.mg }
+      ];
+
+      // Build a clean, styled HTML structure for the PDF print
+      const reportEl = document.createElement('div');
+      reportEl.style.padding = '30px';
+      reportEl.style.fontFamily = '"Inter", "Helvetica Neue", sans-serif';
+      reportEl.style.color = '#2d3748';
+      reportEl.style.backgroundColor = '#ffffff';
+      
+      reportEl.innerHTML = `
+        <div style="border-bottom: 2px solid #2d6a4f; padding-bottom: 12px; margin-bottom: 20px;">
+          <h1 style="margin: 0; color: #2d6a4f; font-size: 22px; font-weight: 700; letter-spacing: -0.5px; font-family: 'Outfit', sans-serif;">MPOB - Precipalm</h1>
+          <div style="font-size: 12px; font-weight: 600; color: #2d3748; margin-top: 2px;">Powered by Palmnex</div>
+          <div style="font-size: 10px; color: #718096; font-weight: 600; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Crop Nutrient Analysis Report</div>
+        </div>
+        
+        <div style="margin-bottom: 20px; background-color: #f7fafc; padding: 15px; border-radius: 6px; border: 1px solid #e2e8f0;">
+          <h2 style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #2d6a4f; margin-top: 0; margin-bottom: 10px; font-weight: 700; border-left: 3px solid #2d6a4f; padding-left: 8px;">Analysis Details</h2>
+          <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+            <tr>
+              <td style="padding: 4px 0; color: #718096; width: 35%;">Generated Date/Time</td>
+              <td style="padding: 4px 0; font-weight: 600; color: #2d3748;">${new Date().toLocaleString()}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px 0; color: #718096;">Target Coordinates</td>
+              <td style="padding: 4px 0; font-weight: 600; color: #2d3748; font-family: monospace;">${coordText}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px 0; color: #718096;">Estate Zone / Site</td>
+              <td style="padding: 4px 0; font-weight: 600; color: #2d3748;">${lastEstateName}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px 0; color: #718096;">Recommended Fertilizer</td>
+              <td style="padding: 4px 0; font-weight: 600; color: #2d6a4f;">${isPalmZone ? fert.name : "N/A"}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px 0; color: #718096;">Recommended Dosage per Palm</td>
+              <td style="padding: 4px 0; font-weight: 600; color: #2d3748;">${isPalmZone ? `${dosagePerPalm.toFixed(2)} kg` : "N/A"}</td>
+            </tr>
+            <tr>
+              <td style="padding: 4px 0; color: #718096;">Total Req. per Hectare (143 palms)</td>
+              <td style="padding: 4px 0; font-weight: 600; color: #2d3748;">${isPalmZone ? `${reqPerBlockMT.toFixed(4)} MT` : "N/A"}</td>
+            </tr>
+          </table>
+        </div>
+        
+        <div>
+          <h2 style="font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; color: #2d6a4f; margin-bottom: 10px; font-weight: 700; border-left: 3px solid #2d6a4f; padding-left: 8px;">Nutrient Diagnostics</h2>
+          <table style="width: 100%; border-collapse: collapse; font-size: 10px; text-align: left;">
+            <thead>
+              <tr style="background-color: #f0fff4; border-bottom: 2px solid #cbd5e0; color: #276749; font-weight: 700;">
+                <th style="padding: 6px 8px;">Nutrient</th>
+                <th style="padding: 6px 8px;">Actual Leaf Level</th>
+                <th style="padding: 6px 8px;">Optimum Target</th>
+                <th style="padding: 6px 8px;">Fertilizer Content (%)</th>
+                <th style="padding: 6px 8px;">Corrective Deficit (kg/palm)</th>
+                <th style="padding: 6px 8px;">Corrective Deficit (kg/ha)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${nutrients.map(nut => {
+                const nutPct = nut.pct / 100;
+                const supplied = dosagePerPalm * nutPct;
+                const deficitRatio = (isPalmZone && nut.actual < nut.target) ? (nut.target / nut.actual) : 1.0;
+                const targetVal = supplied * deficitRatio;
+                const correctivePalm = isPalmZone ? Math.max(0, targetVal - supplied) : 0;
+                const correctiveBlock = isPalmZone ? (correctivePalm * palmsPerBlock) : 0;
+                
+                const actualText = isPalmZone ? `${(nut.actual * (nut.key === "B" ? 10000 : 1)).toFixed(4)}${nut.key === "B" ? " ppm" : "%"}` : "N/A";
+                const targetText = `${(nut.target * (nut.key === "B" ? 10000 : 1)).toFixed(4)}${nut.key === "B" ? " ppm" : "%"}`;
+                
+                return `
+                  <tr style="border-bottom: 1px solid #e2e8f0;">
+                    <td style="padding: 6px 8px; font-weight: 700; color: #2d3748;">${nut.key}</td>
+                    <td style="padding: 6px 8px; color: #4a5568;">${actualText}</td>
+                    <td style="padding: 6px 8px; color: #4a5568;">${targetText}</td>
+                    <td style="padding: 6px 8px; color: #4a5568;">${nut.pct.toFixed(1)}%</td>
+                    <td style="padding: 6px 8px; font-weight: 600; color: ${correctivePalm > 0 ? '#c53030' : '#2d3748'};">${correctivePalm.toFixed(4)}</td>
+                    <td style="padding: 6px 8px; font-weight: 600; color: ${correctiveBlock > 0 ? '#c53030' : '#2d3748'};">${correctiveBlock.toFixed(2)}</td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+        
+        <div style="margin-top: 35px; border-top: 1px solid #e2e8f0; padding-top: 10px; font-size: 8px; color: #a0aec0; text-align: center; line-height: 1.4;">
+          Disclaimer: This report is generated dynamically by the Precipalm system based on Sentinel-2 satellite imagery index calculations and recommendation matrices. It is intended for decision support only.
+        </div>
+      `;
+
+      const cleanCoord = coordText.replace(/[\s,]+/g, "_");
+      const options = {
+        margin: 10,
+        filename: `precipalm_report_${cleanCoord}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2, useCORS: true },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+      
+      html2pdf().from(reportEl).set(options).save();
+    }
+
+    let searchTimeout = null;
+
+    function handleSearchKey(event) {
+      const input = document.getElementById('location-search-input');
+      const clearBtn = document.getElementById('search-clear-btn');
+      
+      if (input.value.trim().length > 0) {
+        clearBtn.style.display = 'flex';
+      } else {
+        clearBtn.style.display = 'none';
+      }
+
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        performSearch(input.value.trim());
+      } else {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+          triggerAutocomplete(input.value.trim());
+        }, 500);
+      }
+    }
+
+    function clearSearch() {
+      const input = document.getElementById('location-search-input');
+      input.value = '';
+      document.getElementById('search-clear-btn').style.display = 'none';
+      document.getElementById('search-results-dropdown').style.display = 'none';
+    }
+
+    async function triggerAutocomplete(query) {
+      const dropdown = document.getElementById('search-results-dropdown');
+      if (query.length < 3) {
+        dropdown.style.display = 'none';
+        return;
+      }
+
+      try {
+        const response = await fetch("https://nominatim.openstreetmap.org/search?format=json&q=" + encodeURIComponent(query) + "&limit=5");
+        const results = await response.json();
+        
+        if (results && results.length > 0) {
+          dropdown.innerHTML = '';
+          results.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'search-result-item';
+            div.innerText = item.display_name;
+            div.onclick = () => {
+              goToLocation(parseFloat(item.lat), parseFloat(item.lon), item.display_name);
+              dropdown.style.display = 'none';
+            };
+            dropdown.appendChild(div);
+          });
+          dropdown.style.display = 'flex';
+        } else {
+          dropdown.style.display = 'none';
+        }
+      } catch (err) {
+        console.error("Autocomplete search error:", err);
+      }
+    }
+
+    async function performSearch(query) {
+      if (query.length === 0) return;
+      document.getElementById('search-results-dropdown').style.display = 'none';
+      
+      try {
+        const response = await fetch("https://nominatim.openstreetmap.org/search?format=json&q=" + encodeURIComponent(query) + "&limit=1");
+        const results = await response.json();
+        if (results && results.length > 0) {
+          const topResult = results[0];
+          goToLocation(parseFloat(topResult.lat), parseFloat(topResult.lon), topResult.display_name);
+        } else {
+          alert("Location not found. Please try a different query.");
+        }
+      } catch (err) {
+        console.error("Search geocoding error:", err);
+      }
+    }
+
+    function goToLocation(lat, lon, displayName) {
+      map.setView([lat, lon], 14);
+      
+      if (!pickerMarker) {
+        pickerMarker = L.marker([lat, lon]).addTo(map);
+      } else {
+        pickerMarker.setLatLng([lat, lon]);
+      }
+      
+      const mockEvent = { latlng: L.latLng(lat, lon) };
+      map.fire('click', mockEvent);
+    }
+
+    // Initialize fertilizers list
+    populateFertilizers();
+
+    // Fit map bounds to the perimeter polygon
+    const fitPoly = L.polygon(perakPerimeter);
+    map.fitBounds(fitPoly.getBounds(), { padding: [30, 30] });
+
+  </script>
+</body>
+</html>
+"""
+
+    # Replace dynamic tags safely
+    html_content = html_content.replace("{place}", html.escape(place))
+    html_content = html_content.replace("{lat}", f"{lat:.5f}")
+    html_content = html_content.replace("{lon}", f"{lon:.5f}")
+    html_content = html_content.replace("{lat_raw}", str(lat))
+    html_content = html_content.replace("{lon_raw}", str(lon))
+    html_content = html_content.replace("{s2_date}", s2_date[:10])
+    html_content = html_content.replace("{s2_cloud}", s2_cloud)
+    html_content = html_content.replace("{s2_tile_url}", s2_tile_url)
+    html_content = html_content.replace("{model_json}", model_json)
+    html_content = html_content.replace("{perak_perimeter_json}", perak_perimeter_json)
+    html_content = html_content.replace("{seraya_perimeter_json}", seraya_perimeter_json)
+    html_content = html_content.replace("{logo_base64}", logo_base64)
+    html_content = html_content.replace("{backend_url}", backend_url.rstrip("/"))
+
+    output_path.write_text(html_content, encoding="utf-8")
+    print(f"Palmnex HTML compiled successfully to {output_path}")
+
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(description="Generate Palmnex Crop Nutrient interface for Perak Site.")
+    parser.add_argument("--lat", type=float, default=DEFAULT_LAT, help="Latitude center.")
+    parser.add_argument("--lon", type=float, default=DEFAULT_LON, help="Longitude center.")
+    parser.add_argument("--place", type=str, default=DEFAULT_PLACE, help="Place name.")
+    parser.add_argument("--radius-km", type=float, default=8.0, help="Search radius.")
+    parser.add_argument("--start", type=str, default="2022-01-01", help="Sentinel start date.")
+    parser.add_argument("--end", type=str, default="2026-06-15", help="Sentinel end date.")
+    parser.add_argument("--max-cloud", type=float, default=50.0, help="Max cloud cover.")
+    parser.add_argument("--output", type=str, default="palmnex_demo.html", help="Output file.")
+    parser.add_argument("--backend-url", type=str, default="http://127.0.0.1:5001", help="Backend classifier API URL.")
+    parser.add_argument("--no-open", action="store_true", help="Don't open output in browser.")
+    return parser.parse_args()
+
+    
+def main() -> int:
+    args = parse_args()
+    bbox = make_bbox(args.lon, args.lat, args.radius_km)
+    
+    print("Searching Copernicus Data Space / Planetary Computer...")
+    real_layers = search_real_imagery(bbox, args.start, args.end, args.max_cloud)
+    
+    output = Path(args.output)
+    build_html(output, args.place, args.lat, args.lon, real_layers, args.backend_url)
+    
+    if not args.no_open:
+      webbrowser.open(output.resolve().as_uri())
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())

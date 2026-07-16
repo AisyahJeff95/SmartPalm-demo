@@ -1,0 +1,28 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Perak Site 1-hectare boundary (Square)",
+        "estate": "Perak Site",
+        "area_from_map_ha": 1.0,
+        "coordinate_system": "WGS84",
+        "source": "100m x 100m square starting from top-right coordinate",
+        "accuracy": "1 hectare square"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [100.769626, 4.963750],
+            [100.770528, 4.963750],
+            [100.770528, 4.962846],
+            [100.769626, 4.962846],
+            [100.769626, 4.963750]
+          ]
+        ]
+      }
+    }
+  ]
+}
