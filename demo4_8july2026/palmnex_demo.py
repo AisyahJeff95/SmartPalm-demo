@@ -112,8 +112,10 @@ def build_html(
 
     # Load and base64-encode logo for standalone portability
     import base64
-    logo_path = Path("mpob_tech_logo.png")
-    logo_base64 = "mpob_tech_logo.png"
+    logo_path = Path("MPOB-3.png")
+    if not logo_path.exists():
+        logo_path = Path("MPOB-5.png")
+    logo_base64 = "MPOB-3.png"
     if logo_path.exists():
         try:
             with open(logo_path, "rb") as f:
@@ -166,7 +168,7 @@ def build_html(
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MPOB - Precipalm </title>
+  <title>MPOB - Palmnex </title>
   <title>Powered by Palmnex </title>
   
   <!-- Fonts & Libraries -->
@@ -234,11 +236,12 @@ def build_html(
     }
 
     .brand-logo {
-      width: 32px;
-      height: 32px;
+      width: 100%;
+      max-width: 240px;
+      height: 56px;
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       overflow: hidden;
       background: transparent;
     }
@@ -545,11 +548,7 @@ def build_html(
     <aside class="sidebar">
       <div class="sidebar-header">
         <div class="brand-logo">
-          <img src="{logo_base64}" alt="MPOB Tech Logo" style="width: 100%; height: 100%; object-fit: contain;">
-        </div>
-        <div>
-          <div class="brand-title">MPOB - Precipalm</div>
-          <div class="brand-subtitle">Powered by Palmnex</div>
+          <img src="{logo_base64}" alt="MPOB Palmnex Logo" style="max-width: 100%; max-height: 56px; object-fit: contain;">
         </div>
       </div>
       
@@ -789,7 +788,7 @@ def build_html(
     function switchSite(site) {
       if (site === 'perak') {
         map.fitBounds(perakBorderLayer.getBounds());
-        document.getElementById('site-name').innerText = "Precipalm Perak Site";
+        document.getElementById('site-name').innerText = "Palmnex Perak Site";
         document.getElementById('site-area').innerText = "1.00 ha";
       } else if (site === 'seraya') {
         map.fitBounds(serayaBorderLayer.getBounds());
@@ -1543,7 +1542,7 @@ def build_html(
       
       reportEl.innerHTML = `
         <div style="border-bottom: 2px solid #2d6a4f; padding-bottom: 12px; margin-bottom: 20px;">
-          <h1 style="margin: 0; color: #2d6a4f; font-size: 22px; font-weight: 700; letter-spacing: -0.5px; font-family: 'Outfit', sans-serif;">MPOB - Precipalm</h1>
+          <h1 style="margin: 0; color: #2d6a4f; font-size: 22px; font-weight: 700; letter-spacing: -0.5px; font-family: 'Outfit', sans-serif;">MPOB - Palmnex</h1>
           <div style="font-size: 12px; font-weight: 600; color: #2d3748; margin-top: 2px;">Powered by Palmnex</div>
           <div style="font-size: 10px; color: #718096; font-weight: 600; margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px;">Crop Nutrient Analysis Report</div>
         </div>
@@ -1619,14 +1618,14 @@ def build_html(
         </div>
         
         <div style="margin-top: 35px; border-top: 1px solid #e2e8f0; padding-top: 10px; font-size: 8px; color: #a0aec0; text-align: center; line-height: 1.4;">
-          Disclaimer: This report is generated dynamically by the Precipalm system based on Sentinel-2 satellite imagery index calculations and recommendation matrices. It is intended for decision support only.
+          Disclaimer: This report is generated dynamically by the Palmnex system based on Sentinel-2 satellite imagery index calculations and recommendation matrices. It is intended for decision support only.
         </div>
       `;
 
       const cleanCoord = coordText.replace(/[\s,]+/g, "_");
       const options = {
         margin: 10,
-        filename: `precipalm_report_${cleanCoord}.pdf`,
+        filename: `palmnex_report_${cleanCoord}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2, useCORS: true },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -1768,7 +1767,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--end", type=str, default="2026-06-15", help="Sentinel end date.")
     parser.add_argument("--max-cloud", type=float, default=50.0, help="Max cloud cover.")
     parser.add_argument("--output", type=str, default="palmnex_demo.html", help="Output file.")
-    parser.add_argument("--backend-url", type=str, default="http://127.0.0.1:5001", help="Backend classifier API URL.")
+    parser.add_argument("--backend-url", type=str, default="https://aisyjeff95-smartpalm-classifier.hf.space", help="Backend classifier API URL.")
     parser.add_argument("--no-open", action="store_true", help="Don't open output in browser.")
     return parser.parse_args()
 
