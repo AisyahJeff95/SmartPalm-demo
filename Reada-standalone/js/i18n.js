@@ -2,6 +2,11 @@
 const i18nDict = {
     en: {
         langLabel: "Language:",
+        btnSignIn: "Sign In",
+        btnSignUp: "Register",
+        btnContinueGitHub: "Continue with GitHub",
+        authModalTitle: "Account Access",
+
         navAbout: "About",
         navContact: "Contact",
         navProfile: "Profile",
@@ -157,6 +162,11 @@ const i18nDict = {
     },
     ms: {
         langLabel: "Bahasa:",
+        btnSignIn: "Log Masuk",
+        btnSignUp: "Daftar",
+        btnContinueGitHub: "Teruskan dengan GitHub",
+        authModalTitle: "Akses Akaun",
+
         navAbout: "Info",
         navContact: "Hubungi Kami",
         navProfile: "Profil",
