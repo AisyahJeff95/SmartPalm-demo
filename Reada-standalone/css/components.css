@@ -1,17 +1,19 @@
 ======================================
            TOP NAVIGATION PANEL & LANGUAGE DROPDOWN
            ========================================================================= */
-        .top-nav-panel {
+                .top-nav-panel {
             width: 100%;
-            background-color: #6ca5b5; /* Muted slate-teal blue matching screenshot */
+            background-color: #1a4240;
             height: 48px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 24px;
             box-sizing: border-box;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
-            position: relative;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+            position: absolute;
+            top: 0;
+            left: 0;
             z-index: 500;
         }
 
