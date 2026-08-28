@@ -1,6 +1,16 @@
 {
   "version": 2,
   "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/PalmnexReaDS",
+      "destination": "/reada.html"
+    },
+    {
+      "source": "/palmnexreads",
+      "destination": "/reada.html"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
