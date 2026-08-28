@@ -16,7 +16,7 @@ const i18nDict = {
         card1Desc: "Detailed fertilizer analysis<br />Advanced agronomic rules",
         card2Title: "Standard<br />Fertilizer Recommendation",
         card2Desc: "Instant fertilizer analysis<br />Cadangan - cadangan asas",
-        card3Title: "PALMNEX ReaDS",
+        card3Title: "PalmnexReaDS",
         card3Desc: "PALMNEX Research and Database System",
         btnGetStarted: "Get Started",
         tooltipComingSoonComp: "Comprehensive section coming soon",
@@ -56,7 +56,7 @@ const i18nDict = {
         btnCalculateComp: "🧮 Run Comprehensive Analysis",
         
         // PALMNEX ReaDS (reada.html)
-        readaHeader: "PALMNEX ReaDS (PALMNEX Research and Database System V2.0)",
+        readaHeader: "PalmnexReaDS",
         tabHome: "Home",
         tabTrialList: "List Of Available Trial Data",
         tabMainInfo: "Main Information",
@@ -65,9 +65,9 @@ const i18nDict = {
         tabVeg: "Vegetative Sampling",
         tabAnnual: "Annual Plot Data",
         tabExit: "Exit",
-        brandTitle: "PALMNEX ReaDS",
+        brandTitle: "PalmnexReaDS",
         brandSub: "PALMNEX Research and Database System",
-        brandVersion: "PALMNEX ReaDS Software V2.0 2026 by Palmnex",
+        brandVersion: "PalmnexReaDS Software V2.0 2026 by Palmnex",
         brandEngine: "MPOB Oil Palm Agronomic Research & Database Engine",
         
         // Banners & Titles
@@ -171,7 +171,7 @@ const i18nDict = {
         card1Desc: "Analisis baja terperinci<br />Peraturan agronomi lanjutan",
         card2Title: "Cadangan Baja<br />Standard",
         card2Desc: "Analisis baja instant<br />Cadangan - cadangan asas",
-        card3Title: "PALMNEX ReaDS",
+        card3Title: "PalmnexReaDS",
         card3Desc: "PALMNEX Research and Database System",
         btnGetStarted: "Mula",
         tooltipComingSoonComp: "Bahagian akan datang",
@@ -211,7 +211,7 @@ const i18nDict = {
         btnCalculateComp: "🧮 Jalankan Analisis Komprehensif",
         
         // PALMNEX ReaDS (reada.html)
-        readaHeader: "PALMNEX ReaDS (PALMNEX Research and Database System V2.0)",
+        readaHeader: "PalmnexReaDS",
         tabHome: "Utama",
         tabTrialList: "Senarai Data Eksperimen",
         tabMainInfo: "Maklumat Utama",
@@ -220,7 +220,7 @@ const i18nDict = {
         tabVeg: "Persampelan Vegetatif",
         tabAnnual: "Data Plot Tahunan",
         tabExit: "Keluar",
-        brandTitle: "PALMNEX ReaDS",
+        brandTitle: "PalmnexReaDS",
         brandSub: "PALMNEX Research and Database System",
         brandVersion: "Perisian PALMNEX ReaDS V2.0 2026 oleh Palmnex",
         brandEngine: "Enjin Penyelidikan & Pangkalan Data Agronomi Sawit MPOB",
