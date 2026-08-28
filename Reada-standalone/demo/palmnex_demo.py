@@ -112,20 +112,14 @@ def build_html(
 
     # Load and base64-encode logo for standalone portability
     import base64
-    logo_candidates = [
-        Path("MPOB-3_transparent.png"),
-        Path("MPOB-3.png"),
-        Path("mpob_tech_logo.png")
-    ]
-    logo_base64 = ""
-    for logo_path in logo_candidates:
-        if logo_path.exists():
-            try:
-                with open(logo_path, "rb") as f:
-                    logo_base64 = f"data:image/png;base64,{base64.b64encode(f.read()).decode('utf-8')}"
-                break
-            except Exception as e:
-                print(f"Error encoding logo {logo_path} to base64: {e}")
+    logo_path = Path("mpob_tech_logo.png")
+    logo_base64 = "mpob_tech_logo.png"
+    if logo_path.exists():
+        try:
+            with open(logo_path, "rb") as f:
+                logo_base64 = f"data:image/png;base64,{base64.b64encode(f.read()).decode('utf-8')}"
+        except Exception as e:
+            print(f"Error encoding logo to base64: {e}")
 
     # Load Perak estate perimeter boundary
     geojson_path = Path("perak_perimeter.geojson")
@@ -183,8 +177,6 @@ def build_html(
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-  <script src="https://unpkg.com/shpjs@latest/dist/shp.js"></script>
-  <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
   
   <style>
     :root {
@@ -197,28 +189,6 @@ def build_html(
       --text-main: #f3f4f6;
       --text-muted: #9ca3af;
       --shadow-premium: 0 12px 40px -10px rgba(0, 0, 0, 0.85);
-    }
-
-    .upload-drop-zone {
-      border: 2px dashed rgba(18, 184, 134, 0.4);
-      background: rgba(12, 166, 120, 0.05);
-      border-radius: 8px;
-      padding: 14px 10px;
-      transition: all 0.25s ease;
-    }
-    .upload-drop-zone:hover, .upload-drop-zone.dragover {
-      border-color: var(--accent-glow);
-      background: rgba(12, 166, 120, 0.15);
-      box-shadow: 0 0 12px rgba(18, 184, 134, 0.25);
-    }
-    .upload-icon-circle {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      background: rgba(18, 184, 134, 0.15);
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
     body {
@@ -572,37 +542,17 @@ def build_html(
     
     <!-- Sidebar Panel -->
     <aside class="sidebar">
-      <div class="sidebar-header" style="justify-content: center; padding: 18px 24px;">
-        <div class="brand-logo" style="width: 100%; height: 50px;">
+      <div class="sidebar-header">
+        <div class="brand-logo">
           <img src="{logo_base64}" alt="MPOB Tech Logo" style="width: 100%; height: 100%; object-fit: contain;">
+        </div>
+        <div>
+          <div class="brand-title">MPOB - PalmNex</div>
         </div>
       </div>
       
       <div class="sidebar-content">
         
-        <!-- Shapefile Upload Box -->
-        <div>
-          <div class="sidebar-section-title">
-            <span>Upload Estate Shapefile</span>
-            <i data-lucide="upload-cloud" size="12"></i>
-          </div>
-          <div class="glass-card" style="padding: 12px;">
-            <div id="drop-zone" class="upload-drop-zone" onclick="document.getElementById('shp-file-input').click()">
-              <input type="file" id="shp-file-input" accept=".shp,.zip,.dbf,.prj,.geojson,.json" multiple style="display: none;" onchange="onShapefileSelected(event)">
-              <div style="display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; text-align: center;">
-                <div class="upload-icon-circle">
-                  <i data-lucide="file-up" size="18" style="color: var(--accent-glow);"></i>
-                </div>
-                <div>
-                  <div style="font-size: 11px; font-weight: 600; color: var(--text-main);">Upload .shp / .zip Shapefile</div>
-                  <div style="font-size: 9px; color: var(--text-muted); margin-top: 2px;">Click or Drag & Drop shapefile here</div>
-                </div>
-              </div>
-            </div>
-            <div id="upload-status" style="font-size: 11px; margin-top: 8px; color: var(--accent-glow); font-weight: 500; display: none; text-align: center;"></div>
-          </div>
-        </div>
-
         <!-- Estate Metadata -->
         <div>
           <div class="sidebar-section-title" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
@@ -810,286 +760,8 @@ def build_html(
     }
     const layerControl = L.control.layers(baseMaps, overlays, { position: 'bottomright', collapsed: false }).addTo(map);
 
-    // Shapefile handling and active site state
-    const uploadedSites = {};
-    let activeSiteId = 'perak';
-
-    function onShapefileSelected(event) {
-      const files = event.target.files;
-      if (files && files.length > 0) {
-        handleShapefileFiles(files);
-      }
-    }
-
-    async function handleShapefileFiles(files) {
-      if (!files || files.length === 0) return;
-      const statusEl = document.getElementById('upload-status');
-      statusEl.style.display = 'block';
-      statusEl.style.color = 'var(--accent-glow)';
-      statusEl.innerText = 'Processing shapefile...';
-
-      try {
-        let geojson = null;
-        let mainFileName = files[0].name;
-
-        const fileArray = Array.from(files);
-        const zipFile = fileArray.find(f => f.name.toLowerCase().endsWith('.zip'));
-        const shpFile = fileArray.find(f => f.name.toLowerCase().endsWith('.shp'));
-        const geojsonFile = fileArray.find(f => f.name.toLowerCase().endsWith('.geojson') || f.name.toLowerCase().endsWith('.json'));
-
-        if (zipFile) {
-          mainFileName = zipFile.name;
-          const buffer = await zipFile.arrayBuffer();
-          geojson = await shp(buffer);
-        } else if (shpFile) {
-          mainFileName = shpFile.name;
-          const shpBuffer = await shpFile.arrayBuffer();
-          const dbfFile = fileArray.find(f => f.name.toLowerCase().endsWith('.dbf'));
-          const prjFile = fileArray.find(f => f.name.toLowerCase().endsWith('.prj'));
-
-          if (dbfFile) {
-            const dbfBuffer = await dbfFile.arrayBuffer();
-            let prjString = null;
-            if (prjFile) prjString = await prjFile.text();
-            geojson = shp.combine([shp.parseShp(shpBuffer, prjString), shp.parseDbf(dbfBuffer)]);
-          } else {
-            geojson = shp.parseShp(shpBuffer);
-          }
-        } else if (geojsonFile) {
-          mainFileName = geojsonFile.name;
-          const text = await geojsonFile.text();
-          geojson = JSON.parse(text);
-        } else {
-          throw new Error("Please select a .shp file, .zip shapefile archive, or .geojson file.");
-        }
-
-        if (!geojson) throw new Error("Could not parse valid geometry from shapefile.");
-        if (Array.isArray(geojson)) geojson = geojson[0];
-
-        // Format name
-        const cleanName = mainFileName.replace(/\.[^/.]+$/, "").replace(/[_]/g, " ");
-        const siteName = cleanName.charAt(0).toUpperCase() + cleanName.slice(1);
-
-        // Create Leaflet layer
-        const customLayer = L.geoJSON(geojson, {
-          style: {
-            color: '#0ca678',
-            weight: 3,
-            fillColor: '#12b886',
-            fillOpacity: 0.2,
-            dashArray: '4'
-          }
-        });
-
-        const bounds = customLayer.getBounds();
-        if (!bounds || !bounds.isValid()) throw new Error("Shapefile does not contain valid coordinate bounds.");
-
-        // Add permanently to map and layer control box
-        customLayer.addTo(map);
-        if (layerControl) {
-          layerControl.addOverlay(customLayer, `📍 ${siteName} Boundary`);
-        }
-
-        // Calculate area
-        let areaText = "Custom Area";
-        try {
-          if (window.turf) {
-            const areaSqM = turf.area(geojson);
-            const areaHa = (areaSqM / 10000).toFixed(2);
-            areaText = `${Number(areaHa).toLocaleString()} ha`;
-          }
-        } catch(e) {
-          console.warn("Area calculation error:", e);
-        }
-
-        const siteId = 'custom_' + Date.now();
-
-        uploadedSites[siteId] = {
-          id: siteId,
-          name: siteName,
-          geojson: geojson,
-          layer: customLayer,
-          bounds: bounds,
-          areaText: areaText
-        };
-
-        // Persist to localStorage
-        saveUploadedSitesToStorage();
-
-        // Add option to site selector dropdown
-        const selectEl = document.getElementById('site-selector');
-        const option = document.createElement('option');
-        option.value = siteId;
-        option.textContent = `📍 ${siteName}`;
-        selectEl.appendChild(option);
-
-        // Switch to new site automatically
-        selectEl.value = siteId;
-        switchSite(siteId);
-
-        statusEl.innerHTML = `✓ Loaded "${siteName}" <button onclick="clearSavedSites()" style="background:none; border:none; color:#ff6b6b; text-decoration:underline; cursor:pointer; font-size:10px; margin-left:4px;">(Clear)</button>`;
-        if (window.lucide) lucide.createIcons();
-
-      } catch(err) {
-        console.error(err);
-        statusEl.style.color = '#ff6b6b';
-        statusEl.innerText = `Error: ${err.message || 'Failed to load shapefile'}`;
-      }
-    }
-
-    const STORAGE_KEY = 'palmnex_saved_shapefiles_v1';
-
-    function saveUploadedSitesToStorage() {
-      try {
-        const list = Object.keys(uploadedSites).map(id => {
-          const item = uploadedSites[id];
-          return {
-            id: item.id,
-            name: item.name,
-            geojson: item.geojson,
-            areaText: item.areaText
-          };
-        });
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
-      } catch(e) {
-        console.warn("Failed to save shapefiles to localStorage:", e);
-      }
-    }
-
-    function loadSavedSitesFromStorage() {
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return;
-        const list = JSON.parse(raw);
-        if (!Array.isArray(list) || list.length === 0) return;
-
-        const selectEl = document.getElementById('site-selector');
-        list.forEach(item => {
-          if (!item.id || !item.geojson) return;
-          const customLayer = L.geoJSON(item.geojson, {
-            style: {
-              color: '#0ca678',
-              weight: 3,
-              fillColor: '#12b886',
-              fillOpacity: 0.2,
-              dashArray: '4'
-            }
-          });
-          const bounds = customLayer.getBounds();
-          if (!bounds || !bounds.isValid()) return;
-
-          // Add permanently to map & layer control
-          customLayer.addTo(map);
-          if (layerControl) {
-            layerControl.addOverlay(customLayer, `📍 ${item.name} Boundary`);
-          }
-
-          uploadedSites[item.id] = {
-            id: item.id,
-            name: item.name,
-            geojson: item.geojson,
-            layer: customLayer,
-            bounds: bounds,
-            areaText: item.areaText || "Custom Area"
-          };
-
-          if (selectEl) {
-            const option = document.createElement('option');
-            option.value = item.id;
-            option.textContent = `📍 ${item.name}`;
-            selectEl.appendChild(option);
-          }
-        });
-
-        if (list.length > 0) {
-          const statusEl = document.getElementById('upload-status');
-          if (statusEl) {
-            statusEl.style.display = 'block';
-            statusEl.style.color = 'var(--accent-glow)';
-            statusEl.innerHTML = `✓ Restored ${list.length} saved site(s) <button onclick="clearSavedSites()" style="background:none; border:none; color:#ff6b6b; text-decoration:underline; cursor:pointer; font-size:10px; margin-left:4px;">(Clear)</button>`;
-          }
-        }
-      } catch(e) {
-        console.warn("Failed to load saved shapefiles from localStorage:", e);
-      }
-    }
-
-    function clearSavedSites() {
-      if (!confirm("Are you sure you want to clear all saved uploaded shapefiles?")) return;
-      try {
-        localStorage.removeItem(STORAGE_KEY);
-        Object.keys(uploadedSites).forEach(id => {
-          if (map.hasLayer(uploadedSites[id].layer)) {
-            map.removeLayer(uploadedSites[id].layer);
-          }
-          if (layerControl) {
-            layerControl.removeLayer(uploadedSites[id].layer);
-          }
-          delete uploadedSites[id];
-        });
-        const selectEl = document.getElementById('site-selector');
-        if (selectEl) {
-          Array.from(selectEl.options).forEach(opt => {
-            if (opt.value.startsWith('custom_')) {
-              selectEl.removeChild(opt);
-            }
-          });
-          selectEl.value = 'perak';
-          switchSite('perak');
-        }
-        const statusEl = document.getElementById('upload-status');
-        if (statusEl) {
-          statusEl.style.display = 'block';
-          statusEl.style.color = 'var(--text-muted)';
-          statusEl.innerText = 'Cleared saved shapefiles.';
-        }
-      } catch(e) {
-        console.error(e);
-      }
-    }
-
-    function setupShapefileUploader() {
-      loadSavedSitesFromStorage();
-      const dropZone = document.getElementById('drop-zone');
-      if (!dropZone) return;
-      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-        dropZone.addEventListener(eventName, (e) => {
-          e.preventDefault();
-          e.stopPropagation();
-        }, false);
-      });
-      ['dragenter', 'dragover'].forEach(eventName => {
-        dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
-      });
-      ['dragleave', 'drop'].forEach(eventName => {
-        dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
-      });
-      dropZone.addEventListener('drop', (e) => {
-        const dt = e.dataTransfer;
-        if (dt && dt.files && dt.files.length > 0) {
-          handleShapefileFiles(dt.files);
-        }
-      });
-    }
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', setupShapefileUploader);
-    } else {
-      setupShapefileUploader();
-    }
-
     // Fast Point in Polygon checker
     function isInsidePerimeter(lat, lon) {
-      if (activeSiteId && uploadedSites[activeSiteId]) {
-        try {
-          if (window.turf) {
-            const pt = turf.point([lon, lat]);
-            return turf.booleanPointInPolygon(pt, uploadedSites[activeSiteId].geojson);
-          }
-        } catch(e) {
-          return true;
-        }
-      }
       // Check Perak Site
       let insidePerak = false;
       for (let i = 0, j = perakPerimeter.length - 1; i < perakPerimeter.length; j = i++) {
@@ -1113,18 +785,6 @@ def build_html(
 
     // Switch between cultivation sites
     function switchSite(site) {
-      activeSiteId = site;
-
-      // Highlight selected site style while leaving all boundaries permanently visible on map
-      Object.keys(uploadedSites).forEach(id => {
-        const isSelected = (id === site);
-        uploadedSites[id].layer.setStyle({
-          color: isSelected ? '#12b886' : '#0ca678',
-          weight: isSelected ? 4 : 2,
-          fillOpacity: isSelected ? 0.35 : 0.15
-        });
-      });
-
       if (site === 'perak') {
         map.fitBounds(perakBorderLayer.getBounds());
         document.getElementById('site-name').innerText = "PalmNex Perak Site";
@@ -1133,11 +793,6 @@ def build_html(
         map.fitBounds(serayaBorderLayer.getBounds());
         document.getElementById('site-name').innerText = "Seraya Estate";
         document.getElementById('site-area').innerText = "3,593.42 ha";
-      } else if (uploadedSites[site]) {
-        const custom = uploadedSites[site];
-        map.fitBounds(custom.bounds);
-        document.getElementById('site-name').innerText = custom.name;
-        document.getElementById('site-area').innerText = custom.areaText;
       }
     }
 
@@ -1581,8 +1236,6 @@ def build_html(
     let classificationBbox = null;
     let isClassifying = false;
 
-    let classificationLayer = null;
-
     async function triggerClassification() {
       if (isClassifying) return;
       isClassifying = true;
@@ -1591,117 +1244,38 @@ def build_html(
       const statusEl = document.getElementById('classification-status');
       
       btn.disabled = true;
-      statusEl.innerText = "Querying Sentinel-2 & Classifying Viewport...";
+      statusEl.innerText = "Querying Sentinel-2 & Classifying...";
       statusEl.style.color = "#ffe066"; // warning yellow
 
       const bounds = map.getBounds();
-      const lonMin = bounds.getWest();
-      const latMin = bounds.getSouth();
-      const lonMax = bounds.getEast();
-      const latMax = bounds.getNorth();
-      const bbox = [lonMin, latMin, lonMax, latMax];
+      const bbox = [
+        bounds.getWest(),
+        bounds.getSouth(),
+        bounds.getEast(),
+        bounds.getNorth()
+      ];
 
       try {
-        let fetchedSuccess = false;
-        try {
-          const bboxStr = bbox.join(',');
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 1200);
-          const response = await fetch(`{backend_url}/api/classify?bbox=${bboxStr}&format=json`, { signal: controller.signal });
-          clearTimeout(timeoutId);
-
-          if (response.ok) {
-            const data = await response.json();
-            if (data && data.grid) {
-              classificationGrid = data.grid;
-              classificationBbox = data.bbox || bbox;
-              fetchedSuccess = true;
-            }
-          }
-        } catch (e) {
-          // Backend offline or timeout -> fallback to client-side ML classification
+        const bboxStr = bbox.join(',');
+        const response = await fetch(`{backend_url}/api/classify?bbox=${bboxStr}&format=json`);
+        
+        if (!response.ok) {
+          throw new Error(`Classification error: ${response.statusText}`);
         }
 
-        if (!fetchedSuccess) {
-          classificationBbox = bbox;
-          classificationGrid = [];
-          
-          for (let py = 0; py < 128; py++) {
-            const row = [];
-            const lat = latMax - (py / 127) * (latMax - latMin);
-            for (let px = 0; px < 128; px++) {
-              const lon = lonMin + (px / 127) * (lonMax - lonMin);
-              const feats = getLocalFeatures(lat, lon);
-              const lcCls = predictClassifier(feats, smartpalmModel.trees_LandCover);
-              row.push(lcCls);
-            }
-            classificationGrid.push(row);
-          }
-        }
+        const data = await response.json();
+        classificationGrid = data.grid;
+        classificationBbox = data.bbox;
 
-        // Render visual classification raster overlay onto Leaflet map
-        renderClassificationOverlay(classificationGrid, classificationBbox);
-
-        statusEl.innerText = "Classification Active (128x128 Grid)! Click map to query pixels.";
+        statusEl.innerText = "Classification active! Click map to query pixels.";
         statusEl.style.color = "#51cf66"; // success green
       } catch (err) {
         console.error("Classification error:", err);
-        statusEl.innerText = "Error classifying viewport: " + err.message;
-        statusEl.style.color = "#ff6b6b";
+        statusEl.innerText = "Ready to classify. Click button to initialize Sentinel-2 data.";
+        statusEl.style.color = "var(--text-muted)";
       } finally {
         isClassifying = false;
         btn.disabled = false;
-      }
-    }
-
-    function renderClassificationOverlay(grid, bbox) {
-      if (classificationLayer && map.hasLayer(classificationLayer)) {
-        map.removeLayer(classificationLayer);
-      }
-
-      const canvas = document.createElement('canvas');
-      canvas.width = 128;
-      canvas.height = 128;
-      const ctx = canvas.getContext('2d');
-      const imgData = ctx.createImageData(128, 128);
-
-      const colorMap = [
-        [18, 184, 134, 160], // 0: Oil Palm (#12b886)
-        [43, 138, 62, 160],  // 1: Forest (#2b8a3e)
-        [59, 130, 246, 180], // 2: Water (#3b82f6)
-        [134, 142, 150, 160],// 3: Road (#868e96)
-        [224, 49, 49, 180],  // 4: Building (#e03131)
-        [245, 158, 11, 160]  // 5: Bare Soil (#f59e0b)
-      ];
-
-      for (let py = 0; py < 128; py++) {
-        for (let px = 0; px < 128; px++) {
-          const rawCls = grid[py][px];
-          let cls = rawCls;
-          if (rawCls === 0) cls = 0;
-          else if (rawCls === 2) cls = 2;
-          else if (rawCls === 4) cls = 4;
-          else if (rawCls === 5) cls = 5;
-          else cls = Math.min(5, Math.max(0, rawCls));
-
-          const color = colorMap[cls] || colorMap[0];
-          const idx = (py * 128 + px) * 4;
-          imgData.data[idx] = color[0];
-          imgData.data[idx + 1] = color[1];
-          imgData.data[idx + 2] = color[2];
-          imgData.data[idx + 3] = color[3];
-        }
-      }
-
-      ctx.putImageData(imgData, 0, 0);
-      const dataUrl = canvas.toDataURL();
-      const imageBounds = [[bbox[1], bbox[0]], [bbox[3], bbox[2]]];
-      
-      classificationLayer = L.imageOverlay(dataUrl, imageBounds, { opacity: 0.65, zIndex: 450 }).addTo(map);
-      if (typeof layerControl !== 'undefined' && layerControl) {
-        try {
-          layerControl.addOverlay(classificationLayer, "Sentinel-2 Classification Grid");
-        } catch (e) {}
       }
     }
 
@@ -1798,24 +1372,7 @@ def build_html(
       let classification = lcLabels[lcClass];
       let classificationColor = lcColors[lcClass];
       
-      let isInsideActiveCustom = false;
-      if (activeSiteId && uploadedSites[activeSiteId]) {
-        try {
-          if (window.turf) {
-            const pt = turf.point([lon, lat]);
-            isInsideActiveCustom = turf.booleanPointInPolygon(pt, uploadedSites[activeSiteId].geojson);
-          } else {
-            isInsideActiveCustom = true;
-          }
-        } catch(e) {
-          isInsideActiveCustom = true;
-        }
-      }
-
-      if (activeSiteId && uploadedSites[activeSiteId]) {
-        estateName = uploadedSites[activeSiteId].name;
-        classification = isInsideActiveCustom ? "Inside Estate (" + classification + ")" : "Outside Estate (" + classification + ")";
-      } else if (insidePerak) {
+      if (insidePerak) {
         estateName = "Perak Site";
         classification = "Inside Estate (" + classification + ")";
       } else if (insideSeraya) {

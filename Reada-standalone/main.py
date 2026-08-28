@@ -218,8 +218,6 @@ class Page1Widget(QWidget):
             os.path.dirname(__file__),
             "WhatsApp Image 2026-08-11 at 08.43.18.jpeg"
         )
-        if not os.path.exists(self.bg_image_path):
-            self.bg_image_path = "/Users/drsitiaisyahjaafar/SmartPalm-demo/demo5-qt-python/WhatsApp Image 2026-08-11 at 08.43.18.jpeg"
 
         self.bg_pixmap = None
         if os.path.exists(self.bg_image_path):
@@ -269,7 +267,7 @@ class ReaDAWrapperWidget(QWidget):
         top_layout = QHBoxLayout(self.top_bar)
         top_layout.setContentsMargins(0, 0, 0, 0)
 
-        self.btn_back_to_smartpalm = QPushButton("← Back to SmartPalm Launcher")
+        self.btn_back_to_smartpalm = QPushButton("← Back to Palmnex-MPOB")
         self.btn_back_to_smartpalm.setFixedHeight(32)
         self.btn_back_to_smartpalm.setFont(QFont("Segoe UI", 20, QFont.Weight.Bold))
         self.btn_back_to_smartpalm.setCursor(Qt.CursorShape.PointingHandCursor)
