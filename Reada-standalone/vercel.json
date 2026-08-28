@@ -4,11 +4,19 @@
   "rewrites": [
     {
       "source": "/PalmnexReaDS",
-      "destination": "/reada.html"
+      "destination": "/PalmnexReaDS.html"
     },
     {
       "source": "/palmnexreads",
-      "destination": "/reada.html"
+      "destination": "/PalmnexReaDS.html"
+    },
+    {
+      "source": "/reada",
+      "destination": "/PalmnexReaDS.html"
+    },
+    {
+      "source": "/reada.html",
+      "destination": "/PalmnexReaDS.html"
     }
   ],
   "headers": [
