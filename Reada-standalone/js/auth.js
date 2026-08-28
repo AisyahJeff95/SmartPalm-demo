@@ -1,4 +1,3 @@
-
 // Protected Card Click Handler: Check if user is signed in before navigating
 function handleProtectedCardClick(targetUrl) {
     if (currentUser) {
@@ -7,9 +6,8 @@ function handleProtectedCardClick(targetUrl) {
         openAuthModal('signin');
     }
 }
-// Supabase Authentication & User Session Management
 
-// Global User State
+// Supabase Authentication & User Session Management
 let currentUser = null;
 
 // Open Auth Modal Dialog
@@ -17,7 +15,7 @@ function openAuthModal(defaultTab = 'signin') {
     const modal = document.getElementById('auth-modal');
     if (modal) {
         modal.style.display = 'flex';
-        switchAuthTab(defaultTab);
+        switchAuthTab('signin'); // Default to Sign In
     }
 }
 
@@ -29,8 +27,13 @@ function closeAuthModal() {
     }
 }
 
-// Switch between Sign In and Sign Up Tabs
+// Switch between Sign In and Sign Up Tabs (Sign Up disabled)
 function switchAuthTab(tabName) {
+    if (tabName === 'signup') {
+        showAuthError("Registration is currently disabled by administrator.");
+        return;
+    }
+
     const tabSignin = document.getElementById('auth-tab-signin');
     const tabSignup = document.getElementById('auth-tab-signup');
     const formSignin = document.getElementById('auth-form-signin');
@@ -39,46 +42,30 @@ function switchAuthTab(tabName) {
 
     if (authError) authError.style.display = 'none';
 
-    if (tabName === 'signin') {
-        if (tabSignin) tabSignin.classList.add('active');
-        if (tabSignup) tabSignup.classList.remove('active');
-        if (formSignin) formSignin.style.display = 'block';
-        if (formSignup) formSignup.style.display = 'none';
-    } else {
-        if (tabSignup) tabSignup.classList.add('active');
-        if (tabSignin) tabSignin.classList.remove('active');
-        if (formSignup) formSignup.style.display = 'block';
-        if (formSignin) formSignin.style.display = 'none';
-    }
+    if (tabSignin) tabSignin.classList.add('active');
+    if (tabSignup) tabSignup.classList.remove('active');
+    if (formSignin) formSignin.style.display = 'block';
+    if (formSignup) formSignup.style.display = 'none';
 }
 
-// 1. Sign In with GitHub OAuth
-async function signInWithGitHub() {
-    if (!supabase) {
-        showAuthError("Supabase not initialized.");
-        return;
-    }
-    try {
-        const { data, error } = await supabase.auth.signInWithOAuth({
-            provider: 'github',
-            options: {
-                redirectTo: window.location.origin
-            }
-        });
-        if (error) throw error;
-    } catch (err) {
-        showAuthError(err.message || "Failed to sign in with GitHub.");
-    }
-}
-
-// 2. Sign In with Email & Password
+// Sign In with Email / Username & Password (supporting admin1 / admin1)
 async function handleEmailSignIn(event) {
     if (event) event.preventDefault();
     const email = document.getElementById('signin-email')?.value?.trim();
     const password = document.getElementById('signin-password')?.value;
 
     if (!email || !password) {
-        showAuthError("Please enter your email and password.");
+        showAuthError("Please enter your username/email and password.");
+        return;
+    }
+
+    // Check for admin1 / admin1 credentials
+    if ((email.toLowerCase() === 'admin1' || email.toLowerCase() === 'admin1@palmnex.com.my') && password === 'admin1') {
+        const adminUser = { email: 'admin1@palmnex.com.my', username: 'admin1', id: 'admin1-id', role: 'admin' };
+        localStorage.setItem('palmnex_user_session', JSON.stringify(adminUser));
+        currentUser = adminUser;
+        closeAuthModal();
+        updateTopNavUser(adminUser);
         return;
     }
 
@@ -99,68 +86,18 @@ async function handleEmailSignIn(event) {
         closeAuthModal();
         updateTopNavUser(data.user);
     } catch (err) {
-        showAuthError(err.message || "Invalid email or password.");
+        showAuthError(err.message || "Invalid username or password.");
     } finally {
         setAuthLoading(false);
     }
 }
 
-// 3. Sign Up New Account
-async function handleEmailSignUp(event) {
-    if (event) event.preventDefault();
-    const name = document.getElementById('signup-name')?.value?.trim();
-    const email = document.getElementById('signup-email')?.value?.trim();
-    const password = document.getElementById('signup-password')?.value;
-    const confirmPassword = document.getElementById('signup-confirm-password')?.value;
-
-    if (!email || !password) {
-        showAuthError("Please enter email and password.");
-        return;
-    }
-
-    if (password !== confirmPassword) {
-        showAuthError("Passwords do not match.");
-        return;
-    }
-
-    if (password.length < 6) {
-        showAuthError("Password must be at least 6 characters.");
-        return;
-    }
-
-    if (!supabase) {
-        showAuthError("Supabase not initialized.");
-        return;
-    }
-
-    try {
-        setAuthLoading(true);
-        const { data, error } = await supabase.auth.signUp({
-            email: email,
-            password: password,
-            options: {
-                data: {
-                    full_name: name || email
-                }
-            }
-        });
-
-        if (error) throw error;
-
-        showAuthSuccess("Registration successful! You can now sign in.");
-        setTimeout(() => switchAuthTab('signin'), 1500);
-    } catch (err) {
-        showAuthError(err.message || "Failed to register account.");
-    } finally {
-        setAuthLoading(false);
-    }
-}
-
-// 4. Sign Out User
+// Sign Out User
 async function handleSignOut() {
     if (supabase) {
         await supabase.auth.signOut();
     }
+    localStorage.removeItem('palmnex_user_session');
     currentUser = null;
     updateTopNavUser(null);
 }
@@ -190,9 +127,7 @@ function showAuthSuccess(msg) {
 // Helper: Loading Indicator Toggle
 function setAuthLoading(loading) {
     const btnSignin = document.getElementById('btn-auth-signin');
-    const btnSignup = document.getElementById('btn-auth-signup');
     if (btnSignin) btnSignin.disabled = loading;
-    if (btnSignup) btnSignup.disabled = loading;
 }
 
 // Update Top Navigation Bar UI according to user session state
@@ -205,7 +140,7 @@ function updateTopNavUser(user) {
     if (user) {
         if (authBtnContainer) authBtnContainer.style.display = 'none';
         if (profileDropdown) profileDropdown.style.display = 'inline-block';
-        if (userEmailSpan) userEmailSpan.textContent = user.email;
+        if (userEmailSpan) userEmailSpan.textContent = user.username || user.email;
     } else {
         if (authBtnContainer) authBtnContainer.style.display = 'inline-block';
         if (profileDropdown) profileDropdown.style.display = 'none';
@@ -214,6 +149,18 @@ function updateTopNavUser(user) {
 
 // Listen to Auth Events on Load
 document.addEventListener('DOMContentLoaded', async () => {
+    // 1. Check local admin session
+    const savedLocalSession = localStorage.getItem('palmnex_user_session');
+    if (savedLocalSession) {
+        try {
+            const userObj = JSON.parse(savedLocalSession);
+            currentUser = userObj;
+            updateTopNavUser(userObj);
+            return;
+        } catch(e) {}
+    }
+
+    // 2. Check Supabase session
     if (supabase) {
         const { data } = await supabase.auth.getSession();
         if (data && data.session) {
@@ -225,7 +172,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         supabase.auth.onAuthStateChange((event, session) => {
             if (session && session.user) {
                 updateTopNavUser(session.user);
-            } else {
+            } else if (!localStorage.getItem('palmnex_user_session')) {
                 updateTopNavUser(null);
             }
         });

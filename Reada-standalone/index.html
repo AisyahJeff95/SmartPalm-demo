@@ -163,7 +163,7 @@
             <!-- Tab Buttons -->
             <div style="display: flex; gap: 8px; margin-bottom: 16px; background: #f1f5f9; padding: 4px; border-radius: 8px;">
                 <button type="button" id="auth-tab-signin" class="active" style="flex: 1; padding: 8px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; background: transparent; color: #64748b;" onclick="switchAuthTab('signin')" data-i18n="btnSignIn">Sign In</button>
-                <button type="button" id="auth-tab-signup" style="flex: 1; padding: 8px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; background: transparent; color: #64748b;" onclick="switchAuthTab('signup')" data-i18n="btnSignUp">Register</button>
+                <button type="button" id="auth-tab-signup" disabled style="flex: 1; padding: 8px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: not-allowed; opacity: 0.5; background: transparent; color: #94a3b8;" title="Registration is disabled" data-i18n="btnSignUp">Register</button>
             </div>
 
             <!-- Messages -->
@@ -173,8 +173,8 @@
             <!-- Form 1: Sign In -->
             <form id="auth-form-signin" onsubmit="handleEmailSignIn(event)">
                 <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #334155;">Email Address</label>
-                    <input type="email" id="signin-email" required placeholder="name@company.com" style="width: 100%; height: 38px; padding: 0 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;" />
+                    <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #334155;">Username or Email</label>
+                    <input type="text" id="signin-email" required placeholder="admin1 or email@domain.com" style="width: 100%; height: 38px; padding: 0 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;" />
                 </div>
                 <div style="margin-bottom: 16px;">
                     <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #334155;">Password</label>
@@ -190,7 +190,7 @@
                     <input type="text" id="signup-name" placeholder="Dr. Siti Aisyah" style="width: 100%; height: 38px; padding: 0 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;" />
                 </div>
                 <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #334155;">Email Address</label>
+                    <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #334155;">Username or Email</label>
                     <input type="email" id="signup-email" required placeholder="name@company.com" style="width: 100%; height: 38px; padding: 0 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;" />
                 </div>
                 <div style="margin-bottom: 12px;">
