@@ -103,28 +103,28 @@
         
         <div class="choices-layout">
             <div class="top-row-cards">
-                <div class="card-column disabled" style="cursor: not-allowed;" title="Comprehensive section coming soon">
+                <div class="card-column" style="cursor: pointer;" onclick="handleProtectedCardClick('comprehensive.html')" title="Comprehensive section coming soon">
                     <div class="launcher-card" style="cursor: not-allowed;">
                         <div class="card-title" data-i18n="card1Title">Comprehensive<br />Fertilizer Recommendation</div>
                         <div class="card-desc" data-i18n="card1Desc">Detailed fertilizer analysis<br />Advanced agronomic rules</div>
-                        <button class="get-started-btn" type="button" disabled style="cursor: not-allowed; opacity: 0.65;" title="Comprehensive section coming soon" data-i18n="btnGetStarted">Get Started</button>
+                        <button class="get-started-btn" type="button" onclick="event.stopPropagation(); handleProtectedCardClick('comprehensive.html')" data-i18n="btnGetStarted">Get Started</button>
                     </div>
                 </div>
                 
-                <div class="card-column disabled" style="cursor: not-allowed;" title="Standard section coming soon">
+                <div class="card-column" style="cursor: pointer;" onclick="handleProtectedCardClick('standard.html')">
                     <div class="launcher-card" style="cursor: not-allowed;">
                         <div class="card-title" data-i18n="card2Title">Standard<br />Fertilizer Recommendation</div>
                         <div class="card-desc" data-i18n="card2Desc">Fast fertilizer analysis<br />Essential Recommendations</div>
-                        <button class="get-started-btn" type="button" disabled style="cursor: not-allowed; opacity: 0.65;" title="Standard section coming soon" data-i18n="btnGetStarted">Get Started</button>
+                        <button class="get-started-btn" type="button" onclick="event.stopPropagation(); handleProtectedCardClick('standard.html')" data-i18n="btnGetStarted">Get Started</button>
                     </div>
                 </div>
             </div>
             
-            <div class="card-column" style="cursor: pointer; pointer-events: auto;" onclick="location.href='PalmnexReaDS'">
+            <div class="card-column" style="cursor: pointer; pointer-events: auto;" onclick="handleProtectedCardClick('PalmnexReaDS')">
                 <div class="launcher-card wide">
                     <div class="card-title" style="margin-bottom: 4px;" data-i18n="card3Title">PalmnexReaDS</div>
                     <div class="card-desc" data-i18n="card3Desc">PALMNEX Research and Database System</div>
-                    <button class="get-started-btn" type="button" style="width: 180px;" data-i18n="btnGetStarted">Get Started</button>
+                    <button class="get-started-btn" type="button" style="width: 180px;" onclick="event.stopPropagation(); handleProtectedCardClick('PalmnexReaDS')" data-i18n="btnGetStarted">Get Started</button>
                 </div>
             </div>
         </div>
@@ -158,17 +158,7 @@
                 <p style="margin: 0; font-size: 13px; color: #64748b;">Sign in or register to sync your PALMNEX data</p>
             </div>
 
-            <!-- GitHub 1-Click OAuth Button -->
-            <button type="button" style="width: 100%; height: 42px; background: #24292e; color: #ffffff; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 16px; transition: background 0.2s;" onclick="signInWithGitHub()">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="#ffffff"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-                <span data-i18n="btnContinueGitHub">Continue with GitHub</span>
-            </button>
 
-            <div style="display: flex; align-items: center; margin-bottom: 16px; color: #94a3b8; font-size: 12px;">
-                <div style="flex: 1; height: 1px; background: #e2e8f0;"></div>
-                <span style="padding: 0 10px;">OR EMAIL</span>
-                <div style="flex: 1; height: 1px; background: #e2e8f0;"></div>
-            </div>
 
             <!-- Tab Buttons -->
             <div style="display: flex; gap: 8px; margin-bottom: 16px; background: #f1f5f9; padding: 4px; border-radius: 8px;">

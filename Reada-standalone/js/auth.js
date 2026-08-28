@@ -1,3 +1,12 @@
+
+// Protected Card Click Handler: Check if user is signed in before navigating
+function handleProtectedCardClick(targetUrl) {
+    if (currentUser) {
+        window.location.href = targetUrl;
+    } else {
+        openAuthModal('signin');
+    }
+}
 // Supabase Authentication & User Session Management
 
 // Global User State
