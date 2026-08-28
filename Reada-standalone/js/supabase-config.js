@@ -5,18 +5,21 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 // Initialize Supabase Client
 let supabase = null;
 
-function initSupabase() {
-    if (window.supabase && typeof window.supabase.createClient === 'function') {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log("Supabase Client initialized successfully!");
-    } else {
-        console.warn("Supabase SDK loading...");
+function getSupabase() {
+    if (!supabase && window.supabase && typeof window.supabase.createClient === 'function') {
+        try {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log("Supabase Client initialized successfully!");
+        } catch(e) {
+            console.warn("Failed to initialize Supabase client:", e);
+        }
     }
+    return supabase;
 }
 
 // Auto-initialize on load
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initSupabase);
+    document.addEventListener('DOMContentLoaded', getSupabase);
 } else {
-    initSupabase();
+    getSupabase();
 }

@@ -7,7 +7,7 @@ function handleProtectedCardClick(targetUrl) {
     }
 }
 
-// Supabase Authentication & User Session Management
+// Global User State
 let currentUser = null;
 
 // Open Auth Modal Dialog
@@ -15,7 +15,7 @@ function openAuthModal(defaultTab = 'signin') {
     const modal = document.getElementById('auth-modal');
     if (modal) {
         modal.style.display = 'flex';
-        switchAuthTab('signin'); // Default to Sign In
+        switchAuthTab('signin');
     }
 }
 
@@ -59,8 +59,9 @@ async function handleEmailSignIn(event) {
         return;
     }
 
-    // Check for admin1 / admin1 credentials
-    if ((email.toLowerCase() === 'admin1' || email.toLowerCase() === 'admin1@palmnex.com.my') && password === 'admin1') {
+    // 1. Instant check for admin1 / admin1 credentials
+    const cleanInput = email.toLowerCase();
+    if ((cleanInput === 'admin1' || cleanInput === 'admin1@palmnex.com.my') && password === 'admin1') {
         const adminUser = { email: 'admin1@palmnex.com.my', username: 'admin1', id: 'admin1-id', role: 'admin' };
         localStorage.setItem('palmnex_user_session', JSON.stringify(adminUser));
         currentUser = adminUser;
@@ -69,14 +70,16 @@ async function handleEmailSignIn(event) {
         return;
     }
 
-    if (!supabase) {
-        showAuthError("Supabase not initialized.");
+    // 2. Supabase Auth check for cloud users
+    const client = typeof getSupabase === 'function' ? getSupabase() : supabase;
+    if (!client || !client.auth) {
+        showAuthError("Invalid username or password.");
         return;
     }
 
     try {
         setAuthLoading(true);
-        const { data, error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await client.auth.signInWithPassword({
             email: email,
             password: password
         });
@@ -94,8 +97,11 @@ async function handleEmailSignIn(event) {
 
 // Sign Out User
 async function handleSignOut() {
-    if (supabase) {
-        await supabase.auth.signOut();
+    const client = typeof getSupabase === 'function' ? getSupabase() : supabase;
+    if (client && client.auth) {
+        try {
+            await client.auth.signOut();
+        } catch(e) {}
     }
     localStorage.removeItem('palmnex_user_session');
     currentUser = null;
@@ -149,7 +155,7 @@ function updateTopNavUser(user) {
 
 // Listen to Auth Events on Load
 document.addEventListener('DOMContentLoaded', async () => {
-    // 1. Check local admin session
+    // 1. Check local admin session first
     const savedLocalSession = localStorage.getItem('palmnex_user_session');
     if (savedLocalSession) {
         try {
@@ -161,20 +167,23 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // 2. Check Supabase session
-    if (supabase) {
-        const { data } = await supabase.auth.getSession();
-        if (data && data.session) {
-            updateTopNavUser(data.session.user);
-        } else {
-            updateTopNavUser(null);
-        }
-
-        supabase.auth.onAuthStateChange((event, session) => {
-            if (session && session.user) {
-                updateTopNavUser(session.user);
-            } else if (!localStorage.getItem('palmnex_user_session')) {
+    const client = typeof getSupabase === 'function' ? getSupabase() : supabase;
+    if (client && client.auth) {
+        try {
+            const { data } = await client.auth.getSession();
+            if (data && data.session) {
+                updateTopNavUser(data.session.user);
+            } else {
                 updateTopNavUser(null);
             }
-        });
+
+            client.auth.onAuthStateChange((event, session) => {
+                if (session && session.user) {
+                    updateTopNavUser(session.user);
+                } else if (!localStorage.getItem('palmnex_user_session')) {
+                    updateTopNavUser(null);
+                }
+            });
+        } catch(e) {}
     }
 });
