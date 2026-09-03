@@ -3,6 +3,28 @@
   "cleanUrls": true,
   "rewrites": [
     {
+      "source": "/demo",
+      "destination": "/demo/index.html"
+    },
+    {
+      "source": "/demo/PalmnexReaDS",
+      "destination": "/demo/PalmnexReaDS.html"
+    },
+    {
+      "source": "/demo/(.*)",
+      "destination": "/demo/$1"
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "palmnex-demo.com.my"
+        }
+      ],
+      "destination": "/demo/$1"
+    },
+    {
       "source": "/",
       "destination": "/Reada-standalone/index.html"
     },
@@ -31,7 +53,7 @@
       "destination": "/Reada-standalone/standard.html"
     },
     {
-      "source": "/(css|js|data|demo|pages)/(.*)",
+      "source": "/(css|js|data|pages)/(.*)",
       "destination": "/Reada-standalone/$1/$2"
     },
     {
