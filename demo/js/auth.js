@@ -1,9 +1,7 @@
-// Protected Card Click Handler: Check if user is signed in before navigating
+// Card Click Handler: Direct navigation without requiring sign in
 function handleProtectedCardClick(targetUrl) {
-    if (currentUser) {
+    if (targetUrl) {
         window.location.href = targetUrl;
-    } else {
-        openAuthModal('signin');
     }
 }
 

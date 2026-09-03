@@ -52,43 +52,20 @@
                     </div>
                 </div>
 
-                <!-- Auth Sign In Button (Logged Out) -->
-                <div id="top-nav-auth-container" style="display: inline-block;">
-                    <button type="button" class="top-nav-back-btn" style="background: #10b981; border-color: #10b981;" onclick="openAuthModal('signin')">
-                        <span data-i18n="btnSignIn">Sign In</span>
-                    </button>
-                </div>
-
-                <!-- Profile Dropdown (Logged In) -->
-                <div class="profile-dropdown-container" style="display: none;">
-                    <button type="button" class="profile-dropdown-trigger" onclick="toggleProfileDropdown(event)" id="profile-trigger-btn">
-                        <div class="profile-icon-wrapper">
-                            <svg viewBox="0 0 24 24">
-                                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                            </svg>
-                        </div>
+                <!-- Language Dropdown -->
+                <div class="lang-dropdown-container">
+                    <button type="button" class="lang-dropdown-trigger" onclick="toggleLangDropdown(event)" id="lang-trigger-btn">
+                        <span id="current-lang-text">English (UK)</span>
                         <span class="dropdown-arrow">▾</span>
                     </button>
                     
-                    <div id="profile-popover-menu" class="lang-popover-menu">
+                    <div id="lang-popover-menu" class="lang-popover-menu">
                         <div class="popover-arrow"></div>
-                        <div style="padding: 8px 12px; font-size: 11px; font-weight: 700; color: #10b981; border-bottom: 1px solid #f1f5f9; text-transform: lowercase;" id="nav-user-email">
-                            user@example.com
+                        <div class="popover-item active" onclick="selectLanguage('en')">
+                            <span class="lang-name">English (UK)</span>
                         </div>
-                        <div class="popover-item " title="Profile section coming soon" data-i18n-title="tooltipComingSoonComp">
-                            <span data-i18n="navProfile">Profile</span>
-                        </div>
-                        <div class="popover-item " title="Database section coming soon" data-i18n-title="tooltipComingSoonComp">
-                            <span data-i18n="navDatabase">Database</span>
-                        </div>
-                        <div class="popover-item " title="Privacy section coming soon" data-i18n-title="tooltipComingSoonComp">
-                            <span data-i18n="navPrivacy">Privacy</span>
-                        </div>
-                        <div class="popover-item " title="Settings section coming soon" data-i18n-title="tooltipComingSoonComp">
-                            <span data-i18n="navSettings">Settings</span>
-                        </div>
-                        <div class="popover-item" onclick="handleSignOut()" style="border-top: 1px solid #f1f5f9; color: #dc2626; margin-top: 4px; padding-top: 8px;">
-                            <span data-i18n="btnSignOut">Sign Out</span>
+                        <div class="popover-item" onclick="selectLanguage('ms')">
+                            <span class="lang-name">Bahasa Melayu</span>
                         </div>
                     </div>
                 </div>
@@ -103,19 +80,19 @@
         
         <div class="choices-layout">
             <div class="top-row-cards">
-                <div class="card-column" style="cursor: pointer; pointer-events: auto;" onclick="handleProtectedCardClick('PalmnexReaDS.html?module=comprehensive')">
+                <div class="card-column" style="cursor: pointer; pointer-events: auto;" onclick="handleProtectedCardClick('comprehensive.html')">
                     <div class="launcher-card">
                         <div class="card-title" data-i18n="card1Title">Comprehensive<br />Fertilizer Recommendation</div>
                         <div class="card-desc" data-i18n="card1Desc">Detailed fertilizer analysis<br />Advanced agronomic rules</div>
-                        <button class="get-started-btn" type="button" onclick="event.stopPropagation(); handleProtectedCardClick('PalmnexReaDS.html?module=comprehensive')" data-i18n="btnGetStarted">Get Started</button>
+                        <button class="get-started-btn" type="button" onclick="event.stopPropagation(); handleProtectedCardClick('comprehensive.html')" data-i18n="btnGetStarted">Get Started</button>
                     </div>
                 </div>
                 
-                <div class="card-column" style="cursor: pointer; pointer-events: auto;" onclick="handleProtectedCardClick('PalmnexReaDS.html?module=standard')">
+                <div class="card-column" style="cursor: pointer; pointer-events: auto;" onclick="handleProtectedCardClick('standard.html')">
                     <div class="launcher-card">
                         <div class="card-title" data-i18n="card2Title">Standard<br />Fertilizer Recommendation</div>
                         <div class="card-desc" data-i18n="card2Desc">Fast fertilizer analysis<br />Essential Recommendations</div>
-                        <button class="get-started-btn" type="button" onclick="event.stopPropagation(); handleProtectedCardClick('PalmnexReaDS.html?module=standard')" data-i18n="btnGetStarted">Get Started</button>
+                        <button class="get-started-btn" type="button" onclick="event.stopPropagation(); handleProtectedCardClick('standard.html')" data-i18n="btnGetStarted">Get Started</button>
                     </div>
                 </div>
             </div>
@@ -146,65 +123,6 @@
     <script src="js/standard.js"></script>
     <script src="js/reada.js?v=20260903e"></script>
     <script src="js/main.js"></script>
-
-
-    <!-- Supabase Auth Modal Dialog -->
-    <div id="auth-modal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 999999;">
-        <div class="modal-content" style="max-width: 440px; width: 90%; background: #ffffff; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); padding: 24px; color: #0f172a; font-family: 'Inter', -apple-system, sans-serif; position: relative;">
-            <button type="button" style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; color: #64748b; cursor: pointer;" onclick="closeAuthModal()">✕</button>
-            
-            <div style="text-align: center; margin-bottom: 20px;">
-                <h3 style="margin: 0 0 6px 0; font-size: 20px; font-weight: 700; color: #112d2b;" data-i18n="authModalTitle">Account Access</h3>
-                <p style="margin: 0; font-size: 13px; color: #64748b;">Sign in or register to sync your PALMNEX data</p>
-            </div>
-
-
-
-            <!-- Tab Buttons -->
-            <div style="display: flex; gap: 8px; margin-bottom: 16px; background: #f1f5f9; padding: 4px; border-radius: 8px;">
-                <button type="button" id="auth-tab-signin" class="active" style="flex: 1; padding: 8px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; background: transparent; color: #64748b;" onclick="switchAuthTab('signin')" data-i18n="btnSignIn">Sign In</button>
-                <button type="button" id="auth-tab-signup"  style="flex: 1; padding: 8px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: not-allowed; opacity: 0.5; background: transparent; color: #94a3b8;" title="Registration is " data-i18n="btnSignUp">Register</button>
-            </div>
-
-            <!-- Messages -->
-            <div id="auth-error-msg" style="display: none; background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; padding: 10px; border-radius: 6px; font-size: 12px; margin-bottom: 14px;"></div>
-            <div id="auth-success-msg" style="display: none; background: #f0fdf4; color: #166534; border: 1px solid #86efac; padding: 10px; border-radius: 6px; font-size: 12px; margin-bottom: 14px;"></div>
-
-            <!-- Form 1: Sign In -->
-            <form id="auth-form-signin" onsubmit="handleEmailSignIn(event)">
-                <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #334155;">Username or Email</label>
-                    <input type="text" id="signin-email" required placeholder="admin1 or email@domain.com" style="width: 100%; height: 38px; padding: 0 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;" />
-                </div>
-                <div style="margin-bottom: 16px;">
-                    <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #334155;">Password</label>
-                    <input type="password" id="signin-password" required placeholder="••••••••" style="width: 100%; height: 38px; padding: 0 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;" />
-                </div>
-                <button type="submit" id="btn-auth-signin" style="width: 100%; height: 40px; background: #10b981; color: #ffffff; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;" data-i18n="btnSignIn">Sign In</button>
-            </form>
-
-            <!-- Form 2: Sign Up -->
-            <form id="auth-form-signup" style="display: none;" onsubmit="handleEmailSignUp(event)">
-                <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #334155;">Full Name</label>
-                    <input type="text" id="signup-name" placeholder="Dr. Siti Aisyah" style="width: 100%; height: 38px; padding: 0 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;" />
-                </div>
-                <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #334155;">Username or Email</label>
-                    <input type="email" id="signup-email" required placeholder="name@company.com" style="width: 100%; height: 38px; padding: 0 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;" />
-                </div>
-                <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #334155;">Password</label>
-                    <input type="password" id="signup-password" required placeholder="••••••••" style="width: 100%; height: 38px; padding: 0 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;" />
-                </div>
-                <div style="margin-bottom: 16px;">
-                    <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #334155;">Confirm Password</label>
-                    <input type="password" id="signup-confirm-password" required placeholder="••••••••" style="width: 100%; height: 38px; padding: 0 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;" />
-                </div>
-                <button type="submit" id="btn-auth-signup" style="width: 100%; height: 40px; background: #0284c7; color: #ffffff; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;" data-i18n="btnSignUp">Register Account</button>
-            </form>
-        </div>
-    </div>
 
 </body>
 </html>
