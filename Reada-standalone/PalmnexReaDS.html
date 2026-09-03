@@ -735,12 +735,9 @@ window.showReadaView = switchTabDirect;
                         <p style="margin-bottom: 20px; color: #475569; font-size: 13px; font-family: sans-serif; line-height: 1.5;">
                             <span data-i18n="descBunch">Compute Fruit-to-Bunch %, Mesocarp-to-Fruit %, Kernel-to-Fruit %, and Oil Extraction Rate (OER%) from fresh fruit bunch component weighings across experimental trial plots.</span>
                         </p>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 24px;">
                             <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaModal('bunch-selection')" data-i18n="btnNewBunch">➕ New Bunch Analysis Data Entry</button>
                             <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaModal('bunch-editor')" data-i18n="btnCalcBunch">🧮 Calculate / Generate Bunch Analysis Data</button>
                             <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaModal('bunch-print')" data-i18n="btnPrintBunch">🖨️ Print Bunch Analysis Data</button>
-                            <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaModal('bunch-backup')" data-i18n="btnReadBunchBackup">📁 Read Bunch Analysis Back Up File</button>
-                            <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaModal('bunch-csv')" data-i18n="btnSaveBunchCSV">💾 Save Bunch Analysis Into *.csv File</button>
                         </div>
                     </div>
                 </div>
@@ -755,13 +752,10 @@ window.showReadaView = switchTabDirect;
                         <p style="margin-bottom: 20px; color: #475569; font-size: 13px; font-family: sans-serif; line-height: 1.5;">
                             <span data-i18n="descYield">Log harvest round FFB bunch counts, bunch weights, loose fruit weights, and calculate annual t/ha yield rates for persistent trial database records.</span>
                         </p>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 24px;">
                             <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaModal('yield-selection')" data-i18n="btnNewYield">➕ New Yield Recording Data Entry</button>
                             <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaModal('yield-editor')" data-i18n="btnCalcYield">🧮 Calculate / Generate Annual FFB Yield Data</button>
                             <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaModal('yield-print')" data-i18n="btnPrintYield">🖨️ Print Yield Recording Data</button>
-                            <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaModal('yield-csv')" data-i18n="btnSaveYieldCSV">💾 Save Yield Recording Data To *.csv File</button>
-                            <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaModal('yield-backup')" data-i18n="btnReadYieldBackup">📁 Read Yield Recording Data From BackUp</button>
-                            <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaModal('yield-import-csv')" data-i18n="btnImportNonReadaYield">📂 Read Data From 'Non-ReaDA' *.csv File</button>
+                            <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaModal('yield-import-csv')" data-i18n="btnImportNonReadaYield">📂 Read .csv Excel File</button>
                         </div>
                     </div>
                 </div>
@@ -956,8 +950,6 @@ window.showReadaView = switchTabDirect;
                 <button class="reada-qt-btn" onclick="openReadaModal('bunch-selection')">Edit Bunch Analysis Data Entry</button>
                 <button class="reada-qt-btn" onclick="openReadaModal('bunch-editor')">Calculate / Generate Bunch Analysis Data</button>
                 <button class="reada-qt-btn" onclick="openReadaModal('bunch-print')">Print Bunch Analysis Data</button>
-                <button class="reada-qt-btn" onclick="openReadaModal('bunch-backup')">Read Bunch Analysis Back Up File</button>
-                <button class="reada-qt-btn" onclick="openReadaModal('bunch-csv')">Save Bunch Analysis Into *.csv File</button>
             </div>
             <div style="margin-top: 14px; display: flex; justify-content: flex-end;">
                 <button class="reada-qt-btn" style="width: 180px;" onclick="closeReadaModal('modal-reada-bunch')">Return To Main Procedure</button>
@@ -978,9 +970,7 @@ window.showReadaView = switchTabDirect;
                 <button class="reada-qt-btn" onclick="openReadaModal('yield-selection')">Edit Yield Recording Data Entry</button>
                 <button class="reada-qt-btn" onclick="openReadaModal('yield-editor')">Calculate / Generate Annual FFB Yield Data</button>
                 <button class="reada-qt-btn" onclick="openReadaModal('yield-print')">Print Yield Recording Data</button>
-                <button class="reada-qt-btn" onclick="openReadaModal('yield-csv')">Save Yield Recording Data To *.csv File</button>
-                <button class="reada-qt-btn" onclick="openReadaModal('yield-backup')">Read Yield Recording Data From BackUp</button>
-                <button class="reada-qt-btn" onclick="openReadaModal('yield-import-csv')">Read Data From 'Non-ReaDA' *.csv File</button>
+                <button class="reada-qt-btn" onclick="openReadaModal('yield-import-csv')">Read .csv Excel File</button>
             </div>
             <div style="margin-top: 14px; display: flex; justify-content: flex-end;">
                 <button class="reada-qt-btn" style="width: 160px;" onclick="closeReadaModal('modal-reada-yield')">Exit Program</button>
