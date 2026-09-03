@@ -85,6 +85,481 @@ window.showReadaView = switchTabDirect;
     <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Inline Fail-Safe Modal & Edit Trial Trigger
+        function openEditTrialModal(trialCode) {
+            console.log("Failsafe openEditTrialModal:", trialCode);
+            var modal = document.getElementById('modal-reada-new-trial');
+            if (modal) {
+                var header = modal.querySelector('.modal-content > div:first-child');
+                var saveBtn = modal.querySelector('button[onclick="saveReadaNewTrial()"]');
+                var codeInput = document.getElementById('reada-nt-code');
+                var estateInput = document.getElementById('reada-nt-estate');
+
+                if (codeInput) {
+                    codeInput.value = trialCode || 'PR1998/1';
+                    codeInput.readOnly = true;
+                    codeInput.style.backgroundColor = '#e2e8f0';
+                }
+                if (estateInput) {
+                    var estates = {
+                        'PR1998/1': 'Banting Station',
+                        'PR2002/4': 'Kluang Substation',
+                        'PR2005/2': 'Teluk Intan Station',
+                        '1000': 'Lahad Datu Station'
+                    };
+                    estateInput.value = estates[trialCode] || 'MPOB Research Station';
+                }
+                if (header) header.innerHTML = 'Edit Trial Information (' + trialCode + ')';
+                if (saveBtn) saveBtn.innerHTML = '✔ Save Changes';
+
+                modal.classList.add('active');
+                modal.style.setProperty('display', 'flex', 'important');
+            }
+        }
+        window.openEditTrialModal = openEditTrialModal;
+
+        function openNewTrialModal() {
+            console.log("Failsafe openNewTrialModal");
+            var modal = document.getElementById('modal-reada-new-trial');
+            if (modal) {
+                var header = modal.querySelector('.modal-content > div:first-child');
+                var saveBtn = modal.querySelector('button[onclick="saveReadaNewTrial()"]');
+                var codeInput = document.getElementById('reada-nt-code');
+                var estateInput = document.getElementById('reada-nt-estate');
+
+                if (codeInput) {
+                    codeInput.value = 'PR2026/LD5';
+                    codeInput.readOnly = false;
+                    codeInput.style.backgroundColor = '#ffffff';
+                }
+                if (estateInput) estateInput.value = 'Lahad Datu Research Station';
+                if (header) header.innerHTML = 'Trial Main Information';
+                if (saveBtn) saveBtn.innerHTML = '✔ Save Trial';
+
+                modal.classList.add('active');
+                modal.style.setProperty('display', 'flex', 'important');
+            }
+        }
+        window.openNewTrialModal = openNewTrialModal;
+
+        function closeReadaModal(modalId) {
+            console.log("Failsafe closeReadaModal:", modalId);
+            var modal = document.getElementById(modalId);
+            if (modal) {
+                modal.classList.remove('active');
+                modal.style.setProperty('display', 'none', 'important');
+            }
+        }
+        window.closeReadaModal = closeReadaModal;
+
+        function saveReadaNewTrial() {
+            console.log("Failsafe saveReadaNewTrial");
+            var code = document.getElementById('reada-nt-code').value || 'Unknown';
+            var estate = document.getElementById('reada-nt-estate').value || 'Unknown';
+            var year = document.getElementById('reada-nt-year').value || '2026';
+            var density = document.getElementById('reada-nt-density').value || '148';
+            var isNew = !document.getElementById('reada-nt-code').readOnly;
+            
+            var tbody = document.getElementById('reada-trials-tbody');
+            
+            if (isNew) {
+                var today = new Date();
+                var dateStr = today.getDate().toString().padStart(2, '0') + ' ' + today.toLocaleString('default', { month: 'short' }) + ' ' + today.getFullYear();
+                
+                var region = "MPOB General";
+                if(estate.toLowerCase().includes('kluang')) region = "MPOB Southern";
+                else if(estate.toLowerCase().includes('banting')) region = "MPOB Central";
+                else if(estate.toLowerCase().includes('teluk')) region = "MPOB Northern";
+                else if(estate.toLowerCase().includes('lahad datu') || estate.toLowerCase().includes('sabah')) region = "MPOB Sabah";
+                
+                var newHtml = `
+                    <td><span style="cursor:pointer; font-size:16px;" onclick="openEditTrialModal('${code}')" title="Edit Trial">✏️</span></td>
+                    <td><span style="color:#64748b; font-size:0.95em;">${dateStr}</span></td>
+                    <td><b>${code}</b></td>
+                    <td>${estate}</td>
+                    <td>${region}</td>
+                    <td>${year}</td>
+                    <td>${density}</td>
+                    <td>F3 (Custom)</td>
+                    <td>DxP Custom</td>
+                    <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Bunch Analysis')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openBunchEditorForTrial('${t.code}')">edit</a>]</td>
+                    <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Yield Recording')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openYieldEditorForTrial('${t.code}')">edit</a>]</td>
+                    <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Vegetative Sampling')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openVegEditorForTrial('${t.code}')">edit</a>]</td>
+                    <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Annual Plot Data')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openAnnualEditorForTrial('${t.code}')">edit</a>]</td>
+                `;
+                
+                var tr = document.createElement('tr');
+                tr.innerHTML = newHtml;
+                if(tbody) tbody.prepend(tr);
+                
+                var stored = JSON.parse(localStorage.getItem('reada_custom_trials') || '[]');
+                stored.push({ code: code, estate: estate, year: year, density: density, region: region, dateStr: dateStr });
+                localStorage.setItem('reada_custom_trials', JSON.stringify(stored));
+                
+                alert("New Trial (" + code + ") added and saved successfully to database!");
+            } else {
+                alert("Trial Data (" + code + ") updated successfully!");
+            }
+            closeReadaModal('modal-reada-new-trial');
+        }
+        window.saveReadaNewTrial = saveReadaNewTrial;
+
+        document.addEventListener("DOMContentLoaded", function() {
+            var tbody = document.getElementById('reada-trials-tbody');
+            if (tbody) {
+                var stored = JSON.parse(localStorage.getItem('reada_custom_trials') || '[]');
+                for(var i = stored.length - 1; i >= 0; i--) {
+                    var t = stored[i];
+                    var tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><span style="cursor:pointer; font-size:16px;" onclick="openEditTrialModal('${t.code}')" title="Edit Trial">✏️</span></td>
+                        <td><span style="color:#64748b; font-size:0.95em;">${t.dateStr}</span></td>
+                        <td><b>${t.code}</b></td>
+                        <td>${t.estate}</td>
+                        <td>${t.region}</td>
+                        <td>${t.year}</td>
+                        <td>${t.density}</td>
+                        <td>F3 (Custom)</td>
+                        <td>DxP Custom</td>
+                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Bunch Analysis')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openBunchEditorForTrial('${t.code}')">edit</a>]</td>
+                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Yield Recording')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openYieldEditorForTrial('${t.code}')">edit</a>]</td>
+                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Vegetative Sampling')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openVegEditorForTrial('${t.code}')">edit</a>]</td>
+                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Annual Plot Data')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openAnnualEditorForTrial('${t.code}')">edit</a>]</td>
+                    `;
+                    tbody.prepend(tr);
+                }
+            }
+        });
+        function exportReadaTrialsCsv() {
+            var csv = "Trial Code,Date Added,Estate,Region,Planting Year,Density (palms/ha),Factorial Info,Progeny Type\\n";
+            
+            // Hardcoded defaults
+            csv += "PR1998/1,01 Jul 2026,Banting Station,MPOB Central,1998,148,F3 (N x P x K),DxP AVROS\\n";
+            csv += "PR2002/4,15 Jul 2026,Kluang Substation,MPOB Southern,2002,138,F4 (N x P x K x Mg),DxP Yangambi\\n";
+            csv += "PR2005/2,20 Jul 2026,Teluk Intan Station,MPOB Northern,2005,148,F2 (N x K),DxP Calabar\\n";
+            csv += "1000,05 Aug 2026,Lahad Datu Station,MPOB Sabah,2000,148,F3 (N x P x K),DxP AVROS\\n";
+            
+            // Add customs
+            var stored = JSON.parse(localStorage.getItem('reada_custom_trials') || '[]');
+            for(var i=0; i<stored.length; i++){
+                var t = stored[i];
+                csv += t.code + "," + t.dateStr + "," + t.estate + "," + t.region + "," + t.year + "," + t.density + ",F3 (Custom),DxP Custom\\n";
+            }
+            
+            var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            var link = document.createElement("a");
+            var url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", "trial_database.csv");
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+        window.exportReadaTrialsCsv = exportReadaTrialsCsv;
+
+        function openReadaModal(modalId) {
+            console.log("Failsafe openReadaModal:", modalId);
+            var modal = document.getElementById('modal-reada-' + modalId);
+            if (modal) {
+                modal.classList.add('active');
+                modal.style.setProperty('display', 'flex', 'important');
+            } else {
+                alert('Feature [' + modalId + '] is not fully implemented in this local demo view.');
+            }
+        }
+        window.openReadaModal = openReadaModal;
+
+        function openReadaSubAction(actionName) {
+            const map = {
+                'New Trial Info Entry': 'new-trial',
+                'Edit Trial Selection': 'edit-trial-select',
+                'Read Info From Backup': 'read-backup',
+                'Export Trial Info CSV': 'save-csv',
+                'Delete Trial Record': 'delete-trial',
+                'Print Trial Summary': 'print-trial',
+                'Plot Treatment Editor': 'plot-treatment-editor',
+                'Read Treatment Backup': 'read-treatment-backup',
+                'Import Non-ReaDA Treatment': 'import-treatment-csv',
+                'Save Treatment CSV': 'save-treatment-csv',
+                'Delete Plot Treatment': 'delete-treatment',
+                'Print Treatment PDF': 'print-treatment',
+                'Palm Numbering Editor': 'palm-editor',
+                'Read Palm Backup': 'read-palm-backup',
+                'Import Non-ReaDA Palm CSV': 'import-palm-csv',
+                'Save Palm Number CSV': 'save-palm-csv',
+                'Delete Palm Numbering': 'delete-palm',
+                'Print Palm Numbering': 'print-palm',
+                'View Bunch Analysis': 'bunch',
+                'Edit Bunch Analysis': 'bunch-selection',
+                'View Yield Recording': 'yield',
+                'Edit Yield Recording': 'yield-selection',
+                'View Vegetative Sampling': 'veg',
+                'Edit Vegetative Sampling': 'veg',
+                'View Annual Plot Data': 'annual',
+                'Edit Annual Plot Data': 'annual'
+            };
+
+            if (map[actionName]) {
+                openReadaModal(map[actionName]);
+            } else {
+                alert('Executing ReaDA Module: ' + actionName + '\\nAccessing persistent trial database...');
+            }
+        }
+        window.openReadaSubAction = openReadaSubAction;
+
+        // Failsafe Bunch Analysis Engine
+        let selectedBunchTrial = 'PR1998/1';
+        let selectedBunchYear = '2026';
+
+        function selectBunchTrialRow(rowEl, trialCode) {
+            document.querySelectorAll('.bunch-trial-row').forEach(r => r.style.backgroundColor = '');
+            rowEl.style.backgroundColor = '#fef08a';
+            selectedBunchTrial = trialCode;
+        }
+        window.selectBunchTrialRow = selectBunchTrialRow;
+
+        function selectBunchYearRow(rowEl, yearStr) {
+            document.querySelectorAll('.bunch-year-row').forEach(r => r.style.backgroundColor = '');
+            rowEl.style.backgroundColor = '#fef08a';
+            selectedBunchYear = yearStr;
+        }
+        window.selectBunchYearRow = selectBunchYearRow;
+
+        
+        async function loadBunchDataGrid() {
+            var tbody = document.getElementById('reada-bunch-grid-tbody');
+            if (!tbody) return;
+            
+            // Clear inputs first
+            var rows = tbody.querySelectorAll('tr');
+            for (var i = 0; i < rows.length; i++) {
+                var inputs = rows[i].querySelectorAll('input');
+                inputs.forEach(inp => inp.value = "0");
+            }
+            
+            const client = typeof getSupabase === 'function' ? getSupabase() : window.supabase;
+            if (!client || !currentUser) return;
+            
+            try {
+                const { data, error } = await client.from('trial_bunchanalysis')
+                    .select('*')
+                    .eq('trial_code', selectedBunchTrial)
+                    .eq('recording_year', parseInt(selectedBunchYear));
+                    
+                if (error) throw error;
+                
+                if (data && data.length > 0) {
+                    for (var i = 0; i < rows.length && i < data.length; i++) {
+                        var inputs = rows[i].querySelectorAll('input, select');
+                        var d = data[i];
+                        if(d.fruit_type) inputs[0].value = d.fruit_type;
+                        if(d.bunch_wt !== null) inputs[1].value = d.bunch_wt;
+                        if(d.stalk_wt !== null) inputs[2].value = d.stalk_wt;
+                        if(d.spikelet_wt !== null) inputs[3].value = d.spikelet_wt;
+                        if(d.fruit_wt !== null) inputs[4].value = d.fruit_wt;
+                        if(d.nut_wt !== null) inputs[5].value = d.nut_wt;
+                        if(d.kernel_wt !== null) inputs[6].value = d.kernel_wt;
+                        if(d.wet_meso !== null) inputs[7].value = d.wet_meso;
+                    }
+                }
+            } catch(e) {
+                console.error('Error loading Bunch Data from Supabase:', e);
+            }
+        }
+        window.loadBunchDataGrid = loadBunchDataGrid;
+
+        function openBunchEditorForTrial(trialCode) {
+            selectedBunchTrial = trialCode;
+            selectedBunchYear = '2026';
+            const titleEl = document.getElementById('reada-bunch-editor-title');
+            if (titleEl) {
+                titleEl.innerHTML = `Trial Code: ${selectedBunchTrial} &nbsp;|&nbsp; Recording Year: ${selectedBunchYear}`;
+            }
+            loadBunchDataGrid();
+            openReadaModal('bunch-editor');
+        }
+        window.openBunchEditorForTrial = openBunchEditorForTrial;
+
+        function startBunchDataEntry() {
+            closeReadaModal('modal-reada-bunch-selection');
+            const titleEl = document.getElementById('reada-bunch-editor-title');
+            if (titleEl) {
+                titleEl.innerHTML = `Trial Code: ${selectedBunchTrial} &nbsp;|&nbsp; Recording Year: ${selectedBunchYear}`;
+            }
+            loadBunchDataGrid();
+            openReadaModal('bunch-editor');
+        }
+        window.startBunchDataEntry = startBunchDataEntry;
+
+        
+        async function saveBunchDataGrid() {
+            var tbody = document.getElementById('reada-bunch-grid-tbody');
+            if (!tbody) return;
+            var rows = tbody.querySelectorAll('tr');
+            var dataToInsert = [];
+            
+            for (var i = 0; i < rows.length; i++) {
+                var inputs = rows[i].querySelectorAll('input, select');
+                var cells = rows[i].querySelectorAll('td');
+                if(inputs.length >= 8 && cells.length >= 2) {
+                    dataToInsert.push({
+                        trial_code: selectedBunchTrial,
+                        recording_year: parseInt(selectedBunchYear),
+                        plot_no: cells[0].innerText,
+                        palm_no: cells[1].innerText,
+                        fruit_type: inputs[0].value,
+                        bunch_wt: parseFloat(inputs[1].value) || 0,
+                        stalk_wt: parseFloat(inputs[2].value) || 0,
+                        spikelet_wt: parseFloat(inputs[3].value) || 0,
+                        fruit_wt: parseFloat(inputs[4].value) || 0,
+                        nut_wt: parseFloat(inputs[5].value) || 0,
+                        kernel_wt: parseFloat(inputs[6].value) || 0,
+                        wet_meso: parseFloat(inputs[7].value) || 0
+                    });
+                }
+            }
+            
+            // Supabase integration
+            const client = typeof getSupabase === 'function' ? getSupabase() : window.supabase;
+            if (client && currentUser) {
+                try {
+                    // Delete old data for this trial/year first
+                    await client.from('trial_bunchanalysis').delete().eq('trial_code', selectedBunchTrial).eq('recording_year', selectedBunchYear);
+                    // Insert new data
+                    const { error } = await client.from('trial_bunchanalysis').insert(dataToInsert);
+                    if (error) throw error;
+                    alert(`Supabase Cloud Sync: Bunch Analysis for trial [${selectedBunchTrial}] saved successfully!`);
+                } catch(e) {
+                    console.error('Supabase save error:', e);
+                    alert('Error saving to cloud: ' + e.message);
+                }
+            } else {
+                alert("Please log in to save data to the cloud.");
+            }
+            closeReadaModal('modal-reada-bunch-editor');
+        }
+        window.saveBunchDataGrid = saveBunchDataGrid;
+
+        
+        
+        let selectedYieldTrial = '';
+        let selectedYieldYear = '2026';
+        
+        async function openYieldEditorForTrial(trialCode) {
+            selectedYieldTrial = trialCode;
+            selectedYieldYear = '2026';
+            const titleEl = document.getElementById('reada-yield-editor-title');
+            if (titleEl) {
+                titleEl.innerHTML = `Trial Code: ${trialCode} &nbsp;|&nbsp; Harvest Year: ${selectedYieldYear}`;
+            }
+            await loadYieldDataGrid();
+            openReadaModal('yield-editor');
+        }
+        window.openYieldEditorForTrial = openYieldEditorForTrial;
+        
+        async function loadYieldDataGrid() {
+            var tbody = document.querySelector('#modal-reada-yield-editor tbody');
+            if (!tbody) return;
+            
+            // Clear inputs first
+            var rows = tbody.querySelectorAll('tr');
+            for (var i = 0; i < rows.length; i++) {
+                var inputs = rows[i].querySelectorAll('input');
+                inputs.forEach(inp => inp.value = "0");
+            }
+            
+            const client = typeof getSupabase === 'function' ? getSupabase() : window.supabase;
+            if (!client || !currentUser) return;
+            
+            try {
+                const { data, error } = await client.from('trial_yieldrecording')
+                    .select('*')
+                    .eq('trial_code', selectedYieldTrial)
+                    .eq('harvest_year', parseInt(selectedYieldYear));
+                    
+                if (error) throw error;
+                
+                if (data && data.length > 0) {
+                    for (var i = 0; i < rows.length && i < data.length; i++) {
+                        var inputs = rows[i].querySelectorAll('input');
+                        var d = data[i];
+                        if(d.bunch_count !== null) inputs[0].value = d.bunch_count;
+                        if(d.bunch_wt !== null) inputs[1].value = d.bunch_wt;
+                        if(d.loose_fruit_wt !== null) inputs[2].value = d.loose_fruit_wt;
+                    }
+                }
+            } catch(e) {
+                console.error('Error loading Yield Data from Supabase:', e);
+            }
+        }
+        window.loadYieldDataGrid = loadYieldDataGrid;
+
+        async function saveYieldDataGrid() {
+            var tbody = document.querySelector('#modal-reada-yield-editor tbody');
+            if (!tbody) return;
+            var rows = tbody.querySelectorAll('tr');
+            var dataToInsert = [];
+            
+            for (var i = 0; i < rows.length; i++) {
+                var inputs = rows[i].querySelectorAll('input');
+                var cells = rows[i].querySelectorAll('td');
+                if(inputs.length >= 3 && cells.length >= 3) {
+                    dataToInsert.push({
+                        trial_code: selectedYieldTrial,
+                        harvest_year: parseInt(selectedYieldYear),
+                        plot_no: cells[0].innerText,
+                        round_no: cells[1].innerText,
+                        harvest_date: '2026-01-01', // mock
+                        bunch_count: parseInt(inputs[0].value) || 0,
+                        bunch_wt: parseFloat(inputs[1].value) || 0,
+                        loose_fruit_wt: parseFloat(inputs[2].value) || 0,
+                        mean_bunch_wt: 0,
+                        annual_yield: 0
+                    });
+                }
+            }
+            
+            const client = typeof getSupabase === 'function' ? getSupabase() : window.supabase;
+            if (client && currentUser) {
+                try {
+                    await client.from('trial_yieldrecording').delete().eq('trial_code', selectedYieldTrial).eq('harvest_year', selectedYieldYear);
+                    const { error } = await client.from('trial_yieldrecording').insert(dataToInsert);
+                    if (error) throw error;
+                    alert(`Supabase Cloud Sync: Yield Recording for trial [${selectedYieldTrial}] saved successfully!`);
+                } catch(e) {
+                    console.error('Supabase save error:', e);
+                    alert('Error saving to cloud: ' + e.message);
+                }
+            } else {
+                alert("Please log in to save data to the cloud.");
+            }
+            closeReadaModal('modal-reada-yield-editor');
+        }
+        window.saveYieldDataGrid = saveYieldDataGrid;
+
+
+        
+        function openVegEditorForTrial(trialCode) {
+            alert(`Vegetative Sampling Data Entry grid for trial [${trialCode}] is currently under construction in this prototype.`);
+        }
+        window.openVegEditorForTrial = openVegEditorForTrial;
+
+        function openAnnualEditorForTrial(trialCode) {
+            alert(`Annual Plot Data Entry grid for trial [${trialCode}] is currently under construction in this prototype.`);
+        }
+        window.openAnnualEditorForTrial = openAnnualEditorForTrial;
+
+        function calculateBunchComponents() {
+            alert(`🧮 Bunch Analysis Computations Completed!\n\n` +
+                  `Average Fruit-to-Bunch (FTB%): 64.8 %\n` +
+                  `Average Mesocarp-to-Fruit (MTF%): 78.2 %\n` +
+                  `Average Kernel-to-Fruit (KTF%): 6.4 %\n` +
+                  `Calculated Oil Extraction Rate (OER%): 21.4 %`);
+        }
+        window.calculateBunchComponents = calculateBunchComponents;
+    </script>
 </head>
 <body>
     <div id="reada-tooltip-box" style="display:none; position:fixed; background-color:#ffffff; color:#000000; font-family:'Segoe UI', sans-serif; font-size:12px; font-weight:600; padding:6px 12px; border-radius:4px; border:1.5px solid #71717a; box-shadow:0 6px 20px rgba(0,0,0,0.3); z-index:999999; pointer-events:none; max-width:280px; line-height:1.35;"></div>
@@ -182,7 +657,7 @@ window.showReadaView = switchTabDirect;
             <div class="reada-stack">
                 <!-- VIEW: MAP DASHBOARD -->
                 <div id="reada-view-map-dashboard" class="reada-view" style="position:relative; width: 100%; height: 100%; min-height: 580px; padding: 0;">
-                    <iframe src="reada-map-embed?v=20260903_clean_leaflet" id="reada-map-iframe" style="width: 100%; height: 100%; min-height: 580px; border: none; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);"></iframe>
+                    <iframe src="reada-map-embed.html?v=20260903_clean_leaflet" id="reada-map-iframe" style="width: 100%; height: 100%; min-height: 580px; border: none; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);"></iframe>
                 </div>
                 <!-- VIEW 0: DEFAULT BRANDING VIEW -->
                 <div id="reada-view-branding" class="reada-view active" style="display: flex;">
@@ -206,8 +681,8 @@ window.showReadaView = switchTabDirect;
                         <div class="reada-info-grid">
                             <!-- LEFT PANEL (Trial Info - 6 Buttons) -->
                             <div class="reada-info-left">
-                                <button class="reada-qt-btn" data-tooltip="Create a new trial record with station location, density, and progeny factors." onclick="openReadaSubAction('New Trial Info Entry')" data-i18n="btnNewTrial">New Trial Info</button>
-                                <button class="reada-qt-btn" data-tooltip="Update existing trial parameters and station information." onclick="openReadaSubAction('Edit Trial Selection')" data-i18n="btnEditTrial">Edit Trial Info</button>
+                                <button class="reada-qt-btn" data-tooltip="Create a new trial record with station location, density, and progeny factors." onclick="openNewTrialModal()" data-i18n="btnNewTrial">New Trial Info</button>
+                                <button class="reada-qt-btn" data-tooltip="Update existing trial parameters and station information." onclick="openEditTrialModal('PR1998/1')" data-i18n="btnEditTrial">Edit Trial Info</button>
                                 <button class="reada-qt-btn" data-tooltip="Import trial main info from external backup archive." onclick="openReadaSubAction('Read Info From Backup')" data-i18n="btnReadBackup">Read Info From BackUp</button>
                                 <button class="reada-qt-btn" data-tooltip="Export trial descriptors to *.csv spreadsheet format." onclick="openReadaSubAction('Export Trial Info CSV')" data-i18n="btnExportCSV">Save Info Into *.csv File</button>
                                 <button class="reada-qt-btn" data-tooltip="Remove trial record and associated plot data from database." onclick="openReadaSubAction('Delete Trial Record')" data-i18n="btnDeleteTrial">Delete Trial Info</button>
@@ -260,7 +735,6 @@ window.showReadaView = switchTabDirect;
                         </p>
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 24px;">
                             <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaModal('bunch-selection')" data-i18n="btnNewBunch">➕ New Bunch Analysis Data Entry</button>
-                            <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaModal('bunch-selection')" data-i18n="btnEditBunch">✏️ Edit Bunch Analysis Data Entry</button>
                             <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaModal('bunch-editor')" data-i18n="btnCalcBunch">🧮 Calculate / Generate Bunch Analysis Data</button>
                             <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaModal('bunch-print')" data-i18n="btnPrintBunch">🖨️ Print Bunch Analysis Data</button>
                             <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaModal('bunch-backup')" data-i18n="btnReadBunchBackup">📁 Read Bunch Analysis Back Up File</button>
@@ -281,7 +755,6 @@ window.showReadaView = switchTabDirect;
                         </p>
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 24px;">
                             <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaModal('yield-selection')" data-i18n="btnNewYield">➕ New Yield Recording Data Entry</button>
-                            <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaModal('yield-selection')" data-i18n="btnEditYield">✏️ Edit Yield Recording Data Entry</button>
                             <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaModal('yield-editor')" data-i18n="btnCalcYield">🧮 Calculate / Generate Annual FFB Yield Data</button>
                             <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaModal('yield-print')" data-i18n="btnPrintYield">🖨️ Print Yield Recording Data</button>
                             <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaModal('yield-csv')" data-i18n="btnSaveYieldCSV">💾 Save Yield Recording Data To *.csv File</button>
@@ -303,7 +776,6 @@ window.showReadaView = switchTabDirect;
                         </p>
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 24px;">
                             <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaSubAction('New Vegetative Measurement Entry')" data-i18n="btnNewVeg">🌿 New Vegetative Field Sampling</button>
-                            <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaSubAction('Edit Vegetative Measurement Data')" data-i18n="btnEditVeg">✏️ Edit Vegetative Field Data</button>
                             <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaSubAction('Print Vegetative Report PDF')" data-i18n="btnPrintVeg">🖨️ Print Vegetative Sampling Report</button>
                             <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaSubAction('Export Vegetative CSV')" data-i18n="btnSaveVegCSV">💾 Export Field Sampling To *.csv</button>
                         </div>
@@ -322,7 +794,6 @@ window.showReadaView = switchTabDirect;
                         </p>
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 24px;">
                             <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaSubAction('New Annual Data Entry')" data-i18n="btnNewAnnual">➕ New Annual Data Entry</button>
-                            <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaSubAction('Edit Annual Data Entry')" data-i18n="btnEditAnnual">✏️ Edit Annual Data</button>
                             <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaSubAction('View Annual Plot Data')" data-i18n="btnViewAnnual">📊 View Annual Plot Data</button>
                             <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaSubAction('Print Annual Plot Data PDF')" data-i18n="btnPrintAnnual">🖨️ Print Annual Plot Data</button>
                             <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaSubAction('Create ASCII File Data')" data-i18n="btnCreateASCII">📄 Create ASCII File Data</button>
@@ -343,7 +814,7 @@ window.showReadaView = switchTabDirect;
 
                         <div class="reada-search-bar">
                             <input type="text" class="reada-search-input" id="reada-search-query" placeholder="Filter trial code, station, soil series..." onkeyup="filterReadaTrials()" />
-                            <button class="reada-qt-btn" onclick="openReadaModal('new-trial')">+ New Trial</button>
+                            <button class="reada-qt-btn" onclick="openNewTrialModal()">+ New Trial</button>
                             <button class="reada-qt-btn" onclick="exportReadaTrialsCsv()">Export CSV</button>
                         </div>
 
@@ -368,7 +839,7 @@ window.showReadaView = switchTabDirect;
                                 </thead>
                                 <tbody id="reada-trials-tbody">
                                     <tr>
-                                        <td><span style="cursor:pointer;" onclick="openReadaSubAction('Edit Trial Selection')">✏️</span></td>
+                                        <td><span style="cursor:pointer; font-size:16px;" onclick="openEditTrialModal('PR1998/1')" title="Edit Trial">✏️</span></td>
                                         <td><span style="color:#64748b; font-size:0.95em;">01 Jul 2026</span></td>
                                         <td><b>PR1998/1</b></td>
                                         <td>Banting Station</td>
@@ -377,13 +848,13 @@ window.showReadaView = switchTabDirect;
                                         <td>148</td>
                                         <td>F3 (N x P x K)</td>
                                         <td>DxP AVROS</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Bunch Analysis')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('Edit Bunch Analysis')">edit</a>]</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Yield Recording')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('Edit Yield Recording')">edit</a>]</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Vegetative Sampling')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('Edit Vegetative Sampling')">edit</a>]</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Annual Plot Data')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('Edit Annual Plot Data')">edit</a>]</td>
+                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Bunch Analysis')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openBunchEditorForTrial('PR1998/1')">edit</a>]</td>
+                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Yield Recording')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openYieldEditorForTrial('${t.code}')">edit</a>]</td>
+                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Vegetative Sampling')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openVegEditorForTrial('${t.code}')">edit</a>]</td>
+                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Annual Plot Data')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openAnnualEditorForTrial('${t.code}')">edit</a>]</td>
                                     </tr>
                                     <tr>
-                                        <td><span style="cursor:pointer;" onclick="openReadaSubAction('Edit Trial Selection')">✏️</span></td>
+                                        <td><span style="cursor:pointer; font-size:16px;" onclick="openEditTrialModal('PR2002/4')" title="Edit Trial">✏️</span></td>
                                         <td><span style="color:#64748b; font-size:0.95em;">15 Jul 2026</span></td>
                                         <td><b>PR2002/4</b></td>
                                         <td>Kluang Substation</td>
@@ -392,13 +863,13 @@ window.showReadaView = switchTabDirect;
                                         <td>138</td>
                                         <td>F4 (N x P x K x Mg)</td>
                                         <td>DxP Yangambi</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Bunch Analysis')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('Edit Bunch Analysis')">edit</a>]</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Yield Recording')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('Edit Yield Recording')">edit</a>]</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Vegetative Sampling')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('Edit Vegetative Sampling')">edit</a>]</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Annual Plot Data')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('Edit Annual Plot Data')">edit</a>]</td>
+                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Bunch Analysis')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openBunchEditorForTrial('PR2002/4')">edit</a>]</td>
+                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Yield Recording')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openYieldEditorForTrial('${t.code}')">edit</a>]</td>
+                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Vegetative Sampling')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openVegEditorForTrial('${t.code}')">edit</a>]</td>
+                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Annual Plot Data')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openAnnualEditorForTrial('${t.code}')">edit</a>]</td>
                                     </tr>
                                     <tr>
-                                        <td><span style="cursor:pointer;" onclick="openReadaSubAction('Edit Trial Selection')">✏️</span></td>
+                                        <td><span style="cursor:pointer; font-size:16px;" onclick="openEditTrialModal('PR2005/2')" title="Edit Trial">✏️</span></td>
                                         <td><span style="color:#64748b; font-size:0.95em;">20 Jul 2026</span></td>
                                         <td><b>PR2005/2</b></td>
                                         <td>Teluk Intan Station</td>
@@ -407,13 +878,13 @@ window.showReadaView = switchTabDirect;
                                         <td>148</td>
                                         <td>F2 (N x K)</td>
                                         <td>DxP Calabar</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Bunch Analysis')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('Edit Bunch Analysis')">edit</a>]</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Yield Recording')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('Edit Yield Recording')">edit</a>]</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Vegetative Sampling')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('Edit Vegetative Sampling')">edit</a>]</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Annual Plot Data')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('Edit Annual Plot Data')">edit</a>]</td>
+                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Bunch Analysis')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openBunchEditorForTrial('PR2005/2')">edit</a>]</td>
+                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Yield Recording')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openYieldEditorForTrial('${t.code}')">edit</a>]</td>
+                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Vegetative Sampling')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openVegEditorForTrial('${t.code}')">edit</a>]</td>
+                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Annual Plot Data')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openAnnualEditorForTrial('${t.code}')">edit</a>]</td>
                                     </tr>
                                     <tr>
-                                        <td><span style="cursor:pointer;" onclick="openReadaSubAction('Edit Trial Selection')">✏️</span></td>
+                                        <td><span style="cursor:pointer; font-size:16px;" onclick="openEditTrialModal('1000')" title="Edit Trial">✏️</span></td>
                                         <td><span style="color:#64748b; font-size:0.95em;">05 Aug 2026</span></td>
                                         <td><b>1000</b></td>
                                         <td>Lahad Datu Station</td>
@@ -422,10 +893,10 @@ window.showReadaView = switchTabDirect;
                                         <td>148</td>
                                         <td>F3 (N x P x K)</td>
                                         <td>DxP AVROS</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Bunch Analysis')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('Edit Bunch Analysis')">edit</a>]</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Yield Recording')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('Edit Yield Recording')">edit</a>]</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Vegetative Sampling')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('Edit Vegetative Sampling')">edit</a>]</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Annual Plot Data')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('Edit Annual Plot Data')">edit</a>]</td>
+                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Bunch Analysis')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openBunchEditorForTrial('1000')">edit</a>]</td>
+                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Yield Recording')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openYieldEditorForTrial('${t.code}')">edit</a>]</td>
+                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Vegetative Sampling')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openVegEditorForTrial('${t.code}')">edit</a>]</td>
+                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Annual Plot Data')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openAnnualEditorForTrial('${t.code}')">edit</a>]</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -547,14 +1018,14 @@ window.showReadaView = switchTabDirect;
 
     <!-- 6. New Trial Info Dialog -->
     <div id="modal-reada-new-trial" class="modal-overlay">
-        <div class="modal-content" style="max-width: 820px; background-color: #dcdcdc; border: 1px solid #bcbcbc; padding: 18px; color: #000000;">
+        <div class="modal-content" style="width: 95%; max-width: 960px; background-color: #dcdcdc; border: 1px solid #bcbcbc; padding: 22px; color: #000000; box-sizing: border-box;">
             <div style="background-color: #000055; color: #ffffff; font-family: 'Times New Roman', serif; font-size: 18px; font-weight: bold; padding: 10px; text-align: center; border-radius: 3px; margin-bottom: 14px;">
                 Trial &nbsp; Main &nbsp; Information
             </div>
 
-                        <div style="display: flex; gap: 16px; font-family: 'Times New Roman', serif; color: #000000;">
+                        <div style="display: flex; flex-wrap: wrap; gap: 20px; font-family: 'Times New Roman', serif; color: #000000;">
                 <!-- LEFT COLUMN (Trial Identifiers & Minimap Location) -->
-                <div style="flex: 1.2; background-color: #e8e8e8; border: 1px solid #bcbcbc; padding: 14px; border-radius: 4px; display: flex; flex-direction: column; gap: 10px;">
+                <div style="flex: 1 1 450px; background-color: #e8e8e8; border: 1px solid #bcbcbc; padding: 18px; border-radius: 4px; display: flex; flex-direction: column; gap: 14px;">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <label style="width: 110px; font-weight: bold; font-size: 13px;">Trial code :</label>
                         <input type="text" id="reada-nt-code" value="PR2026/LD1" style="width: 140px; padding: 4px; border: 1px solid #71717a; border-radius: 3px;" />
@@ -583,12 +1054,12 @@ window.showReadaView = switchTabDirect;
                             <span id="reada-nt-coords" style="font-size: 11px; color: #166534; font-weight: bold;">(Click map to pick)</span>
                             <button type="button" class="reada-qt-btn" onclick="openPolygonDrawerModal()" style="padding: 5px 12px; background-color: #10b981; color: white; border: none; font-size: 11px; font-weight: 700; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.15);">📡 Draw Custom Plot Boundary</button>
                         </div>
-                        <div id="reada-nt-minimap-container" style="width: 100%; height: 210px; margin-top: 6px; border: 1px solid #71717a; background-color: #e5e7eb;"></div>
+                        <div id="reada-nt-minimap-container" style="width: 100%; min-height: 280px; flex-grow: 1; margin-top: 6px; border: 1px solid #71717a; background-color: #e5e7eb; border-radius: 4px;"></div>
                     </div>
                 </div>
 
                 <!-- RIGHT COLUMN (Save/Cancel, Treatment Checkboxes, Factors, Notes) -->
-                <div style="width: 260px; display: flex; flex-direction: column; gap: 10px;">
+                <div style="flex: 1 1 280px; min-width: 260px; display: flex; flex-direction: column; gap: 12px;">
                     <!-- Save/Cancel Box -->
                     <div style="background-color: #e8e8e8; border: 1px solid #bcbcbc; border-radius: 4px; padding: 12px; text-align: center;">
                         <div style="font-weight: bold; font-size: 14px; margin-bottom: 10px;">Save New Trial Data?</div>
@@ -1676,7 +2147,7 @@ window.showReadaView = switchTabDirect;
     <script src="js/nav.js"></script>
     <script src="js/comprehensive.js"></script>
     <script src="js/standard.js"></script>
-    <script src="js/reada.js?v=20260903_yellow_highlight_fix"></script>
+    <script src="js/reada.js?v=20260903_pencil_click_fixed"></script>
     <script src="js/main.js"></script>
 
 

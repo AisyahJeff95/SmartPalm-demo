@@ -1406,6 +1406,41 @@ window.showReadaView = switchTabDirect;
             { dateAdded: '05 Aug 2026', code: '1000', station: 'Lahad Datu Station', region: 'MPOB Sabah', year: '2000', density: '148', factorial: 'F3 (N x P x K)', progeny: 'DxP AVROS' }
         ];
 
+        
+// Supabase dynamic fetch
+async function fetchUserTrials() {
+    const client = typeof getSupabase === 'function' ? getSupabase() : window.supabase;
+    if (!client || !currentUser) return;
+    
+    try {
+        const { data, error } = await client.from('trial_database').select('*').order('date_added', { ascending: false });
+        if (error) throw error;
+        
+        if (data && data.length > 0) {
+            readaTrials = data.map(d => ({
+                code: d.trial_code,
+                dateAdded: d.date_added || '03 Sep 2026',
+                station: d.station || '',
+                region: d.region || '',
+                year: d.planting_year || '',
+                density: d.density || '',
+                factorial: d.factorial || '',
+                progeny: d.progeny || ''
+            }));
+            
+            // Sync to local storage for backward compatibility during transition
+            localStorage.setItem('smartpalm_reada_trials', JSON.stringify(readaTrials));
+        }
+        
+        if (typeof renderReadaTrialsTable === 'function') {
+            renderReadaTrialsTable();
+        }
+    } catch (err) {
+        console.error("Failed to fetch user trials from Supabase:", err);
+    }
+}
+window.fetchUserTrials = fetchUserTrials;
+
         function loadReadaTrials() {
             const saved = localStorage.getItem('smartpalm_reada_trials');
             if (saved) {
@@ -1619,7 +1654,7 @@ function renderReadaTrialsTable() {
         const tdStyle = isSel ? 'background-color: #fef08a !important; color: #0f172a !important; font-weight: 600;' : '';
         return `
         <tr class="${rowClass}" style="${tdStyle}">
-            <td style="${tdStyle} text-align:center;"><span style="cursor:pointer; font-size:16px;" onclick="openReadaDirectPopup('new-trial', '${t.code}')" title="Edit Trial">✏️</span></td>
+            <td style="${tdStyle} text-align:center;"><span style="cursor:pointer; font-size:16px;" onclick="openEditTrialModal('${t.code}')" title="Edit Trial">✏️</span></td>
             <td style="${tdStyle}"><span style="color:${isSel ? '#0f172a' : '#475569'}; font-size:0.92em; font-weight:600;">${t.dateAdded || '-'}</span></td>
             <td style="${tdStyle}"><b style="color:#0f172a;">${t.code}</b> ${isSel ? '<span style="background:#ef4444 !important; color:#ffffff !important; font-size:11px; font-weight:bold; padding:2px 8px; border-radius:12px; margin-left:6px; display:inline-block; box-shadow:0 2px 4px rgba(239,68,68,0.4);">SELECTED</span>' : ''}</td>
             <td style="${tdStyle}">${t.station}</td>
@@ -2567,3 +2602,101 @@ function initReadaMapDashboard() {
 }
 
 window.initReadaMapDashboard = initReadaMapDashboard;
+
+
+// Open Edit Trial Modal pre-filled with selected trial details
+// Global Window Exports for Pencil Edit Pop-up and New Trial Pop-up
+function openEditTrialModal(trialCode) {
+    console.log("Opening Edit Trial Modal for:", trialCode);
+    
+    let trial = null;
+    if (typeof readaTrials !== 'undefined' && Array.isArray(readaTrials)) {
+        trial = readaTrials.find(t => t && t.code && t.code.toLowerCase() === String(trialCode).toLowerCase());
+    }
+
+    // Default fallback dictionary for initial static trials
+    if (!trial) {
+        const staticTrials = {
+            'PR1998/1': { code: 'PR1998/1', station: 'Banting Station', region: 'MPOB Central', year: '1998', density: '148', progeny: 'DxP AVROS', factorial: 'F3 (N x P x K)' },
+            'PR2002/4': { code: 'PR2002/4', station: 'Kluang Substation', region: 'MPOB Southern', year: '2002', density: '138', progeny: 'DxP Yangambi', factorial: 'F4 (N x P x K x Mg)' },
+            'PR2005/2': { code: 'PR2005/2', station: 'Teluk Intan Station', region: 'MPOB Northern', year: '2005', density: '148', progeny: 'DxP Calabar', factorial: 'F2 (N x K)' },
+            '1000': { code: '1000', station: 'Lahad Datu Station', region: 'MPOB Sabah', year: '2000', density: '148', progeny: 'DxP AVROS', factorial: 'F3 (N x P x K)' }
+        };
+        trial = staticTrials[trialCode] || { code: trialCode, station: 'MPOB Research Station', region: 'MPOB Central', year: '2022', density: '148' };
+    }
+
+    const modalHeader = document.querySelector('#modal-reada-new-trial .modal-content > div:first-child');
+    const saveBtn = document.querySelector('#modal-reada-new-trial button[onclick="saveReadaNewTrial()"]');
+
+    const codeInput = document.getElementById('reada-nt-code');
+    const estateInput = document.getElementById('reada-nt-estate');
+    const yearInput = document.getElementById('reada-nt-year');
+    const densityInput = document.getElementById('reada-nt-density');
+    const regionInput = document.getElementById('reada-nt-region');
+    const notesInput = document.getElementById('reada-nt-notes');
+
+    if (codeInput) {
+        codeInput.value = trial.code;
+        codeInput.readOnly = true;
+        codeInput.style.backgroundColor = '#e2e8f0';
+    }
+    if (estateInput) estateInput.value = trial.station || '';
+    if (yearInput) yearInput.value = trial.year || '2022';
+    if (densityInput) densityInput.value = trial.density || '148';
+    if (regionInput) regionInput.value = trial.region || 'MPOB Central';
+    if (notesInput) notesInput.value = `Progeny: ${trial.progeny || ''} | Factorial: ${trial.factorial || ''}`;
+
+    if (typeof window.geocodeEstateMinimap === 'function' && trial.station) {
+        window.geocodeEstateMinimap(trial.station);
+    }
+
+    if (modalHeader) modalHeader.innerHTML = `Edit &nbsp; Trial &nbsp; Information &nbsp; (${trial.code})`;
+    if (saveBtn) saveBtn.innerHTML = `✔ Save Changes`;
+
+    if (typeof window.openReadaModal === 'function') {
+        window.openReadaModal('modal-reada-new-trial');
+    } else {
+        const el = document.getElementById('modal-reada-new-trial');
+        if (el) {
+            el.classList.add('active');
+            el.style.setProperty('display', 'flex', 'important');
+        }
+    }
+}
+window.openEditTrialModal = openEditTrialModal;
+
+function openNewTrialModal() {
+    console.log("Opening New Trial Modal...");
+    const modalHeader = document.querySelector('#modal-reada-new-trial .modal-content > div:first-child');
+    const saveBtn = document.querySelector('#modal-reada-new-trial button[onclick="saveReadaNewTrial()"]');
+    
+    if (modalHeader) modalHeader.innerHTML = `Trial &nbsp; Main &nbsp; Information`;
+    if (saveBtn) saveBtn.innerHTML = `✔ Save Trial`;
+
+    const codeInput = document.getElementById('reada-nt-code');
+    if (codeInput) {
+        codeInput.value = `PR2026/LD${(typeof readaTrials !== 'undefined' ? readaTrials.length : 0) + 1}`;
+        codeInput.readOnly = false;
+        codeInput.style.backgroundColor = '#ffffff';
+    }
+    const estateInput = document.getElementById('reada-nt-estate');
+    if (estateInput) estateInput.value = 'Lahad Datu Research Station';
+
+    if (typeof window.openReadaModal === 'function') {
+        window.openReadaModal('modal-reada-new-trial');
+    } else {
+        const el = document.getElementById('modal-reada-new-trial');
+        if (el) {
+            el.classList.add('active');
+            el.style.setProperty('display', 'flex', 'important');
+        }
+    }
+}
+window.openNewTrialModal = openNewTrialModal;
+
+// Auto-run renderReadaTrialsTable on page load
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof renderReadaTrialsTable === 'function') {
+        setTimeout(renderReadaTrialsTable, 200);
+    }
+});

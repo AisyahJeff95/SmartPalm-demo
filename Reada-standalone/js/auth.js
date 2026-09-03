@@ -143,14 +143,26 @@ function updateTopNavUser(user) {
     const profileDropdown = document.querySelector('.profile-dropdown-container');
     const userEmailSpan = document.getElementById('nav-user-email');
 
+    
     if (user) {
         if (authBtnContainer) authBtnContainer.style.display = 'none';
         if (profileDropdown) profileDropdown.style.display = 'inline-block';
         if (userEmailSpan) userEmailSpan.textContent = user.username || user.email;
+        
+        // Fetch User Trials automatically on login!
+        if (typeof fetchUserTrials === 'function') {
+            fetchUserTrials();
+        }
     } else {
         if (authBtnContainer) authBtnContainer.style.display = 'inline-block';
         if (profileDropdown) profileDropdown.style.display = 'none';
+        
+        // FORCE LOGIN MODAL
+        if (typeof openAuthModal === 'function') {
+            openAuthModal('signin');
+        }
     }
+
 }
 
 // Listen to Auth Events on Load
