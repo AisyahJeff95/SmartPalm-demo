@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ReaDA Map Dashboard Embed</title>
     
-    <!-- MapLibre GL JS & Leaflet JS -->
-    <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
-    <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+    <!-- Leaflet JS & CSS (100% WebGL-independent, ultra-stable tile renderer) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
@@ -28,6 +26,7 @@
             position: absolute;
             top: 0;
             left: 0;
+            z-index: 1;
         }
 
         .map-layer-control {
@@ -35,7 +34,7 @@
             top: 14px;
             right: 14px;
             z-index: 9999;
-            background: rgba(15, 23, 42, 0.85);
+            background: rgba(15, 23, 42, 0.88);
             backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.2);
             border-radius: 8px;
@@ -90,25 +89,6 @@
             transform: translateY(-2px);
         }
 
-        /* Map Pin Pulse Effect */
-        .custom-map-pin {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 11px;
-        }
-
-        /* MapLibre Popup Styling */
-        .maplibregl-popup-content, .leaflet-popup-content-wrapper {
-            background: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
-            padding: 12px;
-            color: #0f172a;
-        }
-
         .station-popup-title {
             color: #15803d;
             font-weight: 700;
@@ -122,14 +102,37 @@
             font-size: 12px;
             line-height: 1.6;
         }
+
+        /* Red & Green Pin Styling for Leaflet Markers */
+        .map-pin-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            border: 3px solid #ffffff;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.5);
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .map-pin-green {
+            background-color: #15803d;
+        }
+
+        .map-pin-red {
+            background-color: #ef4444;
+        }
     </style>
 </head>
 <body>
 
     <div class="map-layer-control">
         <span>🗺️ Layer:</span>
-        <button class="map-layer-btn active" id="btn-sat" onclick="switchMapStyle('satellite')">Satellite Earth</button>
-        <button class="map-layer-btn" id="btn-osm" onclick="switchMapStyle('osm')">Street Map</button>
+        <button class="map-layer-btn active" id="btn-sat" onclick="switchLayer('sat')">Satellite Earth</button>
+        <button class="map-layer-btn" id="btn-osm" onclick="switchLayer('osm')">Street Map</button>
     </div>
 
     <button class="view-selected-btn" onclick="onViewSelectedClicked()">View Selected in List (<span id="selected-count">0</span>)</button>
@@ -137,51 +140,11 @@
     <div id="map-container"></div>
 
     <script>
-        const SATELLITE_STYLE = {
-            'version': 8,
-            'sources': {
-                'esri-satellite': {
-                    'type': 'raster',
-                    'tiles': [
-                        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
-                    ],
-                    'tileSize': 256,
-                    'attribution': '&copy; Esri World Imagery'
-                },
-                'google-labels': {
-                    'type': 'raster',
-                    'tiles': [
-                        'https://mt1.google.com/vt/lyrs=h&x={x}&y={y}&z={z}'
-                    ],
-                    'tileSize': 256
-                }
-            },
-            'layers': [
-                { 'id': 'satellite-layer', 'type': 'raster', 'source': 'esri-satellite', 'minzoom': 0, 'maxzoom': 20 },
-                { 'id': 'labels-layer', 'type': 'raster', 'source': 'google-labels', 'minzoom': 0, 'maxzoom': 20 }
-            ]
-        };
-
-        const OSM_STYLE = {
-            'version': 8,
-            'sources': {
-                'osm-tiles': {
-                    'type': 'raster',
-                    'tiles': ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
-                    'tileSize': 256,
-                    'attribution': '&copy; OpenStreetMap contributors'
-                }
-            },
-            'layers': [
-                { 'id': 'osm-layer', 'type': 'raster', 'source': 'osm-tiles', 'minzoom': 0, 'maxzoom': 19 }
-            ]
-        };
-
         const stationData = [
-            { code: 'PR1998/1', station: 'Banting Station', region: 'MPOB Central', year: '1998', density: '148', coords: [101.50, 2.81] },
-            { code: 'PR2002/4', station: 'Kluang Substation', region: 'MPOB Southern', year: '2002', density: '138', coords: [103.32, 2.03] },
-            { code: 'PR2005/2', station: 'Teluk Intan Station', region: 'MPOB Northern', year: '2005', density: '148', coords: [101.03, 4.00] },
-            { code: '1000', station: 'Lahad Datu Station', region: 'MPOB Sabah', year: '2000', density: '148', coords: [118.33, 5.03] }
+            { code: 'PR1998/1', station: 'Banting Station', region: 'MPOB Central', year: '1998', density: '148', coords: [2.81, 101.50] },
+            { code: 'PR2002/4', station: 'Kluang Substation', region: 'MPOB Southern', year: '2002', density: '138', coords: [2.03, 103.32] },
+            { code: 'PR2005/2', station: 'Teluk Intan Station', region: 'MPOB Northern', year: '2005', density: '148', coords: [4.00, 101.03] },
+            { code: '1000', station: 'Lahad Datu Station', region: 'MPOB Sabah', year: '2000', density: '148', coords: [5.03, 118.33] }
         ];
 
         let selectedCodes = new Set();
@@ -194,7 +157,7 @@
             const arr = Array.from(selectedCodes);
             const countEl = document.getElementById('selected-count');
             if (countEl) countEl.innerText = arr.length;
-            
+
             try {
                 localStorage.setItem('reada_selected_trials', JSON.stringify(arr));
             } catch(e) {}
@@ -210,6 +173,106 @@
             } catch(e) {}
         }
 
+        let lMap = null;
+        let satTileLayer = null;
+        let googleLabelsLayer = null;
+        let osmTileLayer = null;
+
+        function initLeafletMap() {
+            syncSelectedToParent();
+
+            if (typeof L === 'undefined') {
+                console.error("Leaflet library not loaded");
+                return;
+            }
+
+            lMap = L.map('map-container', {
+                center: [4.21, 108.82],
+                zoom: 6,
+                zoomControl: true
+            });
+
+            satTileLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                maxZoom: 19,
+                attribution: '&copy; Esri World Imagery'
+            }).addTo(lMap);
+
+            googleLabelsLayer = L.tileLayer('https://mt1.google.com/vt/lyrs=h&x={x}&y={y}&z={z}', {
+                maxZoom: 19
+            }).addTo(lMap);
+
+            osmTileLayer = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            });
+
+            stationData.forEach(st => {
+                const isSel = selectedCodes.has(st.code);
+
+                const icon = L.divIcon({
+                    className: 'custom-div-icon',
+                    html: `<div id="pin-${st.code.replace('/', '_')}" class="map-pin-icon ${isSel ? 'map-pin-red' : 'map-pin-green'}" style="width:24px; height:24px;">${isSel ? '✓' : ''}</div>`,
+                    iconSize: [24, 24],
+                    iconAnchor: [12, 12]
+                });
+
+                const marker = L.marker(st.coords, { icon: icon }).addTo(lMap);
+
+                const popupContent = `
+                    <div class="station-popup-title">${st.station}</div>
+                    <div class="station-popup-info">
+                        <b>Trial Code:</b> ${st.code}<br>
+                        <b>Region:</b> ${st.region}<br>
+                        <b>Status:</b> <span id="status-${st.code.replace('/', '_')}" style="color:${isSel ? '#ef4444' : '#15803d'}; font-weight:bold;">${isSel ? 'SELECTED (RED PIN)' : 'Click pin to select (Turn Red)'}</span>
+                    </div>
+                `;
+                marker.bindPopup(popupContent);
+
+                marker.on('click', function() {
+                    if (selectedCodes.has(st.code)) {
+                        selectedCodes.delete(st.code);
+                    } else {
+                        selectedCodes.add(st.code);
+                    }
+                    syncSelectedToParent();
+
+                    const pinEl = document.getElementById('pin-' + st.code.replace('/', '_'));
+                    if (pinEl) {
+                        const nowSel = selectedCodes.has(st.code);
+                        pinEl.className = 'map-pin-icon ' + (nowSel ? 'map-pin-red' : 'map-pin-green');
+                        pinEl.innerText = nowSel ? '✓' : '';
+                    }
+
+                    const statusEl = document.getElementById('status-' + st.code.replace('/', '_'));
+                    if (statusEl) {
+                        const nowSel = selectedCodes.has(st.code);
+                        statusEl.innerText = nowSel ? 'SELECTED (RED PIN)' : 'Click pin to select (Turn Red)';
+                        statusEl.style.color = nowSel ? '#ef4444' : '#15803d';
+                    }
+                });
+            });
+
+            setTimeout(() => { lMap.invalidateSize(); }, 300);
+            console.log("Leaflet Interactive Pin Map initialized successfully!");
+        }
+
+        function switchLayer(layerType) {
+            document.getElementById('btn-sat').classList.toggle('active', layerType === 'sat');
+            document.getElementById('btn-osm').classList.toggle('active', layerType === 'osm');
+
+            if (!lMap) return;
+
+            if (layerType === 'sat') {
+                if (lMap.hasLayer(osmTileLayer)) lMap.removeLayer(osmTileLayer);
+                satTileLayer.addTo(lMap);
+                googleLabelsLayer.addTo(lMap);
+            } else {
+                if (lMap.hasLayer(satTileLayer)) lMap.removeLayer(satTileLayer);
+                if (lMap.hasLayer(googleLabelsLayer)) lMap.removeLayer(googleLabelsLayer);
+                osmTileLayer.addTo(lMap);
+            }
+        }
+
         function onViewSelectedClicked() {
             syncSelectedToParent();
             const arr = Array.from(selectedCodes);
@@ -222,15 +285,9 @@
             } catch(e) {
                 console.error("View selected list trigger error:", e);
             }
-        } else if (window.parent && typeof window.parent.switchTabDirect === 'function') {
-                    window.parent.switchTabDirect('trial-list');
-                }
-            } catch(e) {
-                console.error("View selected list trigger error:", e);
-            }
         }
 
-        document.addEventListener('DOMContentLoaded', initMapEngine);
+        document.addEventListener('DOMContentLoaded', initLeafletMap);
     </script>
 </body>
 </html>
