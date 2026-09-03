@@ -2400,7 +2400,7 @@ function loadSavedPlotsOnMap() {
 // Dynamic Estate Name Geocoding & Minimap Auto-Pan
 let estateGeocodeDebounce = null;
 
-const ESTATELOCATION_PRESETS = {
+const MINIMAP_ESTATELOCATION_PRESETS = {
     'lahad datu': { lat: 5.03, lng: 118.33, name: 'Lahad Datu Station' },
     'banting': { lat: 2.81, lng: 101.50, name: 'Banting Station' },
     'kluang': { lat: 2.03, lng: 103.32, name: 'Kluang Substation' },
@@ -2419,7 +2419,7 @@ function geocodeEstateMinimap(query) {
     estateGeocodeDebounce = setTimeout(async () => {
         const cleanQuery = query.trim().toLowerCase();
 
-        for (const [key, preset] of Object.entries(ESTATELOCATION_PRESETS)) {
+        for (const [key, preset] of Object.entries(MINIMAP_ESTATELOCATION_PRESETS)) {
             if (cleanQuery.includes(key)) {
                 updateMinimapLocation([preset.lng, preset.lat], preset.name);
                 return;
