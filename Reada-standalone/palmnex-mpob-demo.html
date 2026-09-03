@@ -5499,12 +5499,46 @@
         // =========================================================================
         // ReaDA Engine View Navigation & Dialog Handlers (Authentic Palmnex Replica)
         // =========================================================================
-        function showReadaView(viewId) {
-            document.querySelectorAll('.reada-view').forEach(el => el.classList.remove('active'));
-            if (viewId === 'main-info') {
-                const v = document.getElementById('reada-view-main-info');
-                if (v) v.classList.add('active');
-            } else if (viewId === 'trial-list') {
+        function showReadaView(viewId, element) {
+    console.log("Switching ReaDA view to:", viewId);
+    document.querySelectorAll('.reada-view').forEach(el => {
+        el.classList.remove('active');
+        el.style.display = 'none';
+    });
+    document.querySelectorAll('.reada-tab').forEach(el => el.classList.remove('active'));
+
+    let targetTab = element;
+    if (!targetTab || !(targetTab instanceof HTMLElement)) {
+        targetTab = document.querySelector(`.reada-tab[data-view="${viewId}"]`);
+    }
+    if (targetTab) targetTab.classList.add('active');
+
+    const viewMap = {
+        'main-info': 'reada-view-main-info',
+        'trial-list': 'reada-view-trial-list',
+        'bunch': 'reada-view-bunch',
+        'yield': 'reada-view-yield',
+        'veg': 'reada-view-veg',
+        'annual': 'reada-view-annual',
+        'branding': 'reada-view-branding',
+        'map-dashboard': 'reada-view-map-dashboard'
+    };
+
+    const targetViewId = viewMap[viewId] || 'reada-view-branding';
+    const targetView = document.getElementById(targetViewId);
+    if (targetView) {
+        targetView.classList.add('active');
+        targetView.style.display = (viewId === 'map-dashboard' || viewId === 'trial-list') ? 'block' : 'flex';
+    }
+
+    if (viewId === 'map-dashboard') {
+        setTimeout(() => {
+            if (typeof initReadaMapDashboard === 'function') initReadaMapDashboard();
+            if (typeof readaMap !== 'undefined' && readaMap) readaMap.resize();
+        }, 150);
+    }
+}
+window.showReadaView = showReadaView; else if (viewId === 'trial-list') {
                 const v = document.getElementById('reada-view-trial-list');
                 if (v) v.classList.add('active');
             } else {
