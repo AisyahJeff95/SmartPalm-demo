@@ -7,22 +7,22 @@
       "destination": "/demo/index.html"
     },
     {
-      "source": "/demo/PalmnexReaDS",
-      "destination": "/demo/PalmnexReaDS.html"
+      "source": "/demo/",
+      "destination": "/demo/index.html"
     },
     {
-      "source": "/demo/(.*)",
-      "destination": "/demo/$1"
+      "source": "/demo/:path*",
+      "destination": "/demo/:path*"
     },
     {
-      "source": "/(.*)",
+      "source": "/:path*",
       "has": [
         {
           "type": "host",
           "value": "palmnex-demo.com.my"
         }
       ],
-      "destination": "/demo/$1"
+      "destination": "/demo/:path*"
     },
     {
       "source": "/",
