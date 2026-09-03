@@ -2214,3 +2214,66 @@ function loadSavedPlotsOnMap() {
         }
     });
 }
+
+
+// Dynamic Estate Name Geocoding & Minimap Auto-Pan
+let estateGeocodeDebounce = null;
+
+const ESTATELOCATION_PRESETS = {
+    'lahad datu': { lat: 5.03, lng: 118.33, name: 'Lahad Datu Station' },
+    'banting': { lat: 2.81, lng: 101.50, name: 'Banting Station' },
+    'kluang': { lat: 2.03, lng: 103.32, name: 'Kluang Substation' },
+    'teluk intan': { lat: 4.00, lng: 101.03, name: 'Teluk Intan Station' },
+    'seraya': { lat: 4.02, lng: 118.30, name: 'Seraya Estate' },
+    'sabah': { lat: 5.37, lng: 117.58, name: 'Sabah Region' },
+    'johor': { lat: 1.93, lng: 103.36, name: 'Johor Region' },
+    'perak': { lat: 4.59, lng: 101.09, name: 'Perak Region' }
+};
+
+function geocodeEstateMinimap(query) {
+    if (!query || query.trim().length < 2) return;
+
+    if (estateGeocodeDebounce) clearTimeout(estateGeocodeDebounce);
+
+    estateGeocodeDebounce = setTimeout(async () => {
+        const cleanQuery = query.trim().toLowerCase();
+
+        for (const [key, preset] of Object.entries(ESTATELOCATION_PRESETS)) {
+            if (cleanQuery.includes(key)) {
+                updateMinimapLocation([preset.lng, preset.lat], preset.name);
+                return;
+            }
+        }
+
+        try {
+            const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ' Malaysia')}`);
+            const data = await res.json();
+            if (data && data.length > 0) {
+                const lat = parseFloat(data[0].lat);
+                const lng = parseFloat(data[0].lon);
+                updateMinimapLocation([lng, lat], data[0].display_name.split(',')[0]);
+            }
+        } catch (e) {
+            console.warn("Estate geocoding error:", e);
+        }
+    }, 600);
+}
+
+function updateMinimapLocation(lngLat, locationName = '') {
+    if (!newTrialMinimap || typeof maplibregl === 'undefined') return;
+
+    newTrialMinimap.flyTo({ center: lngLat, zoom: 12, speed: 1.4 });
+
+    if (newTrialMarker) {
+        newTrialMarker.setLngLat(lngLat);
+    } else {
+        newTrialMarker = new maplibregl.Marker({ color: '#047857' })
+            .setLngLat(lngLat)
+            .addTo(newTrialMinimap);
+    }
+
+    const coordsEl = document.getElementById('reada-nt-coords');
+    if (coordsEl) {
+        coordsEl.innerText = `Lat: ${lngLat[1].toFixed(4)}, Lng: ${lngLat[0].toFixed(4)} ${locationName ? '(' + locationName + ')' : ''}`;
+    }
+}
