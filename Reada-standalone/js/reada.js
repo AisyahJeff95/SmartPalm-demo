@@ -1416,7 +1416,40 @@ async function fetchUserTrials() {
         const { data, error } = await client.from('trial_database').select('*').order('date_added', { ascending: false });
         if (error) throw error;
         
-        if (data) {
+        if (data && data.length === 0) {
+            // New User: Auto-seed the database with default demo trials
+            const defaultRows = defaultReadaTrials.map(t => ({
+                trial_code: t.code,
+                station: t.station,
+                region: t.region,
+                planting_year: parseInt(t.year) || 2026,
+                density: parseInt(t.density) || 148,
+                factorial: t.factorial,
+                progeny: t.progeny,
+                date_added: new Date().toISOString().split('T')[0]
+            }));
+            
+            try {
+                await client.from('trial_database').insert(defaultRows);
+                // Immediately re-fetch to get the live rows
+                const refreshed = await client.from('trial_database').select('*').order('date_added', { ascending: false });
+                if (refreshed.data) {
+                    readaTrials = refreshed.data.map(d => ({
+                        code: d.trial_code,
+                        dateAdded: d.date_added || '03 Sep 2026',
+                        station: d.station || '',
+                        region: d.region || '',
+                        year: d.planting_year || '',
+                        density: d.density || '',
+                        factorial: d.factorial || '',
+                        progeny: d.progeny || ''
+                    }));
+                    localStorage.setItem('smartpalm_reada_trials', JSON.stringify(readaTrials));
+                }
+            } catch(e) {
+                console.error("Failed to seed default trials:", e);
+            }
+        } else if (data) {
             readaTrials = data.map(d => ({
                 code: d.trial_code,
                 dateAdded: d.date_added || '03 Sep 2026',
