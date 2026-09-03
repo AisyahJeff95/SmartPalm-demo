@@ -1,0 +1,53 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/Reada-standalone/index.html"
+    },
+    {
+      "source": "/PalmnexReaDS",
+      "destination": "/Reada-standalone/PalmnexReaDS.html"
+    },
+    {
+      "source": "/palmnexreads",
+      "destination": "/Reada-standalone/PalmnexReaDS.html"
+    },
+    {
+      "source": "/reada",
+      "destination": "/Reada-standalone/PalmnexReaDS.html"
+    },
+    {
+      "source": "/reada.html",
+      "destination": "/Reada-standalone/PalmnexReaDS.html"
+    },
+    {
+      "source": "/comprehensive",
+      "destination": "/Reada-standalone/comprehensive.html"
+    },
+    {
+      "source": "/standard",
+      "destination": "/Reada-standalone/standard.html"
+    },
+    {
+      "source": "/(css|js|data|demo|pages)/(.*)",
+      "destination": "/Reada-standalone/$1/$2"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/Reada-standalone/$1"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    }
+  ]
+}
