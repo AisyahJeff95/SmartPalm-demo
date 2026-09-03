@@ -27,6 +27,16 @@
       "has": [
         {
           "type": "host",
+          "value": "demo.palmnex.com.my"
+        }
+      ],
+      "destination": "/demo/$1"
+    },
+    {
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
           "value": "palmnex-demo.com.my"
         }
       ],
