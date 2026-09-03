@@ -3,6 +3,14 @@
   "cleanUrls": true,
   "rewrites": [
     {
+      "source": "/comprehensive",
+      "destination": "/comprehensive.html"
+    },
+    {
+      "source": "/standard",
+      "destination": "/standard.html"
+    },
+    {
       "source": "/PalmnexReaDS",
       "destination": "/PalmnexReaDS.html"
     },
@@ -26,6 +34,10 @@
         {
           "key": "Access-Control-Allow-Origin",
           "value": "*"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "no-cache, no-store, must-revalidate"
         }
       ]
     }
