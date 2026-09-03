@@ -988,46 +988,61 @@ function onMapSelectChanged(val) {
         // ReaDA Engine View Navigation & Dialog Handlers (Authentic Palmnex Replica)
         // =========================================================================
         function showReadaView(viewId, element) {
-            console.log("Switching view to:", viewId);
-            document.querySelectorAll('.reada-view').forEach(el => {
-                el.classList.remove('active');
-                el.style.display = 'none';
-            });
-            document.querySelectorAll('.reada-tab').forEach(el => el.classList.remove('active'));
+    console.log("Switching ReaDA view to:", viewId);
+    
+    // Hide all views
+    document.querySelectorAll('.reada-view').forEach(el => {
+        el.classList.remove('active');
+        el.style.display = 'none';
+    });
+    
+    // Deactivate all tabs
+    document.querySelectorAll('.reada-tab').forEach(el => el.classList.remove('active'));
 
-            let targetTab = element;
-            if (!targetTab || !(targetTab instanceof HTMLElement)) {
-                targetTab = document.querySelector(`.reada-tab[data-view="${viewId}"]`);
-            }
-            if (targetTab) targetTab.classList.add('active');
+    // Activate target tab element
+    let targetTab = element;
+    if (!targetTab || !(targetTab instanceof HTMLElement)) {
+        targetTab = document.querySelector(`.reada-tab[data-view="${viewId}"]`);
+    }
+    if (targetTab) {
+        targetTab.classList.add('active');
+    }
 
-            const viewMap = {
-                'main-info': 'reada-view-main-info',
-                'trial-list': 'reada-view-trial-list',
-                'bunch': 'reada-view-bunch',
-                'yield': 'reada-view-yield',
-                'veg': 'reada-view-veg',
-                'annual': 'reada-view-annual',
-                'branding': 'reada-view-branding',
-                'map-dashboard': 'reada-view-map-dashboard'
-            };
+    const viewMap = {
+        'main-info': 'reada-view-main-info',
+        'trial-list': 'reada-view-trial-list',
+        'bunch': 'reada-view-bunch',
+        'yield': 'reada-view-yield',
+        'veg': 'reada-view-veg',
+        'annual': 'reada-view-annual',
+        'branding': 'reada-view-branding',
+        'map-dashboard': 'reada-view-map-dashboard'
+    };
 
-            const targetViewId = viewMap[viewId] || 'reada-view-branding';
-            const targetView = document.getElementById(targetViewId);
-            if (targetView) {
-                targetView.classList.add('active');
-                targetView.style.display = (viewId === 'map-dashboard' || viewId === 'trial-list') ? 'block' : 'flex';
-            }
+    const targetViewId = viewMap[viewId] || 'reada-view-branding';
+    const targetView = document.getElementById(targetViewId);
+    if (targetView) {
+        targetView.classList.add('active');
+        targetView.style.display = 'flex'; // ALWAYS USE FLEX DISPLAY FOR ALL VIEWS!
+    }
 
-            if (viewId === 'map-dashboard') {
-                setTimeout(() => {
-                    if (typeof initReadaMapDashboard === 'function') initReadaMapDashboard();
-                    if (typeof readaMap !== 'undefined' && readaMap) readaMap.resize();
-                }, 150);
-            }
+    if (viewId === 'trial-list') {
+        if (typeof renderReadaTrialsTable === 'function') {
+            renderReadaTrialsTable();
         }
+    } else if (viewId === 'map-dashboard') {
+        setTimeout(() => {
+            if (typeof initReadaMapDashboard === 'function') {
+                initReadaMapDashboard();
+            }
+            if (typeof readaMap !== 'undefined' && readaMap) {
+                readaMap.resize();
+            }
+        }, 100);
+    }
+}
 
-        window.showReadaView = showReadaView;
+window.showReadaView = showReadaView;
 
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.reada-tab').forEach(tab => {
