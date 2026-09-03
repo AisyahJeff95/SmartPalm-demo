@@ -153,58 +153,6 @@ window.showReadaView = switchTabDirect;
         }
         window.closeReadaModal = closeReadaModal;
 
-        function saveReadaNewTrial() {
-            console.log("Failsafe saveReadaNewTrial");
-            var code = document.getElementById('reada-nt-code').value || 'Unknown';
-            var estate = document.getElementById('reada-nt-estate').value || 'Unknown';
-            var year = document.getElementById('reada-nt-year').value || '2026';
-            var density = document.getElementById('reada-nt-density').value || '148';
-            var isNew = !document.getElementById('reada-nt-code').readOnly;
-            
-            var tbody = document.getElementById('reada-trials-tbody');
-            
-            if (isNew) {
-                var today = new Date();
-                var dateStr = today.getDate().toString().padStart(2, '0') + ' ' + today.toLocaleString('default', { month: 'short' }) + ' ' + today.getFullYear();
-                
-                var region = "MPOB General";
-                if(estate.toLowerCase().includes('kluang')) region = "MPOB Southern";
-                else if(estate.toLowerCase().includes('banting')) region = "MPOB Central";
-                else if(estate.toLowerCase().includes('teluk')) region = "MPOB Northern";
-                else if(estate.toLowerCase().includes('lahad datu') || estate.toLowerCase().includes('sabah')) region = "MPOB Sabah";
-                
-                var newHtml = `
-                    <td><span style="cursor:pointer; font-size:16px;" onclick="openEditTrialModal('${code}')" title="Edit Trial">✏️</span></td>
-                    <td><span style="color:#64748b; font-size:0.95em;">${dateStr}</span></td>
-                    <td><b>${code}</b></td>
-                    <td>${estate}</td>
-                    <td>${region}</td>
-                    <td>${year}</td>
-                    <td>${density}</td>
-                    <td>F3 (Custom)</td>
-                    <td>DxP Custom</td>
-                    <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Bunch Analysis')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openBunchEditorForTrial('${t.code}')">edit</a>]</td>
-                    <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Yield Recording')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openYieldEditorForTrial('${t.code}')">edit</a>]</td>
-                    <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Vegetative Sampling')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openVegEditorForTrial('${t.code}')">edit</a>]</td>
-                    <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Annual Plot Data')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openAnnualEditorForTrial('${t.code}')">edit</a>]</td>
-                `;
-                
-                var tr = document.createElement('tr');
-                tr.innerHTML = newHtml;
-                if(tbody) tbody.prepend(tr);
-                
-                var stored = JSON.parse(localStorage.getItem('reada_custom_trials') || '[]');
-                stored.push({ code: code, estate: estate, year: year, density: density, region: region, dateStr: dateStr });
-                localStorage.setItem('reada_custom_trials', JSON.stringify(stored));
-                
-                alert("New Trial (" + code + ") added and saved successfully to database!");
-            } else {
-                alert("Trial Data (" + code + ") updated successfully!");
-            }
-            closeReadaModal('modal-reada-new-trial');
-        }
-        window.saveReadaNewTrial = saveReadaNewTrial;
-
         document.addEventListener("DOMContentLoaded", function() {
             var tbody = document.getElementById('reada-trials-tbody');
             if (tbody) {
@@ -2139,7 +2087,7 @@ window.showReadaView = switchTabDirect;
     <script src="js/nav.js"></script>
     <script src="js/comprehensive.js"></script>
     <script src="js/standard.js"></script>
-    <script src="js/reada.js?v=20260903_v6"></script>
+    <script src="js/reada.js?v=20260904_v1"></script>
     <script src="js/main.js"></script>
 
 
