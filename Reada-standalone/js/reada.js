@@ -1524,42 +1524,85 @@ window.showReadaView = switchTabDirect;
             if(listTab) showReadaView('trial-list', listTab);
         }
 
-        function renderReadaTrialsTable() {
-            const tbody = document.getElementById('reada-trials-tbody');
-            if (!tbody) return;
-            
-            let selectedSet = new Set();
-            try {
-                const saved = localStorage.getItem('reada_selected_trials');
-                if (saved) JSON.parse(saved).forEach(c => selectedSet.add(c));
-            } catch(e) {}
-            if (typeof readaSelectedTrials !== 'undefined' && readaSelectedTrials.size > 0) {
-                readaSelectedTrials.forEach(c => selectedSet.add(c));
-            }
-
-            tbody.innerHTML = readaTrials.map(t => {
-                const isSel = selectedSet.has(t.code);
-                const bgStyle = isSel ? 'background-color: #fef08a; border-left: 5px solid #ef4444;' : '';
-                return `
-                <tr style="${bgStyle}">
-                    <td><span style="cursor:pointer;" onclick="openReadaSubAction('Edit Trial Selection')">✏️</span></td>
-                    <td><span style="color:#64748b; font-size:0.95em;">${t.dateAdded || '-'}</span></td>
-                    <td><b>${t.code}</b> ${isSel ? '<span style="background:#ef4444; color:#fff; font-size:10px; font-weight:bold; padding:2px 6px; border-radius:10px; margin-left:4px;">SELECTED</span>' : ''}</td>
-                    <td>${t.station}</td>
-                    <td>${t.region}</td>
-                    <td>${t.year}</td>
-                    <td>${t.density}</td>
-                    <td>${t.factorial}</td>
-                    <td>${t.progeny}</td>
-                    <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Bunch Analysis')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('Edit Bunch Analysis')">edit</a>]</td>
-                    <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Yield Recording')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('Edit Yield Recording')">edit</a>]</td>
-                    <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Vegetative Sampling')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('Edit Vegetative Sampling')">edit</a>]</td>
-                    <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Annual Plot Data')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('Edit Annual Plot Data')">edit</a>]</td>
-                </tr>
-            `}).join('');
-
-            updateReadaTrialDropdowns();
+        // Direct Popup Launcher for [view] and [edit] Actions in Table
+function openReadaDirectPopup(modalType, trialCode) {
+    console.log("Opening direct popup:", modalType, "for trial:", trialCode);
+    
+    // Set selected trial code in any trial selector inside the target modal
+    var dropdownIds = ['reada-' + modalType + '-trial-select', 'reada-edit-trial-dropdown', 'reada-nt-code'];
+    dropdownIds.forEach(function(id) {
+        var sel = document.getElementById(id);
+        if (sel) {
+            sel.value = trialCode;
         }
+    });
+
+    // Map short codes to actual modal IDs
+    var modalMap = {
+        'new-trial': 'modal-reada-new-trial',
+        'bunch-selection': 'modal-reada-bunch-selection',
+        'bunch-editor': 'modal-reada-bunch-editor',
+        'yield-selection': 'modal-reada-yield-selection',
+        'yield-editor': 'modal-reada-yield-editor',
+        'veg-selection': 'modal-reada-veg-selection',
+        'veg-editor': 'modal-reada-veg-editor',
+        'annual-selection': 'modal-reada-annual-selection',
+        'annual-editor': 'modal-reada-annual-editor'
+    };
+
+    var targetId = modalMap[modalType] || (modalType.startsWith('modal-') ? modalType : 'modal-reada-' + modalType);
+    
+    if (typeof window.openReadaModal === 'function') {
+        window.openReadaModal(targetId);
+    } else {
+        var el = document.getElementById(targetId);
+        if (el) {
+            el.classList.add('active');
+            el.style.setProperty('display', 'flex', 'important');
+        }
+    }
+}
+window.openReadaDirectPopup = openReadaDirectPopup;
+
+// Enhanced renderReadaTrialsTable with automatic localStorage sync and direct popup triggers
+function renderReadaTrialsTable() {
+    const tbody = document.getElementById('reada-trials-tbody');
+    if (!tbody) return;
+    
+    let selectedSet = new Set();
+    try {
+        const saved = localStorage.getItem('reada_selected_trials');
+        if (saved) JSON.parse(saved).forEach(c => selectedSet.add(c));
+    } catch(e) {}
+    if (typeof readaSelectedTrials !== 'undefined' && readaSelectedTrials.size > 0) {
+        readaSelectedTrials.forEach(c => selectedSet.add(c));
+    }
+
+    tbody.innerHTML = readaTrials.map(t => {
+        const isSel = selectedSet.has(t.code);
+        const bgStyle = isSel ? 'background-color: #fef08a !important; border-left: 6px solid #ef4444 !important;' : '';
+        return `
+        <tr style="${bgStyle}">
+            <td style="text-align:center;"><span style="cursor:pointer; font-size:16px;" onclick="openReadaDirectPopup('new-trial', '${t.code}')" title="Edit Trial">✏️</span></td>
+            <td><span style="color:#475569; font-size:0.92em; font-weight:500;">${t.dateAdded || '-'}</span></td>
+            <td><b style="color:#0f172a;">${t.code}</b> ${isSel ? '<span style="background:#ef4444; color:#ffffff; font-size:10px; font-weight:bold; padding:2px 6px; border-radius:10px; margin-left:4px; display:inline-block;">SELECTED</span>' : ''}</td>
+            <td>${t.station}</td>
+            <td>${t.region}</td>
+            <td>${t.year}</td>
+            <td>${t.density}</td>
+            <td>${t.factorial}</td>
+            <td>${t.progeny}</td>
+            <td>[<a href="javascript:void(0)" style="color:#0ea5e9; font-weight:600; text-decoration:none;" onclick="openReadaDirectPopup('bunch-selection', '${t.code}')">view</a>] [<a href="javascript:void(0)" style="color:#10b981; font-weight:600; text-decoration:none;" onclick="openReadaDirectPopup('bunch-editor', '${t.code}')">edit</a>]</td>
+            <td>[<a href="javascript:void(0)" style="color:#0ea5e9; font-weight:600; text-decoration:none;" onclick="openReadaDirectPopup('yield-selection', '${t.code}')">view</a>] [<a href="javascript:void(0)" style="color:#10b981; font-weight:600; text-decoration:none;" onclick="openReadaDirectPopup('yield-editor', '${t.code}')">edit</a>]</td>
+            <td>[<a href="javascript:void(0)" style="color:#0ea5e9; font-weight:600; text-decoration:none;" onclick="openReadaDirectPopup('veg-selection', '${t.code}')">view</a>] [<a href="javascript:void(0)" style="color:#10b981; font-weight:600; text-decoration:none;" onclick="openReadaDirectPopup('veg-editor', '${t.code}')">edit</a>]</td>
+            <td>[<a href="javascript:void(0)" style="color:#0ea5e9; font-weight:600; text-decoration:none;" onclick="openReadaDirectPopup('annual-selection', '${t.code}')">view</a>] [<a href="javascript:void(0)" style="color:#10b981; font-weight:600; text-decoration:none;" onclick="openReadaDirectPopup('annual-editor', '${t.code}')">edit</a>]</td>
+        </tr>
+    `}).join('');
+
+    updateReadaTrialDropdowns();
+}
+
+window.renderReadaTrialsTable = renderReadaTrialsTable;
 
         function viewSelectedTrialsInList() {
             console.log("Viewing selected trials in list...");
