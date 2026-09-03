@@ -1416,7 +1416,7 @@ async function fetchUserTrials() {
         const { data, error } = await client.from('trial_database').select('*').order('date_added', { ascending: false });
         if (error) throw error;
         
-        if (data && data.length > 0) {
+        if (data) {
             readaTrials = data.map(d => ({
                 code: d.trial_code,
                 dateAdded: d.date_added || '03 Sep 2026',
@@ -1699,7 +1699,7 @@ window.renderReadaTrialsTable = renderReadaTrialsTable;
             });
         }
 
-        function saveReadaNewTrial() {
+        async function saveReadaNewTrial() {
             const code = document.getElementById('reada-nt-code').value.trim();
             const estate = document.getElementById('reada-nt-estate').value.trim();
             const year = document.getElementById('reada-nt-year').value.trim() || '2026';
@@ -1732,47 +1732,38 @@ window.renderReadaTrialsTable = renderReadaTrialsTable;
 
             const factorial = `F${factorCount} (N x P x K)`;
             
-            const dateAddedStr = new Intl.DateTimeFormat('en-GB', {day: '2-digit', month: 'short', year: 'numeric'}).format(new Date());
-
-            const newTrialObj = {
-                dateAdded: dateAddedStr,
-                code: code,
-                station: estate,
-                region: region,
-                year: year,
-                density: density,
-                factorial: factorial,
-                progeny: progeny
-            };
-
-            // Check if trial code already exists, replace or push
-            const existingIdx = readaTrials.findIndex(t => t.code.toLowerCase() === code.toLowerCase());
-            if (existingIdx >= 0) {
-                readaTrials[existingIdx] = newTrialObj;
+            // 1. Sync to Supabase Cloud Database first!
+            const client = typeof window.getSupabase === 'function' ? window.getSupabase() : null;
+            if (client && currentUser) {
+                try {
+                    const { error } = await client.from('trial_database').insert([{
+                        trial_code: code,
+                        date_added: new Date().toISOString().split('T')[0],
+                        station: estate,
+                        region: region,
+                        planting_year: parseInt(year) || 2026,
+                        density: parseInt(density) || 148,
+                        factorial: factorial,
+                        progeny: progeny
+                    }]);
+                    if (error) throw error;
+                } catch(e) {
+                    console.error("Error saving new trial to Supabase:", e);
+                    alert("Error saving to cloud: " + e.message);
+                    return; // Abort entirely if cloud fails
+                }
             } else {
-                readaTrials.push(newTrialObj);
+                alert("Please log in to save new trials.");
+                return;
             }
 
-            // Save to localStorage
-            localStorage.setItem('smartpalm_reada_trials', JSON.stringify(readaTrials));
-
-            // Render table live
-            renderReadaTrialsTable();
-
-            // Sync to Supabase Cloud Database if connected
-            syncDataToSupabase('reada_trials', {
-                code: code,
-                estate: estate,
-                planting_year: parseInt(year) || 2026,
-                planting_density: parseInt(density) || 148,
-                region_group: region,
-                factorial_info: factorial,
-                progeny_type: progeny,
-                created_at: new Date().toISOString()
-            });
+            // 2. Fetch fresh trials from the database to update UI securely
+            if (typeof fetchUserTrials === 'function') {
+                await fetchUserTrials();
+            }
 
             closeReadaModal('modal-reada-new-trial');
-            alert('New Trial [' + code + '] saved successfully to database and added to list!');
+            alert('New Trial [' + code + '] saved successfully to database!');
         }
 
         document.addEventListener('DOMContentLoaded', function() {
