@@ -71,7 +71,7 @@ async function handleEmailSignIn(event) {
     }
 
     // 2. Supabase Auth check for cloud users
-    const client = typeof getSupabase === 'function' ? getSupabase() : supabase;
+    const client = typeof window.getSupabase === 'function' ? window.getSupabase() : null;
     if (!client || !client.auth) {
         showAuthError("Invalid username or password.");
         return;
@@ -97,7 +97,7 @@ async function handleEmailSignIn(event) {
 
 // Sign Out User
 async function handleSignOut() {
-    const client = typeof getSupabase === 'function' ? getSupabase() : supabase;
+    const client = typeof window.getSupabase === 'function' ? window.getSupabase() : null;
     if (client && client.auth) {
         try {
             await client.auth.signOut();
@@ -179,7 +179,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // 2. Check Supabase session
-    const client = typeof getSupabase === 'function' ? getSupabase() : supabase;
+    const client = typeof window.getSupabase === 'function' ? window.getSupabase() : null;
     if (client && client.auth) {
         try {
             const { data } = await client.auth.getSession();

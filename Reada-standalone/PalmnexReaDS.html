@@ -339,7 +339,7 @@ window.showReadaView = switchTabDirect;
                 inputs.forEach(inp => inp.value = "0");
             }
             
-            const client = typeof getSupabase === 'function' ? getSupabase() : window.supabase;
+            const client = typeof window.getSupabase === 'function' ? window.getSupabase() : null;
             if (!client || !currentUser) return;
             
             try {
@@ -422,7 +422,7 @@ window.showReadaView = switchTabDirect;
             }
             
             // Supabase integration
-            const client = typeof getSupabase === 'function' ? getSupabase() : window.supabase;
+            const client = typeof window.getSupabase === 'function' ? window.getSupabase() : null;
             if (client && currentUser) {
                 try {
                     // Delete old data for this trial/year first
@@ -470,7 +470,7 @@ window.showReadaView = switchTabDirect;
                 inputs.forEach(inp => inp.value = "0");
             }
             
-            const client = typeof getSupabase === 'function' ? getSupabase() : window.supabase;
+            const client = typeof window.getSupabase === 'function' ? window.getSupabase() : null;
             if (!client || !currentUser) return;
             
             try {
@@ -521,7 +521,7 @@ window.showReadaView = switchTabDirect;
                 }
             }
             
-            const client = typeof getSupabase === 'function' ? getSupabase() : window.supabase;
+            const client = typeof window.getSupabase === 'function' ? window.getSupabase() : null;
             if (client && currentUser) {
                 try {
                     await client.from('trial_yieldrecording').delete().eq('trial_code', selectedYieldTrial).eq('harvest_year', selectedYieldYear);

@@ -1409,7 +1409,7 @@ window.showReadaView = switchTabDirect;
         
 // Supabase dynamic fetch
 async function fetchUserTrials() {
-    const client = typeof getSupabase === 'function' ? getSupabase() : window.supabase;
+    const client = typeof window.getSupabase === 'function' ? window.getSupabase() : null;
     if (!client || !currentUser) return;
     
     try {
