@@ -1417,10 +1417,70 @@ function onMapSelectChanged(val) {
         }) : null;
 
         function initReadaMapDashboard() {
-            if (readaMap) {
-                readaMap.invalidateSize();
-                return;
+    const container = document.getElementById('reada-map');
+    if (!container) return;
+
+    if (readaMap) {
+        setTimeout(() => { readaMap.resize(); }, 200);
+        return;
+    }
+    if (typeof maplibregl === 'undefined') return;
+
+    readaMap = new maplibregl.Map({
+        container: 'reada-map',
+        style: SATELLITE_STYLE,
+        center: [108.82, 4.21],
+        zoom: 6
+    });
+
+    readaMap.addControl(new maplibregl.NavigationControl(), 'top-left');
+
+    setTimeout(() => { readaMap.resize(); }, 300);
+
+    const stationCoordsMap = {
+        'Banting Station': [101.50, 2.81],
+        'Kluang Substation': [103.32, 2.03],
+        'Teluk Intan Station': [101.03, 4.00],
+        'Lahad Datu Station': [118.33, 5.03],
+        'test': [101.69, 3.14]
+    };
+
+    readaTrials.forEach(t => {
+        let coords = stationCoordsMap[t.station] || [101.69, 3.14];
+
+        const popupContent = `
+            <div style="font-family: sans-serif; font-size: 13px; color: #0f172a; padding: 4px;">
+                <div style="color: #15803d; font-weight: bold; font-size: 14px; margin-bottom: 6px; border-bottom: 1px solid #cbd5e1; padding-bottom: 4px;">${t.station}</div>
+                <b>Trial Code:</b> ${t.code}<br>
+                <b>Location:</b> ${t.station}<br>
+                <b>Region Group:</b> ${t.region}<br>
+                <b>Planting Year:</b> ${t.year}<br>
+                <b>Density:</b> ${t.density} palms/ha<br>
+                <div style="margin-top: 8px; font-style: italic; color: #64748b; text-align: center; border-top: 1px dashed #cbd5e1; padding-top: 4px;">Click pin to select/unselect</div>
+            </div>
+        `;
+
+        const popup = new maplibregl.Popup({ offset: 25 }).setHTML(popupContent);
+
+        const marker = new maplibregl.Marker({ color: readaSelectedTrials.has(t.code) ? '#ef4444' : '#15803d' })
+            .setLngLat(coords)
+            .setPopup(popup)
+            .addTo(readaMap);
+
+        marker.getElement().addEventListener('click', function() {
+            if (readaSelectedTrials.has(t.code)) {
+                readaSelectedTrials.delete(t.code);
+            } else {
+                readaSelectedTrials.add(t.code);
             }
+            renderReadaTrialsTable();
+        });
+
+        mapMarkers[t.code] = marker;
+    });
+
+    setTimeout(loadSavedPlotsOnMap, 400);
+}
             if (typeof L === 'undefined') return;
 
             readaMap = L.map('reada-map').setView([4.21, 108.82], 6);
