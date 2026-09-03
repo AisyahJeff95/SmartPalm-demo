@@ -53,10 +53,17 @@ async function handleEmailSignIn(event) {
     if (event) event.preventDefault();
     const email = document.getElementById('signin-email')?.value?.trim();
     const password = document.getElementById('signin-password')?.value;
+    const rememberMe = document.getElementById('signin-remember')?.checked;
 
     if (!email || !password) {
         showAuthError("Please enter your username/email and password.");
         return;
+    }
+
+    if (rememberMe) {
+        localStorage.setItem('palmnex_remember_me', 'true');
+    } else {
+        localStorage.removeItem('palmnex_remember_me');
     }
 
 
@@ -95,6 +102,7 @@ async function handleSignOut() {
         } catch(e) {}
     }
     localStorage.removeItem('palmnex_user_session');
+    localStorage.removeItem('palmnex_remember_me');
     currentUser = null;
     updateTopNavUser(null);
 }
