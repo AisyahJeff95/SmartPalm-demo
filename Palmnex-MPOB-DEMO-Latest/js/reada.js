@@ -1030,28 +1030,52 @@ function onMapSelectChanged(val) {
         function initNewTrialMinimap() {
             const container = document.getElementById('reada-nt-minimap-container');
             if (!container) return;
-            
+
             if (newTrialMinimap) {
-                setTimeout(() => { newTrialMinimap.invalidateSize(); }, 300);
+                setTimeout(() => { newTrialMinimap.resize(); }, 300);
                 return;
             }
-            if (typeof L === 'undefined') return;
+            if (typeof maplibregl === 'undefined') return;
 
-            newTrialMinimap = L.map('reada-nt-minimap-container').setView([4.21, 108.82], 5);
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap'
-            }).addTo(newTrialMinimap);
-            
-            setTimeout(() => { newTrialMinimap.invalidateSize(); }, 300);
+            newTrialMinimap = new maplibregl.Map({
+                container: 'reada-nt-minimap-container',
+                style: {
+                    'version': 8,
+                    'sources': {
+                        'osm-tiles': {
+                            'type': 'raster',
+                            'tiles': ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+                            'tileSize': 256,
+                            'attribution': '&copy; OpenStreetMap contributors'
+                        }
+                    },
+                    'layers': [{
+                        'id': 'osm-tiles-layer',
+                        'type': 'raster',
+                        'source': 'osm-tiles',
+                        'minzoom': 0,
+                        'maxzoom': 19
+                    }]
+                },
+                center: [108.82, 4.21],
+                zoom: 4
+            });
+
+            newTrialMinimap.addControl(new maplibregl.NavigationControl(), 'top-left');
+            setTimeout(() => { newTrialMinimap.resize(); }, 300);
 
             newTrialMinimap.on('click', function(e) {
+                const lng = e.lngLat.lng;
+                const lat = e.lngLat.lat;
                 if (newTrialMarker) {
-                    newTrialMarker.setLatLng(e.latlng);
+                    newTrialMarker.setLngLat([lng, lat]);
                 } else {
-                    newTrialMarker = L.marker(e.latlng).addTo(newTrialMinimap);
+                    newTrialMarker = new maplibregl.Marker({ color: '#047857' })
+                        .setLngLat([lng, lat])
+                        .addTo(newTrialMinimap);
                 }
                 const coordsEl = document.getElementById('reada-nt-coords');
-                if (coordsEl) coordsEl.innerText = `Lat: ${e.latlng.lat.toFixed(4)}, Lng: ${e.latlng.lng.toFixed(4)}`;
+                if (coordsEl) coordsEl.innerText = `Lat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`;
             });
         }
         
