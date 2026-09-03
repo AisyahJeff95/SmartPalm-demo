@@ -1800,6 +1800,7 @@ window.renderReadaTrialsTable = renderReadaTrialsTable;
             closeReadaModal('modal-reada-new-trial');
             alert('New Trial [' + code + '] saved successfully to database!');
         }
+        window.saveReadaNewTrial = saveReadaNewTrial;
 
         document.addEventListener('DOMContentLoaded', function() {
             renderReadaTrialsTable();
