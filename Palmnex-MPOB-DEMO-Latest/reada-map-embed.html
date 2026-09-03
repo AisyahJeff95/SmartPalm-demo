@@ -192,156 +192,37 @@
 
         function syncSelectedToParent() {
             const arr = Array.from(selectedCodes);
-            document.getElementById('selected-count').innerText = arr.length;
+            const countEl = document.getElementById('selected-count');
+            if (countEl) countEl.innerText = arr.length;
+            
             try {
                 localStorage.setItem('reada_selected_trials', JSON.stringify(arr));
-                if (window.parent && window.parent.readaSelectedTrials) {
-                    window.parent.readaSelectedTrials.clear();
-                    arr.forEach(c => window.parent.readaSelectedTrials.add(c));
+            } catch(e) {}
+
+            try {
+                if (window.parent) {
+                    window.parent.postMessage({ type: 'READA_SELECTION_CHANGED', selected: arr }, '*');
+                    if (window.parent.readaSelectedTrials) {
+                        window.parent.readaSelectedTrials.clear();
+                        arr.forEach(c => window.parent.readaSelectedTrials.add(c));
+                    }
                 }
             } catch(e) {}
         }
 
-        let mapInstance = null;
-        let isMapLibre = false;
-
-        function initMapEngine() {
-            syncSelectedToParent();
-
-            // Priority 1: MapLibre GL JS
-            if (typeof maplibregl !== 'undefined') {
-                try {
-                    mapInstance = new maplibregl.Map({
-                        container: 'map-container',
-                        style: SATELLITE_STYLE,
-                        center: [108.82, 4.21],
-                        zoom: 5.5
-                    });
-
-                    mapInstance.addControl(new maplibregl.NavigationControl(), 'top-left');
-                    isMapLibre = true;
-
-                    mapInstance.on('load', function() {
-                        stationData.forEach(st => {
-                            const isSel = selectedCodes.has(st.code);
-
-                            const markerEl = document.createElement('div');
-                            markerEl.className = 'custom-map-pin';
-                            markerEl.style.width = '24px';
-                            markerEl.style.height = '24px';
-                            markerEl.style.borderRadius = '50%';
-                            markerEl.style.backgroundColor = isSel ? '#ef4444' : '#15803d'; // RED if selected, GREEN if normal
-                            markerEl.style.border = '3px solid #ffffff';
-                            markerEl.style.boxShadow = '0 3px 10px rgba(0,0,0,0.5)';
-                            markerEl.style.cursor = 'pointer';
-                            markerEl.style.transition = 'all 0.2s ease';
-                            markerEl.innerText = isSel ? '✓' : '';
-
-                            const popupHTML = `
-                                <div class="station-popup-title">${st.station}</div>
-                                <div class="station-popup-info">
-                                    <b>Trial Code:</b> ${st.code}<br>
-                                    <b>Region:</b> ${st.region}<br>
-                                    <b>Status:</b> <span id="status-${st.code.replace('/', '_')}" style="color:${isSel ? '#ef4444' : '#15803d'}; font-weight:bold;">${isSel ? 'SELECTED (RED PIN)' : 'Click pin to select (Turn Red)'}</span>
-                                </div>
-                            `;
-                            const popup = new maplibregl.Popup({ offset: 25 }).setHTML(popupHTML);
-
-                            new maplibregl.Marker({ element: markerEl })
-                                .setLngLat(st.coords)
-                                .setPopup(popup)
-                                .addTo(mapInstance);
-
-                            markerEl.addEventListener('click', function(e) {
-                                e.stopPropagation();
-                                if (selectedCodes.has(st.code)) {
-                                    selectedCodes.delete(st.code);
-                                    markerEl.style.backgroundColor = '#15803d'; // Turn Green
-                                    markerEl.innerText = '';
-                                } else {
-                                    selectedCodes.add(st.code);
-                                    markerEl.style.backgroundColor = '#ef4444'; // Turn Red
-                                    markerEl.innerText = '✓';
-                                }
-                                syncSelectedToParent();
-
-                                const statusEl = document.getElementById('status-' + st.code.replace('/', '_'));
-                                if (statusEl) {
-                                    const nowSel = selectedCodes.has(st.code);
-                                    statusEl.innerText = nowSel ? 'SELECTED (RED PIN)' : 'Click pin to select (Turn Red)';
-                                    statusEl.style.color = nowSel ? '#ef4444' : '#15803d';
-                                }
-                            });
-                        });
-                    });
-
-                    console.log("MapLibre interactive pin selection ready!");
-                    return;
-                } catch(e) {
-                    console.warn("MapLibre init issue, using Leaflet fallback:", e);
-                }
-            }
-
-            // Priority 2: Leaflet JS Fallback
-            if (typeof L !== 'undefined') {
-                const lMap = L.map('map-container').setView([4.21, 108.82], 6);
-                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                    maxZoom: 19,
-                    attribution: '&copy; Esri World Imagery'
-                }).addTo(lMap);
-
-                L.tileLayer('https://mt1.google.com/vt/lyrs=h&x={x}&y={y}&z={z}', { maxZoom: 19 }).addTo(lMap);
-
-                stationData.forEach(st => {
-                    const isSel = selectedCodes.has(st.code);
-                    const marker = L.circleMarker([st.coords[1], st.coords[0]], {
-                        radius: 10,
-                        fillColor: isSel ? '#ef4444' : '#15803d',
-                        color: '#ffffff',
-                        weight: 3,
-                        opacity: 1,
-                        fillOpacity: 0.9
-                    }).addTo(lMap);
-
-                    marker.bindPopup(`
-                        <div class="station-popup-title">${st.station}</div>
-                        <div class="station-popup-info">
-                            <b>Trial Code:</b> ${st.code}<br>
-                            <b>Status:</b> ${isSel ? 'SELECTED' : 'Click to select'}
-                        </div>
-                    `);
-
-                    marker.on('click', function() {
-                        if (selectedCodes.has(st.code)) {
-                            selectedCodes.delete(st.code);
-                            marker.setStyle({ fillColor: '#15803d' });
-                        } else {
-                            selectedCodes.add(st.code);
-                            marker.setStyle({ fillColor: '#ef4444' });
-                        }
-                        syncSelectedToParent();
-                    });
-                });
-
-                setTimeout(() => { lMap.invalidateSize(); }, 300);
-            }
-        }
-
-        function switchMapStyle(styleType) {
-            document.getElementById('btn-sat').classList.toggle('active', styleType === 'satellite');
-            document.getElementById('btn-osm').classList.toggle('active', styleType === 'osm');
-
-            if (isMapLibre && mapInstance) {
-                mapInstance.setStyle(styleType === 'satellite' ? SATELLITE_STYLE : OSM_STYLE);
-            }
-        }
-
         function onViewSelectedClicked() {
             syncSelectedToParent();
+            const arr = Array.from(selectedCodes);
             try {
                 if (window.parent && typeof window.parent.viewSelectedTrialsInList === 'function') {
-                    window.parent.viewSelectedTrialsInList();
+                    window.parent.viewSelectedTrialsInList(arr);
                 } else if (window.parent && typeof window.parent.switchTabDirect === 'function') {
+                    window.parent.switchTabDirect('trial-list');
+                }
+            } catch(e) {
+                console.error("View selected list trigger error:", e);
+            }
+        } else if (window.parent && typeof window.parent.switchTabDirect === 'function') {
                     window.parent.switchTabDirect('trial-list');
                 }
             } catch(e) {

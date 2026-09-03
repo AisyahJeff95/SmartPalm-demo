@@ -2035,3 +2035,14 @@
     border-color: #ffffff;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
+
+
+/* Selected Trial Row Highlighting (Bright Yellow with Red Accent) */
+.reada-table-view tr.reada-row-selected,
+.reada-table-view tr.reada-row-selected td {
+    background-color: #fef08a !important;
+    color: #0f172a !important;
+    font-weight: 600 !important;
+    border-top: 2px solid #f59e0b !important;
+    border-bottom: 2px solid #f59e0b !important;
+}

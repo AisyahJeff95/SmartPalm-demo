@@ -1565,6 +1565,41 @@ function openReadaDirectPopup(modalType, trialCode) {
 window.openReadaDirectPopup = openReadaDirectPopup;
 
 // Enhanced renderReadaTrialsTable with automatic localStorage sync and direct popup triggers
+// Global Window Event Delegation & Selection Synchronizer
+window.addEventListener('message', function(e) {
+    if (e.data && e.data.type === 'READA_SELECTION_CHANGED') {
+        const selected = e.data.selected;
+        if (Array.isArray(selected)) {
+            if (typeof window.viewSelectedTrialsInList === 'function') {
+                window.viewSelectedTrialsInList(selected);
+            }
+        }
+    }
+});
+
+function viewSelectedTrialsInList(selectedArray) {
+    console.log("Viewing selected trials in list:", selectedArray);
+
+    if (Array.isArray(selectedArray)) {
+        if (typeof readaSelectedTrials !== 'undefined') {
+            readaSelectedTrials.clear();
+            selectedArray.forEach(c => readaSelectedTrials.add(c));
+        }
+        try {
+            localStorage.setItem('reada_selected_trials', JSON.stringify(selectedArray));
+        } catch(e) {}
+    }
+
+    if (typeof switchTabDirect === 'function') {
+        switchTabDirect('trial-list');
+    }
+
+    if (typeof renderReadaTrialsTable === 'function') {
+        renderReadaTrialsTable();
+    }
+}
+window.viewSelectedTrialsInList = viewSelectedTrialsInList;
+
 function renderReadaTrialsTable() {
     const tbody = document.getElementById('reada-trials-tbody');
     if (!tbody) return;
@@ -1580,27 +1615,30 @@ function renderReadaTrialsTable() {
 
     tbody.innerHTML = readaTrials.map(t => {
         const isSel = selectedSet.has(t.code);
-        const bgStyle = isSel ? 'background-color: #fef08a !important; border-left: 6px solid #ef4444 !important;' : '';
+        const rowClass = isSel ? 'reada-row-selected' : '';
+        const tdStyle = isSel ? 'background-color: #fef08a !important; color: #0f172a !important; font-weight: 600;' : '';
         return `
-        <tr style="${bgStyle}">
-            <td style="text-align:center;"><span style="cursor:pointer; font-size:16px;" onclick="openReadaDirectPopup('new-trial', '${t.code}')" title="Edit Trial">✏️</span></td>
-            <td><span style="color:#475569; font-size:0.92em; font-weight:500;">${t.dateAdded || '-'}</span></td>
-            <td><b style="color:#0f172a;">${t.code}</b> ${isSel ? '<span style="background:#ef4444; color:#ffffff; font-size:10px; font-weight:bold; padding:2px 6px; border-radius:10px; margin-left:4px; display:inline-block;">SELECTED</span>' : ''}</td>
-            <td>${t.station}</td>
-            <td>${t.region}</td>
-            <td>${t.year}</td>
-            <td>${t.density}</td>
-            <td>${t.factorial}</td>
-            <td>${t.progeny}</td>
-            <td>[<a href="javascript:void(0)" style="color:#0ea5e9; font-weight:600; text-decoration:none;" onclick="openReadaDirectPopup('bunch-selection', '${t.code}')">view</a>] [<a href="javascript:void(0)" style="color:#10b981; font-weight:600; text-decoration:none;" onclick="openReadaDirectPopup('bunch-editor', '${t.code}')">edit</a>]</td>
-            <td>[<a href="javascript:void(0)" style="color:#0ea5e9; font-weight:600; text-decoration:none;" onclick="openReadaDirectPopup('yield-selection', '${t.code}')">view</a>] [<a href="javascript:void(0)" style="color:#10b981; font-weight:600; text-decoration:none;" onclick="openReadaDirectPopup('yield-editor', '${t.code}')">edit</a>]</td>
-            <td>[<a href="javascript:void(0)" style="color:#0ea5e9; font-weight:600; text-decoration:none;" onclick="openReadaDirectPopup('veg-selection', '${t.code}')">view</a>] [<a href="javascript:void(0)" style="color:#10b981; font-weight:600; text-decoration:none;" onclick="openReadaDirectPopup('veg-editor', '${t.code}')">edit</a>]</td>
-            <td>[<a href="javascript:void(0)" style="color:#0ea5e9; font-weight:600; text-decoration:none;" onclick="openReadaDirectPopup('annual-selection', '${t.code}')">view</a>] [<a href="javascript:void(0)" style="color:#10b981; font-weight:600; text-decoration:none;" onclick="openReadaDirectPopup('annual-editor', '${t.code}')">edit</a>]</td>
+        <tr class="${rowClass}" style="${tdStyle}">
+            <td style="${tdStyle} text-align:center;"><span style="cursor:pointer; font-size:16px;" onclick="openReadaDirectPopup('new-trial', '${t.code}')" title="Edit Trial">✏️</span></td>
+            <td style="${tdStyle}"><span style="color:${isSel ? '#0f172a' : '#475569'}; font-size:0.92em; font-weight:600;">${t.dateAdded || '-'}</span></td>
+            <td style="${tdStyle}"><b style="color:#0f172a;">${t.code}</b> ${isSel ? '<span style="background:#ef4444 !important; color:#ffffff !important; font-size:11px; font-weight:bold; padding:2px 8px; border-radius:12px; margin-left:6px; display:inline-block; box-shadow:0 2px 4px rgba(239,68,68,0.4);">SELECTED</span>' : ''}</td>
+            <td style="${tdStyle}">${t.station}</td>
+            <td style="${tdStyle}">${t.region}</td>
+            <td style="${tdStyle}">${t.year}</td>
+            <td style="${tdStyle}">${t.density}</td>
+            <td style="${tdStyle}">${t.factorial}</td>
+            <td style="${tdStyle}">${t.progeny}</td>
+            <td style="${tdStyle}">[<a href="javascript:void(0)" style="color:#0284c7; font-weight:700; text-decoration:none;" onclick="openReadaDirectPopup('bunch-selection', '${t.code}')">view</a>] [<a href="javascript:void(0)" style="color:#059669; font-weight:700; text-decoration:none;" onclick="openReadaDirectPopup('bunch-editor', '${t.code}')">edit</a>]</td>
+            <td style="${tdStyle}">[<a href="javascript:void(0)" style="color:#0284c7; font-weight:700; text-decoration:none;" onclick="openReadaDirectPopup('yield-selection', '${t.code}')">view</a>] [<a href="javascript:void(0)" style="color:#059669; font-weight:700; text-decoration:none;" onclick="openReadaDirectPopup('yield-editor', '${t.code}')">edit</a>]</td>
+            <td style="${tdStyle}">[<a href="javascript:void(0)" style="color:#0284c7; font-weight:700; text-decoration:none;" onclick="openReadaDirectPopup('veg-selection', '${t.code}')">view</a>] [<a href="javascript:void(0)" style="color:#059669; font-weight:700; text-decoration:none;" onclick="openReadaDirectPopup('veg-editor', '${t.code}')">edit</a>]</td>
+            <td style="${tdStyle}">[<a href="javascript:void(0)" style="color:#0284c7; font-weight:700; text-decoration:none;" onclick="openReadaDirectPopup('annual-selection', '${t.code}')">view</a>] [<a href="javascript:void(0)" style="color:#059669; font-weight:700; text-decoration:none;" onclick="openReadaDirectPopup('annual-editor', '${t.code}')">edit</a>]</td>
         </tr>
     `}).join('');
 
     updateReadaTrialDropdowns();
 }
+
+window.renderReadaTrialsTable = renderReadaTrialsTable;
 
 window.renderReadaTrialsTable = renderReadaTrialsTable;
 
