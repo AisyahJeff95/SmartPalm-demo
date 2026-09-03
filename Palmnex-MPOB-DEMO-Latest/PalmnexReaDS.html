@@ -102,17 +102,16 @@
         </div>
         
         <!-- TOP BROWSER TAB STRIP (Safari / Google Chrome Style) -->
-        <div class="reada-tab-strip">
-            <div class="reada-tab active" data-view="branding" onclick="showReadaView('branding', this)" data-tooltip="PALMNEX ReaDS Home Screen">
-                <span class="tab-title" data-i18n="tabHome">Home</span>
+        <div class="reada-tab-strip" style="position: relative; z-index: 10000;">
+            <div class="reada-tab active" data-view="branding" onclick="showReadaView('branding', this)" style="cursor: pointer; position: relative; z-index: 10001;" data-tooltip="PALMNEX ReaDS Home Screen">
+                <span class="tab-title" style="pointer-events: none;" data-i18n="tabHome">Home</span>
             </div>
-            <div class="reada-tab" data-view="trial-list" onclick="showReadaView('trial-list', this)" data-tooltip="Browse and filter persistent agronomy trial records stored in database.">
-                <span class="tab-title" data-i18n="tabTrialList">List Of Available Trial Data</span>
+            <div class="reada-tab" data-view="trial-list" onclick="showReadaView('trial-list', this)" style="cursor: pointer; position: relative; z-index: 10001;" data-tooltip="Browse and filter persistent agronomy trial records stored in database.">
+                <span class="tab-title" style="pointer-events: none;" data-i18n="tabTrialList">List Of Available Trial Data</span>
             </div>
-            <div class="reada-tab" data-view="map-dashboard" onclick="showReadaView('map-dashboard', this)" data-tooltip="Interactive mapping and analytics dashboard">
-                <span class="tab-title">Map Dashboard</span>
+            <div class="reada-tab" data-view="map-dashboard" onclick="showReadaView('map-dashboard', this)" style="cursor: pointer; position: relative; z-index: 10001;" data-tooltip="Interactive mapping and analytics dashboard">
+                <span class="tab-title" style="pointer-events: none;">Map Dashboard</span>
             </div>
-
         </div>
         <div class="reada-container">
             <!-- RIGHT STACK CONTAINER (Full Width) -->

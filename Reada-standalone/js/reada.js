@@ -988,12 +988,57 @@ function onMapSelectChanged(val) {
         // ReaDA Engine View Navigation & Dialog Handlers (Authentic Palmnex Replica)
         // =========================================================================
         function showReadaView(viewId, element) {
-            document.querySelectorAll('.reada-view').forEach(el => el.classList.remove('active'));
+            console.log("Switching view to:", viewId);
+            document.querySelectorAll('.reada-view').forEach(el => {
+                el.classList.remove('active');
+                el.style.display = 'none';
+            });
             document.querySelectorAll('.reada-tab').forEach(el => el.classList.remove('active'));
 
-            if (element) {
-                element.classList.add('active');
-            } else {
+            let targetTab = element;
+            if (!targetTab || !(targetTab instanceof HTMLElement)) {
+                targetTab = document.querySelector(`.reada-tab[data-view="${viewId}"]`);
+            }
+            if (targetTab) targetTab.classList.add('active');
+
+            const viewMap = {
+                'main-info': 'reada-view-main-info',
+                'trial-list': 'reada-view-trial-list',
+                'bunch': 'reada-view-bunch',
+                'yield': 'reada-view-yield',
+                'veg': 'reada-view-veg',
+                'annual': 'reada-view-annual',
+                'branding': 'reada-view-branding',
+                'map-dashboard': 'reada-view-map-dashboard'
+            };
+
+            const targetViewId = viewMap[viewId] || 'reada-view-branding';
+            const targetView = document.getElementById(targetViewId);
+            if (targetView) {
+                targetView.classList.add('active');
+                targetView.style.display = (viewId === 'map-dashboard' || viewId === 'trial-list') ? 'block' : 'flex';
+            }
+
+            if (viewId === 'map-dashboard') {
+                setTimeout(() => {
+                    if (typeof initReadaMapDashboard === 'function') initReadaMapDashboard();
+                    if (typeof readaMap !== 'undefined' && readaMap) readaMap.resize();
+                }, 150);
+            }
+        }
+
+        window.showReadaView = showReadaView;
+
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.reada-tab').forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    const view = this.getAttribute('data-view');
+                    if (view) {
+                        showReadaView(view, this);
+                    }
+                });
+            });
+        }); else {
                 const targetTab = document.querySelector(`.reada-tab[data-view="${viewId}"]`);
                 if (targetTab) targetTab.classList.add('active');
             }
