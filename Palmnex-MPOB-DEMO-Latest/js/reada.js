@@ -1038,33 +1038,9 @@ function onMapSelectChanged(val) {
                     }
                 });
             });
-        }); else {
-                const targetTab = document.querySelector(`.reada-tab[data-view="${viewId}"]`);
-                if (targetTab) targetTab.classList.add('active');
-            }
+        });
 
-            if (viewId === 'map-dashboard') {
-                setTimeout(initReadaMapDashboard, 150);
-            }
-
-            const viewMap = {
-                'main-info': 'reada-view-main-info',
-                'trial-list': 'reada-view-trial-list',
-                'bunch': 'reada-view-bunch',
-                'yield': 'reada-view-yield',
-                'veg': 'reada-view-veg',
-                'annual': 'reada-view-annual',
-                'branding': 'reada-view-branding',
-                'map-dashboard': 'reada-view-map-dashboard'
-            };
-
-            const targetViewId = viewMap[viewId] || 'reada-view-branding';
-            const targetView = document.getElementById(targetViewId);
-            if (targetView) targetView.classList.add('active');
-        }
-
-        
-                let supabaseClient = null;
+        let supabaseClient = null;
         function initSupabaseAuthSync() {
             // Placeholder: Auth sync logic implemented in auth.js
         }
@@ -1526,49 +1502,6 @@ function onMapSelectChanged(val) {
 
     setTimeout(loadSavedPlotsOnMap, 400);
 }
-            if (typeof L === 'undefined') return;
-
-            readaMap = L.map('reada-map').setView([4.21, 108.82], 6);
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap contributors'
-            }).addTo(readaMap);
-
-            readaTrials.forEach(t => {
-                let coords = stationCoordinates[t.station] || [3.14, 101.69];
-                let marker = L.marker(coords, { icon: readaSelectedTrials.has(t.code) ? redIcon : defaultIcon }).addTo(readaMap);
-                
-                const popupContent = `
-                    <div style="font-family: sans-serif; font-size: 12px; color: #333;">
-                        <div style="color: #166534; font-weight: bold; font-size: 14px; margin-bottom: 4px; border-bottom: 1px solid #ccc; padding-bottom: 4px;">${t.station}</div>
-                        <b>Trial Code:</b> ${t.code}<br>
-                        <b>Location:</b> ${t.station}<br>
-                        <b>Region Group:</b> ${t.region}<br>
-                        <b>Planting Year:</b> ${t.year}<br>
-                        <b>Density:</b> ${t.density} palms/ha<br>
-                        <div style="margin-top: 8px; font-style: italic; color: gray; text-align: center; border-top: 1px dashed #ccc; padding-top: 4px;">Click pin to select/unselect</div>
-                    </div>
-                `;
-                marker.bindPopup(popupContent);
-                
-                marker.on('mouseover', function (e) {
-                    this.openPopup();
-                });
-
-                marker.on('click', function(e) {
-                    if (readaSelectedTrials.has(t.code)) {
-                        readaSelectedTrials.delete(t.code);
-                        this.setIcon(defaultIcon);
-                    } else {
-                        readaSelectedTrials.add(t.code);
-                        this.setIcon(redIcon);
-                    }
-                    renderReadaTrialsTable();
-                });
-                
-                mapMarkers[t.code] = marker;
-            });
-        }
 
         function viewSelectedTrialsInList() {
             const listTab = document.querySelector('.reada-tab[data-view="trial-list"]');
