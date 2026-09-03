@@ -160,7 +160,7 @@ window.showReadaView = switchTabDirect;
                         <div class="reada-title" data-i18n="readaHeader">PalmnexReaDS</div>
         </div>
         
-        <!-- TOP BROWSER TAB STRIP (Safari / Google Chrome Style) -->
+                <!-- TOP BROWSER TAB STRIP (Safari / Google Chrome Style) -->
         <div class="reada-tab-strip" style="position: relative; z-index: 999999; display: flex; align-items: flex-end; gap: 4px; padding: 8px 16px 0 16px; background-color: #123330; border-bottom: 2px solid #0c2321;">
             <button type="button" class="reada-tab active" data-view="branding" onclick="switchTabDirect('branding')" id="tab-btn-branding" style="cursor: pointer; position: relative; z-index: 1000000; padding: 10px 20px;">
                 <span class="tab-title" data-i18n="tabHome">Home</span>
@@ -172,6 +172,23 @@ window.showReadaView = switchTabDirect;
                 <span class="tab-title">Map Dashboard</span>
             </button>
         </div>
+        <div class="reada-container">
+            <!-- RIGHT STACK CONTAINER (Full Width) -->
+            <div class="reada-stack">
+                <!-- VIEW: MAP DASHBOARD -->
+                <div id="reada-view-map-dashboard" class="reada-view" style="position:relative; width: 100%; height: 100%; min-height: 550px;">
+                    <div id="reada-map" style="width: 100%; height: 100%; z-index: 1;"></div>
+                    <button class="reada-qt-btn" id="btn-view-selected-list" onclick="viewSelectedTrialsInList()" style="position: absolute; bottom: 20px; right: 20px; z-index: 1000; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); background-color: white; color: black;">View Selected in List</button>
+                </div>
+                <!-- VIEW 0: DEFAULT BRANDING VIEW -->
+                <div id="reada-view-branding" class="reada-view active" style="display: flex;">
+                    <div class="reada-branding-box">
+                        <div class="reada-brand-title" data-i18n="brandTitle">PalmnexReaDS</div>
+                        <div class="reada-brand-sub">PALMNEX Research and Database System</div>
+                        <div class="reada-divider"></div>
+                        <div class="reada-brand-version" data-i18n="brandVersion">PalmnexReaDS Software V2.0 2026 by Palmnex</div>
+                        <div class="reada-brand-engine" data-i18n="brandEngine">MPOB Oil Palm Agronomic Research & Database Engine</div>
+                    </div>
                 </div>
 
                 <!-- VIEW 1: TRIAL MAIN INFORMATION -->
