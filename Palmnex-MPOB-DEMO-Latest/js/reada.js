@@ -1528,13 +1528,23 @@ window.showReadaView = switchTabDirect;
             const tbody = document.getElementById('reada-trials-tbody');
             if (!tbody) return;
             
+            let selectedSet = new Set();
+            try {
+                const saved = localStorage.getItem('reada_selected_trials');
+                if (saved) JSON.parse(saved).forEach(c => selectedSet.add(c));
+            } catch(e) {}
+            if (typeof readaSelectedTrials !== 'undefined' && readaSelectedTrials.size > 0) {
+                readaSelectedTrials.forEach(c => selectedSet.add(c));
+            }
+
             tbody.innerHTML = readaTrials.map(t => {
-                const bgStyle = readaSelectedTrials.has(t.code) ? 'background-color: #fef08a;' : '';
+                const isSel = selectedSet.has(t.code);
+                const bgStyle = isSel ? 'background-color: #fef08a; border-left: 5px solid #ef4444;' : '';
                 return `
                 <tr style="${bgStyle}">
                     <td><span style="cursor:pointer;" onclick="openReadaSubAction('Edit Trial Selection')">✏️</span></td>
                     <td><span style="color:#64748b; font-size:0.95em;">${t.dateAdded || '-'}</span></td>
-                    <td><b>${t.code}</b></td>
+                    <td><b>${t.code}</b> ${isSel ? '<span style="background:#ef4444; color:#fff; font-size:10px; font-weight:bold; padding:2px 6px; border-radius:10px; margin-left:4px;">SELECTED</span>' : ''}</td>
                     <td>${t.station}</td>
                     <td>${t.region}</td>
                     <td>${t.year}</td>
@@ -1548,9 +1558,20 @@ window.showReadaView = switchTabDirect;
                 </tr>
             `}).join('');
 
-            // Also update trial dropdown selectors in other modals
             updateReadaTrialDropdowns();
         }
+
+        function viewSelectedTrialsInList() {
+            console.log("Viewing selected trials in list...");
+            if (typeof switchTabDirect === 'function') {
+                switchTabDirect('trial-list');
+            }
+            if (typeof renderReadaTrialsTable === 'function') {
+                renderReadaTrialsTable();
+            }
+        }
+        window.viewSelectedTrialsInList = viewSelectedTrialsInList;
+        window.renderReadaTrialsTable = renderReadaTrialsTable;
 
         function updateReadaTrialDropdowns() {
             const dropdowns = ['reada-edit-trial-dropdown'];

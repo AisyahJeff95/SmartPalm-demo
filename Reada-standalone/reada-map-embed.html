@@ -66,6 +66,40 @@
             color: white;
         }
 
+        .view-selected-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+            background-color: #ffffff;
+            color: #0f172a;
+            border: 1px solid #cbd5e1;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+            transition: all 0.2s ease;
+        }
+
+        .view-selected-btn:hover {
+            background-color: #10b981;
+            color: #ffffff;
+            border-color: #10b981;
+            transform: translateY(-2px);
+        }
+
+        /* Map Pin Pulse Effect */
+        .custom-map-pin {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 11px;
+        }
+
         /* MapLibre Popup Styling */
         .maplibregl-popup-content, .leaflet-popup-content-wrapper {
             background: #ffffff;
@@ -98,10 +132,11 @@
         <button class="map-layer-btn" id="btn-osm" onclick="switchMapStyle('osm')">Street Map</button>
     </div>
 
+    <button class="view-selected-btn" onclick="onViewSelectedClicked()">View Selected in List (<span id="selected-count">0</span>)</button>
+
     <div id="map-container"></div>
 
     <script>
-        // Satellite and Street Map Style Definitions for MapLibre
         const SATELLITE_STYLE = {
             'version': 8,
             'sources': {
@@ -111,7 +146,7 @@
                         'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
                     ],
                     'tileSize': 256,
-                    'attribution': '&copy; Esri, Maxar, Earthstar Geographics'
+                    'attribution': '&copy; Esri World Imagery'
                 },
                 'google-labels': {
                     'type': 'raster',
@@ -122,20 +157,8 @@
                 }
             },
             'layers': [
-                {
-                    'id': 'satellite-layer',
-                    'type': 'raster',
-                    'source': 'esri-satellite',
-                    'minzoom': 0,
-                    'maxzoom': 20
-                },
-                {
-                    'id': 'labels-layer',
-                    'type': 'raster',
-                    'source': 'google-labels',
-                    'minzoom': 0,
-                    'maxzoom': 20
-                }
+                { 'id': 'satellite-layer', 'type': 'raster', 'source': 'esri-satellite', 'minzoom': 0, 'maxzoom': 20 },
+                { 'id': 'labels-layer', 'type': 'raster', 'source': 'google-labels', 'minzoom': 0, 'maxzoom': 20 }
             ]
         };
 
@@ -150,13 +173,7 @@
                 }
             },
             'layers': [
-                {
-                    'id': 'osm-layer',
-                    'type': 'raster',
-                    'source': 'osm-tiles',
-                    'minzoom': 0,
-                    'maxzoom': 19
-                }
+                { 'id': 'osm-layer', 'type': 'raster', 'source': 'osm-tiles', 'minzoom': 0, 'maxzoom': 19 }
             ]
         };
 
@@ -167,10 +184,30 @@
             { code: '1000', station: 'Lahad Datu Station', region: 'MPOB Sabah', year: '2000', density: '148', coords: [118.33, 5.03] }
         ];
 
+        let selectedCodes = new Set();
+        try {
+            const saved = localStorage.getItem('reada_selected_trials');
+            if (saved) JSON.parse(saved).forEach(c => selectedCodes.add(c));
+        } catch(e) {}
+
+        function syncSelectedToParent() {
+            const arr = Array.from(selectedCodes);
+            document.getElementById('selected-count').innerText = arr.length;
+            try {
+                localStorage.setItem('reada_selected_trials', JSON.stringify(arr));
+                if (window.parent && window.parent.readaSelectedTrials) {
+                    window.parent.readaSelectedTrials.clear();
+                    arr.forEach(c => window.parent.readaSelectedTrials.add(c));
+                }
+            } catch(e) {}
+        }
+
         let mapInstance = null;
         let isMapLibre = false;
 
         function initMapEngine() {
+            syncSelectedToParent();
+
             // Priority 1: MapLibre GL JS
             if (typeof maplibregl !== 'undefined') {
                 try {
@@ -186,27 +223,62 @@
 
                     mapInstance.on('load', function() {
                         stationData.forEach(st => {
+                            const isSel = selectedCodes.has(st.code);
+
+                            const markerEl = document.createElement('div');
+                            markerEl.className = 'custom-map-pin';
+                            markerEl.style.width = '24px';
+                            markerEl.style.height = '24px';
+                            markerEl.style.borderRadius = '50%';
+                            markerEl.style.backgroundColor = isSel ? '#ef4444' : '#15803d'; // RED if selected, GREEN if normal
+                            markerEl.style.border = '3px solid #ffffff';
+                            markerEl.style.boxShadow = '0 3px 10px rgba(0,0,0,0.5)';
+                            markerEl.style.cursor = 'pointer';
+                            markerEl.style.transition = 'all 0.2s ease';
+                            markerEl.innerText = isSel ? '✓' : '';
+
                             const popupHTML = `
                                 <div class="station-popup-title">${st.station}</div>
                                 <div class="station-popup-info">
                                     <b>Trial Code:</b> ${st.code}<br>
                                     <b>Region:</b> ${st.region}<br>
-                                    <b>Planting Year:</b> ${st.year}<br>
-                                    <b>Density:</b> ${st.density} palms/ha
+                                    <b>Status:</b> <span id="status-${st.code.replace('/', '_')}" style="color:${isSel ? '#ef4444' : '#15803d'}; font-weight:bold;">${isSel ? 'SELECTED (RED PIN)' : 'Click pin to select (Turn Red)'}</span>
                                 </div>
                             `;
                             const popup = new maplibregl.Popup({ offset: 25 }).setHTML(popupHTML);
-                            new maplibregl.Marker({ color: '#15803d' })
+
+                            new maplibregl.Marker({ element: markerEl })
                                 .setLngLat(st.coords)
                                 .setPopup(popup)
                                 .addTo(mapInstance);
+
+                            markerEl.addEventListener('click', function(e) {
+                                e.stopPropagation();
+                                if (selectedCodes.has(st.code)) {
+                                    selectedCodes.delete(st.code);
+                                    markerEl.style.backgroundColor = '#15803d'; // Turn Green
+                                    markerEl.innerText = '';
+                                } else {
+                                    selectedCodes.add(st.code);
+                                    markerEl.style.backgroundColor = '#ef4444'; // Turn Red
+                                    markerEl.innerText = '✓';
+                                }
+                                syncSelectedToParent();
+
+                                const statusEl = document.getElementById('status-' + st.code.replace('/', '_'));
+                                if (statusEl) {
+                                    const nowSel = selectedCodes.has(st.code);
+                                    statusEl.innerText = nowSel ? 'SELECTED (RED PIN)' : 'Click pin to select (Turn Red)';
+                                    statusEl.style.color = nowSel ? '#ef4444' : '#15803d';
+                                }
+                            });
                         });
                     });
 
-                    console.log("MapLibre GL JS initialized successfully in iframe!");
+                    console.log("MapLibre interactive pin selection ready!");
                     return;
                 } catch(e) {
-                    console.warn("MapLibre failed, falling back to Leaflet:", e);
+                    console.warn("MapLibre init issue, using Leaflet fallback:", e);
                 }
             }
 
@@ -218,25 +290,40 @@
                     attribution: '&copy; Esri World Imagery'
                 }).addTo(lMap);
 
-                L.tileLayer('https://mt1.google.com/vt/lyrs=h&x={x}&y={y}&z={z}', {
-                    maxZoom: 19
-                }).addTo(lMap);
+                L.tileLayer('https://mt1.google.com/vt/lyrs=h&x={x}&y={y}&z={z}', { maxZoom: 19 }).addTo(lMap);
 
                 stationData.forEach(st => {
-                    const popupHTML = `
+                    const isSel = selectedCodes.has(st.code);
+                    const marker = L.circleMarker([st.coords[1], st.coords[0]], {
+                        radius: 10,
+                        fillColor: isSel ? '#ef4444' : '#15803d',
+                        color: '#ffffff',
+                        weight: 3,
+                        opacity: 1,
+                        fillOpacity: 0.9
+                    }).addTo(lMap);
+
+                    marker.bindPopup(`
                         <div class="station-popup-title">${st.station}</div>
                         <div class="station-popup-info">
                             <b>Trial Code:</b> ${st.code}<br>
-                            <b>Region:</b> ${st.region}<br>
-                            <b>Planting Year:</b> ${st.year}<br>
-                            <b>Density:</b> ${st.density} palms/ha
+                            <b>Status:</b> ${isSel ? 'SELECTED' : 'Click to select'}
                         </div>
-                    `;
-                    L.marker([st.coords[1], st.coords[0]]).addTo(lMap).bindPopup(popupHTML);
+                    `);
+
+                    marker.on('click', function() {
+                        if (selectedCodes.has(st.code)) {
+                            selectedCodes.delete(st.code);
+                            marker.setStyle({ fillColor: '#15803d' });
+                        } else {
+                            selectedCodes.add(st.code);
+                            marker.setStyle({ fillColor: '#ef4444' });
+                        }
+                        syncSelectedToParent();
+                    });
                 });
 
                 setTimeout(() => { lMap.invalidateSize(); }, 300);
-                console.log("Leaflet Satellite Map initialized successfully in iframe!");
             }
         }
 
@@ -246,6 +333,19 @@
 
             if (isMapLibre && mapInstance) {
                 mapInstance.setStyle(styleType === 'satellite' ? SATELLITE_STYLE : OSM_STYLE);
+            }
+        }
+
+        function onViewSelectedClicked() {
+            syncSelectedToParent();
+            try {
+                if (window.parent && typeof window.parent.viewSelectedTrialsInList === 'function') {
+                    window.parent.viewSelectedTrialsInList();
+                } else if (window.parent && typeof window.parent.switchTabDirect === 'function') {
+                    window.parent.switchTabDirect('trial-list');
+                }
+            } catch(e) {
+                console.error("View selected list trigger error:", e);
             }
         }
 
