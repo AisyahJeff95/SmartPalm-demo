@@ -3,26 +3,34 @@
   "cleanUrls": true,
   "rewrites": [
     {
+      "source": "/demo/PalmnexReaDS",
+      "destination": "/demo/PalmnexReaDS.html"
+    },
+    {
+      "source": "/demo/PalmnexReaDS.html",
+      "destination": "/demo/PalmnexReaDS.html"
+    },
+    {
       "source": "/demo",
       "destination": "/demo/index.html"
     },
     {
-      "source": "/demo/",
+      "source": "/demo/index",
       "destination": "/demo/index.html"
     },
     {
-      "source": "/demo/:path*",
-      "destination": "/demo/:path*"
+      "source": "/demo/(.*)",
+      "destination": "/demo/$1"
     },
     {
-      "source": "/:path*",
+      "source": "/(.*)",
       "has": [
         {
           "type": "host",
           "value": "palmnex-demo.com.my"
         }
       ],
-      "destination": "/demo/:path*"
+      "destination": "/demo/$1"
     },
     {
       "source": "/",
