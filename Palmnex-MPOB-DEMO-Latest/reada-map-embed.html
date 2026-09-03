@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ReaDA Map Dashboard Embed</title>
+    
+    <!-- MapLibre GL JS & Leaflet JS -->
+    <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
+    <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #0f172a;
+            font-family: 'Inter', -apple-system, sans-serif;
+        }
+
+        #map-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .map-layer-control {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            z-index: 9999;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 6px 12px;
+            color: #ffffff;
+            font-size: 12px;
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .map-layer-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .map-layer-btn:hover, .map-layer-btn.active {
+            background: #10b981;
+            border-color: #10b981;
+            color: white;
+        }
+
+        /* MapLibre Popup Styling */
+        .maplibregl-popup-content, .leaflet-popup-content-wrapper {
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+            padding: 12px;
+            color: #0f172a;
+        }
+
+        .station-popup-title {
+            color: #15803d;
+            font-weight: 700;
+            font-size: 15px;
+            margin-bottom: 6px;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 4px;
+        }
+
+        .station-popup-info {
+            font-size: 12px;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="map-layer-control">
+        <span>🗺️ Layer:</span>
+        <button class="map-layer-btn active" id="btn-sat" onclick="switchMapStyle('satellite')">Satellite Earth</button>
+        <button class="map-layer-btn" id="btn-osm" onclick="switchMapStyle('osm')">Street Map</button>
+    </div>
+
+    <div id="map-container"></div>
+
+    <script>
+        // Satellite and Street Map Style Definitions for MapLibre
+        const SATELLITE_STYLE = {
+            'version': 8,
+            'sources': {
+                'esri-satellite': {
+                    'type': 'raster',
+                    'tiles': [
+                        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+                    ],
+                    'tileSize': 256,
+                    'attribution': '&copy; Esri, Maxar, Earthstar Geographics'
+                },
+                'google-labels': {
+                    'type': 'raster',
+                    'tiles': [
+                        'https://mt1.google.com/vt/lyrs=h&x={x}&y={y}&z={z}'
+                    ],
+                    'tileSize': 256
+                }
+            },
+            'layers': [
+                {
+                    'id': 'satellite-layer',
+                    'type': 'raster',
+                    'source': 'esri-satellite',
+                    'minzoom': 0,
+                    'maxzoom': 20
+                },
+                {
+                    'id': 'labels-layer',
+                    'type': 'raster',
+                    'source': 'google-labels',
+                    'minzoom': 0,
+                    'maxzoom': 20
+                }
+            ]
+        };
+
+        const OSM_STYLE = {
+            'version': 8,
+            'sources': {
+                'osm-tiles': {
+                    'type': 'raster',
+                    'tiles': ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+                    'tileSize': 256,
+                    'attribution': '&copy; OpenStreetMap contributors'
+                }
+            },
+            'layers': [
+                {
+                    'id': 'osm-layer',
+                    'type': 'raster',
+                    'source': 'osm-tiles',
+                    'minzoom': 0,
+                    'maxzoom': 19
+                }
+            ]
+        };
+
+        const stationData = [
+            { code: 'PR1998/1', station: 'Banting Station', region: 'MPOB Central', year: '1998', density: '148', coords: [101.50, 2.81] },
+            { code: 'PR2002/4', station: 'Kluang Substation', region: 'MPOB Southern', year: '2002', density: '138', coords: [103.32, 2.03] },
+            { code: 'PR2005/2', station: 'Teluk Intan Station', region: 'MPOB Northern', year: '2005', density: '148', coords: [101.03, 4.00] },
+            { code: '1000', station: 'Lahad Datu Station', region: 'MPOB Sabah', year: '2000', density: '148', coords: [118.33, 5.03] }
+        ];
+
+        let mapInstance = null;
+        let isMapLibre = false;
+
+        function initMapEngine() {
+            // Priority 1: MapLibre GL JS
+            if (typeof maplibregl !== 'undefined') {
+                try {
+                    mapInstance = new maplibregl.Map({
+                        container: 'map-container',
+                        style: SATELLITE_STYLE,
+                        center: [108.82, 4.21],
+                        zoom: 5.5
+                    });
+
+                    mapInstance.addControl(new maplibregl.NavigationControl(), 'top-left');
+                    isMapLibre = true;
+
+                    mapInstance.on('load', function() {
+                        stationData.forEach(st => {
+                            const popupHTML = `
+                                <div class="station-popup-title">${st.station}</div>
+                                <div class="station-popup-info">
+                                    <b>Trial Code:</b> ${st.code}<br>
+                                    <b>Region:</b> ${st.region}<br>
+                                    <b>Planting Year:</b> ${st.year}<br>
+                                    <b>Density:</b> ${st.density} palms/ha
+                                </div>
+                            `;
+                            const popup = new maplibregl.Popup({ offset: 25 }).setHTML(popupHTML);
+                            new maplibregl.Marker({ color: '#15803d' })
+                                .setLngLat(st.coords)
+                                .setPopup(popup)
+                                .addTo(mapInstance);
+                        });
+                    });
+
+                    console.log("MapLibre GL JS initialized successfully in iframe!");
+                    return;
+                } catch(e) {
+                    console.warn("MapLibre failed, falling back to Leaflet:", e);
+                }
+            }
+
+            // Priority 2: Leaflet JS Fallback
+            if (typeof L !== 'undefined') {
+                const lMap = L.map('map-container').setView([4.21, 108.82], 6);
+                L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                    maxZoom: 19,
+                    attribution: '&copy; Esri World Imagery'
+                }).addTo(lMap);
+
+                L.tileLayer('https://mt1.google.com/vt/lyrs=h&x={x}&y={y}&z={z}', {
+                    maxZoom: 19
+                }).addTo(lMap);
+
+                stationData.forEach(st => {
+                    const popupHTML = `
+                        <div class="station-popup-title">${st.station}</div>
+                        <div class="station-popup-info">
+                            <b>Trial Code:</b> ${st.code}<br>
+                            <b>Region:</b> ${st.region}<br>
+                            <b>Planting Year:</b> ${st.year}<br>
+                            <b>Density:</b> ${st.density} palms/ha
+                        </div>
+                    `;
+                    L.marker([st.coords[1], st.coords[0]]).addTo(lMap).bindPopup(popupHTML);
+                });
+
+                setTimeout(() => { lMap.invalidateSize(); }, 300);
+                console.log("Leaflet Satellite Map initialized successfully in iframe!");
+            }
+        }
+
+        function switchMapStyle(styleType) {
+            document.getElementById('btn-sat').classList.toggle('active', styleType === 'satellite');
+            document.getElementById('btn-osm').classList.toggle('active', styleType === 'osm');
+
+            if (isMapLibre && mapInstance) {
+                mapInstance.setStyle(styleType === 'satellite' ? SATELLITE_STYLE : OSM_STYLE);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initMapEngine);
+    </script>
+</body>
+</html>
