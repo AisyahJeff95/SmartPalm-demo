@@ -1420,6 +1420,7 @@ async function fetchUserTrials() {
             // New User: Auto-seed the database with default demo trials
             const defaultRows = defaultReadaTrials.map(t => ({
                 trial_code: t.code,
+                user_id: currentUser.id,
                 station: t.station,
                 region: t.region,
                 planting_year: parseInt(t.year) || 2026,
@@ -1771,6 +1772,7 @@ window.renderReadaTrialsTable = renderReadaTrialsTable;
                 try {
                     const { error } = await client.from('trial_database').insert([{
                         trial_code: code,
+                        user_id: currentUser.id,
                         date_added: new Date().toISOString().split('T')[0],
                         station: estate,
                         region: region,

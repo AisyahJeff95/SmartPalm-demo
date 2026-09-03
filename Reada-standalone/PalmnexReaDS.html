@@ -406,6 +406,7 @@ window.showReadaView = switchTabDirect;
                 if(inputs.length >= 8 && cells.length >= 2) {
                     dataToInsert.push({
                         trial_code: selectedBunchTrial,
+                        user_id: currentUser.id,
                         recording_year: parseInt(selectedBunchYear),
                         plot_no: cells[0].innerText,
                         palm_no: cells[1].innerText,
@@ -508,6 +509,7 @@ window.showReadaView = switchTabDirect;
                 if(inputs.length >= 3 && cells.length >= 3) {
                     dataToInsert.push({
                         trial_code: selectedYieldTrial,
+                        user_id: currentUser.id,
                         harvest_year: parseInt(selectedYieldYear),
                         plot_no: cells[0].innerText,
                         round_no: cells[1].innerText,
