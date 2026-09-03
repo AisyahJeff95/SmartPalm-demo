@@ -2292,3 +2292,20 @@ function updateMinimapLocation(lngLat, locationName = '') {
         coordsEl.innerText = `Lat: ${lngLat[1].toFixed(4)}, Lng: ${lngLat[0].toFixed(4)} ${locationName ? '(' + locationName + ')' : ''}`;
     }
 }
+
+
+// Global Bulletproof Tab Switcher Event Delegation (Handles mouse, touch, pointer, and nested elements)
+(function() {
+    function handleTabClick(e) {
+        const tabBtn = e.target.closest('.reada-tab');
+        if (tabBtn) {
+            const viewId = tabBtn.getAttribute('data-view');
+            if (viewId && typeof window.showReadaView === 'function') {
+                window.showReadaView(viewId, tabBtn);
+            }
+        }
+    }
+
+    document.addEventListener('click', handleTabClick, true);
+    document.addEventListener('pointerdown', handleTabClick, true);
+})();
