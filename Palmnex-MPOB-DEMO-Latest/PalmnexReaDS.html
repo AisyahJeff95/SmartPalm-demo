@@ -102,16 +102,16 @@
         </div>
         
         <!-- TOP BROWSER TAB STRIP (Safari / Google Chrome Style) -->
-        <div class="reada-tab-strip" style="position: relative; z-index: 10000;">
-            <div class="reada-tab active" data-view="branding" onclick="showReadaView('branding', this)" style="cursor: pointer; position: relative; z-index: 10001;" data-tooltip="PALMNEX ReaDS Home Screen">
+        <div class="reada-tab-strip" style="position: relative; z-index: 100000;">
+            <button type="button" class="reada-tab active" data-view="branding" onclick="showReadaView('branding', this)" style="cursor: pointer; position: relative; z-index: 100001;" data-tooltip="PALMNEX ReaDS Home Screen">
                 <span class="tab-title" style="pointer-events: none;" data-i18n="tabHome">Home</span>
-            </div>
-            <div class="reada-tab" data-view="trial-list" onclick="showReadaView('trial-list', this)" style="cursor: pointer; position: relative; z-index: 10001;" data-tooltip="Browse and filter persistent agronomy trial records stored in database.">
+            </button>
+            <button type="button" class="reada-tab" data-view="trial-list" onclick="showReadaView('trial-list', this)" style="cursor: pointer; position: relative; z-index: 100001;" data-tooltip="Browse and filter persistent agronomy trial records stored in database.">
                 <span class="tab-title" style="pointer-events: none;" data-i18n="tabTrialList">List Of Available Trial Data</span>
-            </div>
-            <div class="reada-tab" data-view="map-dashboard" onclick="showReadaView('map-dashboard', this)" style="cursor: pointer; position: relative; z-index: 10001;" data-tooltip="Interactive mapping and analytics dashboard">
+            </button>
+            <button type="button" class="reada-tab" data-view="map-dashboard" onclick="showReadaView('map-dashboard', this)" style="cursor: pointer; position: relative; z-index: 100001;" data-tooltip="Interactive mapping and analytics dashboard">
                 <span class="tab-title" style="pointer-events: none;">Map Dashboard</span>
-            </div>
+            </button>
         </div>
         <div class="reada-container">
             <!-- RIGHT STACK CONTAINER (Full Width) -->
@@ -1589,7 +1589,7 @@
     <script src="js/nav.js"></script>
     <script src="js/comprehensive.js"></script>
     <script src="js/standard.js"></script>
-    <script src="js/reada.js?v=20260903e"></script>
+    <script src="js/reada.js?v=20260903_nocache"></script>
     <script src="js/main.js"></script>
 
 
