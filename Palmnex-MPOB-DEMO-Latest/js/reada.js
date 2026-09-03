@@ -2311,3 +2311,157 @@ function updateMinimapLocation(lngLat, locationName = '') {
     document.addEventListener('click', handleTabClick, true);
     document.addEventListener('pointerdown', handleTabClick, true);
 })();
+
+
+// Global Window Exports for Buttons and SubActions
+window.openReadaModal = function(modalId) {
+    var targetId = modalId.startsWith('modal-') ? modalId : 'modal-reada-' + modalId;
+    var el = document.getElementById(targetId);
+    if (el) {
+        el.classList.add('active');
+        el.style.setProperty('display', 'flex', 'important');
+        if (targetId === 'modal-reada-new-trial' && typeof initNewTrialMinimap === 'function') {
+            setTimeout(initNewTrialMinimap, 150);
+        }
+    } else {
+        console.error('ReaDA Modal not found:', targetId);
+    }
+};
+
+window.closeReadaModal = function(modalId) {
+    var targetId = modalId.startsWith('modal-') ? modalId : 'modal-reada-' + modalId;
+    var el = document.getElementById(targetId);
+    if (el) {
+        el.classList.remove('active');
+        el.style.setProperty('display', 'none', 'important');
+    }
+};
+
+window.openReadaSubAction = function(actionName) {
+    var map = {
+        'New Trial Info Entry': 'new-trial',
+        'Edit Trial Selection': 'edit-trial-select',
+        'Read Info From Backup': 'read-backup',
+        'Export Trial Info CSV': 'save-csv',
+        'Delete Trial Record': 'delete-trial',
+        'Print Trial Summary': 'print-trial',
+        'View Bunch Analysis': 'bunch',
+        'Edit Bunch Analysis': 'bunch-editor',
+        'View Yield Recording': 'yield',
+        'Edit Yield Recording': 'yield-editor',
+        'View Vegetative Sampling': 'veg',
+        'Edit Vegetative Sampling': 'veg',
+        'View Annual Plot Data': 'annual',
+        'Edit Annual Plot Data': 'annual'
+    };
+
+    if (map[actionName]) {
+        window.openReadaModal(map[actionName]);
+    } else {
+        alert('Executing ReaDA Module: ' + actionName + '\nAccessing persistent trial store (reada_local.db)...');
+    }
+};
+
+window.exportReadaTrialsCsv = function() {
+    console.log("Exporting ReaDA trials to CSV...");
+    var trialsToExport = (typeof readaSelectedTrials !== 'undefined' && readaSelectedTrials.size > 0)
+        ? readaTrials.filter(t => readaSelectedTrials.has(t.code))
+        : (typeof readaTrials !== 'undefined' ? readaTrials : []);
+
+    if (!trialsToExport || trialsToExport.length === 0) {
+        alert("No trial data available to export.");
+        return;
+    }
+
+    var headers = ["Date Added", "Trial Code", "Location / Station", "Region Group", "Planting Year", "Density (palms/ha)", "Factorial Info", "Progeny Type"];
+    var csvRows = [headers.join(",")];
+
+    trialsToExport.forEach(function(t) {
+        var row = [
+            '"' + (t.dateAdded || '') + '"',
+            '"' + (t.code || '') + '"',
+            '"' + (t.station || '') + '"',
+            '"' + (t.region || '') + '"',
+            '"' + (t.year || '') + '"',
+            '"' + (t.density || '') + '"',
+            '"' + (t.factorial || '') + '"',
+            '"' + (t.progeny || '') + '"'
+        ];
+        csvRows.push(row.join(","));
+    });
+
+    var csvString = csvRows.join("\n");
+    var blob = new Blob([csvString], { type: "text/csv;charset=utf-8;" });
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", "PalmnexReaDS_Trial_Data_" + new Date().toISOString().slice(0, 10) + ".csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+};
+
+// Robust Leaflet Map Engine for Map Dashboard
+function initReadaMapDashboard() {
+    const container = document.getElementById('reada-map');
+    if (!container) return;
+
+    if (window.leafletMapInstance) {
+        setTimeout(function() { window.leafletMapInstance.invalidateSize(); }, 150);
+        return;
+    }
+
+    if (typeof L === 'undefined') {
+        console.error("Leaflet L is not loaded yet");
+        return;
+    }
+
+    container.innerHTML = '<div id="leaflet-reada-map" style="width:100%; height:100%; min-height:550px; position:relative; z-index:1; border-radius: 6px; overflow: hidden;"></div>';
+
+    var lMap = L.map('leaflet-reada-map', {
+        center: [4.21, 108.82],
+        zoom: 6,
+        zoomControl: true
+    });
+
+    // Satellite Imagery Layer (Esri World Imagery)
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        maxZoom: 19,
+        attribution: '&copy; Esri, Maxar, Earthstar Geographics'
+    }).addTo(lMap);
+
+    // Google Hybrid Labels Layer
+    L.tileLayer('https://mt1.google.com/vt/lyrs=h&x={x}&y={y}&z={z}', {
+        maxZoom: 19,
+        attribution: '&copy; Google Maps'
+    }).addTo(lMap);
+
+    window.leafletMapInstance = lMap;
+
+    var stationCoordsMapL = {
+        'Banting Station': [2.81, 101.50],
+        'Kluang Substation': [2.03, 103.32],
+        'Teluk Intan Station': [4.00, 101.03],
+        'Lahad Datu Station': [5.03, 118.33]
+    };
+
+    if (typeof readaTrials !== 'undefined') {
+        readaTrials.forEach(function(t) {
+            var coords = stationCoordsMapL[t.station] || [3.14, 101.69];
+            var m = L.marker(coords).addTo(lMap);
+            m.bindPopup(`
+                <div style="font-family: sans-serif; font-size: 13px; color: #0f172a; padding: 4px;">
+                    <b style="color: #15803d; font-size: 14px;">${t.station}</b><br>
+                    <b>Trial Code:</b> ${t.code}<br>
+                    <b>Region:</b> ${t.region}<br>
+                    <b>Planting Year:</b> ${t.year}<br>
+                    <b>Density:</b> ${t.density} palms/ha
+                </div>
+            `);
+        });
+    }
+
+    setTimeout(function() { lMap.invalidateSize(); }, 250);
+}
+
+window.initReadaMapDashboard = initReadaMapDashboard;
