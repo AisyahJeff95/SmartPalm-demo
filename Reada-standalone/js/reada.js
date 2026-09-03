@@ -1597,7 +1597,25 @@ window.fetchUserTrials = fetchUserTrials;
 function openReadaDirectPopup(modalType, trialCode) {
     console.log("Opening direct popup:", modalType, "for trial:", trialCode);
     
-    // Set selected trial code in any trial selector inside the target modal
+    // Route to specific editor setup functions if available to set Javascript state
+    if (modalType === 'bunch-editor' && typeof window.openBunchEditorForTrial === 'function') {
+        window.openBunchEditorForTrial(trialCode);
+        return;
+    }
+    if (modalType === 'yield-editor' && typeof window.openYieldEditorForTrial === 'function') {
+        window.openYieldEditorForTrial(trialCode);
+        return;
+    }
+    if (modalType === 'veg-editor' && typeof window.openVegEditorForTrial === 'function') {
+        window.openVegEditorForTrial(trialCode);
+        return;
+    }
+    if (modalType === 'annual-editor' && typeof window.openAnnualEditorForTrial === 'function') {
+        window.openAnnualEditorForTrial(trialCode);
+        return;
+    }
+
+    // Set selected trial code in any trial selector inside the target modal (fallback)
     var dropdownIds = ['reada-' + modalType + '-trial-select', 'reada-edit-trial-dropdown', 'reada-nt-code'];
     dropdownIds.forEach(function(id) {
         var sel = document.getElementById(id);
