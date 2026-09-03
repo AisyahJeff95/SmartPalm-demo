@@ -59,16 +59,7 @@ async function handleEmailSignIn(event) {
         return;
     }
 
-    // 1. Instant check for admin1 / admin1 credentials
-    const cleanInput = email.toLowerCase();
-    if ((cleanInput === 'admin1' || cleanInput === 'admin1@palmnex.com.my') && password === 'admin1') {
-        const adminUser = { email: 'admin1@palmnex.com.my', username: 'admin1', id: 'admin1-id', role: 'admin' };
-        localStorage.setItem('palmnex_user_session', JSON.stringify(adminUser));
-        currentUser = adminUser;
-        closeAuthModal();
-        updateTopNavUser(adminUser);
-        return;
-    }
+
 
     // 2. Supabase Auth check for cloud users
     const client = typeof window.getSupabase === 'function' ? window.getSupabase() : null;
@@ -167,16 +158,7 @@ function updateTopNavUser(user) {
 
 // Listen to Auth Events on Load
 document.addEventListener('DOMContentLoaded', async () => {
-    // 1. Check local admin session first
-    const savedLocalSession = localStorage.getItem('palmnex_user_session');
-    if (savedLocalSession) {
-        try {
-            const userObj = JSON.parse(savedLocalSession);
-            currentUser = userObj;
-            updateTopNavUser(userObj);
-            return;
-        } catch(e) {}
-    }
+
 
     // 2. Check Supabase session
     const client = typeof window.getSupabase === 'function' ? window.getSupabase() : null;
