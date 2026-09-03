@@ -21,6 +21,65 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/auth.js"></script>
+<script>
+// Fail-Safe Direct Tab Switcher Engine
+function switchTabDirect(viewId) {
+    console.log("Direct switching tab to:", viewId);
+
+    // 1. Hide all views
+    var views = document.querySelectorAll('.reada-view');
+    for (var i = 0; i < views.length; i++) {
+        views[i].classList.remove('active');
+        views[i].style.setProperty('display', 'none', 'important');
+    }
+
+    // 2. Deactivate all tab buttons
+    var tabs = document.querySelectorAll('.reada-tab');
+    for (var j = 0; j < tabs.length; j++) {
+        tabs[j].classList.remove('active');
+    }
+
+    // 3. Activate target tab button
+    var activeTab = document.querySelector('.reada-tab[data-view="' + viewId + '"]') || document.getElementById('tab-btn-' + viewId);
+    if (activeTab) {
+        activeTab.classList.add('active');
+    }
+
+    // 4. Activate target view container
+    var viewMap = {
+        'branding': 'reada-view-branding',
+        'trial-list': 'reada-view-trial-list',
+        'map-dashboard': 'reada-view-map-dashboard',
+        'main-info': 'reada-view-main-info',
+        'bunch': 'reada-view-bunch',
+        'yield': 'reada-view-yield',
+        'veg': 'reada-view-veg',
+        'annual': 'reada-view-annual'
+    };
+
+    var targetId = viewMap[viewId] || 'reada-view-branding';
+    var targetEl = document.getElementById(targetId);
+    if (targetEl) {
+        targetEl.classList.add('active');
+        targetEl.style.setProperty('display', 'flex', 'important');
+    }
+
+    // 5. Trigger view specific initializations
+    if (viewId === 'trial-list') {
+        if (typeof renderReadaTrialsTable === 'function') {
+            renderReadaTrialsTable();
+        }
+    } else if (viewId === 'map-dashboard') {
+        setTimeout(function() {
+            if (typeof initReadaMapDashboard === 'function') initReadaMapDashboard();
+            if (typeof readaMap !== 'undefined' && readaMap) readaMap.resize();
+        }, 100);
+    }
+}
+
+window.switchTabDirect = switchTabDirect;
+window.showReadaView = switchTabDirect;
+</script>
 </head>
 <body>
     <div id="reada-tooltip-box" style="display:none; position:fixed; background-color:#ffffff; color:#000000; font-family:'Segoe UI', sans-serif; font-size:12px; font-weight:600; padding:6px 12px; border-radius:4px; border:1.5px solid #71717a; box-shadow:0 6px 20px rgba(0,0,0,0.3); z-index:999999; pointer-events:none; max-width:280px; line-height:1.35;"></div>
@@ -102,34 +161,17 @@
         </div>
         
         <!-- TOP BROWSER TAB STRIP (Safari / Google Chrome Style) -->
-        <div class="reada-tab-strip" style="position: relative; z-index: 100000;">
-            <button type="button" class="reada-tab active" data-view="branding" onclick="showReadaView('branding', this)" style="cursor: pointer; position: relative; z-index: 100001;" data-tooltip="PALMNEX ReaDS Home Screen">
-                <span class="tab-title"  data-i18n="tabHome">Home</span>
+        <div class="reada-tab-strip" style="position: relative; z-index: 999999; display: flex; align-items: flex-end; gap: 4px; padding: 8px 16px 0 16px; background-color: #123330; border-bottom: 2px solid #0c2321;">
+            <button type="button" class="reada-tab active" data-view="branding" onclick="switchTabDirect('branding')" id="tab-btn-branding" style="cursor: pointer; position: relative; z-index: 1000000; padding: 10px 20px;">
+                <span class="tab-title" data-i18n="tabHome">Home</span>
             </button>
-            <button type="button" class="reada-tab" data-view="trial-list" onclick="showReadaView('trial-list', this)" style="cursor: pointer; position: relative; z-index: 100001;" data-tooltip="Browse and filter persistent agronomy trial records stored in database.">
-                <span class="tab-title"  data-i18n="tabTrialList">List Of Available Trial Data</span>
+            <button type="button" class="reada-tab" data-view="trial-list" onclick="switchTabDirect('trial-list')" id="tab-btn-trial-list" style="cursor: pointer; position: relative; z-index: 1000000; padding: 10px 20px;">
+                <span class="tab-title" data-i18n="tabTrialList">List Of Available Trial Data</span>
             </button>
-            <button type="button" class="reada-tab" data-view="map-dashboard" onclick="showReadaView('map-dashboard', this)" style="cursor: pointer; position: relative; z-index: 100001;" data-tooltip="Interactive mapping and analytics dashboard">
-                <span class="tab-title" >Map Dashboard</span>
+            <button type="button" class="reada-tab" data-view="map-dashboard" onclick="switchTabDirect('map-dashboard')" id="tab-btn-map-dashboard" style="cursor: pointer; position: relative; z-index: 1000000; padding: 10px 20px;">
+                <span class="tab-title">Map Dashboard</span>
             </button>
         </div>
-        <div class="reada-container">
-            <!-- RIGHT STACK CONTAINER (Full Width) -->
-            <div class="reada-stack">
-                <!-- VIEW: MAP DASHBOARD -->
-                <div id="reada-view-map-dashboard" class="reada-view" style="position:relative; width: 100%; height: 100%; min-height: 550px;">
-                    <div id="reada-map" style="width: 100%; height: 100%; z-index: 1;"></div>
-                    <button class="reada-qt-btn" id="btn-view-selected-list" onclick="viewSelectedTrialsInList()" style="position: absolute; bottom: 20px; right: 20px; z-index: 1000; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); background-color: white; color: black;">View Selected in List</button>
-                </div>
-                <!-- VIEW 0: DEFAULT BRANDING VIEW -->
-                <div id="reada-view-branding" class="reada-view active">
-                    <div class="reada-branding-box">
-                        <div class="reada-brand-title" data-i18n="brandTitle">PalmnexReaDS</div>
-                        <div class="reada-brand-sub">PALMNEX Research and Database System</div>
-                        <div class="reada-divider"></div>
-                        <div class="reada-brand-version" data-i18n="brandVersion">PalmnexReaDS Software V2.0 2026 by Palmnex</div>
-                        <div class="reada-brand-engine" data-i18n="brandEngine">MPOB Oil Palm Agronomic Research & Database Engine</div>
-                    </div>
                 </div>
 
                 <!-- VIEW 1: TRIAL MAIN INFORMATION -->
@@ -1589,7 +1631,7 @@
     <script src="js/nav.js"></script>
     <script src="js/comprehensive.js"></script>
     <script src="js/standard.js"></script>
-    <script src="js/reada.js?v=20260903_bulletproof"></script>
+    <script src="js/reada.js?v=20260903_failsafe"></script>
     <script src="js/main.js"></script>
 
 

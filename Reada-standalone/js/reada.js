@@ -987,62 +987,63 @@ function onMapSelectChanged(val) {
         // =========================================================================
         // ReaDA Engine View Navigation & Dialog Handlers (Authentic Palmnex Replica)
         // =========================================================================
-        function showReadaView(viewId, element) {
-    console.log("Switching ReaDA view to:", viewId);
-    
-    // Hide all views
-    document.querySelectorAll('.reada-view').forEach(el => {
-        el.classList.remove('active');
-        el.style.display = 'none';
-    });
-    
-    // Deactivate all tabs
-    document.querySelectorAll('.reada-tab').forEach(el => el.classList.remove('active'));
+        // Fail-Safe Direct Tab Switcher Engine
+function switchTabDirect(viewId) {
+    console.log("Direct switching tab to:", viewId);
 
-    // Activate target tab element
-    let targetTab = element;
-    if (!targetTab || !(targetTab instanceof HTMLElement)) {
-        targetTab = document.querySelector(`.reada-tab[data-view="${viewId}"]`);
-    }
-    if (targetTab) {
-        targetTab.classList.add('active');
+    // 1. Hide all views
+    var views = document.querySelectorAll('.reada-view');
+    for (var i = 0; i < views.length; i++) {
+        views[i].classList.remove('active');
+        views[i].style.setProperty('display', 'none', 'important');
     }
 
-    const viewMap = {
-        'main-info': 'reada-view-main-info',
+    // 2. Deactivate all tab buttons
+    var tabs = document.querySelectorAll('.reada-tab');
+    for (var j = 0; j < tabs.length; j++) {
+        tabs[j].classList.remove('active');
+    }
+
+    // 3. Activate target tab button
+    var activeTab = document.querySelector('.reada-tab[data-view="' + viewId + '"]') || document.getElementById('tab-btn-' + viewId);
+    if (activeTab) {
+        activeTab.classList.add('active');
+    }
+
+    // 4. Activate target view container
+    var viewMap = {
+        'branding': 'reada-view-branding',
         'trial-list': 'reada-view-trial-list',
+        'map-dashboard': 'reada-view-map-dashboard',
+        'main-info': 'reada-view-main-info',
         'bunch': 'reada-view-bunch',
         'yield': 'reada-view-yield',
         'veg': 'reada-view-veg',
-        'annual': 'reada-view-annual',
-        'branding': 'reada-view-branding',
-        'map-dashboard': 'reada-view-map-dashboard'
+        'annual': 'reada-view-annual'
     };
 
-    const targetViewId = viewMap[viewId] || 'reada-view-branding';
-    const targetView = document.getElementById(targetViewId);
-    if (targetView) {
-        targetView.classList.add('active');
-        targetView.style.display = 'flex'; // ALWAYS USE FLEX DISPLAY FOR ALL VIEWS!
+    var targetId = viewMap[viewId] || 'reada-view-branding';
+    var targetEl = document.getElementById(targetId);
+    if (targetEl) {
+        targetEl.classList.add('active');
+        targetEl.style.setProperty('display', 'flex', 'important');
     }
 
+    // 5. Trigger view specific initializations
     if (viewId === 'trial-list') {
         if (typeof renderReadaTrialsTable === 'function') {
             renderReadaTrialsTable();
         }
     } else if (viewId === 'map-dashboard') {
-        setTimeout(() => {
-            if (typeof initReadaMapDashboard === 'function') {
-                initReadaMapDashboard();
-            }
-            if (typeof readaMap !== 'undefined' && readaMap) {
-                readaMap.resize();
-            }
+        setTimeout(function() {
+            if (typeof initReadaMapDashboard === 'function') initReadaMapDashboard();
+            if (typeof readaMap !== 'undefined' && readaMap) readaMap.resize();
         }, 100);
     }
 }
 
-window.showReadaView = showReadaView;
+window.switchTabDirect = switchTabDirect;
+window.showReadaView = switchTabDirect;
 
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.reada-tab').forEach(tab => {

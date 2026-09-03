@@ -1947,6 +1947,65 @@
             background-color: #099268;
         }
     </style>
+<script>
+// Fail-Safe Direct Tab Switcher Engine
+function switchTabDirect(viewId) {
+    console.log("Direct switching tab to:", viewId);
+
+    // 1. Hide all views
+    var views = document.querySelectorAll('.reada-view');
+    for (var i = 0; i < views.length; i++) {
+        views[i].classList.remove('active');
+        views[i].style.setProperty('display', 'none', 'important');
+    }
+
+    // 2. Deactivate all tab buttons
+    var tabs = document.querySelectorAll('.reada-tab');
+    for (var j = 0; j < tabs.length; j++) {
+        tabs[j].classList.remove('active');
+    }
+
+    // 3. Activate target tab button
+    var activeTab = document.querySelector('.reada-tab[data-view="' + viewId + '"]') || document.getElementById('tab-btn-' + viewId);
+    if (activeTab) {
+        activeTab.classList.add('active');
+    }
+
+    // 4. Activate target view container
+    var viewMap = {
+        'branding': 'reada-view-branding',
+        'trial-list': 'reada-view-trial-list',
+        'map-dashboard': 'reada-view-map-dashboard',
+        'main-info': 'reada-view-main-info',
+        'bunch': 'reada-view-bunch',
+        'yield': 'reada-view-yield',
+        'veg': 'reada-view-veg',
+        'annual': 'reada-view-annual'
+    };
+
+    var targetId = viewMap[viewId] || 'reada-view-branding';
+    var targetEl = document.getElementById(targetId);
+    if (targetEl) {
+        targetEl.classList.add('active');
+        targetEl.style.setProperty('display', 'flex', 'important');
+    }
+
+    // 5. Trigger view specific initializations
+    if (viewId === 'trial-list') {
+        if (typeof renderReadaTrialsTable === 'function') {
+            renderReadaTrialsTable();
+        }
+    } else if (viewId === 'map-dashboard') {
+        setTimeout(function() {
+            if (typeof initReadaMapDashboard === 'function') initReadaMapDashboard();
+            if (typeof readaMap !== 'undefined' && readaMap) readaMap.resize();
+        }, 100);
+    }
+}
+
+window.switchTabDirect = switchTabDirect;
+window.showReadaView = switchTabDirect;
+</script>
 </head>
 <body>
 
