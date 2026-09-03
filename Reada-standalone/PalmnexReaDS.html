@@ -510,7 +510,7 @@ window.showReadaView = switchTabDirect;
                     dataToInsert.push({
                         trial_code: selectedYieldTrial,
                         user_id: currentUser.id,
-                        harvest_year: parseInt(selectedYieldYear),
+                        recording_year: parseInt(selectedYieldYear),
                         plot_no: cells[0].innerText,
                         round_no: cells[1].innerText,
                         harvest_date: '2026-01-01', // mock
@@ -526,7 +526,7 @@ window.showReadaView = switchTabDirect;
             const client = typeof window.getSupabase === 'function' ? window.getSupabase() : null;
             if (client && currentUser) {
                 try {
-                    await client.from('trial_yieldrecording').delete().eq('trial_code', selectedYieldTrial).eq('harvest_year', selectedYieldYear);
+                    await client.from('trial_yieldrecording').delete().eq('trial_code', selectedYieldTrial).eq('recording_year', selectedYieldYear);
                     const { error } = await client.from('trial_yieldrecording').insert(dataToInsert);
                     if (error) throw error;
                     alert(`Supabase Cloud Sync: Yield Recording for trial [${selectedYieldTrial}] saved successfully!`);
