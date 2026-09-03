@@ -1883,3 +1883,296 @@ function onMapSelectChanged(val) {
             }
         }
 
+
+
+// =========================================================================
+// Satellite Imagery & Interactive Plot Polygon Drawer (MapLibre GL JS)
+// =========================================================================
+
+let polygonDrawerMap = null;
+let currentDrawCoords = [];
+let isDrawerSatellite = true;
+
+const SATELLITE_STYLE = {
+    'version': 8,
+    'sources': {
+        'esri-satellite': {
+            'type': 'raster',
+            'tiles': [
+                'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+            ],
+            'tileSize': 256,
+            'attribution': '&copy; Esri, Maxar, Earthstar Geographics'
+        }
+    },
+    'layers': [
+        {
+            'id': 'satellite-layer',
+            'type': 'raster',
+            'source': 'esri-satellite',
+            'minzoom': 0,
+            'maxzoom': 20
+        }
+    ]
+};
+
+const OSM_STYLE = {
+    'version': 8,
+    'sources': {
+        'osm-tiles': {
+            'type': 'raster',
+            'tiles': [
+                'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+            ],
+            'tileSize': 256,
+            'attribution': '&copy; OpenStreetMap contributors'
+        }
+    },
+    'layers': [
+        {
+            'id': 'osm-layer',
+            'type': 'raster',
+            'source': 'osm-tiles',
+            'minzoom': 0,
+            'maxzoom': 19
+        }
+    ]
+};
+
+function openPolygonDrawerModal(initialCenter = [118.33, 5.03]) {
+    openReadaModal('modal-reada-polygon-drawer');
+    setTimeout(() => {
+        initPolygonDrawerMap(initialCenter);
+    }, 200);
+}
+
+function initPolygonDrawerMap(center = [118.33, 5.03]) {
+    const container = document.getElementById('reada-polygon-drawer-map');
+    if (!container) return;
+
+    if (polygonDrawerMap) {
+        polygonDrawerMap.resize();
+        return;
+    }
+
+    if (typeof maplibregl === 'undefined') return;
+
+    polygonDrawerMap = new maplibregl.Map({
+        container: 'reada-polygon-drawer-map',
+        style: SATELLITE_STYLE,
+        center: center,
+        zoom: 15
+    });
+
+    polygonDrawerMap.addControl(new maplibregl.NavigationControl(), 'top-left');
+    setTimeout(() => { polygonDrawerMap.resize(); }, 300);
+
+    polygonDrawerMap.on('click', function(e) {
+        const pt = [e.lngLat.lng, e.lngLat.lat];
+        currentDrawCoords.push(pt);
+        updatePolygonDrawerLayer();
+    });
+}
+
+function toggleDrawerMapStyle() {
+    if (!polygonDrawerMap) return;
+    isDrawerSatellite = !isDrawerSatellite;
+    polygonDrawerMap.setStyle(isDrawerSatellite ? SATELLITE_STYLE : OSM_STYLE);
+    const btn = document.getElementById('btn-toggle-drawer-style');
+    if (btn) {
+        btn.innerText = isDrawerSatellite ? '📡 Satellite View' : '🗺️ Street Map View';
+        btn.style.background = isDrawerSatellite ? '#0284c7' : '#64748b';
+    }
+    setTimeout(updatePolygonDrawerLayer, 500);
+}
+
+function updatePolygonDrawerLayer() {
+    if (!polygonDrawerMap) return;
+
+    let ring = [...currentDrawCoords];
+    if (ring.length >= 3) {
+        ring.push(ring[0]);
+    }
+
+    const geojson = {
+        'type': 'FeatureCollection',
+        'features': ring.length >= 3 ? [{
+            'type': 'Feature',
+            'geometry': {
+                'type': 'Polygon',
+                'coordinates': [ring]
+            }
+        }] : []
+    };
+
+    const pointsGeojson = {
+        'type': 'FeatureCollection',
+        'features': currentDrawCoords.map((pt, idx) => ({
+            'type': 'Feature',
+            'properties': { 'id': idx + 1 },
+            'geometry': { 'type': 'Point', 'coordinates': pt }
+        }))
+    };
+
+    if (polygonDrawerMap.getSource('draw-polygon')) {
+        polygonDrawerMap.getSource('draw-polygon').setData(geojson);
+        polygonDrawerMap.getSource('draw-points').setData(pointsGeojson);
+    } else {
+        polygonDrawerMap.addSource('draw-polygon', { 'type': 'geojson', 'data': geojson });
+        polygonDrawerMap.addSource('draw-points', { 'type': 'geojson', 'data': pointsGeojson });
+
+        polygonDrawerMap.addLayer({
+            'id': 'draw-polygon-fill',
+            'type': 'fill',
+            'source': 'draw-polygon',
+            'paint': {
+                'fill-color': '#10b981',
+                'fill-opacity': 0.45
+            }
+        });
+
+        polygonDrawerMap.addLayer({
+            'id': 'draw-polygon-stroke',
+            'type': 'line',
+            'source': 'draw-polygon',
+            'paint': {
+                'line-color': '#059669',
+                'line-width': 3
+            }
+        });
+
+        polygonDrawerMap.addLayer({
+            'id': 'draw-points-layer',
+            'type': 'circle',
+            'source': 'draw-points',
+            'paint': {
+                'circle-radius': 6,
+                'circle-color': '#ffffff',
+                'circle-stroke-color': '#047857',
+                'circle-stroke-width': 2
+            }
+        });
+    }
+
+    const infoText = document.getElementById('draw-polygon-info');
+    if (infoText) {
+        infoText.innerText = `${currentDrawCoords.length} corner points placed. ${currentDrawCoords.length >= 3 ? 'Polygon formed!' : 'Click at least 3 points.'}`;
+    }
+}
+
+function undoLastPolygonPoint() {
+    if (currentDrawCoords.length > 0) {
+        currentDrawCoords.pop();
+        updatePolygonDrawerLayer();
+    }
+}
+
+function clearPolygonDrawer() {
+    currentDrawCoords = [];
+    updatePolygonDrawerLayer();
+}
+
+function saveCustomPlotToDashboard() {
+    const plotNameInput = document.getElementById('draw-plot-number');
+    const plotName = plotNameInput ? plotNameInput.value.trim() : '';
+
+    if (!plotName) {
+        alert('Please enter a Plot Number or Name (e.g. Plot 101 or Block 22).');
+        return;
+    }
+
+    if (currentDrawCoords.length < 3) {
+        alert('Please click at least 3 corner points on the satellite map to form a plot polygon boundary.');
+        return;
+    }
+
+    const savedPlots = JSON.parse(localStorage.getItem('smartpalm_saved_plots') || '[]');
+    const newPlot = {
+        id: 'plot_' + Date.now(),
+        name: plotName,
+        coords: [...currentDrawCoords],
+        color: '#10b981',
+        createdAt: new Date().toISOString()
+    };
+
+    savedPlots.push(newPlot);
+    localStorage.setItem('smartpalm_saved_plots', JSON.stringify(savedPlots));
+
+    showReadaToast(`Recorded Plot "${plotName}" in Map Dashboard!`);
+    closeReadaModal('modal-reada-polygon-drawer');
+    clearPolygonDrawer();
+
+    if (plotNameInput) plotNameInput.value = '';
+
+    // Refresh Map Dashboard if active
+    if (readaMap) {
+        loadSavedPlotsOnMap();
+    }
+}
+
+function loadSavedPlotsOnMap() {
+    if (!readaMap || typeof maplibregl === 'undefined') return;
+    const saved = JSON.parse(localStorage.getItem('smartpalm_saved_plots') || '[]');
+
+    saved.forEach((plot, index) => {
+        const sourceId = `saved-plot-src-${index}`;
+        const fillLayerId = `saved-plot-fill-${index}`;
+        const lineLayerId = `saved-plot-line-${index}`;
+
+        let ring = [...plot.coords];
+        if (ring.length >= 3) ring.push(ring[0]);
+
+        const geojson = {
+            'type': 'FeatureCollection',
+            'features': [{
+                'type': 'Feature',
+                'geometry': {
+                    'type': 'Polygon',
+                    'coordinates': [ring]
+                },
+                'properties': { 'name': plot.name }
+            }]
+        };
+
+        if (readaMap.getSource(sourceId)) {
+            readaMap.getSource(sourceId).setData(geojson);
+        } else {
+            readaMap.addSource(sourceId, { 'type': 'geojson', 'data': geojson });
+            readaMap.addLayer({
+                'id': fillLayerId,
+                'type': 'fill',
+                'source': sourceId,
+                'paint': {
+                    'fill-color': plot.color || '#10b981',
+                    'fill-opacity': 0.4
+                }
+            });
+            readaMap.addLayer({
+                'id': lineLayerId,
+                'type': 'line',
+                'source': sourceId,
+                'paint': {
+                    'line-color': '#047857',
+                    'line-width': 3
+                }
+            });
+
+            if (ring.length > 0) {
+                const centerLng = ring.reduce((sum, p) => sum + p[0], 0) / ring.length;
+                const centerLat = ring.reduce((sum, p) => sum + p[1], 0) / ring.length;
+
+                const popup = new maplibregl.Popup({ offset: 15 }).setHTML(`
+                    <div style="font-size: 13px; font-weight: 700; color: #112d2b;">
+                        📍 Plot: ${plot.name}<br/>
+                        <span style="font-size: 11px; color: #64748b; font-weight: normal;">Recorded Custom Satellite Plot</span>
+                    </div>
+                `);
+
+                new maplibregl.Marker({ color: plot.color || '#10b981' })
+                    .setLngLat([centerLng, centerLat])
+                    .setPopup(popup)
+                    .addTo(readaMap);
+            }
+        }
+    });
+}
