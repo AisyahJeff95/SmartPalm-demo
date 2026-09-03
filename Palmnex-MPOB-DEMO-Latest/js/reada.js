@@ -1947,28 +1947,32 @@ let polygonDrawerMap = null;
 let currentDrawCoords = [];
 let isDrawerSatellite = true;
 
-const SATELLITE_STYLE = {
+const GOOGLE_SATELLITE_STYLE = {
     'version': 8,
     'sources': {
-        'esri-satellite': {
+        'google-satellite': {
             'type': 'raster',
             'tiles': [
-                'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+                'https://mt0.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+                'https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+                'https://mt2.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+                'https://mt3.google.com/vt/lyrs=y&x={x}&y={y}&z={z}'
             ],
             'tileSize': 256,
-            'attribution': '&copy; Esri, Maxar, Earthstar Geographics'
+            'attribution': '&copy; Google Maps Satellite'
         }
     },
     'layers': [
         {
-            'id': 'satellite-layer',
+            'id': 'google-satellite-layer',
             'type': 'raster',
-            'source': 'esri-satellite',
+            'source': 'google-satellite',
             'minzoom': 0,
-            'maxzoom': 20
+            'maxzoom': 22
         }
     ]
 };
+const SATELLITE_STYLE = GOOGLE_SATELLITE_STYLE;
 
 const OSM_STYLE = {
     'version': 8,
