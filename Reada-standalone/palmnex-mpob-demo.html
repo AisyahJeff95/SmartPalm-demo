@@ -80,6 +80,11 @@ function switchTabDirect(viewId) {
 window.switchTabDirect = switchTabDirect;
 window.showReadaView = switchTabDirect;
 </script>
+    <!-- MapLibre GL JS & Leaflet JS for Satellite & Google Earth View -->
+    <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
+    <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
     <div id="reada-tooltip-box" style="display:none; position:fixed; background-color:#ffffff; color:#000000; font-family:'Segoe UI', sans-serif; font-size:12px; font-weight:600; padding:6px 12px; border-radius:4px; border:1.5px solid #71717a; box-shadow:0 6px 20px rgba(0,0,0,0.3); z-index:999999; pointer-events:none; max-width:280px; line-height:1.35;"></div>
@@ -1662,7 +1667,7 @@ window.showReadaView = switchTabDirect;
 
     <!-- External JS Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://unpkg.com/proj4@latest/dist/proj4.js"></script>
     <script src="https://unpkg.com/shpjs@latest/dist/shp.js"></script>
@@ -1672,7 +1677,7 @@ window.showReadaView = switchTabDirect;
     <script src="js/nav.js"></script>
     <script src="js/comprehensive.js"></script>
     <script src="js/standard.js"></script>
-    <script src="js/reada.js?v=20260903_esrisat"></script>
+    <script src="js/reada.js?v=20260903_headscript"></script>
     <script src="js/main.js"></script>
 
 
