@@ -298,15 +298,16 @@ window.showReadaView = switchTabDirect;
                             <h2 style="font-size: 18px; font-weight: 600; color: #1e293b; margin: 0;">Global Bunch Analysis Data</h2>
                             <div style="margin-top: 15px; text-align: right;">
                                 <button type="button" id="btn-undo-delete-bunch" class="reada-qt-btn" onclick="undoDeleteBunchRow()" style="background-color: #f59e0b; color: white; margin-right: 10px; display: none;">↺ Undo Delete</button>
-                                <button type="button" class="reada-qt-btn" onclick="addBunchRow()" style="background-color: #3b82f6; color: white;">➕ Add Row</button>
+                                <button type="button" id="btn-edit-bunch" class="reada-qt-btn" onclick="toggleEditMode('bunch', true)" style="background-color: #3b82f6; color: white;">✏️ Edit Data</button>
+                                <button type="button" id="btn-add-bunch" class="reada-qt-btn" onclick="addBunchRow()" style="background-color: #3b82f6; color: white; display: none;">➕ Add Row</button>
                                 <button type="button" class="reada-qt-btn" onclick="saveGlobalBunchData()" style="background-color: #10b981; color: white; margin-left: 10px;">💾 Save All Changes</button>
                             </div>
                         </div>
                         <div style="overflow-x: auto; max-height: 60vh; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 4px;">
-                            <table class="reada-table-view" style="width: 100%; min-width: 1200px;">
-                                <thead style="position: sticky; top: 0; background-color: #f8fafc; z-index: 10;">
+                            <table style="width: 100%; border-collapse: collapse; min-width: 1200px;">
+                                <thead style="background-color: #f8fafc; position: sticky; top: 0; z-index: 10;">
                                     <tr>
-                                        <th style="width: 50px;">Action</th>
+                                        <th id="th-action-bunch" style="width: 50px; display: none;">Action</th>
                                         <th>Trial Code</th>
                                         <th>Year</th>
                                         <th>Plot No</th>
@@ -336,15 +337,16 @@ window.showReadaView = switchTabDirect;
                             <h2 style="font-size: 18px; font-weight: 600; color: #1e293b; margin: 0;">Global Yield Recording Data</h2>
                             <div style="margin-top: 15px; text-align: right;">
                                 <button type="button" id="btn-undo-delete-yield" class="reada-qt-btn" onclick="undoDeleteYieldRow()" style="background-color: #f59e0b; color: white; margin-right: 10px; display: none;">↺ Undo Delete</button>
-                                <button type="button" class="reada-qt-btn" onclick="addYieldRow()" style="background-color: #3b82f6; color: white;">➕ Add Row</button>
+                                <button type="button" id="btn-edit-yield" class="reada-qt-btn" onclick="toggleEditMode('yield', true)" style="background-color: #3b82f6; color: white;">✏️ Edit Data</button>
+                                <button type="button" id="btn-add-yield" class="reada-qt-btn" onclick="addYieldRow()" style="background-color: #3b82f6; color: white; display: none;">➕ Add Row</button>
                                 <button type="button" class="reada-qt-btn" onclick="saveGlobalYieldData()" style="background-color: #10b981; color: white; margin-left: 10px;">💾 Save All Changes</button>
                             </div>
                         </div>
                         <div style="overflow-x: auto; max-height: 60vh; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 4px;">
-                            <table class="reada-table-view" style="width: 100%; min-width: 1100px;">
-                                <thead style="position: sticky; top: 0; background-color: #f8fafc; z-index: 10;">
+                            <table style="width: 100%; border-collapse: collapse; min-width: 1000px;">
+                                <thead style="background-color: #f8fafc; position: sticky; top: 0; z-index: 10;">
                                     <tr>
-                                        <th style="width: 50px;">Action</th>
+                                        <th id="th-action-yield" style="width: 50px; display: none;">Action</th>
                                         <th>Trial Code</th>
                                         <th>Year</th>
                                         <th>Plot No</th>
@@ -372,7 +374,8 @@ window.showReadaView = switchTabDirect;
                             <h2 style="font-size: 18px; font-weight: 600; color: #1e293b; margin: 0;">Global Vegetative Sampling Data</h2>
                             <div style="margin-top: 15px; text-align: right;">
                                 <button type="button" id="btn-undo-delete-veg" class="reada-qt-btn" onclick="undoDeleteVegRow()" style="background-color: #f59e0b; color: white; margin-right: 10px; display: none;">↺ Undo Delete</button>
-                                <button type="button" class="reada-qt-btn" onclick="addVegRow()" style="background-color: #3b82f6; color: white;">➕ Add Row</button>
+                                <button type="button" id="btn-edit-veg" class="reada-qt-btn" onclick="toggleEditMode('veg', true)" style="background-color: #3b82f6; color: white;">✏️ Edit Data</button>
+                                <button type="button" id="btn-add-veg" class="reada-qt-btn" onclick="addVegRow()" style="background-color: #3b82f6; color: white; display: none;">➕ Add Row</button>
                                 <button type="button" class="reada-qt-btn" onclick="saveGlobalVegData()" style="background-color: #10b981; color: white; margin-left: 10px;">💾 Save All Changes</button>
                             </div>
                         </div>
@@ -380,7 +383,7 @@ window.showReadaView = switchTabDirect;
                             <table style="width: 100%; border-collapse: collapse; min-width: 1200px;">
                                 <thead style="background-color: #f8fafc; position: sticky; top: 0; z-index: 10;">
                                     <tr>
-                                        <th style="width: 50px;">Action</th>
+                                        <th id="th-action-veg" style="width: 50px; display: none;">Action</th>
                                         <th>Trial Code</th>
                                         <th>Year</th>
                                         <th>Plot No</th>
@@ -410,7 +413,8 @@ window.showReadaView = switchTabDirect;
                             <h2 style="font-size: 18px; font-weight: 600; color: #1e293b; margin: 0;">Global Annual Plot Data</h2>
                             <div style="margin-top: 15px; text-align: right;">
                                 <button type="button" id="btn-undo-delete-annual" class="reada-qt-btn" onclick="undoDeleteAnnualRow()" style="background-color: #f59e0b; color: white; margin-right: 10px; display: none;">↺ Undo Delete</button>
-                                <button type="button" class="reada-qt-btn" onclick="addAnnualRow()" style="background-color: #3b82f6; color: white;">➕ Add Row</button>
+                                <button type="button" id="btn-edit-annual" class="reada-qt-btn" onclick="toggleEditMode('annual', true)" style="background-color: #3b82f6; color: white;">✏️ Edit Data</button>
+                                <button type="button" id="btn-add-annual" class="reada-qt-btn" onclick="addAnnualRow()" style="background-color: #3b82f6; color: white; display: none;">➕ Add Row</button>
                                 <button type="button" class="reada-qt-btn" onclick="saveGlobalAnnualData()" style="background-color: #10b981; color: white; margin-left: 10px;">💾 Save All Changes</button>
                             </div>
                         </div>
@@ -418,7 +422,7 @@ window.showReadaView = switchTabDirect;
                             <table style="width: 100%; border-collapse: collapse; min-width: 1000px;">
                                 <thead style="background-color: #f8fafc; position: sticky; top: 0; z-index: 10;">
                                     <tr>
-                                        <th style="width: 50px;">Action</th>
+                                        <th id="th-action-annual" style="width: 50px; display: none;">Action</th>
                                         <th>Trial Code</th>
                                         <th>Year</th>
                                         <th>Plot No</th>

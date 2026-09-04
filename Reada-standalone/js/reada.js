@@ -2890,6 +2890,9 @@ window.loadGlobalBunchData = async function() {
             // Add a few empty rows if table is totally empty
             for(let i=0; i<3; i++) window.addBunchRow();
         }
+        if (typeof window.toggleEditMode === 'function') {
+            window.toggleEditMode('bunch', false);
+        }
     } catch (e) {
         console.error("Error loading Bunch Analysis:", e);
         tbody.innerHTML = `<tr><td colspan="13" style="text-align: center; color: red;">Failed to load data: ${e.message}</td></tr>`;
@@ -3004,6 +3007,9 @@ window.saveGlobalBunchData = async function() {
         if (error) throw error;
         alert(`Successfully saved ${upsertData.length} Bunch Analysis records to Supabase!`);
         window.loadGlobalBunchData(); // Reload to get newly generated UUIDs
+        if (typeof window.toggleEditMode === 'function') {
+            window.toggleEditMode('bunch', false);
+        }
     } catch (e) {
         console.error("Error saving Bunch Analysis:", e);
         alert("Error saving data: " + e.message);
@@ -3053,6 +3059,9 @@ window.loadGlobalYieldData = async function() {
         } else {
             // Add a few empty rows if table is totally empty
             for(let i=0; i<3; i++) window.addYieldRow();
+        }
+        if (typeof window.toggleEditMode === 'function') {
+            window.toggleEditMode('yield', false);
         }
     } catch (e) {
         console.error("Error loading Yield Recording:", e);
@@ -3160,6 +3169,9 @@ window.saveGlobalYieldData = async function() {
         if (error) throw error;
         alert(`Successfully saved ${upsertData.length} Yield Recording records to Supabase!`);
         window.loadGlobalYieldData(); // Reload
+        if (typeof window.toggleEditMode === 'function') {
+            window.toggleEditMode('yield', false);
+        }
     } catch (e) {
         console.error("Error saving Yield Recording:", e);
         alert("Error saving data: " + e.message);
@@ -3210,6 +3222,10 @@ window.loadGlobalVegData = async function() {
             data.forEach(d => window.addVegRow(d));
         } else {
             for(let i=0; i<3; i++) window.addVegRow();
+        }
+        
+        if (typeof window.toggleEditMode === 'function') {
+            window.toggleEditMode('veg', false);
         }
     } catch(e) {
         console.error("Error loading Veg Data:", e);
@@ -3325,6 +3341,7 @@ window.saveGlobalVegData = async function() {
         if (error) throw error;
         alert("Vegetative Data saved successfully!");
         window.loadGlobalVegData();
+        if (typeof window.toggleEditMode === 'function') window.toggleEditMode('veg', false);
     } catch (e) {
         alert("Error saving: " + e.message);
     } finally {
@@ -3373,6 +3390,10 @@ window.loadGlobalAnnualData = async function() {
             data.forEach(d => window.addAnnualRow(d));
         } else {
             for(let i=0; i<3; i++) window.addAnnualRow();
+        }
+        
+        if (typeof window.toggleEditMode === 'function') {
+            window.toggleEditMode('annual', false);
         }
     } catch(e) {
         console.error("Error loading Annual Data:", e);
@@ -3485,11 +3506,55 @@ window.saveGlobalAnnualData = async function() {
         if (error) throw error;
         alert("Annual Plot Data saved successfully!");
         window.loadGlobalAnnualData();
+        if (typeof window.toggleEditMode === 'function') window.toggleEditMode('annual', false);
     } catch (e) {
         alert("Error saving: " + e.message);
     } finally {
         btn.innerHTML = originalText;
         btn.disabled = false;
+    }
+};
+
+// --- READ / EDIT MODE TOGGLE ---
+
+window.editModes = {
+    bunch: false,
+    yield: false,
+    veg: false,
+    annual: false
+};
+
+window.toggleEditMode = function(tabName, isEdit) {
+    window.editModes[tabName] = isEdit;
+    
+    const btnEdit = document.getElementById(`btn-edit-${tabName}`);
+    const btnAdd = document.getElementById(`btn-add-${tabName}`);
+    const thAction = document.getElementById(`th-action-${tabName}`);
+    const tbody = document.getElementById(`reada-${tabName}-master-tbody`);
+    
+    if (btnEdit) btnEdit.style.display = isEdit ? 'none' : 'inline-block';
+    if (btnAdd) btnAdd.style.display = isEdit ? 'inline-block' : 'none';
+    if (thAction) thAction.style.display = isEdit ? '' : 'none';
+    
+    if (tbody) {
+        const rows = tbody.querySelectorAll('tr');
+        rows.forEach(tr => {
+            // Action td
+            const actionTd = tr.querySelector('td:first-child');
+            if (actionTd) {
+                if (actionTd.querySelector('button') && actionTd.querySelector('button').innerHTML.includes('❌')) {
+                    actionTd.style.display = isEdit ? '' : 'none';
+                }
+            }
+            
+            // Inputs
+            const inputs = tr.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.disabled = !isEdit;
+                input.style.backgroundColor = isEdit ? '#ffffff' : '#f1f5f9';
+                input.style.color = isEdit ? '#000000' : '#475569';
+            });
+        });
     }
 };
 
