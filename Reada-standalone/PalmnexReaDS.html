@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script>
+        window.onerror = function(message, source, lineno, colno, error) {
+            alert("JS Error: " + message + "\nAt: " + source + ":" + lineno + ":" + colno);
+            return false;
+        };
+        window.addEventListener('unhandledrejection', function(event) {
+            alert("Unhandled Promise Rejection: " + event.reason);
+        });
+    </script>
     <title>PalmnexReaDS</title>
 <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -985,7 +994,7 @@ window.showReadaView = switchTabDirect;
                         <input type="number" id="reada-nt-density" value="148" style="width: 70px; padding: 4px; border: 1px solid #71717a; border-radius: 3px;" />
                     </div>
 
-                    <div style="display: none !important; background-color: #c8c8c8; border: 1px solid #a0a0a0; border-radius: 4px; padding: 10px 12px; flex-direction: column; gap: 6px; flex: 1;">
+                    <div style="background-color: #c8c8c8; border: 1px solid #a0a0a0; border-radius: 4px; padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; flex: 1;">
                         <label style="font-weight: bold; font-size: 13px; color: #000000;">
                             Trial Location (GPS / Map Boundary):
                         </label>
