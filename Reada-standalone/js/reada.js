@@ -1727,10 +1727,6 @@ function renderReadaTrialsTable() {
             <td style="${tdStyle}">${t.density}</td>
             <td style="${tdStyle}">${t.factorial}</td>
             <td style="${tdStyle}">${t.progeny}</td>
-            <td style="${tdStyle}">[<a href="javascript:void(0)" style="color:#0284c7; font-weight:700; text-decoration:none;" onclick="openReadaDirectPopup('bunch-selection', '${t.code}')">view</a>] [<a href="javascript:void(0)" style="color:#059669; font-weight:700; text-decoration:none;" onclick="openReadaDirectPopup('bunch-editor', '${t.code}')">edit</a>]</td>
-            <td style="${tdStyle}">[<a href="javascript:void(0)" style="color:#0284c7; font-weight:700; text-decoration:none;" onclick="openReadaDirectPopup('yield-selection', '${t.code}')">view</a>] [<a href="javascript:void(0)" style="color:#059669; font-weight:700; text-decoration:none;" onclick="openReadaDirectPopup('yield-editor', '${t.code}')">edit</a>]</td>
-            <td style="${tdStyle}">[<a href="javascript:void(0)" style="color:#0284c7; font-weight:700; text-decoration:none;" onclick="openReadaDirectPopup('veg-selection', '${t.code}')">view</a>] [<a href="javascript:void(0)" style="color:#059669; font-weight:700; text-decoration:none;" onclick="openReadaDirectPopup('veg-editor', '${t.code}')">edit</a>]</td>
-            <td style="${tdStyle}">[<a href="javascript:void(0)" style="color:#0284c7; font-weight:700; text-decoration:none;" onclick="openReadaDirectPopup('annual-selection', '${t.code}')">view</a>] [<a href="javascript:void(0)" style="color:#059669; font-weight:700; text-decoration:none;" onclick="openReadaDirectPopup('annual-editor', '${t.code}')">edit</a>]</td>
         </tr>
     `}).join('');
 

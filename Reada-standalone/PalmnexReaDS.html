@@ -408,73 +408,9 @@ window.showReadaView = switchTabDirect;
                                         <th>Density (palms/ha)</th>
                                         <th>Factorial Info</th>
                                         <th>Progeny Type</th>
-                                        <th>Bunch Analysis</th>
-                                        <th>Yield Recording</th>
-                                        <th>Vegetative Sampling</th>
-                                        <th>Annual Plot Data</th>
                                     </tr>
                                 </thead>
                                 <tbody id="reada-trials-tbody">
-                                    <tr>
-                                        <td><span style="cursor:pointer; font-size:16px; color:#ef4444; margin-right:8px;" onclick="deleteReadaTrial('PR1998/1')" title="Delete Trial">❌</span><span style="cursor:pointer; font-size:16px;" onclick="openEditTrialModal('PR1998/1')" title="Edit Trial">✏️</span></td>
-                                        <td><span style="color:#64748b; font-size:0.95em;">01 Jul 2026</span></td>
-                                        <td><b>PR1998/1</b></td>
-                                        <td>Banting Station</td>
-                                        <td>MPOB Central</td>
-                                        <td>1998</td>
-                                        <td>148</td>
-                                        <td>F3 (N x P x K)</td>
-                                        <td>DxP AVROS</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Bunch Analysis')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openBunchEditorForTrial('PR1998/1')">edit</a>]</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Yield Recording')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openYieldEditorForTrial('${t.code}')">edit</a>]</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Vegetative Sampling')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openVegEditorForTrial('${t.code}')">edit</a>]</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Annual Plot Data')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openAnnualEditorForTrial('${t.code}')">edit</a>]</td>
-                                    </tr>
-                                    <tr>
-                                        <td><span style="cursor:pointer; font-size:16px; color:#ef4444; margin-right:8px;" onclick="deleteReadaTrial('PR2002/4')" title="Delete Trial">❌</span><span style="cursor:pointer; font-size:16px;" onclick="openEditTrialModal('PR2002/4')" title="Edit Trial">✏️</span></td>
-                                        <td><span style="color:#64748b; font-size:0.95em;">15 Jul 2026</span></td>
-                                        <td><b>PR2002/4</b></td>
-                                        <td>Kluang Substation</td>
-                                        <td>MPOB Southern</td>
-                                        <td>2002</td>
-                                        <td>138</td>
-                                        <td>F4 (N x P x K x Mg)</td>
-                                        <td>DxP Yangambi</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Bunch Analysis')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openBunchEditorForTrial('PR2002/4')">edit</a>]</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Yield Recording')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openYieldEditorForTrial('${t.code}')">edit</a>]</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Vegetative Sampling')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openVegEditorForTrial('${t.code}')">edit</a>]</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Annual Plot Data')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openAnnualEditorForTrial('${t.code}')">edit</a>]</td>
-                                    </tr>
-                                    <tr>
-                                        <td><span style="cursor:pointer; font-size:16px; color:#ef4444; margin-right:8px;" onclick="deleteReadaTrial('PR2005/2')" title="Delete Trial">❌</span><span style="cursor:pointer; font-size:16px;" onclick="openEditTrialModal('PR2005/2')" title="Edit Trial">✏️</span></td>
-                                        <td><span style="color:#64748b; font-size:0.95em;">20 Jul 2026</span></td>
-                                        <td><b>PR2005/2</b></td>
-                                        <td>Teluk Intan Station</td>
-                                        <td>MPOB Northern</td>
-                                        <td>2005</td>
-                                        <td>148</td>
-                                        <td>F2 (N x K)</td>
-                                        <td>DxP Calabar</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Bunch Analysis')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openBunchEditorForTrial('PR2005/2')">edit</a>]</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Yield Recording')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openYieldEditorForTrial('${t.code}')">edit</a>]</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Vegetative Sampling')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openVegEditorForTrial('${t.code}')">edit</a>]</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Annual Plot Data')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openAnnualEditorForTrial('${t.code}')">edit</a>]</td>
-                                    </tr>
-                                    <tr>
-                                        <td><span style="cursor:pointer; font-size:16px; color:#ef4444; margin-right:8px;" onclick="deleteReadaTrial('1000')" title="Delete Trial">❌</span><span style="cursor:pointer; font-size:16px;" onclick="openEditTrialModal('1000')" title="Edit Trial">✏️</span></td>
-                                        <td><span style="color:#64748b; font-size:0.95em;">05 Aug 2026</span></td>
-                                        <td><b>1000</b></td>
-                                        <td>Lahad Datu Station</td>
-                                        <td>MPOB Sabah</td>
-                                        <td>2000</td>
-                                        <td>148</td>
-                                        <td>F3 (N x P x K)</td>
-                                        <td>DxP AVROS</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Bunch Analysis')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openBunchEditorForTrial('1000')">edit</a>]</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Yield Recording')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openYieldEditorForTrial('${t.code}')">edit</a>]</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Vegetative Sampling')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openVegEditorForTrial('${t.code}')">edit</a>]</td>
-                                        <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Annual Plot Data')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openAnnualEditorForTrial('${t.code}')">edit</a>]</td>
-                                    </tr>
                                 </tbody>
                             </table>
                         </div>
