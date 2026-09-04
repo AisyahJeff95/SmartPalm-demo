@@ -1497,6 +1497,7 @@ window.fetchUserTrials = fetchUserTrials;
         }
 
         let readaTrials = loadReadaTrials();
+        let deletedTrialsHistory = [];
 
         let readaMap = null;
         let readaSelectedTrials = new Set();
@@ -1706,7 +1707,10 @@ function renderReadaTrialsTable() {
         const tdStyle = isSel ? 'background-color: #fef08a !important; color: #0f172a !important; font-weight: 600;' : '';
         return `
         <tr class="${rowClass}" style="${tdStyle}">
-            <td style="${tdStyle} text-align:center;"><span style="cursor:pointer; font-size:16px;" onclick="openEditTrialModal('${t.code}')" title="Edit Trial">✏️</span></td>
+            <td style="${tdStyle} text-align:center;">
+                <span style="cursor:pointer; font-size:16px; color:#ef4444; margin-right:8px;" onclick="deleteReadaTrial('${t.code}')" title="Delete Trial">❌</span>
+                <span style="cursor:pointer; font-size:16px;" onclick="openEditTrialModal('${t.code}')" title="Edit Trial">✏️</span>
+            </td>
             <td style="${tdStyle}"><span style="color:${isSel ? '#0f172a' : '#475569'}; font-size:0.92em; font-weight:600;">${t.dateAdded || '-'}</span></td>
             <td style="${tdStyle}"><b style="color:#0f172a;">${t.code}</b> ${isSel ? '<span style="background:#ef4444 !important; color:#ffffff !important; font-size:11px; font-weight:bold; padding:2px 8px; border-radius:12px; margin-left:6px; display:inline-block; box-shadow:0 2px 4px rgba(239,68,68,0.4);">SELECTED</span>' : ''}</td>
             <td style="${tdStyle}">${t.station}</td>
@@ -2738,6 +2742,78 @@ function openNewTrialModal() {
     }
 }
 window.openNewTrialModal = openNewTrialModal;
+
+async function deleteReadaTrial(trialCode) {
+    if (!confirm("Are you sure you want to delete trial " + trialCode + "?")) return;
+    
+    const trialToDel = readaTrials.find(t => t.code === trialCode);
+    if (!trialToDel) return;
+
+    const client = typeof window.getSupabase === 'function' ? window.getSupabase() : null;
+    if (client && currentUser) {
+        try {
+            const { error } = await client.from('trial_database').delete().eq('trial_code', trialCode);
+            if (error) throw error;
+        } catch (e) {
+            alert("Error deleting from cloud: " + e.message);
+            return;
+        }
+    } else {
+        alert("Please log in to delete trials.");
+        return;
+    }
+
+    deletedTrialsHistory.push(trialToDel);
+    
+    const undoBtn = document.getElementById('btn-undo-delete-trial');
+    if (undoBtn) undoBtn.style.display = 'inline-block';
+
+    if (typeof fetchUserTrials === 'function') {
+        await fetchUserTrials();
+    }
+}
+window.deleteReadaTrial = deleteReadaTrial;
+
+async function undoDeleteReadaTrial() {
+    if (deletedTrialsHistory.length === 0) return;
+    
+    const trialToRestore = deletedTrialsHistory.pop();
+    const client = typeof window.getSupabase === 'function' ? window.getSupabase() : null;
+    
+    if (client && currentUser) {
+        try {
+            // Need to reverse-map "MPOB Sabah" style if needed, but since we pulled it from DB it's perfectly mapped
+            const { error } = await client.from('trial_database').insert([{
+                trial_code: trialToRestore.code,
+                user_id: currentUser.id,
+                date_added: trialToRestore.dateAdded ? new Date(trialToRestore.dateAdded).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+                station: trialToRestore.station,
+                region: trialToRestore.region,
+                planting_year: parseInt(trialToRestore.year) || 2026,
+                density: parseInt(trialToRestore.density) || 148,
+                factorial: trialToRestore.factorial,
+                progeny: trialToRestore.progeny
+            }]);
+            if (error) throw error;
+        } catch(e) {
+            alert("Error restoring to cloud: " + e.message);
+            deletedTrialsHistory.push(trialToRestore);
+            return;
+        }
+    }
+    
+    if (deletedTrialsHistory.length === 0) {
+        const undoBtn = document.getElementById('btn-undo-delete-trial');
+        if (undoBtn) undoBtn.style.display = 'none';
+    }
+    
+    if (typeof fetchUserTrials === 'function') {
+        await fetchUserTrials();
+    }
+    
+    alert("Trial " + trialToRestore.code + " restored successfully!");
+}
+window.undoDeleteReadaTrial = undoDeleteReadaTrial;
 
 // Auto-run renderReadaTrialsTable on page load
 document.addEventListener('DOMContentLoaded', function() {

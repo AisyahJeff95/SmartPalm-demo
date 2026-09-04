@@ -758,6 +758,7 @@ window.showReadaView = switchTabDirect;
 
                         <div class="reada-search-bar">
                             <input type="text" class="reada-search-input" id="reada-search-query" placeholder="Filter trial code, station, soil series..." onkeyup="filterReadaTrials()" />
+                            <button id="btn-undo-delete-trial" class="reada-qt-btn" style="display: none; background-color: #f59e0b; color: white;" onclick="undoDeleteReadaTrial()">↺ Undo Delete</button>
                             <button class="reada-qt-btn" onclick="openNewTrialModal()">+ New Trial</button>
                             <button class="reada-qt-btn" onclick="exportReadaTrialsCsv()">Export CSV</button>
                         </div>
@@ -783,7 +784,7 @@ window.showReadaView = switchTabDirect;
                                 </thead>
                                 <tbody id="reada-trials-tbody">
                                     <tr>
-                                        <td><span style="cursor:pointer; font-size:16px;" onclick="openEditTrialModal('PR1998/1')" title="Edit Trial">✏️</span></td>
+                                        <td><span style="cursor:pointer; font-size:16px; color:#ef4444; margin-right:8px;" onclick="deleteReadaTrial('PR1998/1')" title="Delete Trial">❌</span><span style="cursor:pointer; font-size:16px;" onclick="openEditTrialModal('PR1998/1')" title="Edit Trial">✏️</span></td>
                                         <td><span style="color:#64748b; font-size:0.95em;">01 Jul 2026</span></td>
                                         <td><b>PR1998/1</b></td>
                                         <td>Banting Station</td>
@@ -798,7 +799,7 @@ window.showReadaView = switchTabDirect;
                                         <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Annual Plot Data')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openAnnualEditorForTrial('${t.code}')">edit</a>]</td>
                                     </tr>
                                     <tr>
-                                        <td><span style="cursor:pointer; font-size:16px;" onclick="openEditTrialModal('PR2002/4')" title="Edit Trial">✏️</span></td>
+                                        <td><span style="cursor:pointer; font-size:16px; color:#ef4444; margin-right:8px;" onclick="deleteReadaTrial('PR2002/4')" title="Delete Trial">❌</span><span style="cursor:pointer; font-size:16px;" onclick="openEditTrialModal('PR2002/4')" title="Edit Trial">✏️</span></td>
                                         <td><span style="color:#64748b; font-size:0.95em;">15 Jul 2026</span></td>
                                         <td><b>PR2002/4</b></td>
                                         <td>Kluang Substation</td>
@@ -813,7 +814,7 @@ window.showReadaView = switchTabDirect;
                                         <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Annual Plot Data')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openAnnualEditorForTrial('${t.code}')">edit</a>]</td>
                                     </tr>
                                     <tr>
-                                        <td><span style="cursor:pointer; font-size:16px;" onclick="openEditTrialModal('PR2005/2')" title="Edit Trial">✏️</span></td>
+                                        <td><span style="cursor:pointer; font-size:16px; color:#ef4444; margin-right:8px;" onclick="deleteReadaTrial('PR2005/2')" title="Delete Trial">❌</span><span style="cursor:pointer; font-size:16px;" onclick="openEditTrialModal('PR2005/2')" title="Edit Trial">✏️</span></td>
                                         <td><span style="color:#64748b; font-size:0.95em;">20 Jul 2026</span></td>
                                         <td><b>PR2005/2</b></td>
                                         <td>Teluk Intan Station</td>
@@ -828,7 +829,7 @@ window.showReadaView = switchTabDirect;
                                         <td>[<a href="#" style="color:#0ea5e9; text-decoration:none;" onclick="event.preventDefault(); openReadaSubAction('View Annual Plot Data')">view</a>] [<a href="#" style="color:#10b981; text-decoration:none;" onclick="event.preventDefault(); openAnnualEditorForTrial('${t.code}')">edit</a>]</td>
                                     </tr>
                                     <tr>
-                                        <td><span style="cursor:pointer; font-size:16px;" onclick="openEditTrialModal('1000')" title="Edit Trial">✏️</span></td>
+                                        <td><span style="cursor:pointer; font-size:16px; color:#ef4444; margin-right:8px;" onclick="deleteReadaTrial('1000')" title="Delete Trial">❌</span><span style="cursor:pointer; font-size:16px;" onclick="openEditTrialModal('1000')" title="Edit Trial">✏️</span></td>
                                         <td><span style="color:#64748b; font-size:0.95em;">05 Aug 2026</span></td>
                                         <td><b>1000</b></td>
                                         <td>Lahad Datu Station</td>
