@@ -2847,7 +2847,7 @@ window.addBunchRow = function(data = {}) {
     const tr = document.createElement('tr');
     tr.innerHTML = `
         <td style="text-align: center;"><button type="button" onclick="deleteBunchRow(this, '${data.id || ''}')" style="color: #ef4444; background: none; border: none; font-size: 16px; cursor: pointer;">❌</button></td>
-        <td><input type="text" class="cell-input" value="${data.trial_code || ''}" placeholder="PR1998/1" /></td>
+        <td>${window.getTrialCodeDropdown(data.trial_code)}</td>
         <td><input type="number" class="cell-input" value="${data.recording_year || 2026}" /></td>
         <td><input type="text" class="cell-input" value="${data.plot_no || 'Plot 1'}" /></td>
         <td><input type="text" class="cell-input" value="${data.palm_no || 'Palm 1'}" /></td>
@@ -3026,7 +3026,7 @@ window.addYieldRow = function(data = {}) {
     const tr = document.createElement('tr');
     tr.innerHTML = `
         <td style="text-align: center;"><button type="button" onclick="deleteYieldRow(this, '${data.id || ''}')" style="color: #ef4444; background: none; border: none; font-size: 16px; cursor: pointer;">❌</button></td>
-        <td><input type="text" class="cell-input" value="${data.trial_code || ''}" placeholder="PR1998/1" /></td>
+        <td>${window.getTrialCodeDropdown(data.trial_code)}</td>
         <td><input type="number" class="cell-input" value="${data.harvest_year || 2026}" /></td>
         <td><input type="text" class="cell-input" value="${data.plot_no || 'Plot 1'}" /></td>
         <td><input type="text" class="cell-input" value="${data.round_no || 'R1'}" /></td>
@@ -3187,8 +3187,8 @@ window.addVegRow = function(data = {}) {
     
     const tr = document.createElement("tr");
     tr.innerHTML = `
-        <td style="text-align: center;"><button type="button" onclick="deleteVegRow(this, ${"\`"}${data.id || ""}${"\`"})" style="color: #ef4444; background: none; border: none; font-size: 16px; cursor: pointer;">❌</button></td>
-        <td><input type="text" class="cell-input" value="${data.trial_code || ""}" placeholder="PR1998/1" /></td>
+        <td style="text-align: center;"><button type="button" onclick="deleteVegRow(this, '${data.id || ""}')" style="color: #ef4444; background: none; border: none; font-size: 16px; cursor: pointer;">❌</button></td>
+        <td>${window.getTrialCodeDropdown(data.trial_code)}</td>
         <td><input type="number" class="cell-input" value="${data.recording_year || new Date().getFullYear()}" /></td>
         <td><input type="text" class="cell-input" value="${data.plot_no || "Plot 1"}" /></td>
         <td><input type="text" class="cell-input" value="${data.palm_no || "Palm 1"}" /></td>
@@ -3359,7 +3359,7 @@ window.addAnnualRow = function(data = {}) {
     const tr = document.createElement("tr");
     tr.innerHTML = `
         <td style="text-align: center;"><button type="button" onclick="deleteAnnualRow(this, '${data.id || ""}')" style="color: #ef4444; background: none; border: none; font-size: 16px; cursor: pointer;">❌</button></td>
-        <td><input type="text" class="cell-input" value="${data.trial_code || ""}" placeholder="PR1998/1" /></td>
+        <td>${window.getTrialCodeDropdown(data.trial_code)}</td>
         <td><input type="number" class="cell-input" value="${data.recording_year || new Date().getFullYear()}" /></td>
         <td><input type="text" class="cell-input" value="${data.plot_no || "Plot 1"}" /></td>
         <td><input type="number" step="0.1" class="cell-input" value="${data.ffb_yield !== undefined ? data.ffb_yield : 0}" /></td>
@@ -3556,5 +3556,44 @@ window.toggleEditMode = function(tabName, isEdit) {
             });
         });
     }
+};
+
+// --- DATA GRID SEARCH & DROPDOWNS ---
+
+window.filterDataGrid = function(tabName) {
+    const q = (document.getElementById(`search-query-${tabName}`)?.value || '').toLowerCase();
+    const tbody = document.getElementById(`reada-${tabName}-master-tbody`);
+    if (!tbody) return;
+    
+    const rows = tbody.querySelectorAll('tr');
+    rows.forEach(r => {
+        let text = '';
+        const inputs = r.querySelectorAll('input, select');
+        inputs.forEach(inp => {
+            text += (inp.value || '') + ' ';
+        });
+        r.style.display = text.toLowerCase().includes(q) ? '' : 'none';
+    });
+};
+
+window.getTrialCodeDropdown = function(selectedValue) {
+    let html = '<select class="cell-input">';
+    html += '<option value="">Select...</option>';
+    
+    let hasMatched = false;
+    if (typeof readaTrials !== 'undefined' && Array.isArray(readaTrials)) {
+        readaTrials.forEach(t => {
+            const isSel = (selectedValue === t.code);
+            if (isSel) hasMatched = true;
+            html += `<option value="${t.code}" ${isSel ? 'selected' : ''}>${t.code}</option>`;
+        });
+    }
+    
+    if (selectedValue && !hasMatched) {
+        html += `<option value="${selectedValue}" selected>${selectedValue} (Archived)</option>`;
+    }
+    
+    html += '</select>';
+    return html;
 };
 

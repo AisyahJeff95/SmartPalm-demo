@@ -295,7 +295,10 @@ window.showReadaView = switchTabDirect;
                 <div id="reada-view-bunch" class="reada-view" style="display:none; width: 100%; height: 100%; min-height: 550px;">
                     <div style="background-color: #ffffff; margin: 16px; padding: 20px; border-radius: 6px; border: 1px solid #d4d4d8; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                            <h2 style="font-size: 18px; font-weight: 600; color: #1e293b; margin: 0;">Global Bunch Analysis Data</h2>
+                            <div style="display: flex; flex-direction: column;">
+                                <h2 style="font-size: 18px; font-weight: 600; color: #1e293b; margin: 0 0 10px 0;">Global Bunch Analysis Data</h2>
+                                <input type="text" class="reada-search-input" id="search-query-bunch" placeholder="Filter trial code, plot no, etc..." onkeyup="filterDataGrid('bunch')" style="max-width: 300px;" />
+                            </div>
                             <div style="margin-top: 15px; text-align: right;">
                                 <button type="button" id="btn-undo-delete-bunch" class="reada-qt-btn" onclick="undoDeleteBunchRow()" style="background-color: #f59e0b; color: white; margin-right: 10px; display: none;">↺ Undo Delete</button>
                                 <button type="button" id="btn-edit-bunch" class="reada-qt-btn" onclick="toggleEditMode('bunch', true)" style="background-color: #3b82f6; color: white;">✏️ Edit Data</button>
@@ -334,7 +337,10 @@ window.showReadaView = switchTabDirect;
                 <div id="reada-view-yield" class="reada-view" style="display:none; width: 100%; height: 100%; min-height: 550px;">
                     <div style="background-color: #ffffff; margin: 16px; padding: 20px; border-radius: 6px; border: 1px solid #d4d4d8; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                            <h2 style="font-size: 18px; font-weight: 600; color: #1e293b; margin: 0;">Global Yield Recording Data</h2>
+                            <div style="display: flex; flex-direction: column;">
+                                <h2 style="font-size: 18px; font-weight: 600; color: #1e293b; margin: 0 0 10px 0;">Global Yield Recording Data</h2>
+                                <input type="text" class="reada-search-input" id="search-query-yield" placeholder="Filter trial code, plot no, etc..." onkeyup="filterDataGrid('yield')" style="max-width: 300px;" />
+                            </div>
                             <div style="margin-top: 15px; text-align: right;">
                                 <button type="button" id="btn-undo-delete-yield" class="reada-qt-btn" onclick="undoDeleteYieldRow()" style="background-color: #f59e0b; color: white; margin-right: 10px; display: none;">↺ Undo Delete</button>
                                 <button type="button" id="btn-edit-yield" class="reada-qt-btn" onclick="toggleEditMode('yield', true)" style="background-color: #3b82f6; color: white;">✏️ Edit Data</button>
@@ -371,7 +377,10 @@ window.showReadaView = switchTabDirect;
                 <div id="reada-view-veg" class="reada-view" style="display:none; width: 100%; height: 100%; min-height: 550px;">
                     <div style="background-color: #ffffff; margin: 16px; padding: 20px; border-radius: 6px; border: 1px solid #d4d4d8; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                            <h2 style="font-size: 18px; font-weight: 600; color: #1e293b; margin: 0;">Global Vegetative Sampling Data</h2>
+                            <div style="display: flex; flex-direction: column;">
+                                <h2 style="font-size: 18px; font-weight: 600; color: #1e293b; margin: 0 0 10px 0;">Global Vegetative Sampling Data</h2>
+                                <input type="text" class="reada-search-input" id="search-query-veg" placeholder="Filter trial code, plot no, etc..." onkeyup="filterDataGrid('veg')" style="max-width: 300px;" />
+                            </div>
                             <div style="margin-top: 15px; text-align: right;">
                                 <button type="button" id="btn-undo-delete-veg" class="reada-qt-btn" onclick="undoDeleteVegRow()" style="background-color: #f59e0b; color: white; margin-right: 10px; display: none;">↺ Undo Delete</button>
                                 <button type="button" id="btn-edit-veg" class="reada-qt-btn" onclick="toggleEditMode('veg', true)" style="background-color: #3b82f6; color: white;">✏️ Edit Data</button>
@@ -410,7 +419,10 @@ window.showReadaView = switchTabDirect;
                 <div id="reada-view-annual" class="reada-view" style="display:none; width: 100%; height: 100%; min-height: 550px;">
                     <div style="background-color: #ffffff; margin: 16px; padding: 20px; border-radius: 6px; border: 1px solid #d4d4d8; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                            <h2 style="font-size: 18px; font-weight: 600; color: #1e293b; margin: 0;">Global Annual Plot Data</h2>
+                            <div style="display: flex; flex-direction: column;">
+                                <h2 style="font-size: 18px; font-weight: 600; color: #1e293b; margin: 0 0 10px 0;">Global Annual Plot Data</h2>
+                                <input type="text" class="reada-search-input" id="search-query-annual" placeholder="Filter trial code, plot no, etc..." onkeyup="filterDataGrid('annual')" style="max-width: 300px;" />
+                            </div>
                             <div style="margin-top: 15px; text-align: right;">
                                 <button type="button" id="btn-undo-delete-annual" class="reada-qt-btn" onclick="undoDeleteAnnualRow()" style="background-color: #f59e0b; color: white; margin-right: 10px; display: none;">↺ Undo Delete</button>
                                 <button type="button" id="btn-edit-annual" class="reada-qt-btn" onclick="toggleEditMode('annual', true)" style="background-color: #3b82f6; color: white;">✏️ Edit Data</button>
