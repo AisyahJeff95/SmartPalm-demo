@@ -3529,11 +3529,13 @@ window.toggleEditMode = function(tabName, isEdit) {
     
     const btnEdit = document.getElementById(`btn-edit-${tabName}`);
     const btnAdd = document.getElementById(`btn-add-${tabName}`);
+    const btnExit = document.getElementById(`btn-exit-edit-${tabName}`);
     const thAction = document.getElementById(`th-action-${tabName}`);
     const tbody = document.getElementById(`reada-${tabName}-master-tbody`);
     
     if (btnEdit) btnEdit.style.display = isEdit ? 'none' : 'inline-block';
     if (btnAdd) btnAdd.style.display = isEdit ? 'inline-block' : 'none';
+    if (btnExit) btnExit.style.display = isEdit ? 'inline-block' : 'none';
     if (thAction) thAction.style.display = isEdit ? '' : 'none';
     
     if (tbody) {
@@ -3597,3 +3599,142 @@ window.getTrialCodeDropdown = function(selectedValue) {
     return html;
 };
 
+
+window.exitEditMode = function(tabName) {
+    if (typeof window.toggleEditMode === 'function') {
+        window.toggleEditMode(tabName, false);
+    }
+    // Reload the global data to discard any unsaved DOM edits
+    if (tabName === 'bunch' && typeof window.loadGlobalBunchData === 'function') window.loadGlobalBunchData();
+    if (tabName === 'yield' && typeof window.loadGlobalYieldData === 'function') window.loadGlobalYieldData();
+    if (tabName === 'veg' && typeof window.loadGlobalVegData === 'function') window.loadGlobalVegData();
+    if (tabName === 'annual' && typeof window.loadGlobalAnnualData === 'function') window.loadGlobalAnnualData();
+};
+
+window.downloadSampleCsv = function(tabName) {
+    let header = "";
+    if (tabName === 'trial') header = "Trial Code,Date Added,Location / Station,Region Group,Planting Year,Density (palms/ha),Factorial Info,Progeny Type";
+    if (tabName === 'bunch') header = "Trial Code,Recording Year,Plot No,Palm No,Fruit Type,Bunch Wt (kg),Stalk Wt (kg),Spikelet Wt (kg),Fruit Wt (kg),Nut Wt (g),Kernel Wt (g),Wet Meso (%)";
+    if (tabName === 'yield') header = "Trial Code,Harvest Year,Plot No,Round No,Harvest Date,Bunch Count,Bunch Wt (kg),Loose Fruit Wt (kg)";
+    if (tabName === 'veg') header = "Trial Code,Recording Year,Plot No,Palm No,Frond No,Rachis Len (cm),Petiole W (cm),Petiole D (cm),Pinnae Count,Leaflet Len (cm),Leaflet W (cm),Trunk Ht (m)";
+    if (tabName === 'annual') header = "Trial Code,Recording Year,Plot No,FFB Yield (t/ha),Leaf N (%),Leaf P (%),Leaf K (%),Frond Length (m),Soil pH";
+    
+    const blob = new Blob([header + "\n"], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Sample_${tabName.toUpperCase()}_Format.csv`;
+    a.click();
+};
+
+window.exportCsv = function(tabName) {
+    let header = "";
+    let tbodyId = "";
+    if (tabName === 'trial') {
+        header = "Trial Code,Date Added,Location / Station,Region Group,Planting Year,Density (palms/ha),Factorial Info,Progeny Type";
+        tbodyId = "reada-trials-tbody";
+    }
+    if (tabName === 'bunch') {
+        header = "Trial Code,Recording Year,Plot No,Palm No,Fruit Type,Bunch Wt (kg),Stalk Wt (kg),Spikelet Wt (kg),Fruit Wt (kg),Nut Wt (g),Kernel Wt (g),Wet Meso (%)";
+        tbodyId = "reada-bunch-master-tbody";
+    }
+    if (tabName === 'yield') {
+        header = "Trial Code,Harvest Year,Plot No,Round No,Harvest Date,Bunch Count,Bunch Wt (kg),Loose Fruit Wt (kg)";
+        tbodyId = "reada-yield-master-tbody";
+    }
+    if (tabName === 'veg') {
+        header = "Trial Code,Recording Year,Plot No,Palm No,Frond No,Rachis Len (cm),Petiole W (cm),Petiole D (cm),Pinnae Count,Leaflet Len (cm),Leaflet W (cm),Trunk Ht (m)";
+        tbodyId = "reada-veg-master-tbody";
+    }
+    if (tabName === 'annual') {
+        header = "Trial Code,Recording Year,Plot No,FFB Yield (t/ha),Leaf N (%),Leaf P (%),Leaf K (%),Frond Length (m),Soil pH";
+        tbodyId = "reada-annual-master-tbody";
+    }
+    
+    const tbody = document.getElementById(tbodyId);
+    if (!tbody) return;
+    
+    let csvData = header + "\n";
+    const rows = tbody.querySelectorAll('tr');
+    
+    rows.forEach(tr => {
+        let rowData = [];
+        if (tabName === 'trial') {
+            const tds = tr.querySelectorAll('td');
+            if (tds.length >= 9) {
+                for (let i = 2; i < 9; i++) {
+                    rowData.push(tds[i].innerText.replace(/,/g, ''));
+                }
+                rowData.unshift(tds[1].innerText.replace(/,/g, '')); // Date
+                // The order in trial is: Date, Code, Location, Region, Year, Density, Factorial, Progeny
+                // Let's match header: Trial Code,Date Added,Location...
+                let correctOrder = [tds[2].innerText, tds[1].innerText, tds[3].innerText, tds[4].innerText, tds[5].innerText, tds[6].innerText, tds[7].innerText, tds[8].innerText];
+                rowData = correctOrder.map(r => r.replace(/,/g, ''));
+            }
+        } else {
+            const inputs = tr.querySelectorAll('input, select');
+            inputs.forEach(inp => {
+                rowData.push(inp.value.replace(/,/g, ''));
+            });
+        }
+        if (rowData.length > 0) csvData += rowData.join(',') + "\n";
+    });
+    
+    const blob = new Blob([csvData], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Export_${tabName.toUpperCase()}_Data.csv`;
+    a.click();
+};
+
+window.importCsv = function(tabName, event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const text = e.target.result;
+        const rows = text.split('\n');
+        
+        let importedCount = 0;
+        for (let i = 1; i < rows.length; i++) {
+            const cols = rows[i].split(',');
+            if (cols.length < 2) continue; // skip empty lines
+            
+            // To be robust, we'll just populate the grid fields by invoking the respective addRow function
+            let data = {};
+            if (tabName === 'bunch') {
+                data.trial_code = cols[0]; data.recording_year = cols[1]; data.plot_no = cols[2]; data.palm_no = cols[3]; data.fruit_type = cols[4];
+                data.bunch_wt = cols[5]; data.stalk_wt = cols[6]; data.spikelet_wt = cols[7]; data.fruit_wt = cols[8]; data.nut_wt = cols[9];
+                data.kernel_wt = cols[10]; data.wet_meso = cols[11];
+                if (typeof window.addBunchRow === 'function') { window.addBunchRow(data); importedCount++; }
+            }
+            if (tabName === 'yield') {
+                data.trial_code = cols[0]; data.harvest_year = cols[1]; data.plot_no = cols[2]; data.round_no = cols[3]; data.harvest_date = cols[4];
+                data.bunch_count = cols[5]; data.bunch_wt = cols[6]; data.loose_fruit_wt = cols[7];
+                if (typeof window.addYieldRow === 'function') { window.addYieldRow(data); importedCount++; }
+            }
+            if (tabName === 'veg') {
+                data.trial_code = cols[0]; data.recording_year = cols[1]; data.plot_no = cols[2]; data.palm_no = cols[3]; data.frond_no = cols[4];
+                data.rachis_len = cols[5]; data.petiole_w = cols[6]; data.petiole_d = cols[7]; data.pinnae_count = cols[8];
+                data.leaflet_len = cols[9]; data.leaflet_w = cols[10]; data.trunk_ht = cols[11];
+                if (typeof window.addVegRow === 'function') { window.addVegRow(data); importedCount++; }
+            }
+            if (tabName === 'annual') {
+                data.trial_code = cols[0]; data.recording_year = cols[1]; data.plot_no = cols[2]; data.ffb_yield = cols[3];
+                data.leaf_n = cols[4]; data.leaf_p = cols[5]; data.leaf_k = cols[6]; data.frond_length = cols[7]; data.soil_ph = cols[8];
+                if (typeof window.addAnnualRow === 'function') { window.addAnnualRow(data); importedCount++; }
+            }
+        }
+        
+        if (importedCount > 0) {
+            alert(`Successfully loaded ${importedCount} rows from CSV! Please review them and click "Save All Changes".`);
+            // Automatically switch to edit mode so they can save
+            if (typeof window.toggleEditMode === 'function') window.toggleEditMode(tabName, true);
+        }
+        // Reset the file input so they can import the same file again if needed
+        event.target.value = '';
+    };
+    reader.readAsText(file);
+};

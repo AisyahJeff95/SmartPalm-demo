@@ -300,8 +300,14 @@ window.showReadaView = switchTabDirect;
                                 <input type="text" class="reada-search-input" id="search-query-bunch" placeholder="Filter trial code, plot no, etc..." onkeyup="filterDataGrid('bunch')" style="max-width: 300px;" />
                             </div>
                             <div style="margin-top: 15px; text-align: right;">
+                                <input type="file" id="csv-upload-bunch" accept=".csv" style="display:none;" onchange="importCsv('bunch', event)">
+                                <button type="button" class="reada-qt-btn" onclick="exportCsv('bunch')" style="background-color: #64748b; color: white;">Export to .csv</button>
+                                <button type="button" class="reada-qt-btn" onclick="document.getElementById('csv-upload-bunch').click()" style="background-color: #64748b; color: white;">Read from .csv</button>
+                                <button type="button" class="reada-qt-btn" onclick="downloadSampleCsv('bunch')" style="background-color: #64748b; color: white; margin-right: 10px;">Sample .csv format</button>
+                                
                                 <button type="button" id="btn-undo-delete-bunch" class="reada-qt-btn" onclick="undoDeleteBunchRow()" style="background-color: #f59e0b; color: white; margin-right: 10px; display: none;">↺ Undo Delete</button>
                                 <button type="button" id="btn-edit-bunch" class="reada-qt-btn" onclick="toggleEditMode('bunch', true)" style="background-color: #3b82f6; color: white;">✏️ Edit Data</button>
+                                <button type="button" id="btn-exit-edit-bunch" class="reada-qt-btn" onclick="exitEditMode('bunch')" style="background-color: #ef4444; color: white; display: none;">❌ Exit Edit</button>
                                 <button type="button" id="btn-add-bunch" class="reada-qt-btn" onclick="addBunchRow()" style="background-color: #3b82f6; color: white; display: none;">➕ Add Row</button>
                                 <button type="button" class="reada-qt-btn" onclick="saveGlobalBunchData()" style="background-color: #10b981; color: white; margin-left: 10px;">💾 Save All Changes</button>
                             </div>
@@ -342,8 +348,14 @@ window.showReadaView = switchTabDirect;
                                 <input type="text" class="reada-search-input" id="search-query-yield" placeholder="Filter trial code, plot no, etc..." onkeyup="filterDataGrid('yield')" style="max-width: 300px;" />
                             </div>
                             <div style="margin-top: 15px; text-align: right;">
+                                <input type="file" id="csv-upload-yield" accept=".csv" style="display:none;" onchange="importCsv('yield', event)">
+                                <button type="button" class="reada-qt-btn" onclick="exportCsv('yield')" style="background-color: #64748b; color: white;">Export to .csv</button>
+                                <button type="button" class="reada-qt-btn" onclick="document.getElementById('csv-upload-yield').click()" style="background-color: #64748b; color: white;">Read from .csv</button>
+                                <button type="button" class="reada-qt-btn" onclick="downloadSampleCsv('yield')" style="background-color: #64748b; color: white; margin-right: 10px;">Sample .csv format</button>
+                                
                                 <button type="button" id="btn-undo-delete-yield" class="reada-qt-btn" onclick="undoDeleteYieldRow()" style="background-color: #f59e0b; color: white; margin-right: 10px; display: none;">↺ Undo Delete</button>
                                 <button type="button" id="btn-edit-yield" class="reada-qt-btn" onclick="toggleEditMode('yield', true)" style="background-color: #3b82f6; color: white;">✏️ Edit Data</button>
+                                <button type="button" id="btn-exit-edit-yield" class="reada-qt-btn" onclick="exitEditMode('yield')" style="background-color: #ef4444; color: white; display: none;">❌ Exit Edit</button>
                                 <button type="button" id="btn-add-yield" class="reada-qt-btn" onclick="addYieldRow()" style="background-color: #3b82f6; color: white; display: none;">➕ Add Row</button>
                                 <button type="button" class="reada-qt-btn" onclick="saveGlobalYieldData()" style="background-color: #10b981; color: white; margin-left: 10px;">💾 Save All Changes</button>
                             </div>
@@ -382,8 +394,14 @@ window.showReadaView = switchTabDirect;
                                 <input type="text" class="reada-search-input" id="search-query-veg" placeholder="Filter trial code, plot no, etc..." onkeyup="filterDataGrid('veg')" style="max-width: 300px;" />
                             </div>
                             <div style="margin-top: 15px; text-align: right;">
+                                <input type="file" id="csv-upload-veg" accept=".csv" style="display:none;" onchange="importCsv('veg', event)">
+                                <button type="button" class="reada-qt-btn" onclick="exportCsv('veg')" style="background-color: #64748b; color: white;">Export to .csv</button>
+                                <button type="button" class="reada-qt-btn" onclick="document.getElementById('csv-upload-veg').click()" style="background-color: #64748b; color: white;">Read from .csv</button>
+                                <button type="button" class="reada-qt-btn" onclick="downloadSampleCsv('veg')" style="background-color: #64748b; color: white; margin-right: 10px;">Sample .csv format</button>
+
                                 <button type="button" id="btn-undo-delete-veg" class="reada-qt-btn" onclick="undoDeleteVegRow()" style="background-color: #f59e0b; color: white; margin-right: 10px; display: none;">↺ Undo Delete</button>
                                 <button type="button" id="btn-edit-veg" class="reada-qt-btn" onclick="toggleEditMode('veg', true)" style="background-color: #3b82f6; color: white;">✏️ Edit Data</button>
+                                <button type="button" id="btn-exit-edit-veg" class="reada-qt-btn" onclick="exitEditMode('veg')" style="background-color: #ef4444; color: white; display: none;">❌ Exit Edit</button>
                                 <button type="button" id="btn-add-veg" class="reada-qt-btn" onclick="addVegRow()" style="background-color: #3b82f6; color: white; display: none;">➕ Add Row</button>
                                 <button type="button" class="reada-qt-btn" onclick="saveGlobalVegData()" style="background-color: #10b981; color: white; margin-left: 10px;">💾 Save All Changes</button>
                             </div>
@@ -424,8 +442,14 @@ window.showReadaView = switchTabDirect;
                                 <input type="text" class="reada-search-input" id="search-query-annual" placeholder="Filter trial code, plot no, etc..." onkeyup="filterDataGrid('annual')" style="max-width: 300px;" />
                             </div>
                             <div style="margin-top: 15px; text-align: right;">
+                                <input type="file" id="csv-upload-annual" accept=".csv" style="display:none;" onchange="importCsv('annual', event)">
+                                <button type="button" class="reada-qt-btn" onclick="exportCsv('annual')" style="background-color: #64748b; color: white;">Export to .csv</button>
+                                <button type="button" class="reada-qt-btn" onclick="document.getElementById('csv-upload-annual').click()" style="background-color: #64748b; color: white;">Read from .csv</button>
+                                <button type="button" class="reada-qt-btn" onclick="downloadSampleCsv('annual')" style="background-color: #64748b; color: white; margin-right: 10px;">Sample .csv format</button>
+
                                 <button type="button" id="btn-undo-delete-annual" class="reada-qt-btn" onclick="undoDeleteAnnualRow()" style="background-color: #f59e0b; color: white; margin-right: 10px; display: none;">↺ Undo Delete</button>
                                 <button type="button" id="btn-edit-annual" class="reada-qt-btn" onclick="toggleEditMode('annual', true)" style="background-color: #3b82f6; color: white;">✏️ Edit Data</button>
+                                <button type="button" id="btn-exit-edit-annual" class="reada-qt-btn" onclick="exitEditMode('annual')" style="background-color: #ef4444; color: white; display: none;">❌ Exit Edit</button>
                                 <button type="button" id="btn-add-annual" class="reada-qt-btn" onclick="addAnnualRow()" style="background-color: #3b82f6; color: white; display: none;">➕ Add Row</button>
                                 <button type="button" class="reada-qt-btn" onclick="saveGlobalAnnualData()" style="background-color: #10b981; color: white; margin-left: 10px;">💾 Save All Changes</button>
                             </div>
@@ -467,7 +491,10 @@ window.showReadaView = switchTabDirect;
                             <input type="text" class="reada-search-input" id="reada-search-query" placeholder="Filter trial code, station, soil series..." onkeyup="filterReadaTrials()" />
                             <button id="btn-undo-delete-trial" class="reada-qt-btn" style="display: none; background-color: #f59e0b; color: white;" onclick="undoDeleteReadaTrial()">↺ Undo Delete</button>
                             <button class="reada-qt-btn" onclick="openNewTrialModal()">+ New Trial</button>
-                            <button class="reada-qt-btn" onclick="exportReadaTrialsCsv()">Export CSV</button>
+                            <input type="file" id="csv-upload-trial" accept=".csv" style="display:none;" onchange="importCsv('trial', event)">
+                            <button type="button" class="reada-qt-btn" onclick="exportCsv('trial')" style="background-color: #64748b; color: white;">Export to .csv</button>
+                            <button type="button" class="reada-qt-btn" onclick="document.getElementById('csv-upload-trial').click()" style="background-color: #64748b; color: white;">Read from .csv</button>
+                            <button type="button" class="reada-qt-btn" onclick="downloadSampleCsv('trial')" style="background-color: #64748b; color: white;">Sample .csv format</button>
                         </div>
 
                         <div style="flex:1; overflow-y:auto;">
