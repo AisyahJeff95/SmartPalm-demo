@@ -265,11 +265,15 @@
                         };
                     },
                     onEachFeature: function(feature, layer) {
+                        const plotCode = feature.properties.PlotCode || 'Unknown';
+                        const treatCode = feature.properties.TreatCode || 'N/A';
+                        
                         layer.bindPopup(`
-                            <div class="station-popup-title">Lahad Datu Plot Boundary</div>
+                            <div class="station-popup-title">Plot Details</div>
                             <div class="station-popup-info">
                                 <b>Location:</b> Lahad Datu, Sabah<br>
-                                <b>Source:</b> MPOBLahadDatu_36TrialPlot.shp
+                                <b>Plot Number:</b> ${plotCode}<br>
+                                <b>Treatment Code:</b> ${treatCode}
                             </div>
                         `);
                     }
