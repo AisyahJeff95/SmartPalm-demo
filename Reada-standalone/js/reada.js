@@ -2994,9 +2994,7 @@ window.saveGlobalBunchData = async function() {
             wet_meso: parseFloat(inputs[11].value) || 0
         };
         
-        if (tr.dataset.rowId) {
-            rowData.id = tr.dataset.rowId;
-        }
+        rowData.id = tr.dataset.rowId ? tr.dataset.rowId : crypto.randomUUID();
         upsertData.push(rowData);
     });
     
@@ -3156,9 +3154,7 @@ window.saveGlobalYieldData = async function() {
             annual_yield: parseFloat(inputs[9].value) || 0
         };
         
-        if (tr.dataset.rowId) {
-            rowData.id = tr.dataset.rowId;
-        }
+        rowData.id = tr.dataset.rowId ? tr.dataset.rowId : crypto.randomUUID();
         upsertData.push(rowData);
     });
     
@@ -3322,7 +3318,7 @@ window.saveGlobalVegData = async function() {
             trunk_ht: parseFloat(inputs[11].value) || 0
         };
         
-        if (tr.dataset.rowId) rowData.id = tr.dataset.rowId;
+        rowData.id = tr.dataset.rowId ? tr.dataset.rowId : crypto.randomUUID();
         upsertData.push(rowData);
     });
     
@@ -3487,7 +3483,7 @@ window.saveGlobalAnnualData = async function() {
             soil_ph: parseFloat(inputs[8].value) || 0
         };
         
-        if (tr.dataset.rowId) rowData.id = tr.dataset.rowId;
+        rowData.id = tr.dataset.rowId ? tr.dataset.rowId : crypto.randomUUID();
         upsertData.push(rowData);
     });
     
