@@ -95,6 +95,9 @@ async function handleEmailSignIn(event) {
 
 // Sign Out User
 async function handleSignOut() {
+    const profMenu = document.getElementById('profile-popover-menu');
+    if (profMenu) profMenu.classList.remove('show');
+    
     const client = typeof window.getSupabase === 'function' ? window.getSupabase() : null;
     if (client && client.auth) {
         try {
@@ -105,6 +108,9 @@ async function handleSignOut() {
     localStorage.removeItem('palmnex_remember_me');
     currentUser = null;
     updateTopNavUser(null);
+    
+    // Force a reload to return to the locked/signed-out state
+    window.location.reload();
 }
 
 // Helper: Show Error Message

@@ -29,11 +29,7 @@ function handleSignIn() {
             }
         }
 
-        function handleSignOut() {
-            const profMenu = document.getElementById('profile-popover-menu');
-            if (profMenu) profMenu.classList.remove('show');
-            location.reload();
-        }
+
 
         function toggleProfileDropdown(event) {
             if (event) event.stopPropagation();
