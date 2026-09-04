@@ -3,11 +3,11 @@
 <head>
     <script>
         window.onerror = function(message, source, lineno, colno, error) {
-            alert("JS Error: " + message + "\nAt: " + source + ":" + lineno + ":" + colno);
+            console.error("JS Error: " + message + " at " + source + ":" + lineno);
             return false;
         };
         window.addEventListener('unhandledrejection', function(event) {
-            alert("Unhandled Promise Rejection: " + event.reason);
+            console.error("Unhandled Promise Rejection: " + event.reason);
         });
     </script>
     <title>PalmnexReaDS</title>
