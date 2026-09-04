@@ -2838,7 +2838,7 @@ window.addBunchRow = function(data = {}) {
     
     const tr = document.createElement('tr');
     tr.innerHTML = `
-        <td style="text-align: center;"><button type="button" onclick="this.closest('tr').remove()" style="color: #ef4444; background: none; border: none; font-size: 16px; cursor: pointer;">❌</button></td>
+        <td style="text-align: center;"><button type="button" onclick="deleteBunchRow(this, '${data.id || ''}')" style="color: #ef4444; background: none; border: none; font-size: 16px; cursor: pointer;">❌</button></td>
         <td><input type="text" class="cell-input" value="${data.trial_code || ''}" placeholder="PR1998/1" /></td>
         <td><input type="number" class="cell-input" value="${data.recording_year || 2026}" /></td>
         <td><input type="text" class="cell-input" value="${data.plot_no || 'Plot 1'}" /></td>
@@ -2885,6 +2885,65 @@ window.loadGlobalBunchData = async function() {
     } catch (e) {
         console.error("Error loading Bunch Analysis:", e);
         tbody.innerHTML = `<tr><td colspan="13" style="text-align: center; color: red;">Failed to load data: ${e.message}</td></tr>`;
+    }
+};
+
+let deletedBunchHistory = [];
+
+window.deleteBunchRow = async function(btn, id) {
+    if (!id) {
+        // Not saved to DB yet, just remove from screen
+        btn.closest('tr').remove();
+        return;
+    }
+    
+    if (!confirm("Are you sure you want to delete this row?")) return;
+    
+    const client = typeof window.getSupabase === 'function' ? window.getSupabase() : null;
+    if (!client) return;
+    
+    try {
+        // Fetch row data before deleting for Undo functionality
+        const { data: rowData, error: fetchErr } = await client.from('trial_bunchanalysis').select('*').eq('id', id).single();
+        if (fetchErr) throw fetchErr;
+        
+        // Delete from cloud
+        const { error } = await client.from('trial_bunchanalysis').delete().eq('id', id);
+        if (error) throw error;
+        
+        // Save to history and show undo button
+        deletedBunchHistory.push(rowData);
+        document.getElementById('btn-undo-delete-bunch').style.display = 'inline-block';
+        
+        // Remove from screen
+        btn.closest('tr').remove();
+    } catch (e) {
+        alert("Error deleting row: " + e.message);
+    }
+};
+
+window.undoDeleteBunchRow = async function() {
+    if (deletedBunchHistory.length === 0) return;
+    
+    const client = typeof window.getSupabase === 'function' ? window.getSupabase() : null;
+    if (!client) return;
+    
+    const rowToRestore = deletedBunchHistory.pop();
+    
+    try {
+        const { error } = await client.from('trial_bunchanalysis').insert([rowToRestore]);
+        if (error) throw error;
+        
+        window.addBunchRow(rowToRestore);
+        
+        if (deletedBunchHistory.length === 0) {
+            document.getElementById('btn-undo-delete-bunch').style.display = 'none';
+        }
+        alert("Row restored successfully!");
+    } catch (e) {
+        alert("Error restoring row: " + e.message);
+        // Put it back in history so they can try again if it failed
+        deletedBunchHistory.push(rowToRestore);
     }
 };
 
@@ -2952,7 +3011,7 @@ window.addYieldRow = function(data = {}) {
     
     const tr = document.createElement('tr');
     tr.innerHTML = `
-        <td style="text-align: center;"><button type="button" onclick="this.closest('tr').remove()" style="color: #ef4444; background: none; border: none; font-size: 16px; cursor: pointer;">❌</button></td>
+        <td style="text-align: center;"><button type="button" onclick="deleteYieldRow(this, '${data.id || ''}')" style="color: #ef4444; background: none; border: none; font-size: 16px; cursor: pointer;">❌</button></td>
         <td><input type="text" class="cell-input" value="${data.trial_code || ''}" placeholder="PR1998/1" /></td>
         <td><input type="number" class="cell-input" value="${data.harvest_year || 2026}" /></td>
         <td><input type="text" class="cell-input" value="${data.plot_no || 'Plot 1'}" /></td>
@@ -2990,6 +3049,59 @@ window.loadGlobalYieldData = async function() {
     } catch (e) {
         console.error("Error loading Yield Recording:", e);
         tbody.innerHTML = `<tr><td colspan="11" style="text-align: center; color: red;">Failed to load data: ${e.message}</td></tr>`;
+    }
+};
+
+let deletedYieldHistory = [];
+
+window.deleteYieldRow = async function(btn, id) {
+    if (!id) {
+        btn.closest('tr').remove();
+        return;
+    }
+    
+    if (!confirm("Are you sure you want to delete this row?")) return;
+    
+    const client = typeof window.getSupabase === 'function' ? window.getSupabase() : null;
+    if (!client) return;
+    
+    try {
+        const { data: rowData, error: fetchErr } = await client.from('trial_yieldrecording').select('*').eq('id', id).single();
+        if (fetchErr) throw fetchErr;
+        
+        const { error } = await client.from('trial_yieldrecording').delete().eq('id', id);
+        if (error) throw error;
+        
+        deletedYieldHistory.push(rowData);
+        document.getElementById('btn-undo-delete-yield').style.display = 'inline-block';
+        
+        btn.closest('tr').remove();
+    } catch (e) {
+        alert("Error deleting row: " + e.message);
+    }
+};
+
+window.undoDeleteYieldRow = async function() {
+    if (deletedYieldHistory.length === 0) return;
+    
+    const client = typeof window.getSupabase === 'function' ? window.getSupabase() : null;
+    if (!client) return;
+    
+    const rowToRestore = deletedYieldHistory.pop();
+    
+    try {
+        const { error } = await client.from('trial_yieldrecording').insert([rowToRestore]);
+        if (error) throw error;
+        
+        window.addYieldRow(rowToRestore);
+        
+        if (deletedYieldHistory.length === 0) {
+            document.getElementById('btn-undo-delete-yield').style.display = 'none';
+        }
+        alert("Row restored successfully!");
+    } catch (e) {
+        alert("Error restoring row: " + e.message);
+        deletedYieldHistory.push(rowToRestore);
     }
 };
 
