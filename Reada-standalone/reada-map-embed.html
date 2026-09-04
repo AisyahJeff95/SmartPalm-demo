@@ -8,6 +8,7 @@
     <!-- Leaflet JS & CSS (100% WebGL-independent, ultra-stable tile renderer) -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="js/lahaddatu_plot.js"></script>
 
     <style>
         html, body {
@@ -251,6 +252,29 @@
                     }
                 });
             });
+            
+            // Add Lahad Datu GeoJSON plot if available
+            if (typeof lahadDatuGeoJSON !== 'undefined') {
+                L.geoJSON(lahadDatuGeoJSON, {
+                    style: function(feature) {
+                        return {
+                            color: '#eab308', // Yellow/Gold outline
+                            weight: 3,
+                            fillColor: '#eab308',
+                            fillOpacity: 0.2
+                        };
+                    },
+                    onEachFeature: function(feature, layer) {
+                        layer.bindPopup(`
+                            <div class="station-popup-title">Lahad Datu Plot Boundary</div>
+                            <div class="station-popup-info">
+                                <b>Location:</b> Lahad Datu, Sabah<br>
+                                <b>Source:</b> MPOBLahadDatu_36TrialPlot.shp
+                            </div>
+                        `);
+                    }
+                }).addTo(lMap);
+            }
 
             setTimeout(() => { lMap.invalidateSize(); }, 300);
             console.log("Leaflet Interactive Pin Map initialized successfully!");
