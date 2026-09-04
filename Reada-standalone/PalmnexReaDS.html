@@ -84,6 +84,14 @@ function switchTabDirect(viewId) {
             if (typeof readaMap !== 'undefined' && readaMap) readaMap.resize();
         }, 100);
     }
+    
+    if (viewId === 'bunch' && typeof window.loadGlobalBunchData === 'function') {
+        window.loadGlobalBunchData();
+    }
+    
+    if (viewId === 'yield' && typeof window.loadGlobalYieldData === 'function') {
+        window.loadGlobalYieldData();
+    }
 }
 
 window.switchTabDirect = switchTabDirect;
@@ -94,6 +102,20 @@ window.showReadaView = switchTabDirect;
     <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        .cell-input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 4px;
+            font-size: 12px;
+            border: 1px solid #d4d4d8;
+            border-radius: 3px;
+        }
+        .cell-input:focus {
+            border-color: #3b82f6;
+            outline: none;
+        }
+    </style>
 </head>
 <body>
     <div id="reada-tooltip-box" style="display:none; position:fixed; background-color:#ffffff; color:#000000; font-family:'Segoe UI', sans-serif; font-size:12px; font-weight:600; padding:6px 12px; border-radius:4px; border:1.5px solid #71717a; box-shadow:0 6px 20px rgba(0,0,0,0.3); z-index:999999; pointer-events:none; max-width:280px; line-height:1.35;"></div>
@@ -182,6 +204,18 @@ window.showReadaView = switchTabDirect;
             <button type="button" class="reada-tab" data-view="trial-list" onclick="switchTabDirect('trial-list')" id="tab-btn-trial-list" style="cursor: pointer; position: relative; z-index: 1000000; padding: 10px 20px;">
                 <span class="tab-title" data-i18n="tabTrialList">List Of Available Trial Data</span>
             </button>
+            <button type="button" class="reada-tab" data-view="bunch" onclick="switchTabDirect('bunch')" id="tab-btn-bunch" style="cursor: pointer; position: relative; z-index: 1000000; padding: 10px 20px;">
+                <span class="tab-title">Bunch Analysis</span>
+            </button>
+            <button type="button" class="reada-tab" data-view="yield" onclick="switchTabDirect('yield')" id="tab-btn-yield" style="cursor: pointer; position: relative; z-index: 1000000; padding: 10px 20px;">
+                <span class="tab-title">Yield Recording</span>
+            </button>
+            <button type="button" class="reada-tab" data-view="veg" onclick="switchTabDirect('veg')" id="tab-btn-veg" style="cursor: pointer; position: relative; z-index: 1000000; padding: 10px 20px;">
+                <span class="tab-title">Vegetative Sampling</span>
+            </button>
+            <button type="button" class="reada-tab" data-view="annual" onclick="switchTabDirect('annual')" id="tab-btn-annual" style="cursor: pointer; position: relative; z-index: 1000000; padding: 10px 20px;">
+                <span class="tab-title">Annual Plot</span>
+            </button>
             <button type="button" class="reada-tab" data-view="map-dashboard" onclick="switchTabDirect('map-dashboard')" id="tab-btn-map-dashboard" style="cursor: pointer; position: relative; z-index: 1000000; padding: 10px 20px;">
                 <span class="tab-title">Map Dashboard</span>
             </button>
@@ -258,77 +292,91 @@ window.showReadaView = switchTabDirect;
 
                 
                 <!-- VIEW 3: BUNCH ANALYSIS PROGRAM PAGE VIEW -->
-                <div id="reada-view-bunch" class="reada-view">
-                    <div class="reada-main-info-box" style="background: #ffffff; padding: 24px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
-                        <div class="reada-banner-olive" style="margin-bottom: 20px; font-size: 16px; border-radius: 4px;">
-                            <span data-i18n="bannerBunch">BUNCH ANALYSIS PROGRAM</span>
-                            
+                <div id="reada-view-bunch" class="reada-view" style="display:none; width: 100%; height: 100%; min-height: 550px;">
+                    <div style="background-color: #ffffff; margin: 16px; padding: 20px; border-radius: 6px; border: 1px solid #d4d4d8; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h2 style="font-size: 18px; font-weight: 600; color: #1e293b; margin: 0;">Global Bunch Analysis Data</h2>
+                            <div style="display: flex; gap: 8px;">
+                                <button type="button" class="reada-qt-btn" onclick="addBunchRow()" style="background-color: #3b82f6; color: white;">➕ Add Row</button>
+                                <button type="button" class="reada-qt-btn" onclick="saveGlobalBunchData()" style="background-color: #10b981; color: white;">💾 Save All Changes</button>
+                            </div>
                         </div>
-                        <p style="margin-bottom: 20px; color: #475569; font-size: 13px; font-family: sans-serif; line-height: 1.5;">
-                            <span data-i18n="descBunch">Compute Fruit-to-Bunch %, Mesocarp-to-Fruit %, Kernel-to-Fruit %, and Oil Extraction Rate (OER%) from fresh fruit bunch component weighings across experimental trial plots.</span>
-                        </p>
-                            <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaModal('bunch-selection')" data-i18n="btnNewBunch">➕ New Bunch Analysis Data Entry</button>
-                            <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaModal('bunch-editor')" data-i18n="btnCalcBunch">🧮 Calculate / Generate Bunch Analysis Data</button>
-                            <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaModal('bunch-print')" data-i18n="btnPrintBunch">🖨️ Print Bunch Analysis Data</button>
+                        <div style="overflow-x: auto; max-height: 60vh; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 4px;">
+                            <table class="reada-table-view" style="width: 100%; min-width: 1200px;">
+                                <thead style="position: sticky; top: 0; background-color: #f8fafc; z-index: 10;">
+                                    <tr>
+                                        <th style="width: 50px;">Action</th>
+                                        <th>Trial Code</th>
+                                        <th>Year</th>
+                                        <th>Plot No</th>
+                                        <th>Palm No</th>
+                                        <th>Fruit Type</th>
+                                        <th>Bunch Wt</th>
+                                        <th>Stalk Wt</th>
+                                        <th>Spikelet Wt</th>
+                                        <th>Fruit Wt</th>
+                                        <th>Nut Wt</th>
+                                        <th>Kernel Wt</th>
+                                        <th>Wet Meso</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reada-bunch-master-tbody">
+                                    <!-- Rows populated dynamically -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
 
                 <!-- VIEW 4: YIELD RECORDING PROGRAM PAGE VIEW -->
-                <div id="reada-view-yield" class="reada-view">
-                    <div class="reada-main-info-box" style="background: #ffffff; padding: 24px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
-                        <div class="reada-banner-olive" style="margin-bottom: 20px; font-size: 16px; border-radius: 4px;">
-                            <span data-i18n="bannerYield">YIELD RECORDING PROGRAM</span>
-                            
+                <!-- VIEW 4: YIELD RECORDING PROGRAM PAGE VIEW -->
+                <div id="reada-view-yield" class="reada-view" style="display:none; width: 100%; height: 100%; min-height: 550px;">
+                    <div style="background-color: #ffffff; margin: 16px; padding: 20px; border-radius: 6px; border: 1px solid #d4d4d8; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h2 style="font-size: 18px; font-weight: 600; color: #1e293b; margin: 0;">Global Yield Recording Data</h2>
+                            <div style="display: flex; gap: 8px;">
+                                <button type="button" class="reada-qt-btn" onclick="addYieldRow()" style="background-color: #3b82f6; color: white;">➕ Add Row</button>
+                                <button type="button" class="reada-qt-btn" onclick="saveGlobalYieldData()" style="background-color: #10b981; color: white;">💾 Save All Changes</button>
+                            </div>
                         </div>
-                        <p style="margin-bottom: 20px; color: #475569; font-size: 13px; font-family: sans-serif; line-height: 1.5;">
-                            <span data-i18n="descYield">Log harvest round FFB bunch counts, bunch weights, loose fruit weights, and calculate annual t/ha yield rates for persistent trial database records.</span>
-                        </p>
-                            <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaModal('yield-selection')" data-i18n="btnNewYield">➕ New Yield Recording Data Entry</button>
-                            <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaModal('yield-editor')" data-i18n="btnCalcYield">🧮 Calculate / Generate Annual FFB Yield Data</button>
-                            <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaModal('yield-print')" data-i18n="btnPrintYield">🖨️ Print Yield Recording Data</button>
-                            <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaModal('yield-import-csv')" data-i18n="btnImportNonReadaYield">📂 Read .csv Excel File</button>
+                        <div style="overflow-x: auto; max-height: 60vh; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 4px;">
+                            <table class="reada-table-view" style="width: 100%; min-width: 1100px;">
+                                <thead style="position: sticky; top: 0; background-color: #f8fafc; z-index: 10;">
+                                    <tr>
+                                        <th style="width: 50px;">Action</th>
+                                        <th>Trial Code</th>
+                                        <th>Year</th>
+                                        <th>Plot No</th>
+                                        <th>Round No</th>
+                                        <th>Harvest Date</th>
+                                        <th>Bunch Count</th>
+                                        <th>Bunch Wt (kg)</th>
+                                        <th>Loose Fruit Wt</th>
+                                        <th>Mean Bunch Wt</th>
+                                        <th>Annual Yield</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reada-yield-master-tbody">
+                                    <!-- Rows populated dynamically -->
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
 
                 <!-- VIEW 5: VEGETATIVE FIELD SAMPLING PAGE VIEW -->
-                <div id="reada-view-veg" class="reada-view">
-                    <div class="reada-main-info-box" style="background: #ffffff; padding: 24px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
-                        <div class="reada-banner-olive" style="margin-bottom: 20px; font-size: 16px; border-radius: 4px;">
-                            <span data-i18n="bannerVeg">VEGETATIVE FIELD SAMPLING</span>
-                            
-                        </div>
-                        <p style="margin-bottom: 20px; color: #475569; font-size: 13px; font-family: sans-serif; line-height: 1.5;">
-                            <span data-i18n="descVeg">Record Frond 17 measurements, rachis cross-section dimensions (width x depth), leaflet count, leaf area index (LAI), and annual trunk height increment.</span>
-                        </p>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 24px;">
-                            <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaSubAction('New Vegetative Measurement Entry')" data-i18n="btnNewVeg">🌿 New Vegetative Field Sampling</button>
-                            <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaSubAction('Print Vegetative Report PDF')" data-i18n="btnPrintVeg">🖨️ Print Vegetative Sampling Report</button>
-                            <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaSubAction('Export Vegetative CSV')" data-i18n="btnSaveVegCSV">💾 Export Field Sampling To *.csv</button>
-                        </div>
+                <div id="reada-view-veg" class="reada-view" style="display:none; width: 100%; height: 100%; min-height: 550px;">
+                    <div style="background-color: #ffffff; margin: 16px; padding: 40px; border-radius: 6px; border: 1px solid #d4d4d8; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); text-align: center;">
+                        <h2 style="font-size: 24px; color: #475569;">Vegetative Sampling</h2>
+                        <p style="color: #64748b; margin-top: 10px;">This module is under construction.</p>
                     </div>
                 </div>
 
                 <!-- VIEW 6: AGRONOMY TRIAL ANNUAL DATA PAGE VIEW -->
-                <div id="reada-view-annual" class="reada-view">
-                    <div class="reada-main-info-box" style="background: #ffffff; padding: 24px; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);">
-                        <div class="reada-banner-olive" style="margin-bottom: 20px; font-size: 16px; border-radius: 4px;">
-                            <span data-i18n="bannerAnnual">AGRONOMY TRIAL ANNUAL DATA</span>
-                            
-                        </div>
-                        <p style="margin-bottom: 20px; color: #475569; font-size: 13px; font-family: sans-serif; line-height: 1.5;">
-                            <span data-i18n="descAnnual">Access and edit annual plot-level data including FFB yield records, foliar leaf tissue nutrient analysis (N, P, K, Mg, Ca, B), vegetative growth measurements, and soil chemical parameters.</span>
-                        </p>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; margin-bottom: 24px;">
-                            <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaSubAction('New Annual Data Entry')" data-i18n="btnNewAnnual">➕ New Annual Data Entry</button>
-                            <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaSubAction('View Annual Plot Data')" data-i18n="btnViewAnnual">📊 View Annual Plot Data</button>
-                            <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaSubAction('Print Annual Plot Data PDF')" data-i18n="btnPrintAnnual">🖨️ Print Annual Plot Data</button>
-                            <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaSubAction('Create ASCII File Data')" data-i18n="btnCreateASCII">📄 Create ASCII File Data</button>
-                            <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaSubAction('Export Annual CSV')" data-i18n="btnExportAnnualCSV">💾 Save Info Into *.csv File</button>
-                            <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaSubAction('Delete Annual Plot Data')" data-i18n="btnDeleteAnnual">🗑️ Delete Annual Plot Data</button>
-                            <button class="reada-qt-btn" style="height: 48px; font-size: 14px;" onclick="openReadaSubAction('Read Annual Backup File')" data-i18n="btnReadAnnualBackup">📁 Read Annual Plot Data Back Up</button>
-                        </div>
+                <div id="reada-view-annual" class="reada-view" style="display:none; width: 100%; height: 100%; min-height: 550px;">
+                    <div style="background-color: #ffffff; margin: 16px; padding: 40px; border-radius: 6px; border: 1px solid #d4d4d8; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); text-align: center;">
+                        <h2 style="font-size: 24px; color: #475569;">Annual Plot Data</h2>
+                        <p style="color: #64748b; margin-top: 10px;">This module is under construction.</p>
                     </div>
                 </div>
 

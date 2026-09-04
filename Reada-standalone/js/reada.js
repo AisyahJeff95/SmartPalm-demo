@@ -2821,3 +2821,224 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(renderReadaTrialsTable, 200);
     }
 });
+
+// ==========================================
+// MASTER GRID CONTROLLERS (Bunch & Yield)
+// ==========================================
+
+// --- BUNCH ANALYSIS ---
+
+window.addBunchRow = function(data = {}) {
+    const tbody = document.getElementById('reada-bunch-master-tbody');
+    if (!tbody) return;
+    
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+        <td style="text-align: center;"><button type="button" onclick="this.closest('tr').remove()" style="color: #ef4444; background: none; border: none; font-size: 16px; cursor: pointer;">❌</button></td>
+        <td><input type="text" class="cell-input" value="${data.trial_code || ''}" placeholder="PR1998/1" /></td>
+        <td><input type="number" class="cell-input" value="${data.recording_year || 2026}" /></td>
+        <td><input type="text" class="cell-input" value="${data.plot_no || 'Plot 1'}" /></td>
+        <td><input type="text" class="cell-input" value="${data.palm_no || 'Palm 1'}" /></td>
+        <td>
+            <select class="cell-input">
+                <option value="Tenera" ${data.fruit_type === 'Tenera' ? 'selected' : ''}>Tenera</option>
+                <option value="Dura" ${data.fruit_type === 'Dura' ? 'selected' : ''}>Dura</option>
+                <option value="Pisifera" ${data.fruit_type === 'Pisifera' ? 'selected' : ''}>Pisifera</option>
+            </select>
+        </td>
+        <td><input type="number" step="0.1" class="cell-input" value="${data.bunch_wt !== undefined ? data.bunch_wt : 0}" /></td>
+        <td><input type="number" step="0.1" class="cell-input" value="${data.stalk_wt !== undefined ? data.stalk_wt : 0}" /></td>
+        <td><input type="number" step="0.1" class="cell-input" value="${data.spikelet_wt !== undefined ? data.spikelet_wt : 0}" /></td>
+        <td><input type="number" step="0.1" class="cell-input" value="${data.fruit_wt !== undefined ? data.fruit_wt : 0}" /></td>
+        <td><input type="number" step="0.1" class="cell-input" value="${data.nut_wt !== undefined ? data.nut_wt : 0}" /></td>
+        <td><input type="number" step="0.1" class="cell-input" value="${data.kernel_wt !== undefined ? data.kernel_wt : 0}" /></td>
+        <td><input type="number" step="0.1" class="cell-input" value="${data.wet_meso !== undefined ? data.wet_meso : 0}" /></td>
+    `;
+    // Add unique row data ID if it exists so we can track updates vs inserts
+    if (data.id) tr.dataset.rowId = data.id;
+    tbody.appendChild(tr);
+};
+
+window.loadGlobalBunchData = async function() {
+    const tbody = document.getElementById('reada-bunch-master-tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="13" style="text-align: center; padding: 20px;">Loading Bunch Data...</td></tr>';
+    
+    const client = typeof window.getSupabase === 'function' ? window.getSupabase() : null;
+    if (!client) return;
+
+    try {
+        const { data, error } = await client.from('trial_bunchanalysis').select('*').order('recording_year', { ascending: false }).order('trial_code');
+        if (error) throw error;
+        
+        tbody.innerHTML = '';
+        if (data && data.length > 0) {
+            data.forEach(d => window.addBunchRow(d));
+        } else {
+            // Add a few empty rows if table is totally empty
+            for(let i=0; i<3; i++) window.addBunchRow();
+        }
+    } catch (e) {
+        console.error("Error loading Bunch Analysis:", e);
+        tbody.innerHTML = `<tr><td colspan="13" style="text-align: center; color: red;">Failed to load data: ${e.message}</td></tr>`;
+    }
+};
+
+window.saveGlobalBunchData = async function() {
+    const tbody = document.getElementById('reada-bunch-master-tbody');
+    if (!tbody) return;
+    
+    const client = typeof window.getSupabase === 'function' ? window.getSupabase() : null;
+    if (!client || typeof currentUser === 'undefined' || !currentUser) {
+        alert("Please log in to save data to the cloud.");
+        return;
+    }
+
+    const rows = tbody.querySelectorAll('tr');
+    const upsertData = [];
+    
+    rows.forEach(tr => {
+        const inputs = tr.querySelectorAll('input, select');
+        if (inputs.length < 12) return;
+        
+        const trial_code = inputs[0].value.trim();
+        if (!trial_code) return; // Skip empty rows
+        
+        const rowData = {
+            trial_code: trial_code,
+            user_id: currentUser.id,
+            recording_year: parseInt(inputs[1].value) || new Date().getFullYear(),
+            plot_no: inputs[2].value.trim(),
+            palm_no: inputs[3].value.trim(),
+            fruit_type: inputs[4].value,
+            bunch_wt: parseFloat(inputs[5].value) || 0,
+            stalk_wt: parseFloat(inputs[6].value) || 0,
+            spikelet_wt: parseFloat(inputs[7].value) || 0,
+            fruit_wt: parseFloat(inputs[8].value) || 0,
+            nut_wt: parseFloat(inputs[9].value) || 0,
+            kernel_wt: parseFloat(inputs[10].value) || 0,
+            wet_meso: parseFloat(inputs[11].value) || 0
+        };
+        
+        if (tr.dataset.rowId) {
+            rowData.id = tr.dataset.rowId;
+        }
+        upsertData.push(rowData);
+    });
+    
+    if (upsertData.length === 0) return;
+    
+    try {
+        const { data, error } = await client.from('trial_bunchanalysis').upsert(upsertData, { onConflict: 'id' }).select();
+        if (error) throw error;
+        alert(`Successfully saved ${upsertData.length} Bunch Analysis records to Supabase!`);
+        window.loadGlobalBunchData(); // Reload to get newly generated UUIDs
+    } catch (e) {
+        console.error("Error saving Bunch Analysis:", e);
+        alert("Error saving data: " + e.message);
+    }
+};
+
+
+// --- YIELD RECORDING ---
+
+window.addYieldRow = function(data = {}) {
+    const tbody = document.getElementById('reada-yield-master-tbody');
+    if (!tbody) return;
+    
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+        <td style="text-align: center;"><button type="button" onclick="this.closest('tr').remove()" style="color: #ef4444; background: none; border: none; font-size: 16px; cursor: pointer;">❌</button></td>
+        <td><input type="text" class="cell-input" value="${data.trial_code || ''}" placeholder="PR1998/1" /></td>
+        <td><input type="number" class="cell-input" value="${data.harvest_year || 2026}" /></td>
+        <td><input type="text" class="cell-input" value="${data.plot_no || 'Plot 1'}" /></td>
+        <td><input type="text" class="cell-input" value="${data.round_no || 'R1'}" /></td>
+        <td><input type="date" class="cell-input" value="${data.harvest_date || new Date().toISOString().split('T')[0]}" /></td>
+        <td><input type="number" class="cell-input" value="${data.bunch_count !== undefined ? data.bunch_count : 0}" /></td>
+        <td><input type="number" step="0.1" class="cell-input" value="${data.bunch_wt !== undefined ? data.bunch_wt : 0}" /></td>
+        <td><input type="number" step="0.1" class="cell-input" value="${data.loose_fruit_wt !== undefined ? data.loose_fruit_wt : 0}" /></td>
+        <td><input type="number" step="0.1" class="cell-input" value="${data.mean_bunch_wt !== undefined ? data.mean_bunch_wt : 0}" /></td>
+        <td><input type="number" step="0.1" class="cell-input" value="${data.annual_yield !== undefined ? data.annual_yield : 0}" /></td>
+    `;
+    if (data.id) tr.dataset.rowId = data.id;
+    tbody.appendChild(tr);
+};
+
+window.loadGlobalYieldData = async function() {
+    const tbody = document.getElementById('reada-yield-master-tbody');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; padding: 20px;">Loading Yield Data...</td></tr>';
+    
+    const client = typeof window.getSupabase === 'function' ? window.getSupabase() : null;
+    if (!client) return;
+
+    try {
+        const { data, error } = await client.from('trial_yieldrecording').select('*').order('harvest_year', { ascending: false }).order('trial_code');
+        if (error) throw error;
+        
+        tbody.innerHTML = '';
+        if (data && data.length > 0) {
+            data.forEach(d => window.addYieldRow(d));
+        } else {
+            // Add a few empty rows if table is totally empty
+            for(let i=0; i<3; i++) window.addYieldRow();
+        }
+    } catch (e) {
+        console.error("Error loading Yield Recording:", e);
+        tbody.innerHTML = `<tr><td colspan="11" style="text-align: center; color: red;">Failed to load data: ${e.message}</td></tr>`;
+    }
+};
+
+window.saveGlobalYieldData = async function() {
+    const tbody = document.getElementById('reada-yield-master-tbody');
+    if (!tbody) return;
+    
+    const client = typeof window.getSupabase === 'function' ? window.getSupabase() : null;
+    if (!client || typeof currentUser === 'undefined' || !currentUser) {
+        alert("Please log in to save data to the cloud.");
+        return;
+    }
+
+    const rows = tbody.querySelectorAll('tr');
+    const upsertData = [];
+    
+    rows.forEach(tr => {
+        const inputs = tr.querySelectorAll('input');
+        if (inputs.length < 10) return;
+        
+        const trial_code = inputs[0].value.trim();
+        if (!trial_code) return; // Skip empty rows
+        
+        const rowData = {
+            trial_code: trial_code,
+            user_id: currentUser.id,
+            harvest_year: parseInt(inputs[1].value) || new Date().getFullYear(),
+            plot_no: inputs[2].value.trim(),
+            round_no: inputs[3].value.trim(),
+            harvest_date: inputs[4].value || new Date().toISOString().split('T')[0],
+            bunch_count: parseInt(inputs[5].value) || 0,
+            bunch_wt: parseFloat(inputs[6].value) || 0,
+            loose_fruit_wt: parseFloat(inputs[7].value) || 0,
+            mean_bunch_wt: parseFloat(inputs[8].value) || 0,
+            annual_yield: parseFloat(inputs[9].value) || 0
+        };
+        
+        if (tr.dataset.rowId) {
+            rowData.id = tr.dataset.rowId;
+        }
+        upsertData.push(rowData);
+    });
+    
+    if (upsertData.length === 0) return;
+    
+    try {
+        const { data, error } = await client.from('trial_yieldrecording').upsert(upsertData, { onConflict: 'id' }).select();
+        if (error) throw error;
+        alert(`Successfully saved ${upsertData.length} Yield Recording records to Supabase!`);
+        window.loadGlobalYieldData(); // Reload
+    } catch (e) {
+        console.error("Error saving Yield Recording:", e);
+        alert("Error saving data: " + e.message);
+    }
+};
+
