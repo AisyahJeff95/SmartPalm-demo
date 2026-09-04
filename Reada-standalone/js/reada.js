@@ -1040,6 +1040,14 @@ function switchTabDirect(viewId) {
             if (typeof readaMap !== 'undefined' && readaMap) readaMap.resize();
         }, 100);
     }
+    
+    if (viewId === 'bunch' && typeof window.loadGlobalBunchData === 'function') {
+        window.loadGlobalBunchData();
+    }
+    
+    if (viewId === 'yield' && typeof window.loadGlobalYieldData === 'function') {
+        window.loadGlobalYieldData();
+    }
 }
 
 window.switchTabDirect = switchTabDirect;
