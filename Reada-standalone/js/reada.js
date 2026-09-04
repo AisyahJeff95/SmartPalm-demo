@@ -3134,7 +3134,7 @@ window.saveGlobalYieldData = async function() {
     const upsertData = [];
     
     rows.forEach(tr => {
-        const inputs = tr.querySelectorAll('input');
+        const inputs = tr.querySelectorAll('input, select');
         if (inputs.length < 10) return;
         
         const trial_code = inputs[0].value.trim();
