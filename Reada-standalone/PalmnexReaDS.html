@@ -1773,8 +1773,16 @@ window.showReadaView = switchTabDirect;
         </div>
     </div>
 
-    <div style="position: fixed; bottom: 10px; left: 15px; font-size: 11px; color: #64748b; font-family: 'Inter', sans-serif; z-index: 999999; text-shadow: 0px 1px 2px rgba(255,255,255,0.8);">
-        Updated on 04 Sep 2026 08:32:17
+    <div id="reada-live-watermark" style="position: fixed; bottom: 10px; left: 15px; font-size: 11px; color: #64748b; font-family: 'Inter', sans-serif; z-index: 999999; text-shadow: 0px 1px 2px rgba(255,255,255,0.8);">
+        Updated on 04 Sep 2026
     </div>
+    <script>
+        setInterval(() => {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            const timeStr = now.toLocaleTimeString('en-GB', { hour12: false });
+            document.getElementById('reada-live-watermark').innerText = \`Updated on \${dateStr} \${timeStr}\`;
+        }, 1000);
+    </script>
 </body>
 </html>
