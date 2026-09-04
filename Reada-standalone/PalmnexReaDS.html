@@ -367,17 +367,75 @@ window.showReadaView = switchTabDirect;
 
                 <!-- VIEW 5: VEGETATIVE FIELD SAMPLING PAGE VIEW -->
                 <div id="reada-view-veg" class="reada-view" style="display:none; width: 100%; height: 100%; min-height: 550px;">
-                    <div style="background-color: #ffffff; margin: 16px; padding: 40px; border-radius: 6px; border: 1px solid #d4d4d8; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); text-align: center;">
-                        <h2 style="font-size: 24px; color: #475569;">Vegetative Sampling</h2>
-                        <p style="color: #64748b; margin-top: 10px;">This module is under construction.</p>
+                    <div style="background-color: #ffffff; margin: 16px; padding: 20px; border-radius: 6px; border: 1px solid #d4d4d8; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h2 style="font-size: 18px; font-weight: 600; color: #1e293b; margin: 0;">Global Vegetative Sampling Data</h2>
+                            <div style="margin-top: 15px; text-align: right;">
+                                <button type="button" id="btn-undo-delete-veg" class="reada-qt-btn" onclick="undoDeleteVegRow()" style="background-color: #f59e0b; color: white; margin-right: 10px; display: none;">↺ Undo Delete</button>
+                                <button type="button" class="reada-qt-btn" onclick="addVegRow()" style="background-color: #3b82f6; color: white;">➕ Add Row</button>
+                                <button type="button" class="reada-qt-btn" onclick="saveGlobalVegData()" style="background-color: #10b981; color: white; margin-left: 10px;">💾 Save All Changes</button>
+                            </div>
+                        </div>
+                        <div style="overflow-x: auto; max-height: 60vh; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 4px;">
+                            <table style="width: 100%; border-collapse: collapse; min-width: 1200px;">
+                                <thead style="background-color: #f8fafc; position: sticky; top: 0; z-index: 10;">
+                                    <tr>
+                                        <th style="width: 50px;">Action</th>
+                                        <th>Trial Code</th>
+                                        <th>Year</th>
+                                        <th>Plot No</th>
+                                        <th>Palm No</th>
+                                        <th>Frond No</th>
+                                        <th>Rachis Len (cm)</th>
+                                        <th>Petiole W (cm)</th>
+                                        <th>Petiole D (cm)</th>
+                                        <th>Pinnae Count</th>
+                                        <th>Leaflet Len (cm)</th>
+                                        <th>Leaflet W (cm)</th>
+                                        <th>Trunk Ht (m)</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reada-veg-master-tbody">
+                                    <!-- Rows populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
                 <!-- VIEW 6: AGRONOMY TRIAL ANNUAL DATA PAGE VIEW -->
                 <div id="reada-view-annual" class="reada-view" style="display:none; width: 100%; height: 100%; min-height: 550px;">
-                    <div style="background-color: #ffffff; margin: 16px; padding: 40px; border-radius: 6px; border: 1px solid #d4d4d8; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); text-align: center;">
-                        <h2 style="font-size: 24px; color: #475569;">Annual Plot Data</h2>
-                        <p style="color: #64748b; margin-top: 10px;">This module is under construction.</p>
+                    <div style="background-color: #ffffff; margin: 16px; padding: 20px; border-radius: 6px; border: 1px solid #d4d4d8; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                            <h2 style="font-size: 18px; font-weight: 600; color: #1e293b; margin: 0;">Global Annual Plot Data</h2>
+                            <div style="margin-top: 15px; text-align: right;">
+                                <button type="button" id="btn-undo-delete-annual" class="reada-qt-btn" onclick="undoDeleteAnnualRow()" style="background-color: #f59e0b; color: white; margin-right: 10px; display: none;">↺ Undo Delete</button>
+                                <button type="button" class="reada-qt-btn" onclick="addAnnualRow()" style="background-color: #3b82f6; color: white;">➕ Add Row</button>
+                                <button type="button" class="reada-qt-btn" onclick="saveGlobalAnnualData()" style="background-color: #10b981; color: white; margin-left: 10px;">💾 Save All Changes</button>
+                            </div>
+                        </div>
+                        <div style="overflow-x: auto; max-height: 60vh; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 4px;">
+                            <table style="width: 100%; border-collapse: collapse; min-width: 1000px;">
+                                <thead style="background-color: #f8fafc; position: sticky; top: 0; z-index: 10;">
+                                    <tr>
+                                        <th style="width: 50px;">Action</th>
+                                        <th>Trial Code</th>
+                                        <th>Year</th>
+                                        <th>Plot No</th>
+                                        <th>FFB Yield (t/ha)</th>
+                                        <th>Leaf N (%)</th>
+                                        <th>Leaf P (%)</th>
+                                        <th>Leaf K (%)</th>
+                                        <th>Frond Length (m)</th>
+                                        <th>Soil pH</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reada-annual-master-tbody">
+                                    <!-- Rows populated dynamically -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                     </div>
                 </div>
 

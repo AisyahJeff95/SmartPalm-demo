@@ -1048,6 +1048,14 @@ function switchTabDirect(viewId) {
     if (viewId === 'yield' && typeof window.loadGlobalYieldData === 'function') {
         window.loadGlobalYieldData();
     }
+    
+    if (viewId === 'veg' && typeof window.loadGlobalVegData === 'function') {
+        window.loadGlobalVegData();
+    }
+    
+    if (viewId === 'annual' && typeof window.loadGlobalAnnualData === 'function') {
+        window.loadGlobalAnnualData();
+    }
 }
 
 window.switchTabDirect = switchTabDirect;
@@ -3155,6 +3163,333 @@ window.saveGlobalYieldData = async function() {
     } catch (e) {
         console.error("Error saving Yield Recording:", e);
         alert("Error saving data: " + e.message);
+    }
+};
+
+
+// --- VEGETATIVE SAMPLING ---
+
+window.addVegRow = function(data = {}) {
+    const tbody = document.getElementById("reada-veg-master-tbody");
+    if (!tbody) return;
+    
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+        <td style="text-align: center;"><button type="button" onclick="deleteVegRow(this, ${"\`"}${data.id || ""}${"\`"})" style="color: #ef4444; background: none; border: none; font-size: 16px; cursor: pointer;">❌</button></td>
+        <td><input type="text" class="cell-input" value="${data.trial_code || ""}" placeholder="PR1998/1" /></td>
+        <td><input type="number" class="cell-input" value="${data.recording_year || new Date().getFullYear()}" /></td>
+        <td><input type="text" class="cell-input" value="${data.plot_no || "Plot 1"}" /></td>
+        <td><input type="text" class="cell-input" value="${data.palm_no || "Palm 1"}" /></td>
+        <td><input type="text" class="cell-input" value="${data.frond_no || "Frond 17"}" /></td>
+        <td><input type="number" step="0.1" class="cell-input" value="${data.rachis_len !== undefined ? data.rachis_len : 0}" /></td>
+        <td><input type="number" step="0.1" class="cell-input" value="${data.petiole_w !== undefined ? data.petiole_w : 0}" /></td>
+        <td><input type="number" step="0.1" class="cell-input" value="${data.petiole_d !== undefined ? data.petiole_d : 0}" /></td>
+        <td><input type="number" class="cell-input" value="${data.pinnae_count !== undefined ? data.pinnae_count : 0}" /></td>
+        <td><input type="number" step="0.1" class="cell-input" value="${data.leaflet_len !== undefined ? data.leaflet_len : 0}" /></td>
+        <td><input type="number" step="0.1" class="cell-input" value="${data.leaflet_w !== undefined ? data.leaflet_w : 0}" /></td>
+        <td><input type="number" step="0.1" class="cell-input" value="${data.trunk_ht !== undefined ? data.trunk_ht : 0}" /></td>
+    `;
+    if (data.id) tr.dataset.rowId = data.id;
+    tbody.appendChild(tr);
+};
+
+window.loadGlobalVegData = async function() {
+    const tbody = document.getElementById("reada-veg-master-tbody");
+    if (!tbody) return;
+    tbody.innerHTML = "<tr><td colspan=\"13\" style=\"text-align: center; padding: 20px;\">Loading Vegetative Data...</td></tr>";
+    
+    const client = typeof window.getSupabase === "function" ? window.getSupabase() : null;
+    if (!client) return;
+
+    try {
+        const { data, error } = await client.from("trial_vegetativesampling").select("*").order("recording_year", { ascending: false }).order("trial_code");
+        if (error) throw error;
+        
+        tbody.innerHTML = "";
+        if (data && data.length > 0) {
+            data.forEach(d => window.addVegRow(d));
+        } else {
+            for(let i=0; i<3; i++) window.addVegRow();
+        }
+    } catch(e) {
+        console.error("Error loading Veg Data:", e);
+        tbody.innerHTML = `<tr><td colspan="13" style="text-align: center; color: red;">Failed to load data: ${e.message}</td></tr>`;
+    }
+};
+
+let deletedVegHistory = [];
+
+window.deleteVegRow = async function(btn, id) {
+    if (!id) {
+        btn.closest("tr").remove();
+        return;
+    }
+    
+    if (!confirm("Are you sure you want to delete this row?")) return;
+    
+    const client = typeof window.getSupabase === "function" ? window.getSupabase() : null;
+    if (!client) return;
+    
+    try {
+        const { data: rowData, error: fetchErr } = await client.from("trial_vegetativesampling").select("*").eq("id", id).single();
+        if (fetchErr) throw fetchErr;
+        
+        const { error } = await client.from("trial_vegetativesampling").delete().eq("id", id);
+        if (error) throw error;
+        
+        deletedVegHistory.push(rowData);
+        document.getElementById("btn-undo-delete-veg").style.display = "inline-block";
+        
+        btn.closest("tr").remove();
+    } catch (e) {
+        alert("Error deleting row: " + e.message);
+    }
+};
+
+window.undoDeleteVegRow = async function() {
+    if (deletedVegHistory.length === 0) return;
+    
+    const client = typeof window.getSupabase === "function" ? window.getSupabase() : null;
+    if (!client) return;
+    
+    const rowToRestore = deletedVegHistory.pop();
+    
+    try {
+        const { error } = await client.from("trial_vegetativesampling").insert([rowToRestore]);
+        if (error) throw error;
+        
+        window.addVegRow(rowToRestore);
+        
+        if (deletedVegHistory.length === 0) {
+            document.getElementById("btn-undo-delete-veg").style.display = "none";
+        }
+        alert("Row restored successfully!");
+    } catch (e) {
+        alert("Error restoring row: " + e.message);
+        deletedVegHistory.push(rowToRestore);
+    }
+};
+
+window.saveGlobalVegData = async function() {
+    const tbody = document.getElementById("reada-veg-master-tbody");
+    if (!tbody) return;
+
+    const client = typeof window.getSupabase === "function" ? window.getSupabase() : null;
+    if (!client || typeof currentUser === "undefined" || !currentUser) {
+        alert("Please log in to save data to the cloud.");
+        return;
+    }
+
+    const rows = tbody.querySelectorAll("tr");
+    const upsertData = [];
+    
+    rows.forEach(tr => {
+        const inputs = tr.querySelectorAll("input, select");
+        if (inputs.length < 12) return;
+        
+        const trial_code = inputs[0].value.trim();
+        if (!trial_code) return;
+        
+        const rowData = {
+            trial_code: trial_code,
+            user_id: currentUser.id,
+            recording_year: parseInt(inputs[1].value) || new Date().getFullYear(),
+            plot_no: inputs[2].value.trim(),
+            palm_no: inputs[3].value.trim(),
+            frond_no: inputs[4].value.trim(),
+            rachis_len: parseFloat(inputs[5].value) || 0,
+            petiole_w: parseFloat(inputs[6].value) || 0,
+            petiole_d: parseFloat(inputs[7].value) || 0,
+            pinnae_count: parseInt(inputs[8].value) || 0,
+            leaflet_len: parseFloat(inputs[9].value) || 0,
+            leaflet_w: parseFloat(inputs[10].value) || 0,
+            trunk_ht: parseFloat(inputs[11].value) || 0
+        };
+        
+        if (tr.dataset.rowId) rowData.id = tr.dataset.rowId;
+        upsertData.push(rowData);
+    });
+    
+    if (upsertData.length === 0) {
+        alert("No valid data to save.");
+        return;
+    }
+
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = "Saving...";
+    btn.disabled = true;
+
+    try {
+        const { data, error } = await client.from("trial_vegetativesampling").upsert(upsertData, { onConflict: "id" }).select();
+        if (error) throw error;
+        alert("Vegetative Data saved successfully!");
+        window.loadGlobalVegData();
+    } catch (e) {
+        alert("Error saving: " + e.message);
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+};
+
+// --- ANNUAL PLOT DATA ---
+
+window.addAnnualRow = function(data = {}) {
+    const tbody = document.getElementById("reada-annual-master-tbody");
+    if (!tbody) return;
+    
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+        <td style="text-align: center;"><button type="button" onclick="deleteAnnualRow(this, '${data.id || ""}')" style="color: #ef4444; background: none; border: none; font-size: 16px; cursor: pointer;">❌</button></td>
+        <td><input type="text" class="cell-input" value="${data.trial_code || ""}" placeholder="PR1998/1" /></td>
+        <td><input type="number" class="cell-input" value="${data.recording_year || new Date().getFullYear()}" /></td>
+        <td><input type="text" class="cell-input" value="${data.plot_no || "Plot 1"}" /></td>
+        <td><input type="number" step="0.1" class="cell-input" value="${data.ffb_yield !== undefined ? data.ffb_yield : 0}" /></td>
+        <td><input type="number" step="0.01" class="cell-input" value="${data.leaf_n !== undefined ? data.leaf_n : 0}" /></td>
+        <td><input type="number" step="0.01" class="cell-input" value="${data.leaf_p !== undefined ? data.leaf_p : 0}" /></td>
+        <td><input type="number" step="0.01" class="cell-input" value="${data.leaf_k !== undefined ? data.leaf_k : 0}" /></td>
+        <td><input type="number" step="0.1" class="cell-input" value="${data.frond_length !== undefined ? data.frond_length : 0}" /></td>
+        <td><input type="number" step="0.1" class="cell-input" value="${data.soil_ph !== undefined ? data.soil_ph : 0}" /></td>
+    `;
+    if (data.id) tr.dataset.rowId = data.id;
+    tbody.appendChild(tr);
+};
+
+window.loadGlobalAnnualData = async function() {
+    const tbody = document.getElementById("reada-annual-master-tbody");
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="10" style="text-align: center; padding: 20px;">Loading Annual Plot Data...</td></tr>';
+    
+    const client = typeof window.getSupabase === "function" ? window.getSupabase() : null;
+    if (!client) return;
+
+    try {
+        const { data, error } = await client.from("trial_annualplotdata").select("*").order("recording_year", { ascending: false }).order("trial_code");
+        if (error) throw error;
+        
+        tbody.innerHTML = "";
+        if (data && data.length > 0) {
+            data.forEach(d => window.addAnnualRow(d));
+        } else {
+            for(let i=0; i<3; i++) window.addAnnualRow();
+        }
+    } catch(e) {
+        console.error("Error loading Annual Data:", e);
+        tbody.innerHTML = `<tr><td colspan="10" style="text-align: center; color: red;">Failed to load data: ${e.message}</td></tr>`;
+    }
+};
+
+let deletedAnnualHistory = [];
+
+window.deleteAnnualRow = async function(btn, id) {
+    if (!id) {
+        btn.closest("tr").remove();
+        return;
+    }
+    
+    if (!confirm("Are you sure you want to delete this row?")) return;
+    
+    const client = typeof window.getSupabase === "function" ? window.getSupabase() : null;
+    if (!client) return;
+    
+    try {
+        const { data: rowData, error: fetchErr } = await client.from("trial_annualplotdata").select("*").eq("id", id).single();
+        if (fetchErr) throw fetchErr;
+        
+        const { error } = await client.from("trial_annualplotdata").delete().eq("id", id);
+        if (error) throw error;
+        
+        deletedAnnualHistory.push(rowData);
+        document.getElementById("btn-undo-delete-annual").style.display = "inline-block";
+        
+        btn.closest("tr").remove();
+    } catch (e) {
+        alert("Error deleting row: " + e.message);
+    }
+};
+
+window.undoDeleteAnnualRow = async function() {
+    if (deletedAnnualHistory.length === 0) return;
+    
+    const client = typeof window.getSupabase === "function" ? window.getSupabase() : null;
+    if (!client) return;
+    
+    const rowToRestore = deletedAnnualHistory.pop();
+    
+    try {
+        const { error } = await client.from("trial_annualplotdata").insert([rowToRestore]);
+        if (error) throw error;
+        
+        window.addAnnualRow(rowToRestore);
+        
+        if (deletedAnnualHistory.length === 0) {
+            document.getElementById("btn-undo-delete-annual").style.display = "none";
+        }
+        alert("Row restored successfully!");
+    } catch (e) {
+        alert("Error restoring row: " + e.message);
+        deletedAnnualHistory.push(rowToRestore);
+    }
+};
+
+window.saveGlobalAnnualData = async function() {
+    const tbody = document.getElementById("reada-annual-master-tbody");
+    if (!tbody) return;
+
+    const client = typeof window.getSupabase === "function" ? window.getSupabase() : null;
+    if (!client || typeof currentUser === "undefined" || !currentUser) {
+        alert("Please log in to save data to the cloud.");
+        return;
+    }
+
+    const rows = tbody.querySelectorAll("tr");
+    const upsertData = [];
+    
+    rows.forEach(tr => {
+        const inputs = tr.querySelectorAll("input, select");
+        if (inputs.length < 9) return;
+        
+        const trial_code = inputs[0].value.trim();
+        if (!trial_code) return;
+        
+        const rowData = {
+            trial_code: trial_code,
+            user_id: currentUser.id,
+            recording_year: parseInt(inputs[1].value) || new Date().getFullYear(),
+            plot_no: inputs[2].value.trim(),
+            ffb_yield: parseFloat(inputs[3].value) || 0,
+            leaf_n: parseFloat(inputs[4].value) || 0,
+            leaf_p: parseFloat(inputs[5].value) || 0,
+            leaf_k: parseFloat(inputs[6].value) || 0,
+            frond_length: parseFloat(inputs[7].value) || 0,
+            soil_ph: parseFloat(inputs[8].value) || 0
+        };
+        
+        if (tr.dataset.rowId) rowData.id = tr.dataset.rowId;
+        upsertData.push(rowData);
+    });
+    
+    if (upsertData.length === 0) {
+        alert("No valid data to save.");
+        return;
+    }
+
+    const btn = event.target;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = "Saving...";
+    btn.disabled = true;
+
+    try {
+        const { data, error } = await client.from("trial_annualplotdata").upsert(upsertData, { onConflict: "id" }).select();
+        if (error) throw error;
+        alert("Annual Plot Data saved successfully!");
+        window.loadGlobalAnnualData();
+    } catch (e) {
+        alert("Error saving: " + e.message);
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
     }
 };
 
