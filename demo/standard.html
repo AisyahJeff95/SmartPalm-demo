@@ -12,7 +12,8 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
     <!-- Styling (Vanilla CSS) -->
-<!-- Custom CSS Modules -->
+    <!-- Custom CSS Modules -->
+    <link rel="stylesheet" href="css/cms-layout.css" />
     <link rel="stylesheet" href="css/main.css" />
     <link rel="stylesheet" href="css/components.css" />
     <link rel="stylesheet" href="css/tables-forms.css" />
@@ -24,7 +25,31 @@
     <script src="js/auth.js?v=20260903_v3"></script>
 </head>
 <body>
-    <div id="reada-tooltip-box" style="display:none; position:fixed; background-color:#ffffff; color:#000000; font-family:'Segoe UI', sans-serif; font-size:12px; font-weight:600; padding:6px 12px; border-radius:4px; border:1.5px solid #71717a; box-shadow:0 6px 20px rgba(0,0,0,0.3); z-index:999999; pointer-events:none; max-width:280px; line-height:1.35;"></div>
+    <div class="cms-layout">
+        <!-- New Persistent Sidebar -->
+        <aside class="cms-sidebar">
+            <div class="cms-sidebar-brand">
+                <h2>PalmNex <span>CMS</span></h2>
+            </div>
+            <nav class="cms-nav">
+                <a href="index.html" class="cms-nav-item">
+                    <span class="icon">🏠</span> Home
+                </a>
+                <a href="comprehensive.html" class="cms-nav-item">
+                    <span class="icon">📊</span> Comprehensive Fert
+                </a>
+                <a href="standard.html" class="cms-nav-item active">
+                    <span class="icon">📈</span> Standard Fert
+                </a>
+                <a href="PalmnexReaDS.html" class="cms-nav-item">
+                    <span class="icon">🔬</span> PalmNexReaDS
+                </a>
+            </nav>
+        </aside>
+        
+        <!-- Main Content Area -->
+        <main class="cms-main-content">
+            <div id="reada-tooltip-box" style="display:none; position:fixed; background-color:#ffffff; color:#000000; font-family:'Segoe UI', sans-serif; font-size:12px; font-weight:600; padding:6px 12px; border-radius:4px; border:1.5px solid #71717a; box-shadow:0 6px 20px rgba(0,0,0,0.3); z-index:999999; pointer-events:none; max-width:280px; line-height:1.35;"></div>
 <div id="page-standard" class="page-container active">
                         <!-- Top Navigation Bar / Header Panel (Uniform Across All Pages) -->
         <div class="top-nav-panel">
@@ -223,8 +248,8 @@
             </div>
         </div>
     </div>
-
-    
+        </main>
+    </div>
 
     <!-- External JS Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

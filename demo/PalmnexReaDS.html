@@ -12,6 +12,7 @@
     
     <!-- Styling (Vanilla CSS) -->
 <!-- Custom CSS Modules -->
+    <link rel="stylesheet" href="css/cms-layout.css" />
     <link rel="stylesheet" href="css/main.css" />
     <link rel="stylesheet" href="css/components.css" />
     <link rel="stylesheet" href="css/tables-forms.css" />
@@ -39,13 +40,12 @@ function switchTabDirect(viewId) {
         tabs[j].classList.remove('active');
     }
 
-    // 3. Activate target tab button
-    var activeTab = document.querySelector('.reada-tab[data-view="' + viewId + '"]') || document.getElementById('tab-btn-' + viewId);
-    if (activeTab) {
-        activeTab.classList.add('active');
-    }
+    // 3. Activate specific tab button
+    var tabBtnId = 'tab-btn-' + viewId;
+    var tabBtn = document.getElementById(tabBtnId);
+    if (tabBtn) tabBtn.classList.add('active');
 
-    // 4. Activate target view container
+    // 4. Show specific view content
     var viewMap = {
         'branding': 'reada-view-branding',
         'trial-list': 'reada-view-trial-list',
@@ -87,7 +87,31 @@ window.showReadaView = switchTabDirect;
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body>
-    <div id="reada-tooltip-box" style="display:none; position:fixed; background-color:#ffffff; color:#000000; font-family:'Segoe UI', sans-serif; font-size:12px; font-weight:600; padding:6px 12px; border-radius:4px; border:1.5px solid #71717a; box-shadow:0 6px 20px rgba(0,0,0,0.3); z-index:999999; pointer-events:none; max-width:280px; line-height:1.35;"></div>
+    <div class="cms-layout">
+        <!-- New Persistent Sidebar -->
+        <aside class="cms-sidebar">
+            <div class="cms-sidebar-brand">
+                <h2>PalmNex <span>CMS</span></h2>
+            </div>
+            <nav class="cms-nav">
+                <a href="index.html" class="cms-nav-item">
+                    <span class="icon">🏠</span> Home
+                </a>
+                <a href="comprehensive.html" class="cms-nav-item">
+                    <span class="icon">📊</span> Comprehensive Fert
+                </a>
+                <a href="standard.html" class="cms-nav-item">
+                    <span class="icon">📈</span> Standard Fert
+                </a>
+                <a href="PalmnexReaDS.html" class="cms-nav-item active">
+                    <span class="icon">🔬</span> PalmNexReaDS
+                </a>
+            </nav>
+        </aside>
+        
+        <!-- Main Content Area -->
+        <main class="cms-main-content">
+            <div id="reada-tooltip-box" style="display:none; position:fixed; background-color:#ffffff; color:#000000; font-family:'Segoe UI', sans-serif; font-size:12px; font-weight:600; padding:6px 12px; border-radius:4px; border:1.5px solid #71717a; box-shadow:0 6px 20px rgba(0,0,0,0.3); z-index:999999; pointer-events:none; max-width:280px; line-height:1.35;"></div>
 <div id="page-reada" class="page-container active">
                         <!-- Top Navigation Bar / Header Panel (Uniform Across All Pages) -->
         <div class="top-nav-panel">
@@ -1674,6 +1698,8 @@ window.showReadaView = switchTabDirect;
             <!-- Map Container -->
             <div id="reada-polygon-drawer-map" style="flex: 1; width: 100%; position: relative; background: #0f172a;"></div>
         </div>
+    </div>
+        </main>
     </div>
 
 </body>
