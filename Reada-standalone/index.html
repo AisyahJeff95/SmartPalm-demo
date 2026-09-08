@@ -103,20 +103,20 @@
         
         <div class="choices-layout">
             <div class="top-row-cards">
-                <div class="card-column" style="cursor: not-allowed;" title="Comprehensive section coming soon">
-                    <div class="launcher-card" style="cursor: not-allowed;">
+                <div class="card-column" style="cursor: pointer; pointer-events: auto;" onclick="location.href='comprehensive.html'">
+                    <div class="launcher-card" onclick="location.href='comprehensive.html'">
                         <div class="card-title" data-i18n="card1Title">Comprehensive<br />Fertilizer Recommendation</div>
                         <div class="card-desc" data-i18n="card1Desc">Detailed fertilizer analysis<br />Advanced agronomic rules</div>
-                        <button class="get-started-btn" type="button" disabled data-i18n="btnGetStarted">Get Started</button>
                     </div>
+                    <button class="get-started-btn" type="button" onclick="event.stopPropagation(); location.href='comprehensive.html'" data-i18n="btnGetStarted">Get Started</button>
                 </div>
                 
-                <div class="card-column" style="cursor: not-allowed;" title="Standard section coming soon">
-                    <div class="launcher-card" style="cursor: not-allowed;">
+                <div class="card-column" style="cursor: pointer; pointer-events: auto;" onclick="location.href='standard.html'">
+                    <div class="launcher-card" onclick="location.href='standard.html'">
                         <div class="card-title" data-i18n="card2Title">Standard<br />Fertilizer Recommendation</div>
                         <div class="card-desc" data-i18n="card2Desc">Fast fertilizer analysis<br />Essential Recommendations</div>
-                        <button class="get-started-btn" type="button" disabled data-i18n="btnGetStarted">Get Started</button>
                     </div>
+                    <button class="get-started-btn" type="button" onclick="event.stopPropagation(); location.href='standard.html'" data-i18n="btnGetStarted">Get Started</button>
                 </div>
             </div>
             
