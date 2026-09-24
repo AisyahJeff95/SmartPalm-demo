@@ -1,0 +1,159 @@
+
+        :root {
+            --primary: #286b67;
+            --primary-hover: #1f524e;
+            --bg-dark: #060913;
+            --bg-light: #f0f0f0;
+            --border-light: #bcbcbc;
+            --card-glass: rgba(255, 255, 255, 0.50);
+            --card-glass-hover: rgba(255, 255, 255, 0.60);
+            --text-dark: #000000;
+            --text-light: #ffffff;
+            --secondary-text: #333333;
+            --accent-green: #12b886;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            font-family: 'Segoe UI', 'Inter', -apple-system, sans-serif;
+            overflow: hidden;
+            background-color: var(--bg-dark);
+        }
+
+        /* Screen Deck Switcher */
+        .page-container {
+            display: none;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .page-container.active {
+            display: flex;
+        }
+
+        /* =========================================================================
+           PAGE 1: LAUNCHER/HOME SCREEN
+           ========================================================================= */
+        #page-launcher {
+            
+            
+            
+            
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+        }
+
+        .launcher-header {
+            margin-bottom: 45px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .launcher-header img {
+            height: 70px;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5)) drop-shadow(1px 1px 0px #fff) drop-shadow(-1px 1px 0px #fff) drop-shadow(1px -1px 0px #fff) drop-shadow(-1px -1px 0px #fff);
+        }
+
+        .choices-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+            width: 100%;
+            max-width: 700px;
+            align-items: center;
+        }
+
+        .top-row-cards {
+            display: flex;
+            gap: 28px;
+            width: 100%;
+            justify-content: center;
+        }
+
+        .launcher-card {
+            background-color: rgba(255, 255, 255, 0.60);
+            backdrop-filter: blur(10px);
+            border: 1.5px solid rgba(40, 107, 103, 0.35);
+            border-radius: 8px;
+            width: 300px;
+            height: 185px;
+            padding: 16px 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+            transition: all 0.25s ease;
+            cursor: pointer;
+        }
+
+        .launcher-card:hover {
+            background-color: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 12px 30px rgba(40, 107, 103, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .card-column.disabled {
+            cursor: not-allowed !important;
+        }
+
+        .card-column.disabled .launcher-card {
+            cursor: not-allowed !important;
+        }
+
+        .card-column.disabled .launcher-card:hover {
+            transform: none !important;
+        }
+
+        .card-column.disabled .get-started-btn {
+            cursor: not-allowed !important;
+            opacity: 0.65 !important;
+        }
+
+        .launcher-card.wide {
+            width: 628px;
+            height: 165px;
+            padding: 16px 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+        }
+
+        .launcher-card.wide:hover {
+            background-color: #ffffff;
+            border: 2px solid var(--primary);
+            box-shadow: 0 12px 30px rgba(40, 107, 103, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .card-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--text-dark);
+            line-height: 1.2;
+            margin-bottom: 6px;
+        }
+
+        .card-desc {
+            font-size: 15px;
+            color: var(--secondary-text);
+            line-height: 1.3;
+        }
+
+        /* ===================================

@@ -1,0 +1,120 @@
+                <div class="sidebar">
+
+            <!-- [Satellite] Section -->
+            <div style="font-family: 'Outfit', sans-serif; font-weight: 700; color: #1e293b; font-size: 18px; margin: 16px 0 8px 0; padding-bottom: 6px; letter-spacing: -0.5px;">Satellite</div>
+
+            <!-- 1. Estate Name -->
+            <div class="group-box" style="border: 1.5px solid #047857;">
+                <div class="group-box-title" style="color: #047857;">Estate Name</div>
+                <input type="text" id="comp-estate-name" class="form-select" style="width: 100%; box-sizing: border-box; padding: 6px 8px; font-size: 12px;" placeholder="Enter estate name..." />
+            </div>
+
+            <!-- 2. Satellite Data -->
+            <div class="group-box">
+                <div class="group-box-title">Satellite Data</div>
+                <div style="display: flex; gap: 8px;">
+                    <button style="flex: 1; padding: 6px 4px; font-size: 12px; border: 1.5px solid #047857; background: #fff; color: #047857; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; font-weight: 600;">Real-Time Data</button>
+                    <button style="flex: 1; padding: 6px 4px; font-size: 12px; border: 1.5px solid #047857; background: #fff; color: #047857; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; font-weight: 600;">Previous Data</button>
+                </div>
+            </div>
+
+            <!-- 3. Map Selection & Upload -->
+            <div class="group-box">
+                <div class="group-box-title">Map File Selection</div>
+                <div class="form-row">
+                    <label class="form-label" style="font-size: 12px;">Select Map:</label>
+                    <div style="display: flex; gap: 4px; width: 100%;">
+                        <select class="form-select" id="map-select-comp" onchange="onMapSelectChanged(this.value)" style="flex: 1;">
+                            <option value="mpob_36_trial" selected>MPOB Lahad Datu 36 Trial Plot</option>
+                   <option value="lahad_datu">Lahad Datu with block boundary</option>
+                            <option value="seraya">Seraya with block boundary</option>
+                        </select>
+                        <button id="delete-map-btn-comp" class="remove-btn" style="display: none; padding: 0 8px; border-radius: 6px; background-color: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; cursor: pointer;" onclick="deleteCurrentMap()" title="Delete map">🗑️</button>
+                    </div>
+                </div>
+                <div class="upload-row" style="margin-top: 8px;">
+                    <span class="upload-desc" style="font-size: 12px;">Or upload .shp / .dbf files:</span>
+                    <button class="upload-btn" onclick="document.getElementById('shp-file-input').click()">Upload</button>
+                    <input type="file" id="shp-file-input" accept=".shp,.dbf,.prj,.shx" multiple style="display: none;" onchange="handleShapefileUpload(event)" />
+                </div>
+            </div>
+
+            <!-- 4. Viewport Tools -->
+            <div class="group-box">
+                <div class="group-box-title">Viewport Tools</div>
+                <div style="display: flex; gap: 8px;">
+                    <button style="flex: 1; padding: 6px 4px; font-size: 12px; background: #047857; color: #fff; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; font-weight: 600;">Classify Viewport</button>
+                    <button style="flex: 1; padding: 6px 4px; font-size: 12px; background: #ef4444; color: #fff; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; font-weight: 600;">Remove Stress Level</button>
+                </div>
+            </div>
+
+            <!-- 5. Soil Data Entry -->
+            <div class="group-box">
+                <div class="group-box-title">Soil Data Entry</div>
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <button class="soil-entry-btn" onclick="openEdsInlandDialog()" style="width: 100%;">Inland Soil Data Entry</button>
+                    <button class="soil-entry-btn" onclick="openEdsAlluvialDialog()" style="width: 100%;">Coastal Soil Data Entry</button>
+                </div>
+            </div>
+
+            <!-- 6. Point Nutrient Detection -->
+            <div class="group-box">
+                <div class="group-box-title">Nutrient Detection</div>
+                <div class="nutrient-grid" style="margin-top: 10px;">
+                    <div class="nutrient-display-card">
+                        <div class="nutrient-card-title">N (%)</div>
+                        <div class="nutrient-card-val" id="comp-n-val">-- %</div>
+                    </div>
+                    <div class="nutrient-display-card">
+                        <div class="nutrient-card-title">P (%)</div>
+                        <div class="nutrient-card-val" id="comp-p-val">-- %</div>
+                    </div>
+                    <div class="nutrient-display-card">
+                        <div class="nutrient-card-title">K (%)</div>
+                        <div class="nutrient-card-val" id="comp-k-val">-- %</div>
+                    </div>
+                    <div class="nutrient-display-card">
+                        <div class="nutrient-card-title">Mg (%)</div>
+                        <div class="nutrient-card-val" id="comp-mg-val">-- %</div>
+                    </div>
+                </div>
+                <button class="action-button-full" style="margin-top: 8px;" onclick="openFullMapNutrientDialog()">View Full Map Nutrient Detection</button>
+            </div>
+
+            <!-- 7. Fertilizer Ratio -->
+                                    <div class="group-box">
+                <div class="group-box-title">Fertilizer Used / To Use</div>
+                <div style="display: flex; justify-content: space-between; margin-top: 4px; border-bottom: 1px solid #cbd5e1; padding-bottom: 2px; margin-bottom: 6px;">
+                    <div style="width: 24px;"></div>
+                    <div style="flex: 1; text-align: center; font-size: 12px; color: #64748b; font-weight: 600;">Ratio</div>
+                </div>
+                <!-- N -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <div style="width: 24px; font-size: 12px; font-weight: bold; color: #444;">N</div>
+                    <div style="flex: 1; padding: 0 4px;"><input type="text" class="form-select" style="width: 100%; box-sizing: border-box; padding: 4px; font-size: 12px; text-align: center;" placeholder="-" /></div>
+                </div>
+                <!-- P -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <div style="width: 24px; font-size: 12px; font-weight: bold; color: #444;">P</div>
+                    <div style="flex: 1; padding: 0 4px;"><input type="text" class="form-select" style="width: 100%; box-sizing: border-box; padding: 4px; font-size: 12px; text-align: center;" placeholder="-" /></div>
+                </div>
+                <!-- K -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <div style="width: 24px; font-size: 12px; font-weight: bold; color: #444;">K</div>
+                    <div style="flex: 1; padding: 0 4px;"><input type="text" class="form-select" style="width: 100%; box-sizing: border-box; padding: 4px; font-size: 12px; text-align: center;" placeholder="-" /></div>
+                </div>
+                <!-- Mg -->
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="width: 24px; font-size: 12px; font-weight: bold; color: #444;">Mg</div>
+                    <div style="flex: 1; padding: 0 4px;"><input type="text" class="form-select" style="width: 100%; box-sizing: border-box; padding: 4px; font-size: 12px; text-align: center;" placeholder="-" /></div>
+                </div>
+            </div>
+
+            <!-- [Fertilizer Recommendation] Section -->
+            <div style="font-family: 'Outfit', sans-serif; font-weight: 700; color: #1e293b; font-size: 18px; margin: 24px 0 8px 0; padding-bottom: 6px; letter-spacing: -0.5px;">Fertilizer Recommendation</div>
+            
+            <button class="report-download-btn" style="width: 100%; padding: 12px; font-size: 12px; background: #047857; color: #fff; text-align: center; font-weight: bold; border-radius: 6px; border: none; cursor: pointer; margin-bottom: 20px;" onclick="viewReportPDF()">📄 Generate Report</button>
+
+        </div>
+
+        <!-- Right Map View -->
