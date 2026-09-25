@@ -2249,11 +2249,8 @@
                 }
             }).addTo(mapStd);
 
-            // Fit map to boundary — matches reference implementation exactly
-            if (_compBounds) {
-                try { mapComp.fitBounds(_compBounds, { padding: [30, 30] }); } catch(e) {}
-                try { mapStd.fitBounds(_stdBounds,   { padding: [30, 30] }); } catch(e) {}
-            }
+            // fitBounds is called by switchPage after the map container becomes visible.
+            // Do NOT call fitBounds here — the container may be display:none right now.
 
             // Clean clicked markers
             if (clickedMarkerComp) {
@@ -2593,6 +2590,8 @@
             loadShapeBoundaries(val);
             document.getElementById('map-select-comp').value = val;
             document.getElementById('map-select-std').value = val;
+            // Re-fit whichever map is currently visible
+            fitVisibleMap();
         }
 
         // Toggle Nutrient Layer Heatmap Overlay on Comprehensive Map
@@ -2663,37 +2662,40 @@
             }
         }
 
-        // Page Deck Switcher Router — matches reference implementation exactly
+        // Fit whichever map container is currently visible to its boundary layer.
+        // Safe to call at any time — silently skips hidden/uninitialised maps.
+        function fitVisibleMap() {
+            try {
+                if (mapComp) {
+                    mapComp.invalidateSize();
+                    if (compBoundaryLayer) {
+                        var b = compBoundaryLayer.getBounds();
+                        if (b && b.isValid()) mapComp.fitBounds(b, { padding: [30, 30] });
+                    }
+                }
+            } catch(e) {}
+            try {
+                if (mapStd) {
+                    mapStd.invalidateSize();
+                    if (stdBoundaryLayer) {
+                        var b = stdBoundaryLayer.getBounds();
+                        if (b && b.isValid()) mapStd.fitBounds(b, { padding: [30, 30] });
+                    }
+                }
+            } catch(e) {}
+        }
+
+        // Page switcher — reveal the target page, then fit the map 150 ms later
+        // (150 ms gives the browser time to repaint the container at full size).
         function switchPage(pageId) {
             try {
                 const targetPage = document.getElementById(pageId);
-                if (!targetPage) { console.error('Target page container not found:', pageId); return; }
+                if (!targetPage) { console.error('Page not found:', pageId); return; }
                 document.querySelectorAll('.page-container').forEach(el => el.classList.remove('active'));
                 targetPage.classList.add('active');
-                setTimeout(() => {
-                    try {
-                        if (typeof mapComp !== 'undefined' && mapComp && typeof mapComp.invalidateSize === 'function') {
-                            mapComp.invalidateSize();
-                        }
-                        if (typeof mapStd !== 'undefined' && mapStd && typeof mapStd.invalidateSize === 'function') {
-                            mapStd.invalidateSize();
-                        }
-                        if (typeof compBoundaryLayer !== 'undefined' && compBoundaryLayer && typeof compBoundaryLayer.getBounds === 'function') {
-                            const b = compBoundaryLayer.getBounds();
-                            if (b && typeof b.isValid === 'function' && b.isValid() && mapComp) {
-                                mapComp.fitBounds(b, { padding: [30, 30] });
-                            }
-                        }
-                        if (typeof stdBoundaryLayer !== 'undefined' && stdBoundaryLayer && typeof stdBoundaryLayer.getBounds === 'function') {
-                            const b = stdBoundaryLayer.getBounds();
-                            if (b && typeof b.isValid === 'function' && b.isValid() && mapStd) {
-                                mapStd.fitBounds(b, { padding: [30, 30] });
-                            }
-                        }
-                    } catch (err) { console.log('Map resize warning:', err); }
-                }, 150);
-            } catch (e) {
-                console.error('Error switching page:', e);
+                setTimeout(fitVisibleMap, 150);
+            } catch(e) {
+                console.error('switchPage error:', e);
             }
         }
 
