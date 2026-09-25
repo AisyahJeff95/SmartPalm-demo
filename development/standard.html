@@ -2597,6 +2597,17 @@
             loadShapeBoundaries(val);
             document.getElementById('map-select-comp').value = val;
             document.getElementById('map-select-std').value = val;
+            // If the map page is already active, fly immediately
+            // (if it's not active, switchPage will fly when user navigates there)
+            var compEl = document.getElementById('map-comprehensive-element');
+            if (compEl && compEl.offsetParent !== null) {
+                setTimeout(function() {
+                    try {
+                        if (compBoundaryLayer) { mapComp.invalidateSize(); mapComp.flyToBounds(compBoundaryLayer.getBounds(), { padding: [40, 40], maxZoom: 15 }); }
+                        if (stdBoundaryLayer)  { mapStd.invalidateSize();  mapStd.flyToBounds(stdBoundaryLayer.getBounds(),  { padding: [40, 40], maxZoom: 15 }); }
+                    } catch(e) {}
+                }, 100);
+            }
         }
 
         // Toggle Nutrient Layer Heatmap Overlay on Comprehensive Map
@@ -2667,8 +2678,6 @@
             }
         }
 
-        // Page Deck Switcher Router
-        
         // Page Deck Switcher Router (Fail-Proof & Error Safe)
         function switchPage(pageId) {
             try {
@@ -2679,32 +2688,25 @@
                 }
                 document.querySelectorAll('.page-container').forEach(el => el.classList.remove('active'));
                 targetPage.classList.add('active');
-                
-                // Invalidate Leaflet sizing on transit & fit map bounds safely
-                setTimeout(() => {
+
+                // Helper: invalidate map sizes and fly to current boundary bounds
+                function _fitMapsAfterReveal() {
                     try {
-                        if (typeof mapComp !== 'undefined' && mapComp && typeof mapComp.invalidateSize === 'function') {
-                            mapComp.invalidateSize();
-                        }
-                        if (typeof mapStd !== 'undefined' && mapStd && typeof mapStd.invalidateSize === 'function') {
-                            mapStd.invalidateSize();
-                        }
-                        if (typeof compBoundaryLayer !== 'undefined' && compBoundaryLayer && typeof compBoundaryLayer.getBounds === 'function') {
+                        if (typeof mapComp !== 'undefined' && mapComp) mapComp.invalidateSize();
+                        if (typeof mapStd  !== 'undefined' && mapStd)  mapStd.invalidateSize();
+                        if (typeof compBoundaryLayer !== 'undefined' && compBoundaryLayer) {
                             const b = compBoundaryLayer.getBounds();
-                            if (b && typeof b.isValid === 'function' && b.isValid() && mapComp) {
-                                mapComp.flyToBounds(b, { padding: [30, 30], maxZoom: 15 });
-                            }
+                            if (b && b.isValid() && mapComp) mapComp.flyToBounds(b, { padding: [40, 40], maxZoom: 15 });
                         }
-                        if (typeof stdBoundaryLayer !== 'undefined' && stdBoundaryLayer && typeof stdBoundaryLayer.getBounds === 'function') {
+                        if (typeof stdBoundaryLayer !== 'undefined' && stdBoundaryLayer) {
                             const b = stdBoundaryLayer.getBounds();
-                            if (b && typeof b.isValid === 'function' && b.isValid() && mapStd) {
-                                mapStd.flyToBounds(b, { padding: [30, 30], maxZoom: 15 });
-                            }
+                            if (b && b.isValid() && mapStd) mapStd.flyToBounds(b, { padding: [40, 40], maxZoom: 15 });
                         }
-                    } catch (err) {
-                        console.log('Map resize warning:', err);
-                    }
-                }, 150);
+                    } catch (err) { console.log('Map resize warning:', err); }
+                }
+                // Fire at 300ms and again at 700ms — second call ensures the CSS transition is done
+                setTimeout(_fitMapsAfterReveal, 300);
+                setTimeout(_fitMapsAfterReveal, 700);
             } catch (e) {
                 console.error('Error switching page:', e);
             }
