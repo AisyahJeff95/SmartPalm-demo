@@ -2186,7 +2186,8 @@
 
                     console.log('MPOB shapefile loaded:', geojson.features.length, 'features');
                     loadShapeBoundaries('mpob_36_trial');
-                    // Note: loadShapeBoundaries already handles flyToBounds — no extra fitBounds needed here.
+                    setTimeout(fitVisibleMap, 50);
+                    setTimeout(fitVisibleMap, 200);
 
                 } catch(err) {
                     console.error('MPOB shapefile load error:', err);
@@ -2205,13 +2206,13 @@
             let mapName = blocksData.mapName || ((type === 'seraya') ? 'Seraya with block boundary' : (type === 'mpob_36_trial' ? 'MPOB Lahad Datu 36 Trial Plot' : 'Lahad Datu with block boundary'));
             
             // Clean old layers
-            if (compBoundaryLayer) mapComp.removeLayer(compBoundaryLayer);
-            if (stdBoundaryLayer) mapStd.removeLayer(stdBoundaryLayer);
-            if (compRasterOverlay) {
+            if (compBoundaryLayer && mapComp) mapComp.removeLayer(compBoundaryLayer);
+            if (stdBoundaryLayer && mapStd) mapStd.removeLayer(stdBoundaryLayer);
+            if (compRasterOverlay && mapComp) {
                 mapComp.removeLayer(compRasterOverlay);
                 compRasterOverlay = null;
             }
-            if (stdRasterOverlay) {
+            if (stdRasterOverlay && mapStd) {
                 mapStd.removeLayer(stdRasterOverlay);
                 stdRasterOverlay = null;
             }
@@ -2225,39 +2226,43 @@
             if (offRadioStd) offRadioStd.checked = true;
             document.querySelectorAll('#page-standard .nutrient-legend-box').forEach(el => el.style.display = 'none');
             
-            // Render on Page 2 map
-            compBoundaryLayer = L.geoJSON(blocksData, {
-                style: { color: "#ff7800", weight: 2, fillOpacity: 0.15, fillColor: "#ff7800" },
-                onEachFeature: (feature, layer) => {
-                    layer.bindTooltip(feature.properties.name, { sticky: true, className: 'block-tooltip' });
-                    layer.on('click', (e) => {
-                        L.DomEvent.stopPropagation(e);
-                        handleBlockClick(feature, e.latlng, 'comp');
-                    });
-                }
-            }).addTo(mapComp);
+            // Render on Page 2 map (Comprehensive)
+            if (mapComp) {
+                compBoundaryLayer = L.geoJSON(blocksData, {
+                    style: { color: "#ff7800", weight: 2, fillOpacity: 0.15, fillColor: "#ff7800" },
+                    onEachFeature: (feature, layer) => {
+                        layer.bindTooltip(feature.properties.name, { sticky: true, className: 'block-tooltip' });
+                        layer.on('click', (e) => {
+                            L.DomEvent.stopPropagation(e);
+                            handleBlockClick(feature, e.latlng, 'comp');
+                        });
+                    }
+                }).addTo(mapComp);
+            }
             
-            // Render on Page 3 map
-            stdBoundaryLayer = L.geoJSON(blocksData, {
-                style: { color: "#12b886", weight: 2, fillOpacity: 0.15, fillColor: "#12b886" },
-                onEachFeature: (feature, layer) => {
-                    layer.bindTooltip(feature.properties.name, { sticky: true });
-                    layer.on('click', (e) => {
-                        L.DomEvent.stopPropagation(e);
-                        handleBlockClick(feature, e.latlng, 'std');
-                    });
-                }
-            }).addTo(mapStd);
+            // Render on Page 3 map (Standard)
+            if (mapStd) {
+                stdBoundaryLayer = L.geoJSON(blocksData, {
+                    style: { color: "#12b886", weight: 2, fillOpacity: 0.15, fillColor: "#12b886" },
+                    onEachFeature: (feature, layer) => {
+                        layer.bindTooltip(feature.properties.name, { sticky: true });
+                        layer.on('click', (e) => {
+                            L.DomEvent.stopPropagation(e);
+                            handleBlockClick(feature, e.latlng, 'std');
+                        });
+                    }
+                }).addTo(mapStd);
+            }
 
             // fitBounds is called by switchPage after the map container becomes visible.
             // Do NOT call fitBounds here — the container may be display:none right now.
 
             // Clean clicked markers
-            if (clickedMarkerComp) {
+            if (clickedMarkerComp && mapComp) {
                 mapComp.removeLayer(clickedMarkerComp);
                 clickedMarkerComp = null;
             }
-            if (clickedMarkerStd) {
+            if (clickedMarkerStd && mapStd) {
                 mapStd.removeLayer(clickedMarkerStd);
                 clickedMarkerStd = null;
             }
