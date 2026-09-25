@@ -2191,7 +2191,8 @@
 
                     console.log('MPOB shapefile loaded:', geojson.features.length, 'features');
                     loadShapeBoundaries('mpob_36_trial');
-                    // Note: loadShapeBoundaries already handles flyToBounds — no extra fitBounds needed here.
+                    // If the user is already on the comprehensive page, fit the map now.
+                    setTimeout(fitCompMap, 50);
 
                 } catch(err) {
                     console.error('MPOB shapefile load error:', err);
@@ -2201,6 +2202,17 @@
 
         });
 
+        // Utility helpers to safely get/set DOM elements without throwing on missing IDs
+        function setElementText(id, text) {
+            var el = document.getElementById(id);
+            if (el) el.innerText = text;
+        }
+
+        function setElementValue(id, val) {
+            var el = document.getElementById(id);
+            if (el) el.value = val;
+        }
+
         // Trigger loading shape data on both maps
         function loadShapeBoundaries(type) {
             let blocksData = REAL_MAPS_DATA[type];
@@ -2209,14 +2221,14 @@
             let center = (type === 'seraya') ? serayaCoords : lahadDatuCoords;
             let mapName = blocksData.mapName || ((type === 'seraya') ? 'Seraya with block boundary' : (type === 'mpob_36_trial' ? 'MPOB Lahad Datu 36 Trial Plot' : 'Lahad Datu with block boundary'));
             
-            // Clean old layers
-            if (compBoundaryLayer) mapComp.removeLayer(compBoundaryLayer);
-            if (stdBoundaryLayer) mapStd.removeLayer(stdBoundaryLayer);
-            if (compRasterOverlay) {
+            // Clean old layers safely
+            if (compBoundaryLayer && mapComp) mapComp.removeLayer(compBoundaryLayer);
+            if (stdBoundaryLayer && mapStd) mapStd.removeLayer(stdBoundaryLayer);
+            if (compRasterOverlay && mapComp) {
                 mapComp.removeLayer(compRasterOverlay);
                 compRasterOverlay = null;
             }
-            if (stdRasterOverlay) {
+            if (stdRasterOverlay && mapStd) {
                 mapStd.removeLayer(stdRasterOverlay);
                 stdRasterOverlay = null;
             }
@@ -2230,59 +2242,60 @@
             if (offRadioStd) offRadioStd.checked = true;
             document.querySelectorAll('#page-standard .nutrient-legend-box').forEach(el => el.style.display = 'none');
             
-            // Render on Page 2 map
-            compBoundaryLayer = L.geoJSON(blocksData, {
-                style: { color: "#ff7800", weight: 2, fillOpacity: 0.15, fillColor: "#ff7800" },
-                onEachFeature: (feature, layer) => {
-                    layer.bindTooltip(feature.properties.name, { sticky: true, className: 'block-tooltip' });
-                    layer.on('click', (e) => {
-                        L.DomEvent.stopPropagation(e);
-                        handleBlockClick(feature, e.latlng, 'comp');
-                    });
-                }
-            }).addTo(mapComp);
+            // Render on Page 2 map (Comprehensive)
+            if (mapComp) {
+                compBoundaryLayer = L.geoJSON(blocksData, {
+                    style: { color: "#ff7800", weight: 2, fillOpacity: 0.15, fillColor: "#ff7800" },
+                    onEachFeature: (feature, layer) => {
+                        layer.bindTooltip(feature.properties.name, { sticky: true, className: 'block-tooltip' });
+                        layer.on('click', (e) => {
+                            L.DomEvent.stopPropagation(e);
+                            handleBlockClick(feature, e.latlng, 'comp');
+                        });
+                    }
+                }).addTo(mapComp);
+            }
             
-            // Render on Page 3 map
-            stdBoundaryLayer = L.geoJSON(blocksData, {
-                style: { color: "#12b886", weight: 2, fillOpacity: 0.15, fillColor: "#12b886" },
-                onEachFeature: (feature, layer) => {
-                    layer.bindTooltip(feature.properties.name, { sticky: true });
-                    layer.on('click', (e) => {
-                        L.DomEvent.stopPropagation(e);
-                        handleBlockClick(feature, e.latlng, 'std');
-                    });
-                }
-            }).addTo(mapStd);
+            // Render on Page 3 map (Standard)
+            if (mapStd) {
+                stdBoundaryLayer = L.geoJSON(blocksData, {
+                    style: { color: "#12b886", weight: 2, fillOpacity: 0.15, fillColor: "#12b886" },
+                    onEachFeature: (feature, layer) => {
+                        layer.bindTooltip(feature.properties.name, { sticky: true });
+                        layer.on('click', (e) => {
+                            L.DomEvent.stopPropagation(e);
+                            handleBlockClick(feature, e.latlng, 'std');
+                        });
+                    }
+                }).addTo(mapStd);
+            }
 
-            // fitBounds is called by switchPage after the map container becomes visible.
-            // Do NOT call fitBounds here — the container may be display:none right now.
-
-            // Clean clicked markers
-            if (clickedMarkerComp) {
+            // Clean clicked markers safely
+            if (clickedMarkerComp && mapComp) {
                 mapComp.removeLayer(clickedMarkerComp);
                 clickedMarkerComp = null;
             }
-            if (clickedMarkerStd) {
+            if (clickedMarkerStd && mapStd) {
                 mapStd.removeLayer(clickedMarkerStd);
                 clickedMarkerStd = null;
             }
 
             // Set coordinates and zone text matching PyQt selection change exactly
-            document.getElementById('comp-coords').innerText = "Coordinates: Click anywhere inside boundaries";
-            document.getElementById('comp-zone').innerText = `Zone: Map boundary (${mapName}) loaded`;
-            document.getElementById('std-coords').innerText = "Coordinates: Click anywhere inside boundaries";
-            document.getElementById('std-zone').innerText = `Zone: Map boundary (${mapName}) loaded`;
+            setElementText('comp-coords', "Coordinates: Click anywhere inside boundaries");
+            setElementText('comp-zone', `Zone: Map boundary (${mapName}) loaded`);
+            setElementText('std-coords', "Coordinates: Click anywhere inside boundaries");
+            setElementText('std-zone', `Zone: Map boundary (${mapName}) loaded`);
 
             // Reset card values to "-- %" until a block is clicked!
-            document.getElementById('comp-n-val').innerText = "-- %";
-            document.getElementById('comp-p-val').innerText = "-- %";
-            document.getElementById('comp-k-val').innerText = "-- %";
-            document.getElementById('comp-mg-val').innerText = "-- %";
+            setElementText('comp-n-val', "-- %");
+            setElementText('comp-p-val', "-- %");
+            setElementText('comp-k-val', "-- %");
+            setElementText('comp-mg-val', "-- %");
 
-            document.getElementById('std-n-val').innerText = "-- %";
-            document.getElementById('std-p-val').innerText = "-- %";
-            document.getElementById('std-k-val').innerText = "-- %";
-            document.getElementById('std-mg-val').innerText = "-- %";
+            setElementText('std-n-val', "-- %");
+            setElementText('std-p-val', "-- %");
+            setElementText('std-k-val', "-- %");
+            setElementText('std-mg-val', "-- %");
         }
 
         // =========================================================================
@@ -2467,16 +2480,16 @@
             
             // Update Coordinate Labels
             let coordStr = `Coordinates: Lat=${latlng.lat.toFixed(5)}, Lng=${latlng.lng.toFixed(5)}`;
-            if (page === 'comp') {
-                document.getElementById('comp-coords').innerText = coordStr;
-                document.getElementById('comp-zone').innerText = `Zone: Map boundary (${selectedBlock} with block boundary) loaded`;
+            if (page === 'comp' && mapComp) {
+                setElementText('comp-coords', coordStr);
+                setElementText('comp-zone', `Zone: Map boundary (${selectedBlock} with block boundary) loaded`);
                 
                 // Add marker
                 if (clickedMarkerComp) mapComp.removeLayer(clickedMarkerComp);
                 clickedMarkerComp = L.marker(latlng).addTo(mapComp).bindPopup(`<b>${selectedBlock}</b>`).openPopup();
-            } else {
-                document.getElementById('std-coords').innerText = coordStr;
-                document.getElementById('std-zone').innerText = `Zone: Map boundary (${selectedBlock} with block boundary) loaded`;
+            } else if (page === 'std' && mapStd) {
+                setElementText('std-coords', coordStr);
+                setElementText('std-zone', `Zone: Map boundary (${selectedBlock} with block boundary) loaded`);
                 
                 if (clickedMarkerStd) mapStd.removeLayer(clickedMarkerStd);
                 clickedMarkerStd = L.marker(latlng).addTo(mapStd).bindPopup(`<b>${selectedBlock}</b>`).openPopup();
@@ -2494,16 +2507,16 @@
             
             // Update Coordinate Labels
             let coordStr = `Coordinates: Lat=${latlng.lat.toFixed(5)}, Lng=${latlng.lng.toFixed(5)}`;
-            if (page === 'comp') {
-                document.getElementById('comp-coords').innerText = coordStr;
-                document.getElementById('comp-zone').innerText = `Zone: Oil Palm Plantation (Outside Boundary)`;
+            if (page === 'comp' && mapComp) {
+                setElementText('comp-coords', coordStr);
+                setElementText('comp-zone', `Zone: Oil Palm Plantation (Outside Boundary)`);
                 
                 // Add marker
                 if (clickedMarkerComp) mapComp.removeLayer(clickedMarkerComp);
                 clickedMarkerComp = L.marker(latlng).addTo(mapComp).bindPopup(`<b>Point Detection</b>`).openPopup();
-            } else {
-                document.getElementById('std-coords').innerText = coordStr;
-                document.getElementById('std-zone').innerText = `Zone: Oil Palm Plantation (Outside Boundary)`;
+            } else if (page === 'std' && mapStd) {
+                setElementText('std-coords', coordStr);
+                setElementText('std-zone', `Zone: Oil Palm Plantation (Outside Boundary)`);
                 
                 if (clickedMarkerStd) mapStd.removeLayer(clickedMarkerStd);
                 clickedMarkerStd = L.marker(latlng).addTo(mapStd).bindPopup(`<b>Point Detection</b>`).openPopup();
@@ -2520,16 +2533,16 @@
             };
             
             // Comprehensive Panel
-            document.getElementById('comp-n-val').innerText = `${props.n} %`;
-            document.getElementById('comp-p-val').innerText = `${props.p} %`;
-            document.getElementById('comp-k-val').innerText = `${props.k} %`;
-            document.getElementById('comp-mg-val').innerText = `${props.mg} %`;
+            setElementText('comp-n-val', `${props.n} %`);
+            setElementText('comp-p-val', `${props.p} %`);
+            setElementText('comp-k-val', `${props.k} %`);
+            setElementText('comp-mg-val', `${props.mg} %`);
 
             // Standard Panel
-            document.getElementById('std-n-val').innerText = `${props.n} %`;
-            document.getElementById('std-p-val').innerText = `${props.p} %`;
-            document.getElementById('std-k-val').innerText = `${props.k} %`;
-            document.getElementById('std-mg-val').innerText = `${props.mg} %`;
+            setElementText('std-n-val', `${props.n} %`);
+            setElementText('std-p-val', `${props.p} %`);
+            setElementText('std-k-val', `${props.k} %`);
+            setElementText('std-mg-val', `${props.mg} %`);
             
             calculateStandardCorrectiveDosage();
         }
@@ -2602,14 +2615,19 @@
         // Switch dropdown map change
         function onMapSelectChanged(val) {
             loadShapeBoundaries(val);
-            document.getElementById('map-select-comp').value = val;
-            document.getElementById('map-select-std').value = val;
-            // Re-fit whichever map is currently visible
+            setElementValue('map-select-comp', val);
+            setElementValue('map-select-std', val);
+
+            // Fit the active map to the new boundary
             fitVisibleMap();
+            setTimeout(fitVisibleMap, 50);
+            setTimeout(fitVisibleMap, 200);
+            setTimeout(fitVisibleMap, 500);
         }
 
         // Toggle Nutrient Layer Heatmap Overlay on Comprehensive Map
         function toggleNutrientLayerComp(layerValue) {
+            if (!mapComp) return;
             // Hide all legends
             document.querySelectorAll('#page-comprehensive .nutrient-legend-box').forEach(el => el.style.display = 'none');
             
@@ -2644,6 +2662,7 @@
 
         // Toggle Nutrient Layer Heatmap Overlay on Standard Map
         function toggleNutrientLayerStd(layerValue) {
+            if (!mapStd) return;
             // Hide all legends
             document.querySelectorAll('#page-standard .nutrient-legend-box').forEach(el => el.style.display = 'none');
             
@@ -2676,31 +2695,34 @@
             }
         }
 
-        // Fit whichever map container is currently visible to its boundary layer.
-        // Safe to call at any time — silently skips hidden/uninitialised maps.
-        function fitVisibleMap() {
+        // Fit the comprehensive map to its current boundary layer.
+        function fitCompMap() {
             try {
-                if (mapComp) {
-                    mapComp.invalidateSize();
-                    if (compBoundaryLayer) {
-                        var b = compBoundaryLayer.getBounds();
-                        if (b && b.isValid()) mapComp.fitBounds(b, { padding: [30, 30] });
-                    }
-                }
-            } catch(e) {}
-            try {
-                if (mapStd) {
-                    mapStd.invalidateSize();
-                    if (stdBoundaryLayer) {
-                        var b = stdBoundaryLayer.getBounds();
-                        if (b && b.isValid()) mapStd.fitBounds(b, { padding: [30, 30] });
-                    }
-                }
-            } catch(e) {}
+                if (!mapComp || !compBoundaryLayer) return;
+                var b = compBoundaryLayer.getBounds();
+                if (!b || !b.isValid()) return;
+                mapComp.invalidateSize({ animate: false, pan: false });
+                mapComp.fitBounds(b, { padding: [30, 30], animate: true });
+            } catch(e) { console.error('fitCompMap error:', e); }
         }
 
-        // Page switcher — reveal the target page, then fit the map 150 ms later
-        // (150 ms gives the browser time to repaint the container at full size).
+        // Fit the standard map to its current boundary layer (same pattern).
+        function fitStdMap() {
+            try {
+                if (!mapStd || !stdBoundaryLayer) return;
+                var b = stdBoundaryLayer.getBounds();
+                if (!b || !b.isValid()) return;
+                mapStd.invalidateSize({ animate: false, pan: false });
+                mapStd.fitBounds(b, { padding: [30, 30], animate: true });
+            } catch(e) { console.error('fitStdMap error:', e); }
+        }
+
+        function fitVisibleMap() {
+            fitCompMap();
+            fitStdMap();
+        }
+
+        // Page switcher — reveal the page, then fit the correct map after 150 ms
         function switchPage(pageId) {
             try {
                 const targetPage = document.getElementById(pageId);

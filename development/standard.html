@@ -2585,17 +2585,27 @@
             calculateStandardCorrectiveDosage();
         }
 
+        function setElementValue(id, val) {
+            var el = document.getElementById(id);
+            if (el) el.value = val;
+        }
+
         // Switch dropdown map change
         function onMapSelectChanged(val) {
             loadShapeBoundaries(val);
-            document.getElementById('map-select-comp').value = val;
-            document.getElementById('map-select-std').value = val;
-            // Re-fit whichever map is currently visible
+            setElementValue('map-select-comp', val);
+            setElementValue('map-select-std', val);
+
+            // Fit the active map to the new boundary
             fitVisibleMap();
+            setTimeout(fitVisibleMap, 50);
+            setTimeout(fitVisibleMap, 200);
+            setTimeout(fitVisibleMap, 500);
         }
 
         // Toggle Nutrient Layer Heatmap Overlay on Comprehensive Map
         function toggleNutrientLayerComp(layerValue) {
+            if (!mapComp) return;
             // Hide all legends
             document.querySelectorAll('#page-comprehensive .nutrient-legend-box').forEach(el => el.style.display = 'none');
             
@@ -2630,6 +2640,7 @@
 
         // Toggle Nutrient Layer Heatmap Overlay on Standard Map
         function toggleNutrientLayerStd(layerValue) {
+            if (!mapStd) return;
             // Hide all legends
             document.querySelectorAll('#page-standard .nutrient-legend-box').forEach(el => el.style.display = 'none');
             
@@ -2662,31 +2673,34 @@
             }
         }
 
-        // Fit whichever map container is currently visible to its boundary layer.
-        // Safe to call at any time — silently skips hidden/uninitialised maps.
-        function fitVisibleMap() {
+        // Fit the comprehensive map to its boundary layer.
+        function fitCompMap() {
             try {
-                if (mapComp) {
-                    mapComp.invalidateSize();
-                    if (compBoundaryLayer) {
-                        var b = compBoundaryLayer.getBounds();
-                        if (b && b.isValid()) mapComp.fitBounds(b, { padding: [30, 30] });
-                    }
-                }
-            } catch(e) {}
-            try {
-                if (mapStd) {
-                    mapStd.invalidateSize();
-                    if (stdBoundaryLayer) {
-                        var b = stdBoundaryLayer.getBounds();
-                        if (b && b.isValid()) mapStd.fitBounds(b, { padding: [30, 30] });
-                    }
-                }
-            } catch(e) {}
+                if (!mapComp || !compBoundaryLayer) return;
+                var b = compBoundaryLayer.getBounds();
+                if (!b || !b.isValid()) return;
+                mapComp.invalidateSize({ animate: false, pan: false });
+                mapComp.fitBounds(b, { padding: [30, 30], animate: true });
+            } catch(e) { console.error('fitCompMap error:', e); }
         }
 
-        // Page switcher — reveal the target page, then fit the map 150 ms later
-        // (150 ms gives the browser time to repaint the container at full size).
+        // Fit the standard map to its boundary layer.
+        function fitStdMap() {
+            try {
+                if (!mapStd || !stdBoundaryLayer) return;
+                var b = stdBoundaryLayer.getBounds();
+                if (!b || !b.isValid()) return;
+                mapStd.invalidateSize({ animate: false, pan: false });
+                mapStd.fitBounds(b, { padding: [30, 30], animate: true });
+            } catch(e) { console.error('fitStdMap error:', e); }
+        }
+
+        function fitVisibleMap() {
+            fitCompMap();
+            fitStdMap();
+        }
+
+        // Page switcher — reveal the target page, then fit the correct map after 150 ms
         function switchPage(pageId) {
             try {
                 const targetPage = document.getElementById(pageId);
