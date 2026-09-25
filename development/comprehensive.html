@@ -2115,7 +2115,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             // Leaflet map (Page 2)
             if (document.getElementById('map-comprehensive-element')) {
-                mapComp = L.map('map-comprehensive-element', { zoomControl: true }).setView(lahadDatuCoords, 13);
+                mapComp = L.map('map-comprehensive-element', { zoomControl: true }).setView([4.2, 109.5], 6);
                 L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
                     maxZoom: 20,
                     subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
@@ -2128,7 +2128,7 @@
 
             // Leaflet map (Page 3)
             if (document.getElementById('map-standard-element')) {
-                mapStd = L.map('map-standard-element', { zoomControl: true }).setView(lahadDatuCoords, 13);
+                mapStd = L.map('map-standard-element', { zoomControl: true }).setView([4.2, 109.5], 6);
                 L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
                     maxZoom: 20,
                     subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
@@ -2261,29 +2261,7 @@
                               ? stdBoundaryLayer.getBounds()  : null;
             var _center = center;
 
-            // Fly immediately if the map container is already visible
-            try {
-                if (_compBounds) { mapComp.invalidateSize(); mapComp.flyToBounds(_compBounds, { padding: [40, 40], maxZoom: 15 }); }
-                else { mapComp.panTo(_center); }
-            } catch(e) {}
-            try {
-                if (_stdBounds) { mapStd.invalidateSize(); mapStd.flyToBounds(_stdBounds, { padding: [40, 40], maxZoom: 15 }); }
-                else { mapStd.panTo(_center); }
-            } catch(e) {}
-
-            // Also retry at 400ms and 1200ms — handles case where map container is hidden on first load
-            function _flyToShapeBounds() {
-                try {
-                    if (_compBounds) { mapComp.invalidateSize(); mapComp.flyToBounds(_compBounds, { padding: [40, 40], maxZoom: 15 }); }
-                    else { mapComp.panTo(_center); }
-                } catch(e) {}
-                try {
-                    if (_stdBounds) { mapStd.invalidateSize(); mapStd.flyToBounds(_stdBounds, { padding: [40, 40], maxZoom: 15 }); }
-                    else { mapStd.panTo(_center); }
-                } catch(e) {}
-            }
-            setTimeout(_flyToShapeBounds, 400);
-            setTimeout(_flyToShapeBounds, 1200);
+            // Boundaries drawn — map will fly when user selects from dropdown
 
             // Clean clicked markers
             if (clickedMarkerComp) {
