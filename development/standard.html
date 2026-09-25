@@ -2186,16 +2186,7 @@
 
                     console.log('MPOB shapefile loaded:', geojson.features.length, 'features');
                     loadShapeBoundaries('mpob_36_trial');
-
-                    // Zoom map to shapefile extent
-                    setTimeout(function() {
-                        try {
-                            if (typeof mapComp !== 'undefined' && mapComp && compBoundaryLayer)
-                                mapComp.fitBounds(compBoundaryLayer.getBounds(), {padding: [20, 20]});
-                            if (typeof mapStd !== 'undefined' && mapStd && stdBoundaryLayer)
-                                mapStd.fitBounds(stdBoundaryLayer.getBounds(), {padding: [20, 20]});
-                        } catch(e) { console.error('fitBounds error', e); }
-                    }, 600);
+                    // Note: loadShapeBoundaries already handles flyToBounds — no extra fitBounds needed here.
 
                 } catch(err) {
                     console.error('MPOB shapefile load error:', err);
@@ -2260,9 +2251,24 @@
 
             if (compBoundaryLayer && compBoundaryLayer.getBounds().isValid()) {
                 try {
-                    mapComp.fitBounds(compBoundaryLayer.getBounds(), { padding: [30, 30] });
-                    mapStd.fitBounds(stdBoundaryLayer.getBounds(), { padding: [30, 30] });
+                    mapComp.invalidateSize();
+                    mapStd.invalidateSize();
+                    mapComp.flyToBounds(compBoundaryLayer.getBounds(), { padding: [40, 40], maxZoom: 15 });
+                    mapStd.flyToBounds(stdBoundaryLayer.getBounds(), { padding: [40, 40], maxZoom: 15 });
                 } catch(e) {}
+                // Also retry after 400ms in case map container was hidden
+                setTimeout(function() {
+                    try {
+                        if (compBoundaryLayer && compBoundaryLayer.getBounds().isValid()) {
+                            mapComp.invalidateSize();
+                            mapComp.flyToBounds(compBoundaryLayer.getBounds(), { padding: [40, 40], maxZoom: 15 });
+                        }
+                        if (stdBoundaryLayer && stdBoundaryLayer.getBounds().isValid()) {
+                            mapStd.invalidateSize();
+                            mapStd.flyToBounds(stdBoundaryLayer.getBounds(), { padding: [40, 40], maxZoom: 15 });
+                        }
+                    } catch(e) {}
+                }, 400);
             } else {
                 mapComp.panTo(center);
                 mapStd.panTo(center);
@@ -2701,13 +2707,13 @@
                         if (typeof compBoundaryLayer !== 'undefined' && compBoundaryLayer && typeof compBoundaryLayer.getBounds === 'function') {
                             const b = compBoundaryLayer.getBounds();
                             if (b && typeof b.isValid === 'function' && b.isValid() && mapComp) {
-                                mapComp.fitBounds(b, { padding: [30, 30] });
+                                mapComp.flyToBounds(b, { padding: [30, 30], maxZoom: 15 });
                             }
                         }
                         if (typeof stdBoundaryLayer !== 'undefined' && stdBoundaryLayer && typeof stdBoundaryLayer.getBounds === 'function') {
                             const b = stdBoundaryLayer.getBounds();
                             if (b && typeof b.isValid === 'function' && b.isValid() && mapStd) {
-                                mapStd.fitBounds(b, { padding: [30, 30] });
+                                mapStd.flyToBounds(b, { padding: [30, 30], maxZoom: 15 });
                             }
                         }
                     } catch (err) {
