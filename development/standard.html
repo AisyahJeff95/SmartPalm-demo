@@ -2110,7 +2110,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             // Leaflet map (Page 2)
             if (document.getElementById('map-comprehensive-element')) {
-                mapComp = L.map('map-comprehensive-element', { zoomControl: true }).setView(lahadDatuCoords, 15);
+                mapComp = L.map('map-comprehensive-element', { zoomControl: true }).setView(lahadDatuCoords, 13);
                 L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
                     maxZoom: 20,
                     subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
@@ -2123,7 +2123,7 @@
 
             // Leaflet map (Page 3)
             if (document.getElementById('map-standard-element')) {
-                mapStd = L.map('map-standard-element', { zoomControl: true }).setView(lahadDatuCoords, 15);
+                mapStd = L.map('map-standard-element', { zoomControl: true }).setView(lahadDatuCoords, 13);
                 L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
                     maxZoom: 20,
                     subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
@@ -2249,26 +2249,23 @@
                 }
             }).addTo(mapStd);
 
-            if (compBoundaryLayer && compBoundaryLayer.getBounds().isValid()) {
+            function _flyToShapeBounds() {
                 try {
-                    mapComp.invalidateSize();
-                    mapStd.invalidateSize();
-                    mapComp.flyToBounds(compBoundaryLayer.getBounds(), { padding: [40, 40], maxZoom: 15 });
-                    mapStd.flyToBounds(stdBoundaryLayer.getBounds(), { padding: [40, 40], maxZoom: 15 });
+                    if (compBoundaryLayer && compBoundaryLayer.getBounds().isValid()) {
+                        mapComp.invalidateSize();
+                        mapComp.flyToBounds(compBoundaryLayer.getBounds(), { padding: [40, 40], maxZoom: 15 });
+                    }
+                    if (stdBoundaryLayer && stdBoundaryLayer.getBounds().isValid()) {
+                        mapStd.invalidateSize();
+                        mapStd.flyToBounds(stdBoundaryLayer.getBounds(), { padding: [40, 40], maxZoom: 15 });
+                    }
                 } catch(e) {}
-                // Also retry after 400ms in case map container was hidden
-                setTimeout(function() {
-                    try {
-                        if (compBoundaryLayer && compBoundaryLayer.getBounds().isValid()) {
-                            mapComp.invalidateSize();
-                            mapComp.flyToBounds(compBoundaryLayer.getBounds(), { padding: [40, 40], maxZoom: 15 });
-                        }
-                        if (stdBoundaryLayer && stdBoundaryLayer.getBounds().isValid()) {
-                            mapStd.invalidateSize();
-                            mapStd.flyToBounds(stdBoundaryLayer.getBounds(), { padding: [40, 40], maxZoom: 15 });
-                        }
-                    } catch(e) {}
-                }, 400);
+            }
+            if (compBoundaryLayer && compBoundaryLayer.getBounds().isValid()) {
+                _flyToShapeBounds();
+                // Retry at 400ms and 1200ms — handles case where map container is hidden on first load
+                setTimeout(_flyToShapeBounds, 400);
+                setTimeout(_flyToShapeBounds, 1200);
             } else {
                 mapComp.panTo(center);
                 mapStd.panTo(center);
@@ -2784,7 +2781,7 @@
 
             // First open: create the map
             if (!fmMap) {
-                fmMap = L.map('map-full-nutrient', { zoomControl: true }).setView(lahadDatuCoords, 15);
+                fmMap = L.map('map-full-nutrient', { zoomControl: true }).setView(lahadDatuCoords, 13);
                 L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
                     maxZoom: 20,
                     attribution: '&copy; Google Maps'
