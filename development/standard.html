@@ -2249,7 +2249,15 @@
                 }
             }).addTo(mapStd);
 
-            // Boundaries drawn — map will fly when user selects from dropdown
+            // Boundaries drawn — fly the map to the new selection
+            function _doFly() {
+                try {
+                    if (_compBounds) { mapComp.invalidateSize(); mapComp.flyToBounds(_compBounds, { padding: [40, 40], maxZoom: 15 }); }
+                    if (_stdBounds)  { mapStd.invalidateSize();  mapStd.flyToBounds(_stdBounds,  { padding: [40, 40], maxZoom: 15 }); }
+                } catch(e) { console.warn('flyToBounds err', e); }
+            }
+            _doFly();
+            setTimeout(_doFly, 350);
 
             // Clean clicked markers
             if (clickedMarkerComp) {
