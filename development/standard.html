@@ -2249,12 +2249,17 @@
                 }
             }).addTo(mapStd);
 
-            // Boundaries drawn — fly the map to the new selection
+            // Boundaries drawn — fly only the VISIBLE map (container must have real dimensions)
+            function _safefly(map, bounds) {
+                if (!map || !bounds || !bounds.isValid()) return;
+                var container = map.getContainer();
+                if (!container || container.offsetWidth === 0 || container.offsetHeight === 0) return;
+                map.invalidateSize(true);
+                map.flyToBounds(bounds, { padding: [40, 40], maxZoom: 15 });
+            }
             function _doFly() {
-                try {
-                    if (_compBounds) { mapComp.invalidateSize(); mapComp.flyToBounds(_compBounds, { padding: [40, 40], maxZoom: 15 }); }
-                    if (_stdBounds)  { mapStd.invalidateSize();  mapStd.flyToBounds(_stdBounds,  { padding: [40, 40], maxZoom: 15 }); }
-                } catch(e) { console.warn('flyToBounds err', e); }
+                _safefly(mapComp, _compBounds);
+                _safefly(mapStd,  _stdBounds);
             }
             _doFly();
             setTimeout(_doFly, 350);
@@ -2593,21 +2598,26 @@
         }
 
         // Switch dropdown map change
+        function _safeFlyToBounds(map, layer) {
+            if (!map || !layer) return;
+            var bounds = layer.getBounds();
+            if (!bounds || !bounds.isValid()) return;
+            var c = map.getContainer();
+            if (!c || c.offsetWidth === 0 || c.offsetHeight === 0) return;
+            map.invalidateSize(true);
+            map.flyToBounds(bounds, { padding: [40, 40], maxZoom: 15 });
+        }
+
         function onMapSelectChanged(val) {
             loadShapeBoundaries(val);
             document.getElementById('map-select-comp').value = val;
             document.getElementById('map-select-std').value = val;
-            // If the map page is already active, fly immediately
-            // (if it's not active, switchPage will fly when user navigates there)
-            var compEl = document.getElementById('map-comprehensive-element');
-            if (compEl && compEl.offsetParent !== null) {
-                setTimeout(function() {
-                    try {
-                        if (compBoundaryLayer) { mapComp.invalidateSize(); mapComp.flyToBounds(compBoundaryLayer.getBounds(), { padding: [40, 40], maxZoom: 15 }); }
-                        if (stdBoundaryLayer)  { mapStd.invalidateSize();  mapStd.flyToBounds(stdBoundaryLayer.getBounds(),  { padding: [40, 40], maxZoom: 15 }); }
-                    } catch(e) {}
-                }, 100);
-            }
+            // _doFly inside loadShapeBoundaries handles the immediate fly.
+            // This extra call ensures the fly happens even if the first one raced with rendering.
+            setTimeout(function() {
+                _safeFlyToBounds(mapComp, compBoundaryLayer);
+                _safeFlyToBounds(mapStd,  stdBoundaryLayer);
+            }, 200);
         }
 
         // Toggle Nutrient Layer Heatmap Overlay on Comprehensive Map
@@ -2682,31 +2692,14 @@
         function switchPage(pageId) {
             try {
                 const targetPage = document.getElementById(pageId);
-                if (!targetPage) {
-                    console.error('Target page container not found:', pageId);
-                    return;
-                }
+                if (!targetPage) { console.error('Target page not found:', pageId); return; }
                 document.querySelectorAll('.page-container').forEach(el => el.classList.remove('active'));
                 targetPage.classList.add('active');
-
-                // Helper: invalidate map sizes and fly to current boundary bounds
-                function _fitMapsAfterReveal() {
-                    try {
-                        if (typeof mapComp !== 'undefined' && mapComp) mapComp.invalidateSize();
-                        if (typeof mapStd  !== 'undefined' && mapStd)  mapStd.invalidateSize();
-                        if (typeof compBoundaryLayer !== 'undefined' && compBoundaryLayer) {
-                            const b = compBoundaryLayer.getBounds();
-                            if (b && b.isValid() && mapComp) mapComp.flyToBounds(b, { padding: [40, 40], maxZoom: 15 });
-                        }
-                        if (typeof stdBoundaryLayer !== 'undefined' && stdBoundaryLayer) {
-                            const b = stdBoundaryLayer.getBounds();
-                            if (b && b.isValid() && mapStd) mapStd.flyToBounds(b, { padding: [40, 40], maxZoom: 15 });
-                        }
-                    } catch (err) { console.log('Map resize warning:', err); }
-                }
-                // Fire at 300ms and again at 700ms — second call ensures the CSS transition is done
-                setTimeout(_fitMapsAfterReveal, 300);
-                setTimeout(_fitMapsAfterReveal, 700);
+                // After the page is revealed, fly each map only if its container now has real dimensions
+                setTimeout(function() {
+                    _safeFlyToBounds(mapComp, compBoundaryLayer);
+                    _safeFlyToBounds(mapStd,  stdBoundaryLayer);
+                }, 300);
             } catch (e) {
                 console.error('Error switching page:', e);
             }
