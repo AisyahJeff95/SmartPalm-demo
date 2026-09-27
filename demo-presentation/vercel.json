@@ -1,0 +1,50 @@
+{
+  "version": 2,
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/PalmnexReaDS",
+      "destination": "/PalmnexReaDS.html"
+    },
+    {
+      "source": "/palmnexreads",
+      "destination": "/PalmnexReaDS.html"
+    },
+    {
+      "source": "/reada",
+      "destination": "/PalmnexReaDS.html"
+    },
+    {
+      "source": "/reada.html",
+      "destination": "/PalmnexReaDS.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    },
+    {
+      "source": "/(.*).(html|js|css)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-store, no-cache, must-revalidate, proxy-revalidate"
+        },
+        {
+          "key": "Pragma",
+          "value": "no-cache"
+        },
+        {
+          "key": "Expires",
+          "value": "0"
+        }
+      ]
+    }
+  ]
+}

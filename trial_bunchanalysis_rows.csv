@@ -1,0 +1,10 @@
+id,user_id,trial_code,recording_year,plot_no,palm_no,fruit_type,bunch_wt,stalk_wt,spikelet_wt,fruit_wt,nut_wt,kernel_wt,wet_meso
+2bd74c03-839c-4d9e-bbe8-322b66cad533,2bc01fc1-7a2d-40fa-a11b-2484630c22c6,PR1998/1,2026,Plot 2,Palm 1,Tenera,0,0,0,0,0,0,0
+416a0fd5-674f-4b1a-bb86-3f1bbc616d98,2bc01fc1-7a2d-40fa-a11b-2484630c22c6,PR2005/2,2026,Plot 1,Palm 1,Tenera,0,0,0.5,0,0,0,0
+5c1d8f30-e90e-4f03-a705-b6723ee1fc5a,2bc01fc1-7a2d-40fa-a11b-2484630c22c6,PR2005/2,2026,Plot 1,Palm 2,Tenera,0,0.1,0,0,0,0,0
+5e8efa64-0a8f-42b5-af46-f98aac71184b,2bc01fc1-7a2d-40fa-a11b-2484630c22c6,PR2005/2,2026,Plot 2,Palm 1,Tenera,0,0,0,0,0,0,0
+7b5e2ac7-189b-4ce0-a0b0-31c46333a207,2bc01fc1-7a2d-40fa-a11b-2484630c22c6,PR1998/1,2026,Plot 1,Palm 2,Tenera,0,0,0,0,0,0,0
+b4001403-373d-4665-b04e-1996d04f9558,2bc01fc1-7a2d-40fa-a11b-2484630c22c6,PR2002/4,2026,Plot 1,Palm 1,Tenera,0.3,0,0,0,0,0,0
+b6445207-2fa7-4d70-93c6-f2846c54002a,2bc01fc1-7a2d-40fa-a11b-2484630c22c6,PR2002/4,2026,Plot 2,Palm 1,Tenera,0,0,0,0,0,0,0
+cc8d1c7a-494d-4d47-a5fb-f4f32f2116df,2bc01fc1-7a2d-40fa-a11b-2484630c22c6,PR1998/1,2026,Plot 1,Palm 1,Tenera,1.8,0,0,0,0,0,0
+d729d9d9-50e6-4af6-8f39-62eea3924343,2bc01fc1-7a2d-40fa-a11b-2484630c22c6,PR2002/4,2026,Plot 1,Palm 2,Tenera,0,0,0,0,0,0,0

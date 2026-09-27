@@ -1704,7 +1704,7 @@
                 <a href="standard.html" class="cms-nav-item ">
                     <img src="std-logo-final.png" class="icon" /> <span class="nav-label">Standard Fert</span>
                 </a>
-                <a href="https://palmnex.com.my" target="_blank" rel="noopener noreferrer" class="cms-nav-item">
+                <a href="https://www.palmnex.com.my/PalmnexReaDS" target="_blank" rel="noopener noreferrer" class="cms-nav-item">
                     <img src="reada-logo-final.png" class="icon" style="transform: scale(0.75);" /> <span class="nav-label">PalmNexReaDS</span>
                 </a>
             </nav>
@@ -2614,15 +2614,11 @@
 
         // Switch dropdown map change
         function onMapSelectChanged(val) {
-            loadShapeBoundaries(val);
+            loadShapeBoundaries(val);  // fitBounds is called synchronously inside
             setElementValue('map-select-comp', val);
             setElementValue('map-select-std', val);
-
-            // Fit the active map to the new boundary
-            fitVisibleMap();
-            setTimeout(fitVisibleMap, 50);
-            setTimeout(fitVisibleMap, 200);
-            setTimeout(fitVisibleMap, 500);
+            // Safety net: re-fit after a tick in case of any rendering delay
+            setTimeout(fitVisibleMap, 150);
         }
 
         // Toggle Nutrient Layer Heatmap Overlay on Comprehensive Map
