@@ -1773,10 +1773,10 @@
                     <label class="form-label" style="font-size: 12px;">Select Map:</label>
                     <div style="display: flex; gap: 4px; width: 100%;">
                         <select class="form-select" id="map-select-comp" onchange="onMapSelectChanged(this.value)" style="flex: 1;">
-                            <option value="mpob_36_trial" selected>MPOB Lahad Datu 36 Trial Plot</option>
+                            <option value="mpob_36_trial">MPOB Lahad Datu 36 Trial Plot</option>
                    <option value="lahad_datu">Lahad Datu with block boundary</option>
                             <option value="seraya">Seraya with block boundary</option>
-                             <option value="lahad_datu_combined">Lahad Datu – Boundary + 36 Trial Plots</option>
+                             <option value="lahad_datu_combined" selected>Lahad Datu – Boundary + 36 Trial Plots</option>
                              <option value="jengka24">Ladang Jengka 24</option>
                              <option value="jengka25">Ladang Jengka 25</option>
                              <option value="kota_gelanggi5">Ladang Kota Gelanggi 5</option>
@@ -2203,7 +2203,7 @@
                     REAL_MAPS_DATA['mpob_36_trial'] = geojson;
 
                     console.log('MPOB shapefile loaded:', geojson.features.length, 'features');
-                    loadShapeBoundaries('mpob_36_trial');
+                    loadShapeBoundaries('lahad_datu_combined');
                     // If the user is already on the comprehensive page, fit the map now.
                     setTimeout(fitCompMap, 50);
 
