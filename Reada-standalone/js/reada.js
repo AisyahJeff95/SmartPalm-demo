@@ -1606,8 +1606,7 @@ window.fetchUserTrials = fetchUserTrials;
 }
 
         function viewSelectedTrialsInList() {
-            const listTab = document.querySelector('.reada-tab[data-view="trial-list"]');
-            if(listTab) showReadaView('trial-list', listTab);
+            // Tab switch removed: users navigate to List of Available Trial Data manually
         }
 
         // Direct Popup Launcher for [view] and [edit] Actions in Table
@@ -1694,9 +1693,7 @@ function viewSelectedTrialsInList(selectedArray) {
         } catch(e) {}
     }
 
-    if (typeof switchTabDirect === 'function') {
-        switchTabDirect('trial-list');
-    }
+    // Tab switch removed: users navigate to List of Available Trial Data manually
 
     if (typeof renderReadaTrialsTable === 'function') {
         renderReadaTrialsTable();
@@ -1747,9 +1744,7 @@ window.renderReadaTrialsTable = renderReadaTrialsTable;
 
         function viewSelectedTrialsInList() {
             console.log("Viewing selected trials in list...");
-            if (typeof switchTabDirect === 'function') {
-                switchTabDirect('trial-list');
-            }
+            // Tab switch removed: users navigate to List of Available Trial Data manually
             if (typeof renderReadaTrialsTable === 'function') {
                 renderReadaTrialsTable();
             }
