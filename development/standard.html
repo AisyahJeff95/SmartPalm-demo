@@ -1983,6 +1983,7 @@ function toggleLockInputs(checkboxEl, targetInputIds) {
 }
 
 
+
 // Sentinel WMS Layer & Date Badge References
 let compSentinelLayer = null;
 let stdSentinelLayer = null;
@@ -1997,30 +1998,31 @@ function clipLayerToBoundary(tileLayer, boundaryLayer, map) {
             const container = tileLayer.getContainer();
             if (!container) return;
 
-            let polygonCoords = [];
+            let allRings = [];
             boundaryLayer.eachLayer(layer => {
                 if (layer.getLatLngs) {
                     let latlngs = layer.getLatLngs();
-                    if (Array.isArray(latlngs[0])) {
-                        latlngs.forEach(ring => {
-                            if (Array.isArray(ring[0])) {
-                                ring.forEach(subRing => polygonCoords.push(subRing));
-                            } else {
-                                polygonCoords.push(ring);
-                            }
-                        });
-                    } else {
-                        polygonCoords.push(latlngs);
+                    function extractRings(arr) {
+                        if (!Array.isArray(arr) || arr.length === 0) return;
+                        if (arr[0] && typeof arr[0].lat === 'number') {
+                            allRings.push(arr);
+                        } else {
+                            arr.forEach(sub => extractRings(sub));
+                        }
                     }
+                    extractRings(latlngs);
                 }
             });
 
-            if (polygonCoords.length === 0) return;
+            if (allRings.length === 0) return;
 
-            let mainRing = polygonCoords[0];
+            // Sort by ring vertex count to find outer perimeter
+            allRings.sort((a, b) => b.length - a.length);
+
+            let mainRing = allRings[0];
             let pts = mainRing.map(ll => {
                 let p = map.latLngToContainerPoint(ll);
-                return `${p.x}px ${p.y}px`;
+                return `${Math.round(p.x)}px ${Math.round(p.y)}px`;
             });
             let clipStr = `polygon(${pts.join(', ')})`;
 
@@ -2036,16 +2038,18 @@ function clipLayerToBoundary(tileLayer, boundaryLayer, map) {
 
     map.on('move moveend zoomend viewreset', updateClip);
     tileLayer.on('load', updateClip);
-    setTimeout(updateClip, 100);
+    setTimeout(updateClip, 150);
 }
 
 function updateSentinelClippingAndBadge() {
     const realtimeChk = document.getElementById('comp-realtime-chk');
     const previousChk = document.getElementById('comp-previous-chk');
     const satDateInput = document.getElementById('comp-sat-date');
+    const showOverlayChk = document.getElementById('comp-show-overlay-chk');
 
     const isRealtime = realtimeChk ? realtimeChk.checked : false;
     const isPrevious = previousChk ? previousChk.checked : false;
+    const isShowOverlay = showOverlayChk ? showOverlayChk.checked : false;
     const selectedDate = satDateInput ? satDateInput.value : '';
 
     // Clean old Sentinel WMS layers & Date Badges
@@ -2065,6 +2069,9 @@ function updateSentinelClippingAndBadge() {
         if (mapStd) mapStd.removeLayer(stdDateBadge);
         stdDateBadge = null;
     }
+
+    // Keep map clear if overlay toggle is unchecked
+    if (!isShowOverlay) return;
 
     if (!isRealtime && !isPrevious) return;
 
@@ -2334,7 +2341,7 @@ function toggleSatDataMode(mode) {
             <!-- Section 1 Header: Satellite -->
             <div class="ui-section-title">Satellite</div>
 
-                        <!-- Card 1: Satellite Data -->
+                                    <!-- Card 1: Satellite Data -->
             <div class="ui-card">
                 <div class="flex-row-between" style="margin-bottom: 8px;">
                     <div class="ui-card-label">Satellite Data</div>
@@ -2352,7 +2359,15 @@ function toggleSatDataMode(mode) {
                         </div>
                     </div>
                 </div>
-                <div class="ui-hint-text" style="font-size: 11px; color: #6d6d72; line-height: 1.35; border-top: 1px solid #f2f2f7; padding-top: 6px; margin-top: 4px;">
+                
+                <!-- View/Unview Overlay Toggle -->
+                <div style="border-top: 1px solid #f2f2f7; padding-top: 8px; margin-top: 6px;">
+                    <label class="ui-checkbox-label" style="font-weight: 600; color: #00802b;">
+                        <input type="checkbox" id="comp-show-overlay-chk" onchange="updateSentinelClippingAndBadge()"> Show Sentinel Satellite Overlay
+                    </label>
+                </div>
+
+                <div class="ui-hint-text" style="font-size: 11px; color: #6d6d72; line-height: 1.35; margin-top: 6px;">
                     * If no data is available on the selected date, satellite data within a 10-day window will be fetched.
                 </div>
             </div>
