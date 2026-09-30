@@ -1650,7 +1650,14 @@
         color: #1e293b;
         text-shadow: 0 1px 3px #ffffff, 0 -1px 3px #ffffff, 1px 0 3px #ffffff, -1px 0 3px #ffffff;
     }
-    </style>
+    
+        /* iOS sidebar background override */
+        .sidebar {
+            background-color: #f2f2f7 !important;
+            gap: 10px !important;
+            padding: 16px 14px !important;
+        }
+</style>
 
     <!-- External Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -1818,8 +1825,8 @@
 
             <!-- Soil Data Card -->
             <div class="ios-card">
-                <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-                    <span class="ios-card-title" style="margin:0;flex-shrink:0;">Soil Data</span>
+                <div class="ios-card-title">Soil Data</div>
+                <div style="display:flex;gap:20px;">
                     <label class="ios-checkbox-label" style="margin:0;"><input type="checkbox" onchange="if(this.checked)openEdsInlandDialog();"> Inland</label>
                     <label class="ios-checkbox-label" style="margin:0;"><input type="checkbox" onchange="if(this.checked)openEdsAlluvialDialog();"> Alluvial / Coastal</label>
                 </div>
