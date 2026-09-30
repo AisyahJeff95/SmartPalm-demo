@@ -1991,6 +1991,7 @@ let compDateBadge = null;
 let stdDateBadge = null;
 
 
+
 // Handle Individual .shp and .dbf Uploads
 let uploadedShpBuffer = null;
 let uploadedDbfBuffer = null;
@@ -2003,12 +2004,18 @@ function handleIndividualShapefileUpload(event, fileType) {
     reader.onload = function(e) {
         if (fileType === 'shp') {
             uploadedShpBuffer = e.target.result;
-            const hint = document.getElementById('shp-dbf-status-hint');
-            if (hint) hint.innerText = '✓ .shp file loaded. Please upload matching .dbf file.';
+            const msg = document.getElementById('shp-success-msg');
+            if (msg) {
+                msg.innerText = `* Successfully uploaded (${file.name})`;
+                msg.style.display = 'block';
+            }
         } else if (fileType === 'dbf') {
             uploadedDbfBuffer = e.target.result;
-            const hint = document.getElementById('shp-dbf-status-hint');
-            if (hint) hint.innerText = '✓ .dbf file loaded.';
+            const msg = document.getElementById('dbf-success-msg');
+            if (msg) {
+                msg.innerText = `* Successfully uploaded (${file.name})`;
+                msg.style.display = 'block';
+            }
         }
 
         processCombinedShapefiles();
@@ -2040,8 +2047,6 @@ function processCombinedShapefiles() {
                 });
 
                 onMapSelectChanged(customKey);
-                const hint = document.getElementById('shp-dbf-status-hint');
-                if (hint) hint.innerText = '✓ Estate map successfully rendered on dashboard!';
             }
         } catch (err) {
             console.error('Error parsing shapefile:', err);
@@ -2063,26 +2068,50 @@ function handleDroneImageUpload(event) {
     const reader = new FileReader();
     reader.onload = function(e) {
         uploadedDroneDataUrl = e.target.result;
-        const hint = document.getElementById('drone-status-hint');
-        if (hint) hint.innerText = `✓ Drone image (${file.name}) loaded!`;
+        
+        const msg = document.getElementById('drone-success-msg');
+        if (msg) {
+            msg.innerText = `* Successfully uploaded (${file.name})`;
+            msg.style.display = 'block';
+        }
+
+        // Auto-check "Show Uploaded Drone Overlay" checkbox
+        const droneChk = document.getElementById('comp-show-drone-chk');
+        if (droneChk) droneChk.checked = true;
+
         updateDroneImageOverlay();
     };
     reader.readAsDataURL(file);
 }
 
 function updateDroneImageOverlay() {
-    if (!uploadedDroneDataUrl) return;
+    const showDroneChk = document.getElementById('comp-show-drone-chk');
+    const isShowDrone = showDroneChk ? showDroneChk.checked : false;
+
+    // Clean old drone overlays & badges
+    if (compDroneOverlay && mapComp) {
+        mapComp.removeLayer(compDroneOverlay);
+        compDroneOverlay = null;
+    }
+    if (stdDroneOverlay && mapStd) {
+        mapStd.removeLayer(stdDroneOverlay);
+        stdDroneOverlay = null;
+    }
+    if (compDroneBadge && mapComp) {
+        mapComp.removeLayer(compDroneBadge);
+        compDroneBadge = null;
+    }
+    if (stdDroneBadge && mapStd) {
+        mapStd.removeLayer(stdDroneBadge);
+        stdDroneBadge = null;
+    }
+
+    if (!isShowDrone || !uploadedDroneDataUrl) return;
 
     let activeBoundary = compBoundaryLayer || stdBoundaryLayer;
     if (!activeBoundary) return;
     let bounds = activeBoundary.getBounds();
     if (!bounds || !bounds.isValid()) return;
-
-    // Clean old drone overlays & badges
-    if (compDroneOverlay && mapComp) mapComp.removeLayer(compDroneOverlay);
-    if (stdDroneOverlay && mapStd) mapStd.removeLayer(stdDroneOverlay);
-    if (compDroneBadge && mapComp) mapComp.removeLayer(compDroneBadge);
-    if (stdDroneBadge && mapStd) mapStd.removeLayer(stdDroneBadge);
 
     // Create Image Overlay clipped to boundary
     if (mapComp && compBoundaryLayer) {
@@ -2481,7 +2510,7 @@ function toggleSatDataMode(mode) {
             <!-- Section 1 Header: Satellite -->
             <div class="ui-section-title">Satellite</div>
 
-                                    <!-- Card 1: Satellite Data -->
+                                                <!-- Card 1: Satellite Data -->
             <div class="ui-card">
                 <div class="flex-row-between" style="margin-bottom: 8px;">
                     <div class="ui-card-label">Satellite Data</div>
@@ -2500,10 +2529,13 @@ function toggleSatDataMode(mode) {
                     </div>
                 </div>
                 
-                <!-- View/Unview Overlay Toggle -->
-                <div style="border-top: 1px solid #f2f2f7; padding-top: 8px; margin-top: 6px;">
+                <!-- View/Unview Overlay Toggles -->
+                <div style="border-top: 1px solid #f2f2f7; padding-top: 8px; margin-top: 6px; display: flex; flex-direction: column; gap: 6px;">
                     <label class="ui-checkbox-label" style="font-weight: 600; color: #00802b;">
                         <input type="checkbox" id="comp-show-overlay-chk" onchange="updateSentinelClippingAndBadge()"> Show Sentinel Satellite Overlay
+                    </label>
+                    <label class="ui-checkbox-label" style="font-weight: 600; color: #2563eb;">
+                        <input type="checkbox" id="comp-show-drone-chk" onchange="updateDroneImageOverlay()"> Show Uploaded Drone Overlay
                     </label>
                 </div>
 
@@ -2535,17 +2567,23 @@ function toggleSatDataMode(mode) {
                 </div>
 
                 <!-- Separate .shp Upload -->
-                <div class="ui-field-row-between" style="margin-bottom: 8px;">
-                    <span class="ui-sub-label" style="font-weight: 600;">Upload .shp file:</span>
-                    <button class="ui-upload-outline-btn" onclick="document.getElementById('shp-single-input').click()">Upload .shp</button>
-                    <input type="file" id="shp-single-input" accept=".shp" style="display:none;" onchange="handleIndividualShapefileUpload(event, 'shp')">
+                <div style="margin-bottom: 8px;">
+                    <div class="ui-field-row-between">
+                        <span class="ui-sub-label" style="font-weight: 600;">Upload .shp file:</span>
+                        <button class="ui-upload-outline-btn" onclick="document.getElementById('shp-single-input').click()">Upload .shp</button>
+                        <input type="file" id="shp-single-input" accept=".shp" style="display:none;" onchange="handleIndividualShapefileUpload(event, 'shp')">
+                    </div>
+                    <div id="shp-success-msg" style="font-size: 11px; color: #00802b; font-weight: 600; display: none; margin-top: 3px;">* Successfully uploaded</div>
                 </div>
 
                 <!-- Separate .dbf Upload -->
-                <div class="ui-field-row-between" style="margin-bottom: 8px;">
-                    <span class="ui-sub-label" style="font-weight: 600;">Upload .dbf file:</span>
-                    <button class="ui-upload-outline-btn" onclick="document.getElementById('dbf-single-input').click()">Upload .dbf</button>
-                    <input type="file" id="dbf-single-input" accept=".dbf" style="display:none;" onchange="handleIndividualShapefileUpload(event, 'dbf')">
+                <div style="margin-bottom: 8px;">
+                    <div class="ui-field-row-between">
+                        <span class="ui-sub-label" style="font-weight: 600;">Upload .dbf file:</span>
+                        <button class="ui-upload-outline-btn" onclick="document.getElementById('dbf-single-input').click()">Upload .dbf</button>
+                        <input type="file" id="dbf-single-input" accept=".dbf" style="display:none;" onchange="handleIndividualShapefileUpload(event, 'dbf')">
+                    </div>
+                    <div id="dbf-success-msg" style="font-size: 11px; color: #00802b; font-weight: 600; display: none; margin-top: 3px;">* Successfully uploaded</div>
                 </div>
 
                 <div class="ui-hint-text" id="shp-dbf-status-hint">* Upload .shp and .dbf files of the estate for boundary rendering.</div>
@@ -2554,10 +2592,13 @@ function toggleSatDataMode(mode) {
                 <div style="border-top: 1px solid #f2f2f7; padding-top: 10px; margin-top: 10px;">
                     <div class="ui-card-label" style="font-size: 13px; margin-bottom: 8px; color: #1c1c1e;">Upload Hi-Res Drone Image:</div>
                     
-                    <div class="ui-field-row-between" style="margin-bottom: 8px;">
-                        <span class="ui-sub-label">Drone Image (.tif / .png / .jpg):</span>
-                        <button class="ui-upload-outline-btn" onclick="document.getElementById('drone-file-input').click()">Upload Drone</button>
-                        <input type="file" id="drone-file-input" accept="image/*,.tif,.tiff" style="display:none;" onchange="handleDroneImageUpload(event)">
+                    <div style="margin-bottom: 8px;">
+                        <div class="ui-field-row-between">
+                            <span class="ui-sub-label">Drone Image (.tif / .png / .jpg):</span>
+                            <button class="ui-upload-outline-btn" onclick="document.getElementById('drone-file-input').click()">Upload Drone</button>
+                            <input type="file" id="drone-file-input" accept="image/*,.tif,.tiff" style="display:none;" onchange="handleDroneImageUpload(event)">
+                        </div>
+                        <div id="drone-success-msg" style="font-size: 11px; color: #00802b; font-weight: 600; display: none; margin-top: 3px;">* Successfully uploaded</div>
                     </div>
 
                     <div class="ui-field-row" style="margin-top: 6px;">
