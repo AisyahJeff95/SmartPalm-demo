@@ -2400,7 +2400,7 @@ function toggleSatDataMode(mode) {
             <!-- Section 1 Header: Satellite -->
             <div class="ui-section-title">Satellite</div>
 
-                                                <!-- Card 1: Satellite Data -->
+                                                            <!-- Card 1: Satellite Data -->
             <div class="ui-card">
                 <div class="flex-row-between" style="margin-bottom: 8px;">
                     <div class="ui-card-label">Satellite Data</div>
@@ -2419,13 +2419,10 @@ function toggleSatDataMode(mode) {
                     </div>
                 </div>
                 
-                <!-- View/Unview Overlay Toggles -->
-                <div style="border-top: 1px solid #f2f2f7; padding-top: 8px; margin-top: 6px; display: flex; flex-direction: column; gap: 6px;">
+                <!-- View/Unview Sentinel Overlay Toggle -->
+                <div style="border-top: 1px solid #f2f2f7; padding-top: 8px; margin-top: 6px;">
                     <label class="ui-checkbox-label" style="font-weight: 600; color: #00802b;">
                         <input type="checkbox" id="comp-show-overlay-chk" onchange="updateSentinelClippingAndBadge()"> Show Sentinel Satellite Overlay
-                    </label>
-                    <label class="ui-checkbox-label" style="font-weight: 600; color: #2563eb;">
-                        <input type="checkbox" id="comp-show-drone-chk" onchange="updateDroneImageOverlay()"> Show Uploaded Drone Overlay
                     </label>
                 </div>
 
@@ -2494,6 +2491,13 @@ function toggleSatDataMode(mode) {
                     <div class="ui-field-row" style="margin-top: 6px;">
                         <span class="ui-sub-label" style="font-weight: 600; white-space: nowrap;">Date Taken:</span>
                         <input type="date" class="ui-date-input" id="drone-date-input" style="flex: 1;" onchange="updateDroneImageOverlay()">
+                    </div>
+
+                    <!-- Show Uploaded Drone Overlay Checkbox inside Map File Selection at bottom -->
+                    <div style="border-top: 1px solid #f2f2f7; padding-top: 8px; margin-top: 8px;">
+                        <label class="ui-checkbox-label" style="font-weight: 600; color: #2563eb;">
+                            <input type="checkbox" id="comp-show-drone-chk" onchange="updateDroneImageOverlay()"> Show Uploaded Drone Overlay
+                        </label>
                     </div>
 
                     <div class="ui-hint-text" id="drone-status-hint" style="margin-top: 4px;">* Upload high-resolution drone orthomosaic image to overlay on active map boundary.</div>
