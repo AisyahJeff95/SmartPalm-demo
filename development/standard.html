@@ -2267,8 +2267,22 @@ function toggleSatDataMode(mode) {
                 </div>
             </div>
 
-            <!-- Generate Report Button -->
+                        <!-- Generate Report Button -->
             <button class="ui-generate-report-btn" onclick="viewReportPDF(reportData.soilType || 'Standard')">Generate Report</button>
+
+            <!-- Note & Disclaimer Section -->
+            <div class="ui-footer-notes" style="margin-top: 12px; margin-bottom: 16px; padding: 12px 14px; background: #ffffff; border-radius: 12px; border: 1px solid #e5e5ea; font-size: 11px; color: #48484a; line-height: 1.5; font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;">
+                <div style="margin-bottom: 8px;">
+                    * We are using Sentinel-1A, 2A, and 1C to produce the most precise nutrient detection data disregarding cloud cover and weather, with a 10-day range of updated data.
+                </div>
+                <div style="margin-bottom: 8px; color: #6d6d72;">
+                    <strong>Disclaimer:</strong> The shown map in dashboard is fetched from Google Maps to improve loading speed and user ease of viewing.
+                </div>
+                <div>
+                    Sentinel real-time maps can be viewed using this link: 
+                    <a href="https://browser.dataspace.copernicus.eu/" target="_blank" rel="noopener noreferrer" style="color: #00802b; font-weight: 600; text-decoration: underline;">Copernicus Data Space EO Browser</a>
+                </div>
+            </div>
 
         </div>
 
