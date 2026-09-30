@@ -1992,6 +1992,8 @@
     <script src="https://unpkg.com/shpjs@latest/dist/shp.js"></script>
 <script>
 
+
+
 function toggleLockInput(checkboxEl, targetInputId) {
     const target = document.getElementById(targetInputId);
     if (target) {
@@ -2005,6 +2007,36 @@ function toggleLockInput(checkboxEl, targetInputId) {
             target.style.color = '#1c1c1e';
             target.style.cursor = 'text';
         }
+    }
+}
+
+
+const MPOB_FERTILIZER_SPECS = {
+    'mpob_f2_super_k': { n: 7.0,  p: 3.0, k: 30.0, mg: 0.0 },
+    'mpob_f1':         { n: 10.0, p: 5.4, k: 16.2, mg: 2.7 },
+    'mpob_f1_xtra_k':   { n: 10.0, p: 5.0, k: 20.0, mg: 2.0 },
+    'mpob_f2':         { n: 10.7, p: 9.1, k: 17.3, mg: 1.4 },
+    'mpob_f3':         { n: 10.0, p: 7.0, k: 19.0, mg: 1.5 },
+    'mpob_f4':         { n: 9.0,  p: 6.0, k: 18.0, mg: 2.0 },
+    'mpob_f4_premium': { n: 9.0,  p: 6.0, k: 18.0, mg: 2.0 },
+    'mpob_f5':         { n: 6.0,  p: 6.0, k: 11.0, mg: 1.0 },
+    'mpob_f5_super':   { n: 10.0, p: 6.0, k: 19.0, mg: 2.5 },
+    'mpob_f6':         { n: 10.0, p: 7.0, k: 18.0, mg: 2.5 },
+    'mpob_f7':         { n: 19.0, p: 8.0, k: 13.0, mg: 2.5 }
+};
+
+function onFertilizerSelectChanged(val) {
+    const spec = MPOB_FERTILIZER_SPECS[val];
+    if (spec) {
+        const nInput = document.getElementById('fert-n-input');
+        const pInput = document.getElementById('fert-p-input');
+        const kInput = document.getElementById('fert-k-input');
+        const mgInput = document.getElementById('fert-mg-input');
+
+        if (nInput) nInput.value = spec.n;
+        if (pInput) pInput.value = spec.p;
+        if (kInput) kInput.value = spec.k;
+        if (mgInput) mgInput.value = spec.mg;
     }
 }
 
@@ -2557,7 +2589,7 @@ function toggleSatDataMode(mode) {
             <!-- Section 2 Header: Fertilizer Recommendation -->
             <div class="ui-section-title" style="margin-top: 10px;">Fertilizer Recommendation</div>
 
-                        <!-- Card 7: Enter Fertilizer Used/ To Use [Ratio] -->
+                                    <!-- Card 7: Enter Fertilizer Used/ To Use [Ratio] -->
             <div class="ui-card">
                 <div class="ui-card-label" style="margin-bottom: 10px;">Enter Fertilizer Used/ To Use [<span style="font-weight: 700;">Ratio</span>]</div>
                 
@@ -2575,12 +2607,25 @@ function toggleSatDataMode(mode) {
 
                 <div class="ui-field-row">
                     <span class="ui-sub-label" style="line-height: 1.2; width: 75px; flex-shrink: 0;">Or select<br>from list:</span>
-                    <input type="text" class="ui-pill-input" id="fert-list-input" style="flex: 1;">
+                    <select class="ui-select-input" id="fert-list-input" style="flex: 1;" onchange="onFertilizerSelectChanged(this.value)">
+                        <option value="">-- Select MPOB Fertilizer --</option>
+                        <option value="mpob_f2_super_k">MPOB F2 Super K (7:3:30)</option>
+                        <option value="mpob_f1">MPOB F1 (10:5.4:16.2:2.7)</option>
+                        <option value="mpob_f1_xtra_k">MPOB F1 Xtra K (10:5:20:2)</option>
+                        <option value="mpob_f2">MPOB F2 (10.7:9.1:17.3:1.4)</option>
+                        <option value="mpob_f3">MPOB F3 (10:7:19:1.5)</option>
+                        <option value="mpob_f4">MPOB F4 (9:6:18:2)</option>
+                        <option value="mpob_f4_premium">MPOB F4 Premium (9:6:18:2)</option>
+                        <option value="mpob_f5">MPOB F5 (6:6:11:1)</option>
+                        <option value="mpob_f5_super">MPOB F5 Super (10:6:19:2.5)</option>
+                        <option value="mpob_f6">MPOB F6 (10:7:18:2.5)</option>
+                        <option value="mpob_f7">MPOB F7 (19:8:13:2.5)</option>
+                    </select>
                     <input type="checkbox" id="fert-list-lock-chk" class="ui-accent-checkbox" onchange="toggleLockInput(this, 'fert-list-input')" title="Lock / Unlock input">
                 </div>
             </div>
 
-                        <!-- Generate Report Button -->
+            <!-- Generate Report Button -->
             <button class="ui-generate-report-btn" onclick="viewReportPDF(reportData.soilType || 'Standard')">Generate Report</button>
 
             <!-- Note & Disclaimer Section -->
