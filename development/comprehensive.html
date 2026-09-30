@@ -2034,6 +2034,146 @@ let stdSentinelLayer = null;
 let compDateBadge = null;
 let stdDateBadge = null;
 
+
+// Handle Individual .shp and .dbf Uploads
+let uploadedShpBuffer = null;
+let uploadedDbfBuffer = null;
+
+function handleIndividualShapefileUpload(event, fileType) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        if (fileType === 'shp') {
+            uploadedShpBuffer = e.target.result;
+            const hint = document.getElementById('shp-dbf-status-hint');
+            if (hint) hint.innerText = '✓ .shp file loaded. Please upload matching .dbf file.';
+        } else if (fileType === 'dbf') {
+            uploadedDbfBuffer = e.target.result;
+            const hint = document.getElementById('shp-dbf-status-hint');
+            if (hint) hint.innerText = '✓ .dbf file loaded.';
+        }
+
+        processCombinedShapefiles();
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+function processCombinedShapefiles() {
+    if (uploadedShpBuffer && typeof shp !== 'undefined') {
+        try {
+            let geometries = shp.parseShp(uploadedShpBuffer);
+            let attributes = uploadedDbfBuffer ? shp.parseDbf(uploadedDbfBuffer) : [];
+            let geojson = shp.combine([geometries, attributes]);
+
+            if (geojson) {
+                const customKey = 'uploaded_custom_' + Date.now();
+                REAL_MAPS_DATA[customKey] = geojson;
+                geojson.mapName = 'Uploaded Estate Map';
+
+                ['map-select-comp', 'map-select-std'].forEach(selectId => {
+                    const selectEl = document.getElementById(selectId);
+                    if (selectEl) {
+                        const opt = document.createElement('option');
+                        opt.value = customKey;
+                        opt.textContent = 'Uploaded Estate Map';
+                        opt.selected = true;
+                        selectEl.appendChild(opt);
+                    }
+                });
+
+                onMapSelectChanged(customKey);
+                const hint = document.getElementById('shp-dbf-status-hint');
+                if (hint) hint.innerText = '✓ Estate map successfully rendered on dashboard!';
+            }
+        } catch (err) {
+            console.error('Error parsing shapefile:', err);
+        }
+    }
+}
+
+// Handle Drone Image Upload & Boundary Overlay
+let uploadedDroneDataUrl = null;
+let compDroneOverlay = null;
+let stdDroneOverlay = null;
+let compDroneBadge = null;
+let stdDroneBadge = null;
+
+function handleDroneImageUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        uploadedDroneDataUrl = e.target.result;
+        const hint = document.getElementById('drone-status-hint');
+        if (hint) hint.innerText = `✓ Drone image (${file.name}) loaded!`;
+        updateDroneImageOverlay();
+    };
+    reader.readAsDataURL(file);
+}
+
+function updateDroneImageOverlay() {
+    if (!uploadedDroneDataUrl) return;
+
+    let activeBoundary = compBoundaryLayer || stdBoundaryLayer;
+    if (!activeBoundary) return;
+    let bounds = activeBoundary.getBounds();
+    if (!bounds || !bounds.isValid()) return;
+
+    // Clean old drone overlays & badges
+    if (compDroneOverlay && mapComp) mapComp.removeLayer(compDroneOverlay);
+    if (stdDroneOverlay && mapStd) mapStd.removeLayer(stdDroneOverlay);
+    if (compDroneBadge && mapComp) mapComp.removeLayer(compDroneBadge);
+    if (stdDroneBadge && mapStd) mapStd.removeLayer(stdDroneBadge);
+
+    // Create Image Overlay clipped to boundary
+    if (mapComp && compBoundaryLayer) {
+        compDroneOverlay = L.imageOverlay(uploadedDroneDataUrl, bounds, { opacity: 0.95, zIndex: 400 }).addTo(mapComp);
+        clipLayerToBoundary(compDroneOverlay, compBoundaryLayer, mapComp);
+    }
+    if (mapStd && stdBoundaryLayer) {
+        stdDroneOverlay = L.imageOverlay(uploadedDroneDataUrl, bounds, { opacity: 0.95, zIndex: 400 }).addTo(mapStd);
+        clipLayerToBoundary(stdDroneOverlay, stdBoundaryLayer, mapStd);
+    }
+
+    // Date Badge for Drone Image
+    const droneDate = document.getElementById('drone-date-input')?.value;
+    let dateStr = "Unspecified Date";
+    if (droneDate) {
+        const parts = droneDate.split('-');
+        if (parts.length === 3) dateStr = `${parts[2]}/${parts[1]}/${parts[0]}`;
+        else dateStr = droneDate;
+    }
+
+    const topLat = bounds.getNorth();
+    const centerLng = (bounds.getWest() + bounds.getEast()) / 2;
+    const badgePos = [topLat, centerLng];
+
+    const badgeHtml = `
+        <div class="sentinel-boundary-badge" style="border-color: #2563eb;">
+            <span class="badge-icon">🛸</span>
+            <span class="badge-title" style="color: #2563eb;">Hi-Res Drone Image</span>
+            <span class="badge-date">Date Taken: ${dateStr}</span>
+        </div>
+    `;
+
+    const badgeIcon = L.divIcon({
+        className: 'sentinel-badge-container',
+        html: badgeHtml,
+        iconSize: [280, 32],
+        iconAnchor: [140, 36]
+    });
+
+    if (mapComp) {
+        compDroneBadge = L.marker(badgePos, { icon: badgeIcon, interactive: false, zIndexOffset: 1001 }).addTo(mapComp);
+    }
+    if (mapStd) {
+        stdDroneBadge = L.marker(badgePos, { icon: badgeIcon, interactive: false, zIndexOffset: 1001 }).addTo(mapStd);
+    }
+}
+
 function clipLayerToBoundary(tileLayer, boundaryLayer, map) {
     if (!tileLayer || !boundaryLayer || !map) return;
 
@@ -2361,7 +2501,7 @@ function toggleSatDataMode(mode) {
                 </div>
             </div>
 
-            <!-- Card 2: Map File Selection -->
+                        <!-- Card 2: Map File Selection -->
             <div class="ui-card">
                 <div class="ui-card-label" style="margin-bottom: 10px;">Map File Selection</div>
                 
@@ -2383,16 +2523,42 @@ function toggleSatDataMode(mode) {
                     <button id="delete-map-btn-comp" class="ui-delete-btn" style="display:none;" onclick="deleteCurrentMap()" title="Delete map">🗑️</button>
                 </div>
 
+                <!-- Separate .shp Upload -->
                 <div class="ui-field-row-between" style="margin-bottom: 8px;">
-                    <span class="ui-sub-label">Or upload .shp / .dbf files:</span>
-                    <button class="ui-upload-outline-btn" onclick="document.getElementById('shp-file-input').click()">Upload</button>
-                    <input type="file" id="shp-file-input" accept=".shp,.dbf,.prj,.shx,.zip" multiple style="display:none;" onchange="handleShapefileUpload(event)">
+                    <span class="ui-sub-label" style="font-weight: 600;">Upload .shp file:</span>
+                    <button class="ui-upload-outline-btn" onclick="document.getElementById('shp-single-input').click()">Upload .shp</button>
+                    <input type="file" id="shp-single-input" accept=".shp" style="display:none;" onchange="handleIndividualShapefileUpload(event, 'shp')">
                 </div>
 
-                <div class="ui-hint-text">* To get the best data, upload a .zip file containing .shp and .dbf file of the estate.</div>
+                <!-- Separate .dbf Upload -->
+                <div class="ui-field-row-between" style="margin-bottom: 8px;">
+                    <span class="ui-sub-label" style="font-weight: 600;">Upload .dbf file:</span>
+                    <button class="ui-upload-outline-btn" onclick="document.getElementById('dbf-single-input').click()">Upload .dbf</button>
+                    <input type="file" id="dbf-single-input" accept=".dbf" style="display:none;" onchange="handleIndividualShapefileUpload(event, 'dbf')">
+                </div>
+
+                <div class="ui-hint-text" id="shp-dbf-status-hint">* Upload .shp and .dbf files of the estate for boundary rendering.</div>
+
+                <!-- Hi-Res Drone Image Upload Section -->
+                <div style="border-top: 1px solid #f2f2f7; padding-top: 10px; margin-top: 10px;">
+                    <div class="ui-card-label" style="font-size: 13px; margin-bottom: 8px; color: #1c1c1e;">Upload Hi-Res Drone Image:</div>
+                    
+                    <div class="ui-field-row-between" style="margin-bottom: 8px;">
+                        <span class="ui-sub-label">Drone Image (.tif / .png / .jpg):</span>
+                        <button class="ui-upload-outline-btn" onclick="document.getElementById('drone-file-input').click()">Upload Drone</button>
+                        <input type="file" id="drone-file-input" accept="image/*,.tif,.tiff" style="display:none;" onchange="handleDroneImageUpload(event)">
+                    </div>
+
+                    <div class="ui-field-row" style="margin-top: 6px;">
+                        <span class="ui-sub-label" style="font-weight: 600; white-space: nowrap;">Date Taken:</span>
+                        <input type="date" class="ui-date-input" id="drone-date-input" style="flex: 1;" onchange="updateDroneImageOverlay()">
+                    </div>
+
+                    <div class="ui-hint-text" id="drone-status-hint" style="margin-top: 4px;">* Upload high-resolution drone orthomosaic image to overlay on active map boundary.</div>
+                </div>
             </div>
 
-                        <!-- Card 3: Estate Name (for report) -->
+            <!-- Card 3: Estate Name (for report) -->
             <div class="ui-card">
                 <div class="ui-card-label" style="margin-bottom: 8px;">Estate Name (for report):</div>
                 <div class="ui-field-row">
