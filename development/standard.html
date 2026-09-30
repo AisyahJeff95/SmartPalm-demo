@@ -1765,25 +1765,27 @@
                 <div class="sidebar">
 
             <!-- [Satellite] Section -->
-            <div style="font-family: 'Outfit', sans-serif; font-weight: 700; color: #1e293b; font-size: 18px; margin: 16px 0 8px 0; padding-bottom: 6px; letter-spacing: -0.5px;">Satellite</div>
+                        <!-- [Satellite] Section Header -->
+            <div class="ios-section-header">Satellite</div>
 
-
-            <!-- 2. Satellite Data -->
-            <div class="group-box">
-                <div class="group-box-title">Satellite Data</div>
-                <div style="display: flex; gap: 8px;">
-                    <button style="flex: 1; padding: 6px 4px; font-size: 12px; border: 1.5px solid #047857; background: #fff; color: #047857; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; font-weight: 600;">Real-Time Data</button>
-                    <button style="flex: 1; padding: 6px 4px; font-size: 12px; border: 1.5px solid #047857; background: #fff; color: #047857; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; font-weight: 600;">Previous Data</button>
+            <!-- Satellite Data Card -->
+            <div class="ios-card">
+                <div class="ios-card-title">Satellite Data</div>
+                <label class="ios-checkbox-label"><input type="checkbox"> Real-time</label>
+                <label class="ios-checkbox-label"><input type="checkbox"> Previous</label>
+                <div style="display:flex;align-items:center;gap:8px;margin-top:2px;">
+                    <span style="font-size:12px;color:#6d6d72;">▶ Date:</span>
+                    <input type="date" class="ios-text-input" style="flex:1;font-size:12px;padding:5px 8px;">
                 </div>
             </div>
 
-            <!-- 3. Map Selection & Upload -->
-            <div class="group-box">
-                <div class="group-box-title">Map File Selection</div>
-                <div class="form-row">
-                    <label class="form-label" style="font-size: 12px;">Select Map:</label>
-                    <div style="display: flex; gap: 4px; width: 100%;">
-                        <select class="form-select" id="map-select-comp" onchange="onMapSelectChanged(this.value)" style="flex: 1;">
+            <!-- Map File Selection Card -->
+            <div class="ios-card">
+                <div class="ios-card-title">Map File Selection</div>
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;">
+                    <label style="font-size:13px;font-weight:600;color:#3a3a3c;white-space:nowrap;">Select Map:</label>
+                    <select class="ios-select-field" id="map-select-comp" onchange="onMapSelectChanged(this.value)" style="flex:1;margin:0;">
+
                             <option value="mpob_36_trial">MPOB Lahad Datu 36 Trial Plot</option>
                    <option value="lahad_datu">Lahad Datu with block boundary</option>
                             <option value="seraya">Seraya with block boundary</option>
@@ -1795,71 +1797,99 @@
                              <option value="geolocation_ish">GEOLOCATION ISH SPOC A7</option>
                              <option value="polygon_ish">POLYGON ISH SPOC A7</option>
                              <option value="soil_series">SOIL SERIES SPOC A7</option>
-                        </select>
-                        <button id="delete-map-btn-comp" class="remove-btn" style="display: none; padding: 0 8px; border-radius: 6px; background-color: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; cursor: pointer;" onclick="deleteCurrentMap()" title="Delete map">🗑️</button>
-                    </div>
+                        
+                    </select>
+                    <button id="delete-map-btn-comp" style="display:none;padding:0 8px;border-radius:6px;background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;cursor:pointer;flex-shrink:0;" onclick="deleteCurrentMap()" title="Delete map">🗑️</button>
                 </div>
-                <div class="upload-row" style="margin-top: 8px;">
-                    <span class="upload-desc" style="font-size: 12px;">Or upload .shp / .dbf files:</span>
-                    <button class="upload-btn" onclick="document.getElementById('shp-file-input').click()">Upload</button>
-                    <input type="file" id="shp-file-input" accept=".shp,.dbf,.prj,.shx" multiple style="display: none;" onchange="handleShapefileUpload(event)" />
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;">
+                    <span style="font-size:12px;color:#6d6d72;">Or upload .shp / .dbf files:</span>
+                    <button class="ios-upload-btn" onclick="document.getElementById('shp-file-input').click()">Upload</button>
+                    <input type="file" id="shp-file-input" accept=".shp,.dbf,.prj,.shx,.zip" multiple style="display:none;" onchange="handleShapefileUpload(event)">
+                </div>
+                <div style="font-size:11px;color:#8e8e93;line-height:1.5;">* To get the best data, upload a .zip file containing .shp and .dbf file of the estate.</div>
+            </div>
+
+            <!-- Estate Name Card -->
+            <div class="ios-card">
+                <div class="ios-card-title">Estate Name (for report):</div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <input type="text" id="estate-name-input" class="ios-text-input" placeholder="Auto from shapefile / map" style="flex:1;">
+                    <input type="checkbox" style="width:16px;height:16px;accent-color:#34c759;flex-shrink:0;">
                 </div>
             </div>
 
-            <!-- 4. Viewport Tools -->
-            <div class="group-box">
-                <div class="group-box-title">Viewport Tools</div>
-                <div style="display: flex; gap: 8px;">
-                    <button style="flex: 1; padding: 6px 4px; font-size: 12px; background: #047857; color: #fff; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; font-weight: 600;">Classify Viewport</button>
-                    <button style="flex: 1; padding: 6px 4px; font-size: 12px; background: #ef4444; color: #fff; border: none; border-radius: 8px; cursor: pointer; transition: all 0.2s ease; font-weight: 600;">Remove Stress Level</button>
-                </div>
-            </div>
-            <!-- 6. Point Nutrient Detection -->
-            <div class="group-box">
-                <div class="group-box-title">Nutrient Detection</div>
-                <div class="nutrient-grid" style="margin-top: 10px;">
-                    <div class="nutrient-display-card">
-                        <div class="nutrient-card-title">N (%)</div>
-                        <div class="nutrient-card-val" id="comp-n-val">-- %</div>
-                    </div>
-                    <div class="nutrient-display-card">
-                        <div class="nutrient-card-title">P (%)</div>
-                        <div class="nutrient-card-val" id="comp-p-val">-- %</div>
-                    </div>
-                    <div class="nutrient-display-card">
-                        <div class="nutrient-card-title">K (%)</div>
-                        <div class="nutrient-card-val" id="comp-k-val">-- %</div>
-                    </div>
-                    <div class="nutrient-display-card">
-                        <div class="nutrient-card-title">Mg (%)</div>
-                        <div class="nutrient-card-val" id="comp-mg-val">-- %</div>
-                    </div>
-                </div>
-                <button class="action-button-full" style="margin-top: 8px;" onclick="openFullMapNutrientDialog()">View Full Map Nutrient Detection</button>
-            </div>
-
-            <!-- 7. Fertilizer Ratio -->
-            <div class="group-box">
-                <div class="group-box-title">Fertilizer Used / To Use</div>
-                <div style="display: flex; align-items: center; gap: 4px; margin-top: 6px; flex-wrap: nowrap;">
-                    <span style="font-size: 10px; color: #64748b; font-weight: 600; white-space: nowrap; margin-right: 2px;">Ratio</span>
-                    <span style="font-size: 10px; font-weight: bold; color: #444;">N</span>
-                    <input type="text" class="form-select" style="width: 32px; height: 28px; padding: 2px; font-size: 11px; text-align: center; box-sizing: border-box; flex-shrink: 0;" placeholder="-" />
-                    <span style="font-size: 10px; font-weight: bold; color: #444;">P</span>
-                    <input type="text" class="form-select" style="width: 32px; height: 28px; padding: 2px; font-size: 11px; text-align: center; box-sizing: border-box; flex-shrink: 0;" placeholder="-" />
-                    <span style="font-size: 10px; font-weight: bold; color: #444;">K</span>
-                    <input type="text" class="form-select" style="width: 32px; height: 28px; padding: 2px; font-size: 11px; text-align: center; box-sizing: border-box; flex-shrink: 0;" placeholder="-" />
-                    <span style="font-size: 10px; font-weight: bold; color: #444;">Mg</span>
-                    <input type="text" class="form-select" style="width: 32px; height: 28px; padding: 2px; font-size: 11px; text-align: center; box-sizing: border-box; flex-shrink: 0;" placeholder="-" />
+            <!-- Viewport Tools Card -->
+            <div class="ios-card">
+                <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                    <span class="ios-card-title" style="margin:0;flex-shrink:0;">Viewport Tools</span>
+                    <label class="ios-checkbox-label" style="margin:0;"><input type="checkbox"> Classify Viewport</label>
+                    <label class="ios-checkbox-label" style="margin:0;"><input type="checkbox"> Remove Stress Areas</label>
                 </div>
             </div>
 
-            <!-- [Fertilizer Recommendation] Section -->
-            <div style="font-family: 'Outfit', sans-serif; font-weight: 700; color: #1e293b; font-size: 18px; margin: 24px 0 8px 0; padding-bottom: 6px; letter-spacing: -0.5px;">Fertilizer Recommendation</div>
-            
-            <button class="report-download-btn" style="width: 100%; padding: 12px; font-size: 12px; background: #047857; color: #fff; text-align: center; font-weight: bold; border-radius: 6px; border: none; cursor: pointer; margin-bottom: 20px;" onclick="viewReportPDF('Standard')">📄 Generate Report</button>
+            <!-- Soil Data Card -->
+            <div class="ios-card">
+                <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+                    <span class="ios-card-title" style="margin:0;flex-shrink:0;">Soil Data</span>
+                    <label class="ios-checkbox-label" style="margin:0;"><input type="checkbox" onchange="if(this.checked)openEdsInlandDialog();"> Inland</label>
+                    <label class="ios-checkbox-label" style="margin:0;"><input type="checkbox" onchange="if(this.checked)openEdsAlluvialDialog();"> Alluvial / Coastal</label>
+                </div>
+            </div>
+
+            <!-- Nutrient Detection Card -->
+            <div class="ios-card">
+                <div class="ios-card-title">Nutrient Detection</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+                    <div>
+                        <div class="ios-nutrient-label">N (%):</div>
+                        <div id="comp-n-val" class="ios-nutrient-display">-- %</div>
+                    </div>
+                    <div>
+                        <div class="ios-nutrient-label">P (%):</div>
+                        <div id="comp-p-val" class="ios-nutrient-display">-- %</div>
+                    </div>
+                    <div>
+                        <div class="ios-nutrient-label">K (%):</div>
+                        <div id="comp-k-val" class="ios-nutrient-display">-- %</div>
+                    </div>
+                    <div>
+                        <div class="ios-nutrient-label">Mg (%):</div>
+                        <div id="comp-mg-val" class="ios-nutrient-display">-- %</div>
+                    </div>
+                </div>
+                <button class="ios-full-btn" onclick="openFullMapNutrientDialog()">View Full Map of Nutrient Detection</button>
+            </div>
+
+            <!-- [Fertilizer Recommendation] Section Header -->
+            <div class="ios-section-header" style="margin-top:8px;">Fertilizer Recommendation</div>
+
+            <!-- Fertilizer Card -->
+            <div class="ios-card">
+                <div class="ios-card-title">Enter Fertilizer Used/ To Use [<span style="color:#34c759;font-weight:700;">Ratio</span>]</div>
+                <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-bottom:12px;">
+                    <span style="font-size:12px;font-weight:600;color:#1c1c1e;">N :</span>
+                    <input type="text" class="ios-fert-input" placeholder="-">
+                    <span style="font-size:12px;font-weight:600;color:#1c1c1e;">P :</span>
+                    <input type="text" class="ios-fert-input" placeholder="-">
+                    <span style="font-size:12px;font-weight:600;color:#1c1c1e;">K :</span>
+                    <input type="text" class="ios-fert-input" placeholder="-">
+                    <span style="font-size:12px;font-weight:600;color:#1c1c1e;">Mg :</span>
+                    <input type="text" class="ios-fert-input" placeholder="-">
+                    <input type="checkbox" style="width:16px;height:16px;accent-color:#34c759;margin-left:4px;">
+                </div>
+                <div style="display:flex;align-items:center;gap:8px;">
+                    <span style="font-size:11px;color:#6d6d72;white-space:nowrap;line-height:1.4;">Or select<br>from list:</span>
+                    <input type="text" class="ios-text-input" style="flex:1;">
+                    <input type="checkbox" style="width:16px;height:16px;accent-color:#34c759;flex-shrink:0;">
+                </div>
+            </div>
+
+            <!-- Generate Report Button -->
+            <button class="ios-generate-btn" onclick="viewReportPDF(reportData.soilType || 'Standard')">Generate Report</button>
 
         </div>
+
+
 
         <!-- Right Map View -->
         <div class="map-wrapper">
