@@ -2028,180 +2028,12 @@ function toggleLockInputs(checkboxEl, targetInputIds) {
 
 
 
+
 // Sentinel WMS Layer & Date Badge References
 let compSentinelLayer = null;
 let stdSentinelLayer = null;
 let compDateBadge = null;
 let stdDateBadge = null;
-
-
-
-// Handle Individual .shp and .dbf Uploads
-let uploadedShpBuffer = null;
-let uploadedDbfBuffer = null;
-
-function handleIndividualShapefileUpload(event, fileType) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        if (fileType === 'shp') {
-            uploadedShpBuffer = e.target.result;
-            const msg = document.getElementById('shp-success-msg');
-            if (msg) {
-                msg.innerText = `* Successfully uploaded (${file.name})`;
-                msg.style.display = 'block';
-            }
-        } else if (fileType === 'dbf') {
-            uploadedDbfBuffer = e.target.result;
-            const msg = document.getElementById('dbf-success-msg');
-            if (msg) {
-                msg.innerText = `* Successfully uploaded (${file.name})`;
-                msg.style.display = 'block';
-            }
-        }
-
-        processCombinedShapefiles();
-    };
-    reader.readAsArrayBuffer(file);
-}
-
-function processCombinedShapefiles() {
-    if (uploadedShpBuffer && typeof shp !== 'undefined') {
-        try {
-            let geometries = shp.parseShp(uploadedShpBuffer);
-            let attributes = uploadedDbfBuffer ? shp.parseDbf(uploadedDbfBuffer) : [];
-            let geojson = shp.combine([geometries, attributes]);
-
-            if (geojson) {
-                const customKey = 'uploaded_custom_' + Date.now();
-                REAL_MAPS_DATA[customKey] = geojson;
-                geojson.mapName = 'Uploaded Estate Map';
-
-                ['map-select-comp', 'map-select-std'].forEach(selectId => {
-                    const selectEl = document.getElementById(selectId);
-                    if (selectEl) {
-                        const opt = document.createElement('option');
-                        opt.value = customKey;
-                        opt.textContent = 'Uploaded Estate Map';
-                        opt.selected = true;
-                        selectEl.appendChild(opt);
-                    }
-                });
-
-                onMapSelectChanged(customKey);
-            }
-        } catch (err) {
-            console.error('Error parsing shapefile:', err);
-        }
-    }
-}
-
-// Handle Drone Image Upload & Boundary Overlay
-let uploadedDroneDataUrl = null;
-let compDroneOverlay = null;
-let stdDroneOverlay = null;
-let compDroneBadge = null;
-let stdDroneBadge = null;
-
-function handleDroneImageUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        uploadedDroneDataUrl = e.target.result;
-        
-        const msg = document.getElementById('drone-success-msg');
-        if (msg) {
-            msg.innerText = `* Successfully uploaded (${file.name})`;
-            msg.style.display = 'block';
-        }
-
-        // Auto-check "Show Uploaded Drone Overlay" checkbox
-        const droneChk = document.getElementById('comp-show-drone-chk');
-        if (droneChk) droneChk.checked = true;
-
-        updateDroneImageOverlay();
-    };
-    reader.readAsDataURL(file);
-}
-
-function updateDroneImageOverlay() {
-    const showDroneChk = document.getElementById('comp-show-drone-chk');
-    const isShowDrone = showDroneChk ? showDroneChk.checked : false;
-
-    // Clean old drone overlays & badges
-    if (compDroneOverlay && mapComp) {
-        mapComp.removeLayer(compDroneOverlay);
-        compDroneOverlay = null;
-    }
-    if (stdDroneOverlay && mapStd) {
-        mapStd.removeLayer(stdDroneOverlay);
-        stdDroneOverlay = null;
-    }
-    if (compDroneBadge && mapComp) {
-        mapComp.removeLayer(compDroneBadge);
-        compDroneBadge = null;
-    }
-    if (stdDroneBadge && mapStd) {
-        mapStd.removeLayer(stdDroneBadge);
-        stdDroneBadge = null;
-    }
-
-    if (!isShowDrone || !uploadedDroneDataUrl) return;
-
-    let activeBoundary = compBoundaryLayer || stdBoundaryLayer;
-    if (!activeBoundary) return;
-    let bounds = activeBoundary.getBounds();
-    if (!bounds || !bounds.isValid()) return;
-
-    // Create Image Overlay clipped to boundary
-    if (mapComp && compBoundaryLayer) {
-        compDroneOverlay = L.imageOverlay(uploadedDroneDataUrl, bounds, { opacity: 0.95, zIndex: 400 }).addTo(mapComp);
-        clipLayerToBoundary(compDroneOverlay, compBoundaryLayer, mapComp);
-    }
-    if (mapStd && stdBoundaryLayer) {
-        stdDroneOverlay = L.imageOverlay(uploadedDroneDataUrl, bounds, { opacity: 0.95, zIndex: 400 }).addTo(mapStd);
-        clipLayerToBoundary(stdDroneOverlay, stdBoundaryLayer, mapStd);
-    }
-
-    // Date Badge for Drone Image
-    const droneDate = document.getElementById('drone-date-input')?.value;
-    let dateStr = "Unspecified Date";
-    if (droneDate) {
-        const parts = droneDate.split('-');
-        if (parts.length === 3) dateStr = `${parts[2]}/${parts[1]}/${parts[0]}`;
-        else dateStr = droneDate;
-    }
-
-    const topLat = bounds.getNorth();
-    const centerLng = (bounds.getWest() + bounds.getEast()) / 2;
-    const badgePos = [topLat, centerLng];
-
-    const badgeHtml = `
-        <div class="sentinel-boundary-badge" style="border-color: #2563eb;">
-            <span class="badge-icon">🛸</span>
-            <span class="badge-title" style="color: #2563eb;">Hi-Res Drone Image</span>
-            <span class="badge-date">Date Taken: ${dateStr}</span>
-        </div>
-    `;
-
-    const badgeIcon = L.divIcon({
-        className: 'sentinel-badge-container',
-        html: badgeHtml,
-        iconSize: [280, 32],
-        iconAnchor: [140, 36]
-    });
-
-    if (mapComp) {
-        compDroneBadge = L.marker(badgePos, { icon: badgeIcon, interactive: false, zIndexOffset: 1001 }).addTo(mapComp);
-    }
-    if (mapStd) {
-        stdDroneBadge = L.marker(badgePos, { icon: badgeIcon, interactive: false, zIndexOffset: 1001 }).addTo(mapStd);
-    }
-}
 
 function clipLayerToBoundary(tileLayer, boundaryLayer, map) {
     if (!tileLayer || !boundaryLayer || !map) return;
@@ -2211,36 +2043,93 @@ function clipLayerToBoundary(tileLayer, boundaryLayer, map) {
             const container = tileLayer.getContainer();
             if (!container) return;
 
-            let allRings = [];
-            boundaryLayer.eachLayer(layer => {
-                if (layer.getLatLngs) {
-                    let latlngs = layer.getLatLngs();
-                    function extractRings(arr) {
-                        if (!Array.isArray(arr) || arr.length === 0) return;
-                        if (arr[0] && typeof arr[0].lat === 'number') {
-                            allRings.push(arr);
-                        } else {
-                            arr.forEach(sub => extractRings(sub));
+            let overlayPane = map.getPanes().overlayPane;
+            let svgOverlay = overlayPane.querySelector('svg');
+
+            if (!svgOverlay) {
+                // If overlay SVG container doesn't exist yet, trigger via latLngToContainerPoint
+                let polygonCoords = [];
+                boundaryLayer.eachLayer(layer => {
+                    if (layer.getLatLngs) {
+                        let latlngs = layer.getLatLngs();
+                        function extractRings(arr) {
+                            if (!Array.isArray(arr) || arr.length === 0) return;
+                            if (arr[0] && typeof arr[0].lat === 'number') {
+                                polygonCoords.push(arr);
+                            } else {
+                                arr.forEach(sub => extractRings(sub));
+                            }
                         }
+                        extractRings(latlngs);
                     }
-                    extractRings(latlngs);
+                });
+
+                if (polygonCoords.length > 0) {
+                    let polyStrings = polygonCoords.map(ring => {
+                        let pts = ring.map(ll => {
+                            let p = map.latLngToContainerPoint(ll);
+                            return `${Math.round(p.x)}px ${Math.round(p.y)}px`;
+                        });
+                        return `polygon(${pts.join(', ')})`;
+                    });
+                    container.style.clipPath = polyStrings[0];
+                    container.style.webkitClipPath = polyStrings[0];
+                }
+                return;
+            }
+
+            let defs = svgOverlay.querySelector('defs');
+            if (!defs) {
+                defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+                svgOverlay.insertBefore(defs, svgOverlay.firstChild);
+            }
+
+            let clipPathId = map === mapComp ? 'sentinel-clip-comp' : 'sentinel-clip-std';
+            let clipPathEl = defs.querySelector('#' + clipPathId);
+            if (!clipPathEl) {
+                clipPathEl = document.createElementNS('http://www.w3.org/2000/svg', 'clipPath');
+                clipPathEl.setAttribute('id', clipPathId);
+                clipPathEl.setAttribute('clipPathUnits', 'userSpaceOnUse');
+                defs.appendChild(clipPathEl);
+            }
+
+            clipPathEl.innerHTML = '';
+
+            // Clone all SVG path definitions from boundaryLayer
+            boundaryLayer.eachLayer(layer => {
+                if (layer._path && layer._path.getAttribute('d')) {
+                    let pathClone = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                    pathClone.setAttribute('d', layer._path.getAttribute('d'));
+                    clipPathEl.appendChild(pathClone);
                 }
             });
 
-            if (allRings.length === 0) return;
+            // Fallback if _path not rendered yet
+            if (clipPathEl.children.length === 0) {
+                boundaryLayer.eachLayer(layer => {
+                    if (layer.getLatLngs) {
+                        let latlngs = layer.getLatLngs();
+                        function processRing(ring) {
+                            if (!Array.isArray(ring) || ring.length === 0) return;
+                            if (ring[0] && typeof ring[0].lat === 'number') {
+                                let pts = ring.map(ll => {
+                                    let p = map.latLngToLayerPoint(ll);
+                                    return `${p.x},${p.y}`;
+                                });
+                                let pathClone = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                                pathClone.setAttribute('d', 'M' + pts.join('L') + 'Z');
+                                clipPathEl.appendChild(pathClone);
+                            } else {
+                                ring.forEach(sub => processRing(sub));
+                            }
+                        }
+                        processRing(latlngs);
+                    }
+                });
+            }
 
-            // Sort by ring vertex count to find outer perimeter
-            allRings.sort((a, b) => b.length - a.length);
-
-            let mainRing = allRings[0];
-            let pts = mainRing.map(ll => {
-                let p = map.latLngToContainerPoint(ll);
-                return `${Math.round(p.x)}px ${Math.round(p.y)}px`;
-            });
-            let clipStr = `polygon(${pts.join(', ')})`;
-
-            container.style.clipPath = clipStr;
-            container.style.webkitClipPath = clipStr;
+            container.style.clipPath = 'url(#' + clipPathId + ')';
+            container.style.webkitClipPath = 'url(#' + clipPathId + ')';
         } catch (e) {
             console.warn('Clip error:', e);
         }
@@ -2251,7 +2140,8 @@ function clipLayerToBoundary(tileLayer, boundaryLayer, map) {
 
     map.on('move moveend zoomend viewreset', updateClip);
     tileLayer.on('load', updateClip);
-    setTimeout(updateClip, 150);
+    setTimeout(updateClip, 100);
+    setTimeout(updateClip, 350);
 }
 
 function updateSentinelClippingAndBadge() {
