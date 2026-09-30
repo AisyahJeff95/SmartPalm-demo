@@ -2153,7 +2153,7 @@ function updateSentinelClippingAndBadge() {
             transparent: false,
             attribution: 'Sentinel-2 Copernicus',
             maxZoom: 18,
-            opacity: 0.90,
+            opacity: 1.0,
             zIndex: 350
         }).addTo(mapComp);
         clipLayerToBoundary(compSentinelLayer, compBoundaryLayer, mapComp);
@@ -2166,7 +2166,7 @@ function updateSentinelClippingAndBadge() {
             transparent: false,
             attribution: 'Sentinel-2 Copernicus',
             maxZoom: 18,
-            opacity: 0.90,
+            opacity: 1.0,
             zIndex: 350
         }).addTo(mapStd);
         clipLayerToBoundary(stdSentinelLayer, stdBoundaryLayer, mapStd);
@@ -3367,7 +3367,7 @@ function toggleSatDataMode(mode) {
                 // Add the authentic GeoTIFF raster overlay
                 if (typeof RASTER_OVERLAYS !== 'undefined' && RASTER_OVERLAYS[layerValue]) {
                     let oData = RASTER_OVERLAYS[layerValue];
-                    compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.85, zIndex: 400 }).addTo(mapComp);
+                    compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 1.0, zIndex: 400 }).addTo(mapComp);
                 }
             }
         }
@@ -3402,7 +3402,7 @@ function toggleSatDataMode(mode) {
                 // Add the authentic GeoTIFF raster overlay
                 if (typeof RASTER_OVERLAYS !== 'undefined' && RASTER_OVERLAYS[layerValue]) {
                     let oData = RASTER_OVERLAYS[layerValue];
-                    stdRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.85, zIndex: 400 }).addTo(mapStd);
+                    stdRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 1.0, zIndex: 400 }).addTo(mapStd);
                 }
             }
         }
