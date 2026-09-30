@@ -1906,6 +1906,38 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://unpkg.com/proj4@latest/dist/proj4.js"></script>
     <script src="https://unpkg.com/shpjs@latest/dist/shp.js"></script>
+<script>
+function toggleSatDataMode(mode) {
+    const realtimeChk = document.getElementById('comp-realtime-chk');
+    const previousChk = document.getElementById('comp-previous-chk');
+    const previousLabel = document.getElementById('comp-previous-label');
+    const satDateInput = document.getElementById('comp-sat-date');
+
+    if (!realtimeChk || !previousChk || !satDateInput) return;
+
+    if (mode === 'realtime') {
+        if (realtimeChk.checked) {
+            previousChk.checked = false;
+            previousChk.disabled = true;
+            if (previousLabel) previousLabel.style.opacity = '0.5';
+            satDateInput.disabled = true;
+        } else {
+            previousChk.disabled = false;
+            if (previousLabel) previousLabel.style.opacity = '1.0';
+            satDateInput.disabled = true;
+        }
+    } else if (mode === 'previous') {
+        if (previousChk.checked) {
+            realtimeChk.checked = false;
+            satDateInput.disabled = false;
+        } else {
+            satDateInput.disabled = true;
+        }
+    }
+}
+</script>
+
+</script>
 </head>
 <body>
     <div class="cms-layout">
@@ -2059,21 +2091,26 @@
             <!-- Section 1 Header: Satellite -->
             <div class="ui-section-title">Satellite</div>
 
-            <!-- Card 1: Satellite Data -->
-            <div class="ui-card flex-row-between">
-                <div class="ui-card-label">Satellite Data</div>
-                <div class="ui-card-content-stack">
-                    <label class="ui-checkbox-label">
-                        <input type="checkbox" id="comp-realtime-chk"> Real-time
-                    </label>
-                    <label class="ui-checkbox-label">
-                        <input type="checkbox" id="comp-previous-chk"> Previous
-                    </label>
-                    <div class="ui-date-row">
-                        <span class="ui-date-icon">▶</span>
-                        <span class="ui-date-label">Date:</span>
-                        <input type="date" class="ui-date-input">
+                        <!-- Card 1: Satellite Data -->
+            <div class="ui-card">
+                <div class="flex-row-between" style="margin-bottom: 8px;">
+                    <div class="ui-card-label">Satellite Data</div>
+                    <div class="ui-card-content-stack">
+                        <label class="ui-checkbox-label">
+                            <input type="checkbox" id="comp-realtime-chk" onchange="toggleSatDataMode('realtime')"> Real-time
+                        </label>
+                        <label class="ui-checkbox-label" id="comp-previous-label">
+                            <input type="checkbox" id="comp-previous-chk" onchange="toggleSatDataMode('previous')"> Previous
+                        </label>
+                        <div class="ui-date-row">
+                            <span class="ui-date-icon">▶</span>
+                            <span class="ui-date-label">Date:</span>
+                            <input type="date" class="ui-date-input" id="comp-sat-date" disabled>
+                        </div>
                     </div>
+                </div>
+                <div class="ui-hint-text" style="font-size: 11px; color: #6d6d72; line-height: 1.35; border-top: 1px solid #f2f2f7; padding-top: 6px; margin-top: 4px;">
+                    * If no data is available on the selected date, satellite data within a 10-day window will be fetched.
                 </div>
             </div>
 
