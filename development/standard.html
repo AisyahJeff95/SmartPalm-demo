@@ -2132,6 +2132,7 @@ function clipLayerToBoundary(tileLayer, boundaryLayer, map) {
     setTimeout(updateClip, 350);
 }
 
+
 function updateSentinelClippingAndBadge() {
     const realtimeChk = document.getElementById('comp-realtime-chk');
     const previousChk = document.getElementById('comp-previous-chk');
@@ -2144,22 +2145,103 @@ function updateSentinelClippingAndBadge() {
     const selectedDate = satDateInput ? satDateInput.value : '';
 
     // Clean old Sentinel WMS layers & Date Badges
-    if (compSentinelLayer) {
-        if (mapComp) mapComp.removeLayer(compSentinelLayer);
+    if (compSentinelLayer && mapComp) {
+        mapComp.removeLayer(compSentinelLayer);
         compSentinelLayer = null;
     }
-    if (stdSentinelLayer) {
-        if (mapStd) mapStd.removeLayer(stdSentinelLayer);
+    if (stdSentinelLayer && mapStd) {
+        mapStd.removeLayer(stdSentinelLayer);
         stdSentinelLayer = null;
     }
-    if (compDateBadge) {
-        if (mapComp) mapComp.removeLayer(compDateBadge);
+    if (compDateBadge && mapComp) {
+        mapComp.removeLayer(compDateBadge);
         compDateBadge = null;
     }
-    if (stdDateBadge) {
-        if (mapStd) mapStd.removeLayer(stdDateBadge);
+    if (stdDateBadge && mapStd) {
+        mapStd.removeLayer(stdDateBadge);
         stdDateBadge = null;
     }
+
+    // Keep map clear if overlay toggle is unchecked
+    if (!isShowOverlay) return;
+
+    let bounds = null;
+    let activeBoundary = compBoundaryLayer || stdBoundaryLayer;
+    if (activeBoundary) {
+        bounds = activeBoundary.getBounds();
+    }
+
+    if (!bounds || !bounds.isValid()) return;
+
+    // Date String: Clean "Date: DD/MM/YYYY" format
+    let dateStr = "";
+    if (isPrevious && selectedDate) {
+        const parts = selectedDate.split('-');
+        if (parts.length === 3) {
+            dateStr = `${parts[2]}/${parts[1]}/${parts[0]}`;
+        } else {
+            dateStr = selectedDate;
+        }
+    } else {
+        const now = new Date();
+        dateStr = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()}`;
+    }
+
+    // Add Sentinel-2 WMS Layer
+    const wmsUrl = 'https://tiles.maps.eox.at/wms';
+    
+    if (mapComp && compBoundaryLayer) {
+        compSentinelLayer = L.tileLayer.wms(wmsUrl, {
+            layers: 's2cloudless-2020_3857',
+            format: 'image/jpeg',
+            transparent: false,
+            attribution: 'Sentinel-2 Copernicus',
+            maxZoom: 18,
+            opacity: 1.0,
+            zIndex: 350
+        }).addTo(mapComp);
+        clipLayerToBoundary(compSentinelLayer, compBoundaryLayer, mapComp);
+    }
+
+    if (mapStd && stdBoundaryLayer) {
+        stdSentinelLayer = L.tileLayer.wms(wmsUrl, {
+            layers: 's2cloudless-2020_3857',
+            format: 'image/jpeg',
+            transparent: false,
+            attribution: 'Sentinel-2 Copernicus',
+            maxZoom: 18,
+            opacity: 1.0,
+            zIndex: 350
+        }).addTo(mapStd);
+        clipLayerToBoundary(stdSentinelLayer, stdBoundaryLayer, mapStd);
+    }
+
+    // Create Permanent Date Badge Pinned at top center of boundary (Clean Date: DD/MM/YYYY)
+    const topLat = bounds.getNorth();
+    const centerLng = (bounds.getWest() + bounds.getEast()) / 2;
+    const badgePos = [topLat, centerLng];
+
+    const badgeHtml = `
+        <div class="sentinel-boundary-badge">
+            <span class="badge-date" style="border-left: none; padding-left: 0; font-weight: 700; font-size: 12px; color: #00802b;">Date: ${dateStr}</span>
+        </div>
+    `;
+
+    const badgeIcon = L.divIcon({
+        className: 'sentinel-badge-container',
+        html: badgeHtml,
+        iconSize: [160, 30],
+        iconAnchor: [80, 34]
+    });
+
+    if (mapComp) {
+        compDateBadge = L.marker(badgePos, { icon: badgeIcon, interactive: false, zIndexOffset: 1000 }).addTo(mapComp);
+    }
+    if (mapStd) {
+        stdDateBadge = L.marker(badgePos, { icon: badgeIcon, interactive: false, zIndexOffset: 1000 }).addTo(mapStd);
+    }
+}
+
 
     // Keep map clear if overlay toggle is unchecked
     if (!isShowOverlay) return;
