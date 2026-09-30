@@ -1941,6 +1941,46 @@
     flex-shrink: 0;
 }
 
+
+/* Pinned Sentinel Date Badge at top of boundary */
+.sentinel-badge-container {
+    background: transparent !important;
+    border: none !important;
+}
+
+.sentinel-boundary-badge {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1.5px solid #00802b;
+    border-radius: 20px;
+    padding: 5px 12px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+    white-space: nowrap;
+    backdrop-filter: blur(4px);
+    pointer-events: none;
+}
+
+.sentinel-boundary-badge .badge-icon {
+    font-size: 13px;
+}
+
+.sentinel-boundary-badge .badge-title {
+    font-weight: 700;
+    font-size: 11px;
+    color: #00802b;
+}
+
+.sentinel-boundary-badge .badge-date {
+    font-weight: 600;
+    font-size: 11px;
+    color: #1c1c1e;
+    border-left: 1px solid #d1d1d6;
+    padding-left: 6px;
+}
+
 </style>
 
     <!-- External Libraries -->
@@ -1986,6 +2026,173 @@ function toggleLockInputs(checkboxEl, targetInputIds) {
     });
 }
 
+
+// Sentinel WMS Layer & Date Badge References
+let compSentinelLayer = null;
+let stdSentinelLayer = null;
+let compDateBadge = null;
+let stdDateBadge = null;
+
+function clipLayerToBoundary(tileLayer, boundaryLayer, map) {
+    if (!tileLayer || !boundaryLayer || !map) return;
+
+    function updateClip() {
+        try {
+            const container = tileLayer.getContainer();
+            if (!container) return;
+
+            let polygonCoords = [];
+            boundaryLayer.eachLayer(layer => {
+                if (layer.getLatLngs) {
+                    let latlngs = layer.getLatLngs();
+                    if (Array.isArray(latlngs[0])) {
+                        latlngs.forEach(ring => {
+                            if (Array.isArray(ring[0])) {
+                                ring.forEach(subRing => polygonCoords.push(subRing));
+                            } else {
+                                polygonCoords.push(ring);
+                            }
+                        });
+                    } else {
+                        polygonCoords.push(latlngs);
+                    }
+                }
+            });
+
+            if (polygonCoords.length === 0) return;
+
+            let mainRing = polygonCoords[0];
+            let pts = mainRing.map(ll => {
+                let p = map.latLngToContainerPoint(ll);
+                return `${p.x}px ${p.y}px`;
+            });
+            let clipStr = `polygon(${pts.join(', ')})`;
+
+            container.style.clipPath = clipStr;
+            container.style.webkitClipPath = clipStr;
+        } catch (e) {
+            console.warn('Clip error:', e);
+        }
+    }
+
+    map.off('move moveend zoomend viewreset', updateClip);
+    tileLayer.off('load', updateClip);
+
+    map.on('move moveend zoomend viewreset', updateClip);
+    tileLayer.on('load', updateClip);
+    setTimeout(updateClip, 100);
+}
+
+function updateSentinelClippingAndBadge() {
+    const realtimeChk = document.getElementById('comp-realtime-chk');
+    const previousChk = document.getElementById('comp-previous-chk');
+    const satDateInput = document.getElementById('comp-sat-date');
+
+    const isRealtime = realtimeChk ? realtimeChk.checked : false;
+    const isPrevious = previousChk ? previousChk.checked : false;
+    const selectedDate = satDateInput ? satDateInput.value : '';
+
+    // Clean old Sentinel WMS layers & Date Badges
+    if (compSentinelLayer) {
+        if (mapComp) mapComp.removeLayer(compSentinelLayer);
+        compSentinelLayer = null;
+    }
+    if (stdSentinelLayer) {
+        if (mapStd) mapStd.removeLayer(stdSentinelLayer);
+        stdSentinelLayer = null;
+    }
+    if (compDateBadge) {
+        if (mapComp) mapComp.removeLayer(compDateBadge);
+        compDateBadge = null;
+    }
+    if (stdDateBadge) {
+        if (mapStd) mapStd.removeLayer(stdDateBadge);
+        stdDateBadge = null;
+    }
+
+    if (!isRealtime && !isPrevious) return;
+
+    let bounds = null;
+    let activeBoundary = compBoundaryLayer || stdBoundaryLayer;
+    if (activeBoundary) {
+        bounds = activeBoundary.getBounds();
+    }
+
+    if (!bounds || !bounds.isValid()) return;
+
+    // Acquisition Date String
+    let dateStr = "";
+    if (isRealtime) {
+        const now = new Date();
+        dateStr = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()} (Real-time 10-Day Window)`;
+    } else if (isPrevious && selectedDate) {
+        const parts = selectedDate.split('-');
+        if (parts.length === 3) {
+            dateStr = `${parts[2]}/${parts[1]}/${parts[0]} (±10-Day Window)`;
+        } else {
+            dateStr = `${selectedDate} (±10-Day Window)`;
+        }
+    } else if (isPrevious) {
+        dateStr = `Selected Window (±10 Days)`;
+    }
+
+    // Add Sentinel-2 WMS Layer
+    const wmsUrl = 'https://tiles.maps.eox.at/wms';
+    
+    if (mapComp && compBoundaryLayer) {
+        compSentinelLayer = L.tileLayer.wms(wmsUrl, {
+            layers: 's2cloudless-2020_3857',
+            format: 'image/jpeg',
+            transparent: false,
+            attribution: 'Sentinel-2 Copernicus',
+            maxZoom: 18,
+            opacity: 0.90,
+            zIndex: 350
+        }).addTo(mapComp);
+        clipLayerToBoundary(compSentinelLayer, compBoundaryLayer, mapComp);
+    }
+
+    if (mapStd && stdBoundaryLayer) {
+        stdSentinelLayer = L.tileLayer.wms(wmsUrl, {
+            layers: 's2cloudless-2020_3857',
+            format: 'image/jpeg',
+            transparent: false,
+            attribution: 'Sentinel-2 Copernicus',
+            maxZoom: 18,
+            opacity: 0.90,
+            zIndex: 350
+        }).addTo(mapStd);
+        clipLayerToBoundary(stdSentinelLayer, stdBoundaryLayer, mapStd);
+    }
+
+    // Create Permanent Date Badge Pinned at top center of boundary
+    const topLat = bounds.getNorth();
+    const centerLng = (bounds.getWest() + bounds.getEast()) / 2;
+    const badgePos = [topLat, centerLng];
+
+    const badgeHtml = `
+        <div class="sentinel-boundary-badge">
+            <span class="badge-icon">🛰️</span>
+            <span class="badge-title">Sentinel-1A/2A/1C</span>
+            <span class="badge-date">Date: ${dateStr}</span>
+        </div>
+    `;
+
+    const badgeIcon = L.divIcon({
+        className: 'sentinel-badge-container',
+        html: badgeHtml,
+        iconSize: [280, 32],
+        iconAnchor: [140, 36]
+    });
+
+    if (mapComp) {
+        compDateBadge = L.marker(badgePos, { icon: badgeIcon, interactive: false, zIndexOffset: 1000 }).addTo(mapComp);
+    }
+    if (mapStd) {
+        stdDateBadge = L.marker(badgePos, { icon: badgeIcon, interactive: false, zIndexOffset: 1000 }).addTo(mapStd);
+    }
+}
+
 function toggleSatDataMode(mode) {
     const realtimeChk = document.getElementById('comp-realtime-chk');
     const previousChk = document.getElementById('comp-previous-chk');
@@ -2013,6 +2220,7 @@ function toggleSatDataMode(mode) {
             satDateInput.disabled = true;
         }
     }
+    updateSentinelClippingAndBadge();
 }
 </script>
 
@@ -2129,7 +2337,7 @@ function toggleSatDataMode(mode) {
                         <div class="ui-date-row">
                             <span class="ui-date-icon">▶</span>
                             <span class="ui-date-label">Date:</span>
-                            <input type="date" class="ui-date-input" id="comp-sat-date" disabled>
+                            <input type="date" class="ui-date-input" id="comp-sat-date" disabled onchange="updateSentinelClippingAndBadge()">
                         </div>
                     </div>
                 </div>
