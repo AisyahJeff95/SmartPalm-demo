@@ -2487,11 +2487,15 @@ function triggerSatelliteNutrientDetection() {
 }
 
 function downloadNutrientTifRasters() {
+    const mapSelect = document.getElementById('map-select-comp') || document.getElementById('map-select-std');
+    const mapType = mapSelect ? mapSelect.value : 'lahad_datu_combined';
+    const estatePrefix = mapType.toUpperCase().replace(/[^A-Z0-9]/g, '_');
+
     const rasterFiles = [
-        { name: "Merge_Citra_Unsur_N.tif", path: "Merge_Citra_Unsur_N.tif" },
-        { name: "Merge_Citra_Unsur_P.tif", path: "Merge_Citra_Unsur_P.tif" },
-        { name: "Merge_Citra_Unsur_K.tif", path: "Merge_Citra_Unsur_K.tif" },
-        { name: "Merge_Citra_Unsur_Mg.tif", path: "Merge_Citra_Unsur_Mg.tif" }
+        { name: `${estatePrefix}_Nutrient_Detection_N.tif`, path: "Merge_Citra_Unsur_N.tif" },
+        { name: `${estatePrefix}_Nutrient_Detection_P.tif`, path: "Merge_Citra_Unsur_P.tif" },
+        { name: `${estatePrefix}_Nutrient_Detection_K.tif`, path: "Merge_Citra_Unsur_K.tif" },
+        { name: `${estatePrefix}_Nutrient_Detection_Mg.tif`, path: "Merge_Citra_Unsur_Mg.tif" }
     ];
 
     rasterFiles.forEach((file, index) => {
@@ -3722,148 +3726,100 @@ function toggleSatDataMode(mode) {
             setTimeout(fitVisibleMap, 150);
         }
 
-        // Toggle Nutrient Layer Heatmap Overlay on Comprehensive Map
+                // Toggle Nutrient Layer Heatmap Overlay on Comprehensive Map
         function toggleNutrientLayerComp(layerValue) {
             if (!mapComp) return;
-            // Hide all legends
             document.querySelectorAll('#page-comprehensive .nutrient-legend-box').forEach(el => el.style.display = 'none');
             
-            // Clean old raster overlay
             if (compRasterOverlay) {
                 mapComp.removeLayer(compRasterOverlay);
                 compRasterOverlay = null;
             }
             
+            const currentMapType = document.getElementById('map-select-comp') ? document.getElementById('map-select-comp').value : 'lahad_datu_combined';
+            const isLahadDatu = currentMapType.includes('lahad_datu') || currentMapType.includes('mpob_36_trial');
+
             if (layerValue === "OFF") {
-                // Revert to boundary colors
                 if (compBoundaryLayer) {
-                    compBoundaryLayer.setStyle({ color: "#ff7800", fillColor: "#ff7800", fillOpacity: 0.0 });
+                    compBoundaryLayer.setStyle({ color: "#ff7800", fillColor: "none", fillOpacity: 0.0 });
                 }
             } else {
-                // Show selected legend box
                 let legendBox = document.getElementById(`${layerValue.toLowerCase()}-comp-legend`);
                 if (legendBox) legendBox.style.display = 'block';
                 
-                // Make block boundaries outline-only (transparent fill) so raster underneath is visible
-                if (compBoundaryLayer) {
-                    compBoundaryLayer.setStyle({ color: "#ff7800", fillColor: "#ff7800", fillOpacity: 0.0 });
-                }
-                
-                // Add the authentic GeoTIFF raster overlay mapped dynamically to active boundary
-                if (typeof RASTER_OVERLAYS !== 'undefined' && RASTER_OVERLAYS[layerValue]) {
+                if (isLahadDatu && typeof RASTER_OVERLAYS !== 'undefined' && RASTER_OVERLAYS[layerValue]) {
+                    // For Lahad Datu: use authentic Lahad Datu GeoTIFF raster overlay
+                    if (compBoundaryLayer) {
+                        compBoundaryLayer.setStyle({ color: "#ff7800", fillColor: "none", fillOpacity: 0.0 });
+                    }
                     let oData = RASTER_OVERLAYS[layerValue];
-                    let activeBoundary = compBoundaryLayer || stdBoundaryLayer;
-                    let targetBounds = (activeBoundary && activeBoundary.getBounds && activeBoundary.getBounds().isValid()) ? activeBoundary.getBounds() : oData.bounds;
-                    compRasterOverlay = L.imageOverlay(oData.dataUrl, targetBounds, { opacity: 1.0, zIndex: 400 }).addTo(mapComp);
+                    compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 1.0, zIndex: 400 }).addTo(mapComp);
                     if (compBoundaryLayer) {
                         clipLayerToBoundary(compRasterOverlay, compBoundaryLayer, mapComp);
                     }
+                } else if (compBoundaryLayer) {
+                    // For Seraya & all other maps: style active boundary blocks dynamically using THAT estate's OWN N, P, K, Mg values
+                    compBoundaryLayer.eachLayer(layer => {
+                        let val = null;
+                        if (layer.getBounds) {
+                            let c = layer.getBounds().getCenter();
+                            let s = sampleRastersOrFallback(c.lat, c.lng);
+                            val = s[layerValue.toLowerCase()];
+                        }
+                        if (val !== null && val !== undefined) {
+                            let fillColor = getNutrientColorComp(val, layerValue);
+                            layer.setStyle({ color: "#ff7800", weight: 2, fillColor: fillColor, fillOpacity: 0.55 });
+                        }
+                    });
                 }
             }
         }
 
-        // Toggle Nutrient Layer Heatmap Overlay on Standard Map
+                // Toggle Nutrient Layer Heatmap Overlay on Standard Map
         function toggleNutrientLayerStd(layerValue) {
             if (!mapStd) return;
-            // Hide all legends
             document.querySelectorAll('#page-standard .nutrient-legend-box').forEach(el => el.style.display = 'none');
             
-            // Clean old raster overlay
             if (stdRasterOverlay) {
                 mapStd.removeLayer(stdRasterOverlay);
                 stdRasterOverlay = null;
             }
             
+            const currentMapType = document.getElementById('map-select-std') ? document.getElementById('map-select-std').value : 'lahad_datu_combined';
+            const isLahadDatu = currentMapType.includes('lahad_datu') || currentMapType.includes('mpob_36_trial');
+
             if (layerValue === "OFF") {
-                // Revert to boundary colors
                 if (stdBoundaryLayer) {
-                    stdBoundaryLayer.setStyle({ color: "#10b981", fillColor: "#10b981", fillOpacity: 0.0 });
+                    stdBoundaryLayer.setStyle({ color: "#10b981", fillColor: "none", fillOpacity: 0.0 });
                 }
             } else {
-                // Show selected legend box
                 let legendBox = document.getElementById(`${layerValue.toLowerCase()}-std-legend`);
                 if (legendBox) legendBox.style.display = 'block';
                 
-                // Make block boundaries outline-only (transparent fill) so raster underneath is visible
-                if (stdBoundaryLayer) {
-                    stdBoundaryLayer.setStyle({ color: "#10b981", fillColor: "#10b981", fillOpacity: 0.0 });
-                }
-                
-                // Add the authentic GeoTIFF raster overlay mapped dynamically to active boundary
-                if (typeof RASTER_OVERLAYS !== 'undefined' && RASTER_OVERLAYS[layerValue]) {
+                if (isLahadDatu && typeof RASTER_OVERLAYS !== 'undefined' && RASTER_OVERLAYS[layerValue]) {
+                    if (stdBoundaryLayer) {
+                        stdBoundaryLayer.setStyle({ color: "#10b981", fillColor: "none", fillOpacity: 0.0 });
+                    }
                     let oData = RASTER_OVERLAYS[layerValue];
-                    let activeBoundary = stdBoundaryLayer || compBoundaryLayer;
-                    let targetBounds = (activeBoundary && activeBoundary.getBounds && activeBoundary.getBounds().isValid()) ? activeBoundary.getBounds() : oData.bounds;
-                    stdRasterOverlay = L.imageOverlay(oData.dataUrl, targetBounds, { opacity: 1.0, zIndex: 400 }).addTo(mapStd);
+                    stdRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 1.0, zIndex: 400 }).addTo(mapStd);
                     if (stdBoundaryLayer) {
                         clipLayerToBoundary(stdRasterOverlay, stdBoundaryLayer, mapStd);
                     }
+                } else if (stdBoundaryLayer) {
+                    stdBoundaryLayer.eachLayer(layer => {
+                        let val = null;
+                        if (layer.getBounds) {
+                            let c = layer.getBounds().getCenter();
+                            let s = sampleRastersOrFallback(c.lat, c.lng);
+                            val = s[layerValue.toLowerCase()];
+                        }
+                        if (val !== null && val !== undefined) {
+                            let fillColor = getNutrientColorComp(val, layerValue);
+                            layer.setStyle({ color: "#10b981", weight: 2, fillColor: fillColor, fillOpacity: 0.55 });
+                        }
+                    });
                 }
             }
-        }
-
-        // Fit the comprehensive map to its current boundary layer.
-        function fitCompMap() {
-            try {
-                if (!mapComp || !compBoundaryLayer) return;
-                var b = compBoundaryLayer.getBounds();
-                if (!b || !b.isValid()) return;
-                mapComp.invalidateSize({ animate: false, pan: false });
-                mapComp.fitBounds(b, { padding: [30, 30], animate: true });
-            } catch(e) { console.error('fitCompMap error:', e); }
-        }
-
-        // Fit the standard map to its current boundary layer (same pattern).
-        function fitStdMap() {
-            try {
-                if (!mapStd || !stdBoundaryLayer) return;
-                var b = stdBoundaryLayer.getBounds();
-                if (!b || !b.isValid()) return;
-                mapStd.invalidateSize({ animate: false, pan: false });
-                mapStd.fitBounds(b, { padding: [30, 30], animate: true });
-            } catch(e) { console.error('fitStdMap error:', e); }
-        }
-
-        function fitVisibleMap() {
-            fitCompMap();
-            fitStdMap();
-        }
-
-        // Page switcher — reveal the page, then fit the correct map after 150 ms
-        function switchPage(pageId) {
-            try {
-                const targetPage = document.getElementById(pageId);
-                if (!targetPage) { console.error('Page not found:', pageId); return; }
-                document.querySelectorAll('.page-container').forEach(el => el.classList.remove('active'));
-                targetPage.classList.add('active');
-                setTimeout(fitVisibleMap, 150);
-            } catch(e) {
-                console.error('switchPage error:', e);
-            }
-        }
-
-        // Open Dialog modals
-        function openEdsInlandDialog() {
-            document.getElementById('modal-eds-inland').classList.add('active');
-        }
-
-        function openEdsAlluvialDialog() {
-            document.getElementById('modal-eds-alluvial').classList.add('active');
-        }
-
-        function closeEdsDialogs() {
-            document.querySelectorAll('.modal-overlay').forEach(el => {
-                el.classList.remove('active');
-                el.style.display = '';   // reset so CSS display:none takes effect
-            });
-        }
-
-        // Open Full Map dialog popup
-        function openFullMapNutrientDialog() {
-            closeEdsDialogs();
-            const fm = document.getElementById('modal-full-map');
-            fm.style.display = 'flex';   // override inline display:none
-            fm.classList.add('active');
         }
 
         // standard Sentinel classification simulator

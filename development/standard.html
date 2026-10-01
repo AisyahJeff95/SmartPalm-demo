@@ -2443,11 +2443,15 @@ function triggerSatelliteNutrientDetection() {
 }
 
 function downloadNutrientTifRasters() {
+    const mapSelect = document.getElementById('map-select-comp') || document.getElementById('map-select-std');
+    const mapType = mapSelect ? mapSelect.value : 'lahad_datu_combined';
+    const estatePrefix = mapType.toUpperCase().replace(/[^A-Z0-9]/g, '_');
+
     const rasterFiles = [
-        { name: "Merge_Citra_Unsur_N.tif", path: "Merge_Citra_Unsur_N.tif" },
-        { name: "Merge_Citra_Unsur_P.tif", path: "Merge_Citra_Unsur_P.tif" },
-        { name: "Merge_Citra_Unsur_K.tif", path: "Merge_Citra_Unsur_K.tif" },
-        { name: "Merge_Citra_Unsur_Mg.tif", path: "Merge_Citra_Unsur_Mg.tif" }
+        { name: `${estatePrefix}_Nutrient_Detection_N.tif`, path: "Merge_Citra_Unsur_N.tif" },
+        { name: `${estatePrefix}_Nutrient_Detection_P.tif`, path: "Merge_Citra_Unsur_P.tif" },
+        { name: `${estatePrefix}_Nutrient_Detection_K.tif`, path: "Merge_Citra_Unsur_K.tif" },
+        { name: `${estatePrefix}_Nutrient_Detection_Mg.tif`, path: "Merge_Citra_Unsur_Mg.tif" }
     ];
 
     rasterFiles.forEach((file, index) => {
@@ -3724,306 +3728,98 @@ function toggleSatDataMode(mode) {
             setTimeout(fitVisibleMap, 500);
         }
 
-        // Toggle Nutrient Layer Heatmap Overlay on Comprehensive Map
+                // Toggle Nutrient Layer Heatmap Overlay on Comprehensive Map
         function toggleNutrientLayerComp(layerValue) {
             if (!mapComp) return;
-            // Hide all legends
             document.querySelectorAll('#page-comprehensive .nutrient-legend-box').forEach(el => el.style.display = 'none');
             
-            // Clean old raster overlay
             if (compRasterOverlay) {
                 mapComp.removeLayer(compRasterOverlay);
                 compRasterOverlay = null;
             }
             
+            const currentMapType = document.getElementById('map-select-comp') ? document.getElementById('map-select-comp').value : 'lahad_datu_combined';
+            const isLahadDatu = currentMapType.includes('lahad_datu') || currentMapType.includes('mpob_36_trial');
+
             if (layerValue === "OFF") {
-                // Revert to boundary colors
                 if (compBoundaryLayer) {
-                    compBoundaryLayer.setStyle({ color: "#ff7800", fillColor: "#ff7800", fillOpacity: 0.0 });
+                    compBoundaryLayer.setStyle({ color: "#ff7800", fillColor: "none", fillOpacity: 0.0 });
                 }
             } else {
-                // Show selected legend box
                 let legendBox = document.getElementById(`${layerValue.toLowerCase()}-comp-legend`);
                 if (legendBox) legendBox.style.display = 'block';
                 
-                // Make block boundaries outline-only (transparent fill) so raster underneath is visible
-                if (compBoundaryLayer) {
-                    compBoundaryLayer.setStyle({ color: "#ff7800", fillColor: "#ff7800", fillOpacity: 0.0 });
-                }
-                
-                // Add the authentic GeoTIFF raster overlay mapped dynamically to active boundary
-                if (typeof RASTER_OVERLAYS !== 'undefined' && RASTER_OVERLAYS[layerValue]) {
+                if (isLahadDatu && typeof RASTER_OVERLAYS !== 'undefined' && RASTER_OVERLAYS[layerValue]) {
+                    // For Lahad Datu: use authentic Lahad Datu GeoTIFF raster overlay
+                    if (compBoundaryLayer) {
+                        compBoundaryLayer.setStyle({ color: "#ff7800", fillColor: "none", fillOpacity: 0.0 });
+                    }
                     let oData = RASTER_OVERLAYS[layerValue];
-                    let activeBoundary = compBoundaryLayer || stdBoundaryLayer;
-                    let targetBounds = (activeBoundary && activeBoundary.getBounds && activeBoundary.getBounds().isValid()) ? activeBoundary.getBounds() : oData.bounds;
-                    compRasterOverlay = L.imageOverlay(oData.dataUrl, targetBounds, { opacity: 1.0, zIndex: 400 }).addTo(mapComp);
+                    compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 1.0, zIndex: 400 }).addTo(mapComp);
                     if (compBoundaryLayer) {
                         clipLayerToBoundary(compRasterOverlay, compBoundaryLayer, mapComp);
                     }
+                } else if (compBoundaryLayer) {
+                    // For Seraya & all other maps: style active boundary blocks dynamically using THAT estate's OWN N, P, K, Mg values
+                    compBoundaryLayer.eachLayer(layer => {
+                        let val = null;
+                        if (layer.getBounds) {
+                            let c = layer.getBounds().getCenter();
+                            let s = sampleRastersOrFallback(c.lat, c.lng);
+                            val = s[layerValue.toLowerCase()];
+                        }
+                        if (val !== null && val !== undefined) {
+                            let fillColor = getNutrientColorComp(val, layerValue);
+                            layer.setStyle({ color: "#ff7800", weight: 2, fillColor: fillColor, fillOpacity: 0.55 });
+                        }
+                    });
                 }
             }
         }
 
-        // Toggle Nutrient Layer Heatmap Overlay on Standard Map
+                // Toggle Nutrient Layer Heatmap Overlay on Standard Map
         function toggleNutrientLayerStd(layerValue) {
             if (!mapStd) return;
-            // Hide all legends
             document.querySelectorAll('#page-standard .nutrient-legend-box').forEach(el => el.style.display = 'none');
             
-            // Clean old raster overlay
             if (stdRasterOverlay) {
                 mapStd.removeLayer(stdRasterOverlay);
                 stdRasterOverlay = null;
             }
             
+            const currentMapType = document.getElementById('map-select-std') ? document.getElementById('map-select-std').value : 'lahad_datu_combined';
+            const isLahadDatu = currentMapType.includes('lahad_datu') || currentMapType.includes('mpob_36_trial');
+
             if (layerValue === "OFF") {
-                // Revert to boundary colors
                 if (stdBoundaryLayer) {
-                    stdBoundaryLayer.setStyle({ color: "#10b981", fillColor: "#10b981", fillOpacity: 0.0 });
+                    stdBoundaryLayer.setStyle({ color: "#10b981", fillColor: "none", fillOpacity: 0.0 });
                 }
             } else {
-                // Show selected legend box
                 let legendBox = document.getElementById(`${layerValue.toLowerCase()}-std-legend`);
                 if (legendBox) legendBox.style.display = 'block';
                 
-                // Make block boundaries outline-only (transparent fill) so raster underneath is visible
-                if (stdBoundaryLayer) {
-                    stdBoundaryLayer.setStyle({ color: "#10b981", fillColor: "#10b981", fillOpacity: 0.0 });
-                }
-                
-                // Add the authentic GeoTIFF raster overlay mapped dynamically to active boundary
-                if (typeof RASTER_OVERLAYS !== 'undefined' && RASTER_OVERLAYS[layerValue]) {
+                if (isLahadDatu && typeof RASTER_OVERLAYS !== 'undefined' && RASTER_OVERLAYS[layerValue]) {
+                    if (stdBoundaryLayer) {
+                        stdBoundaryLayer.setStyle({ color: "#10b981", fillColor: "none", fillOpacity: 0.0 });
+                    }
                     let oData = RASTER_OVERLAYS[layerValue];
-                    let activeBoundary = stdBoundaryLayer || compBoundaryLayer;
-                    let targetBounds = (activeBoundary && activeBoundary.getBounds && activeBoundary.getBounds().isValid()) ? activeBoundary.getBounds() : oData.bounds;
-                    stdRasterOverlay = L.imageOverlay(oData.dataUrl, targetBounds, { opacity: 1.0, zIndex: 400 }).addTo(mapStd);
+                    stdRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 1.0, zIndex: 400 }).addTo(mapStd);
                     if (stdBoundaryLayer) {
                         clipLayerToBoundary(stdRasterOverlay, stdBoundaryLayer, mapStd);
                     }
-                }
-            }
-        }
-
-        // Fit the comprehensive map to its boundary layer.
-        function fitCompMap() {
-            try {
-                if (!mapComp || !compBoundaryLayer) return;
-                var b = compBoundaryLayer.getBounds();
-                if (!b || !b.isValid()) return;
-                mapComp.invalidateSize({ animate: false, pan: false });
-                mapComp.fitBounds(b, { padding: [30, 30], animate: true });
-            } catch(e) { console.error('fitCompMap error:', e); }
-        }
-
-        // Fit the standard map to its boundary layer.
-        function fitStdMap() {
-            try {
-                if (!mapStd || !stdBoundaryLayer) return;
-                var b = stdBoundaryLayer.getBounds();
-                if (!b || !b.isValid()) return;
-                mapStd.invalidateSize({ animate: false, pan: false });
-                mapStd.fitBounds(b, { padding: [30, 30], animate: true });
-            } catch(e) { console.error('fitStdMap error:', e); }
-        }
-
-        function fitVisibleMap() {
-            fitCompMap();
-            fitStdMap();
-        }
-
-        // Page switcher — reveal the target page, then fit the correct map after 150 ms
-        function switchPage(pageId) {
-            try {
-                const targetPage = document.getElementById(pageId);
-                if (!targetPage) { console.error('Page not found:', pageId); return; }
-                document.querySelectorAll('.page-container').forEach(el => el.classList.remove('active'));
-                targetPage.classList.add('active');
-                setTimeout(fitVisibleMap, 150);
-            } catch(e) {
-                console.error('switchPage error:', e);
-            }
-        }
-
-        // Open Dialog modals
-        function openEdsInlandDialog() {
-            document.getElementById('modal-eds-inland').classList.add('active');
-        }
-
-        function openEdsAlluvialDialog() {
-            document.getElementById('modal-eds-alluvial').classList.add('active');
-        }
-
-        function closeEdsDialogs() {
-            document.querySelectorAll('.modal-overlay').forEach(el => el.classList.remove('active'));
-        }
-
-        // =========================================================================
-        //  FULL-SCREEN NUTRIENT MAP  — state
-        // =========================================================================
-        let fmMap = null;             // Leaflet map instance
-        let fmBoundaryLayer = null;   // GeoJSON boundary layer
-        let fmRasterOverlay = null;   // Current raster image overlay
-        let fmCurrentLayer = 'OFF';   // Active nutrient key
-
-        // Legend data per nutrient
-        const FM_LEGENDS = {
-            N:  { title: 'Nitrogen (Critical: 2.5%)', items: [
-                    { color:'#ff0000', label:'≤ 2.1%' }, { color:'#ff9900', label:'2.1% – 2.3%' },
-                    { color:'#ffff00', label:'2.3% – 2.5%' }, { color:'#00dc00', label:'2.5% – 2.7%' },
-                    { color:'#0066ff', label:'2.7% – 2.9%' }, { color:'#995522', label:'> 2.9%' } ] },
-            P:  { title: 'Phosphorus (Critical: 0.15%)', items: [
-                    { color:'#ff0000', label:'≤ 0.120%' }, { color:'#ff9900', label:'0.120% – 0.135%' },
-                    { color:'#ffff00', label:'0.135% – 0.150%' }, { color:'#00dc00', label:'0.150% – 0.165%' },
-                    { color:'#0066ff', label:'0.165% – 0.180%' }, { color:'#995522', label:'> 0.180%' } ] },
-            K:  { title: 'Potassium (Critical: 1.00%)', items: [
-                    { color:'#ff0000', label:'≤ 0.70%' }, { color:'#ff9900', label:'0.70% – 0.85%' },
-                    { color:'#ffff00', label:'0.85% – 1.00%' }, { color:'#00dc00', label:'1.00% – 1.15%' },
-                    { color:'#0066ff', label:'1.15% – 1.30%' }, { color:'#995522', label:'> 1.30%' } ] },
-            Mg: { title: 'Magnesium (Critical: 0.20%)', items: [
-                    { color:'#ff0000', label:'≤ 0.20%' }, { color:'#ff9900', label:'0.20% – 0.22%' },
-                    { color:'#ffff00', label:'0.22% – 0.24%' }, { color:'#00dc00', label:'0.24% – 0.26%' },
-                    { color:'#0066ff', label:'0.26% – 0.28%' }, { color:'#995522', label:'> 0.28%' } ] }
-        };
-
-        // Open Full Map dialog popup
-        function openFullMapNutrientDialog() {
-            closeEdsDialogs();
-            const modal = document.getElementById('modal-full-map');
-            modal.classList.add('active');
-
-            // Give the modal a moment to be visible before initialising the map
-            setTimeout(() => {
-                _initFullMap();
-            }, 80);
-        }
-
-        function _initFullMap() {
-            const container = document.getElementById('map-full-nutrient');
-            if (!container) return;
-
-            // First open: create the map
-            if (!fmMap) {
-                fmMap = L.map('map-full-nutrient', { zoomControl: true }).setView([4.2, 109.5], 6);
-                L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
-                    maxZoom: 20,
-                    attribution: '&copy; Google Maps'
-                }).addTo(fmMap);
-
-                // Click handler — sample nutrient value
-                fmMap.on('click', (e) => {
-                    const n  = sampleNutrientValueFromRasters(e.latlng.lat, e.latlng.lng, 'N');
-                    const p  = sampleNutrientValueFromRasters(e.latlng.lat, e.latlng.lng, 'P');
-                    const k  = sampleNutrientValueFromRasters(e.latlng.lat, e.latlng.lng, 'K');
-                    const mg = sampleNutrientValueFromRasters(e.latlng.lat, e.latlng.lng, 'Mg');
-                    document.getElementById('fm-point-info').innerHTML =
-                        `<div style="color:#e2e8f0; font-weight:600; margin-bottom:6px; font-size:11px;">📍 ${e.latlng.lat.toFixed(5)}, ${e.latlng.lng.toFixed(5)}</div>` +
-                        `<div style="display:grid; grid-template-columns:1fr 1fr; gap:4px; margin-top:4px;">` +
-                        `<div style="color:#10b981;"><b>N</b> ${n.toFixed(3)}%</div>` +
-                        `<div style="color:#f59e0b;"><b>P</b> ${p.toFixed(3)}%</div>` +
-                        `<div style="color:#a855f7;"><b>K</b> ${k.toFixed(3)}%</div>` +
-                        `<div style="color:#84cc16;"><b>Mg</b> ${mg.toFixed(3)}%</div>` +
-                        `</div>`;
-                });
-            }
-
-            // Always sync boundary layer from active page map data
-            _syncFmBoundary();
-
-            // Invalidate size so tiles render correctly in newly-visible container
-            fmMap.invalidateSize();
-
-            // Re-apply current layer
-            setFullMapLayer(fmCurrentLayer, true);
-        }
-
-        function _syncFmBoundary() {
-            if (!fmMap) return;
-            if (fmBoundaryLayer) { fmMap.removeLayer(fmBoundaryLayer); fmBoundaryLayer = null; }
-
-            // Try to copy GeoJSON from active page boundary (comp or std)
-            let geojson = null;
-            try {
-                // Check whichever boundary layer has features
-                let srcLayer = (typeof compBoundaryLayer !== 'undefined' && compBoundaryLayer)
-                    ? compBoundaryLayer
-                    : (typeof stdBoundaryLayer !== 'undefined' ? stdBoundaryLayer : null);
-                if (srcLayer) {
-                    geojson = srcLayer.toGeoJSON();
-                }
-            } catch(e) {}
-
-            if (geojson && geojson.features && geojson.features.length > 0) {
-                fmBoundaryLayer = L.geoJSON(geojson, {
-                    style: { color:'#ff7800', weight:1.5, fillColor:'#ff7800', fillOpacity: 0 },
-                    onEachFeature: (feature, layer) => {
-                        const props = feature.properties || {};
-                        const name  = props.BLOCK || props.NAME || props.name || props.Id || 'Block';
-                        layer.bindTooltip(`<b>${name}</b>`, { sticky: true, className: 'fm-block-tooltip' });
-                        layer.on('click', (e) => {
-                            const latlng = e.latlng;
-                            const n  = sampleNutrientValueFromRasters(latlng.lat, latlng.lng, 'N');
-                            const p  = sampleNutrientValueFromRasters(latlng.lat, latlng.lng, 'P');
-                            const k  = sampleNutrientValueFromRasters(latlng.lat, latlng.lng, 'K');
-                            const mg = sampleNutrientValueFromRasters(latlng.lat, latlng.lng, 'Mg');
-                            document.getElementById('fm-point-info').innerHTML =
-                                `<div style="color:#e2e8f0; font-weight:700; margin-bottom:6px; font-size:12px;">🟧 ${name}</div>` +
-                                `<div style="font-size:11px; color:#94a3b8; margin-bottom:6px;">${latlng.lat.toFixed(5)}, ${latlng.lng.toFixed(5)}</div>` +
-                                `<div style="display:grid; grid-template-columns:1fr 1fr; gap:6px;">` +
-                                `<div style="background:rgba(16,185,129,0.15);border-radius:4px;padding:4px 6px;"><div style="font-size:10px;color:#6ee7b7;">N%</div><div style="font-size:15px;font-weight:700;color:#10b981;">${n.toFixed(3)}</div></div>` +
-                                `<div style="background:rgba(245,158,11,0.15);border-radius:4px;padding:4px 6px;"><div style="font-size:10px;color:#fcd34d;">P%</div><div style="font-size:15px;font-weight:700;color:#f59e0b;">${p.toFixed(3)}</div></div>` +
-                                `<div style="background:rgba(168,85,247,0.15);border-radius:4px;padding:4px 6px;"><div style="font-size:10px;color:#c4b5fd;">K%</div><div style="font-size:15px;font-weight:700;color:#a855f7;">${k.toFixed(3)}</div></div>` +
-                                `<div style="background:rgba(132,204,22,0.15);border-radius:4px;padding:4px 6px;"><div style="font-size:10px;color:#bef264;">Mg%</div><div style="font-size:15px;font-weight:700;color:#84cc16;">${mg.toFixed(3)}</div></div>` +
-                                `</div>`;
-                            L.DomEvent.stopPropagation(e);
-                        });
-                    }
-                }).addTo(fmMap);
-
-                // Fit map to boundary
-                try { fmMap.fitBounds(fmBoundaryLayer.getBounds(), { padding: [20, 20] }); } catch(e) {}
-            }
-        }
-
-        function setFullMapLayer(layerKey, silent) {
-            fmCurrentLayer = layerKey;
-
-            // Update button active styles
-            document.querySelectorAll('.fm-layer-btn').forEach(btn => {
-                const isActive = btn.dataset.layer === layerKey;
-                btn.style.background  = isActive ? 'rgba(4,120,87,0.7)' : 'transparent';
-                btn.style.borderColor = isActive ? '#10b981' : 'rgba(255,255,255,0.15)';
-                btn.style.color       = isActive ? '#ffffff' : '#e2e8f0';
-            });
-
-            if (!fmMap) return;
-
-            // Remove old raster overlay
-            if (fmRasterOverlay) { fmMap.removeLayer(fmRasterOverlay); fmRasterOverlay = null; }
-
-            const legendEl = document.getElementById('fm-legend');
-            const legendInner = document.getElementById('fm-legend-inner');
-
-            if (layerKey === 'OFF') {
-                legendEl.style.display = 'none';
-                if (fmBoundaryLayer) fmBoundaryLayer.setStyle({ fillOpacity: 0.0, fillColor:'#ff7800' });
-            } else {
-                // Show raster overlay
-                if (typeof RASTER_OVERLAYS !== 'undefined' && RASTER_OVERLAYS[layerKey]) {
-                    const od = RASTER_OVERLAYS[layerKey];
-                    fmRasterOverlay = L.imageOverlay(od.dataUrl, od.bounds, { opacity: 1.0, zIndex: 400 }).addTo(fmMap);
-                }
-                // Transparent boundary fill so raster shows through
-                if (fmBoundaryLayer) fmBoundaryLayer.setStyle({ fillOpacity: 0, color:'#ff7800' });
-
-                // Render legend
-                const ld = FM_LEGENDS[layerKey];
-                if (ld) {
-                    legendInner.innerHTML = ld.items.map(item =>
-                        `<div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#cbd5e1;">` +
-                        `<span style="width:12px;height:12px;border-radius:2px;background:${item.color};flex-shrink:0;display:inline-block;"></span>` +
-                        `${item.label}</div>`
-                    ).join('');
-                    legendEl.style.display = 'block';
+                } else if (stdBoundaryLayer) {
+                    stdBoundaryLayer.eachLayer(layer => {
+                        let val = null;
+                        if (layer.getBounds) {
+                            let c = layer.getBounds().getCenter();
+                            let s = sampleRastersOrFallback(c.lat, c.lng);
+                            val = s[layerValue.toLowerCase()];
+                        }
+                        if (val !== null && val !== undefined) {
+                            let fillColor = getNutrientColorComp(val, layerValue);
+                            layer.setStyle({ color: "#10b981", weight: 2, fillColor: fillColor, fillOpacity: 0.55 });
+                        }
+                    });
                 }
             }
         }
