@@ -2035,7 +2035,6 @@ function clipLayerToBoundary(tileLayer, boundaryLayer, map) {
             let svgOverlay = overlayPane.querySelector('svg');
 
             if (!svgOverlay) {
-                // If overlay SVG container doesn't exist yet, trigger via latLngToContainerPoint
                 let polygonCoords = [];
                 boundaryLayer.eachLayer(layer => {
                     if (layer.getLatLngs) {
@@ -2083,7 +2082,6 @@ function clipLayerToBoundary(tileLayer, boundaryLayer, map) {
 
             clipPathEl.innerHTML = '';
 
-            // Clone all SVG path definitions from boundaryLayer
             boundaryLayer.eachLayer(layer => {
                 if (layer._path && layer._path.getAttribute('d')) {
                     let pathClone = document.createElementNS('http://www.w3.org/2000/svg', 'path');
@@ -2092,7 +2090,6 @@ function clipLayerToBoundary(tileLayer, boundaryLayer, map) {
                 }
             });
 
-            // Fallback if _path not rendered yet
             if (clipPathEl.children.length === 0) {
                 boundaryLayer.eachLayer(layer => {
                     if (layer.getLatLngs) {
@@ -2116,22 +2113,20 @@ function clipLayerToBoundary(tileLayer, boundaryLayer, map) {
                 });
             }
 
-            container.style.clipPath = 'url(#' + clipPathId + ')';
-            container.style.webkitClipPath = 'url(#' + clipPathId + ')';
-        } catch (e) {
-            console.warn('Clip error:', e);
+            container.style.clipPath = `url(#${clipPathId})`;
+            container.style.webkitClipPath = `url(#${clipPathId})`;
+
+        } catch (err) {
+            console.warn('clipLayerToBoundary error:', err);
         }
     }
 
-    map.off('move moveend zoomend viewreset', updateClip);
-    tileLayer.off('load', updateClip);
-
-    map.on('move moveend zoomend viewreset', updateClip);
-    tileLayer.on('load', updateClip);
-    setTimeout(updateClip, 100);
-    setTimeout(updateClip, 350);
+    updateClip();
+    map.off('moveend zoomend move zoom', updateClip);
+    map.on('moveend zoomend move zoom', updateClip);
+    boundaryLayer.off('add reset', updateClip);
+    boundaryLayer.on('add reset', updateClip);
 }
-
 
 function updateSentinelClippingAndBadge() {
     const realtimeChk = document.getElementById('comp-realtime-chk');
@@ -2144,7 +2139,6 @@ function updateSentinelClippingAndBadge() {
     const isShowOverlay = showOverlayChk ? showOverlayChk.checked : false;
     const selectedDate = satDateInput ? satDateInput.value : '';
 
-    // Clean old Sentinel WMS layers & Date Badges
     if (compSentinelLayer && mapComp) {
         mapComp.removeLayer(compSentinelLayer);
         compSentinelLayer = null;
@@ -2162,7 +2156,6 @@ function updateSentinelClippingAndBadge() {
         stdDateBadge = null;
     }
 
-    // Keep map clear if overlay toggle is unchecked
     if (!isShowOverlay) return;
 
     let bounds = null;
@@ -2173,7 +2166,6 @@ function updateSentinelClippingAndBadge() {
 
     if (!bounds || !bounds.isValid()) return;
 
-    // Date String: Clean "Date: DD/MM/YYYY" format
     let dateStr = "";
     if (isPrevious && selectedDate) {
         const parts = selectedDate.split('-');
@@ -2187,7 +2179,6 @@ function updateSentinelClippingAndBadge() {
         dateStr = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()}`;
     }
 
-    // Add Sentinel-2 WMS Layer
     const wmsUrl = 'https://tiles.maps.eox.at/wms';
     
     if (mapComp && compBoundaryLayer) {
@@ -2216,7 +2207,6 @@ function updateSentinelClippingAndBadge() {
         clipLayerToBoundary(stdSentinelLayer, stdBoundaryLayer, mapStd);
     }
 
-    // Create Permanent Date Badge Pinned at top center of boundary (Clean Date: DD/MM/YYYY)
     const topLat = bounds.getNorth();
     const centerLng = (bounds.getWest() + bounds.getEast()) / 2;
     const badgePos = [topLat, centerLng];
@@ -2257,7 +2247,6 @@ function handleDroneImageUpload(event) {
     const fileName = file.name.toLowerCase();
     const isTiff = fileName.endsWith('.tif') || fileName.endsWith('.tiff');
 
-    // Reset status log elements
     const logContainer = document.getElementById('drone-status-log');
     const msgUpload = document.getElementById('drone-msg-upload');
     const msgConverting = document.getElementById('drone-msg-converting');
@@ -2265,7 +2254,6 @@ function handleDroneImageUpload(event) {
 
     if (logContainer) logContainer.style.display = 'block';
 
-    // Step 1: Always show "* successfully uploaded" immediately
     if (msgUpload) msgUpload.style.display = 'block';
     if (msgConverting) msgConverting.style.display = 'none';
     if (msgConverted) msgConverted.style.display = 'none';
@@ -2282,7 +2270,6 @@ function handleDroneImageUpload(event) {
     }
 
     if (isTiff) {
-        // Step 2 & 3: Multi-step conversion process notes for TIFF files
         setTimeout(() => {
             if (msgConverting) msgConverting.style.display = 'block';
             
@@ -2296,7 +2283,6 @@ function handleDroneImageUpload(event) {
             }, 500);
         }, 300);
     } else {
-        // Standard PNG/JPG immediate upload
         const chk = document.getElementById('comp-show-drone-chk');
         if (chk) chk.checked = true;
         updateDroneImageOverlay();
@@ -2309,7 +2295,6 @@ function updateDroneImageOverlay() {
     const droneDateInput = document.getElementById('drone-date-input');
     const selectedDate = droneDateInput ? droneDateInput.value : '';
 
-    // Clean old drone layers & badges
     if (compDroneLayer && mapComp) {
         mapComp.removeLayer(compDroneLayer);
         compDroneLayer = null;
@@ -2349,7 +2334,6 @@ function updateDroneImageOverlay() {
             imgBounds = activeBoundary.getBounds();
         }
     } else {
-        // Pre-loaded high-resolution web orthomosaic (from TIFF-mozek18n19-10-22-MPOB-LD.tif)
         imgUrl = './assets/drone_lahad_datu_orthomosaic.webp';
         imgBounds = L.latLngBounds([
             [5.100963227394144, 118.42332610063347],
@@ -2413,267 +2397,6 @@ function updateDroneImageOverlay() {
         }
     }
 }
-
-
-
-    // Keep map clear if overlay toggle is unchecked
-    if (!isShowOverlay) return;
-
-    if (!isRealtime && !isPrevious) return;
-
-    let bounds = null;
-    let activeBoundary = compBoundaryLayer || stdBoundaryLayer;
-    if (activeBoundary) {
-        bounds = activeBoundary.getBounds();
-    }
-
-    if (!bounds || !bounds.isValid()) return;
-
-    // Acquisition Date String
-    let dateStr = "";
-    if (isRealtime) {
-        const now = new Date();
-        dateStr = `${now.getDate().toString().padStart(2, '0')}/${(now.getMonth() + 1).toString().padStart(2, '0')}/${now.getFullYear()} (Real-time 10-Day Window)`;
-    } else if (isPrevious && selectedDate) {
-        const parts = selectedDate.split('-');
-        if (parts.length === 3) {
-            dateStr = `${parts[2]}/${parts[1]}/${parts[0]} (±10-Day Window)`;
-        } else {
-            dateStr = `${selectedDate} (±10-Day Window)`;
-        }
-    } else if (isPrevious) {
-        dateStr = `Selected Window (±10 Days)`;
-    }
-
-    // Add Sentinel-2 WMS Layer
-    const wmsUrl = 'https://tiles.maps.eox.at/wms';
-    
-    if (mapComp && compBoundaryLayer) {
-        compSentinelLayer = L.tileLayer.wms(wmsUrl, {
-            layers: 's2cloudless-2020_3857',
-            format: 'image/jpeg',
-            transparent: false,
-            attribution: 'Sentinel-2 Copernicus',
-            maxZoom: 18,
-            opacity: 1.0,
-            zIndex: 350
-        }).addTo(mapComp);
-        clipLayerToBoundary(compSentinelLayer, compBoundaryLayer, mapComp);
-    }
-
-    if (mapStd && stdBoundaryLayer) {
-        stdSentinelLayer = L.tileLayer.wms(wmsUrl, {
-            layers: 's2cloudless-2020_3857',
-            format: 'image/jpeg',
-            transparent: false,
-            attribution: 'Sentinel-2 Copernicus',
-            maxZoom: 18,
-            opacity: 1.0,
-            zIndex: 350
-        }).addTo(mapStd);
-        clipLayerToBoundary(stdSentinelLayer, stdBoundaryLayer, mapStd);
-    }
-
-    // Create Permanent Date Badge Pinned at top center of boundary
-    const topLat = bounds.getNorth();
-    const centerLng = (bounds.getWest() + bounds.getEast()) / 2;
-    const badgePos = [topLat, centerLng];
-
-    const badgeHtml = `
-        <div class="sentinel-boundary-badge">
-            <span class="badge-icon">🛰️</span>
-            <span class="badge-title">Sentinel-1A/2A/1C</span>
-            <span class="badge-date">Date: ${dateStr}</span>
-        </div>
-    `;
-
-    const badgeIcon = L.divIcon({
-        className: 'sentinel-badge-container',
-        html: badgeHtml,
-        iconSize: [280, 32],
-        iconAnchor: [140, 36]
-    });
-
-    if (mapComp) {
-        compDateBadge = L.marker(badgePos, { icon: badgeIcon, interactive: false, zIndexOffset: 1000 }).addTo(mapComp);
-    }
-    if (mapStd) {
-        stdDateBadge = L.marker(badgePos, { icon: badgeIcon, interactive: false, zIndexOffset: 1000 }).addTo(mapStd);
-    }
-}
-
-// Drone Image Overlay & Date Badge References
-let compDroneLayer = null;
-let stdDroneLayer = null;
-let compDroneDateBadge = null;
-let stdDroneDateBadge = null;
-
-let uploadedDroneUrl = null;
-
-function handleDroneImageUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const fileName = file.name.toLowerCase();
-    const isTiff = fileName.endsWith('.tif') || fileName.endsWith('.tiff');
-
-    // Reset status log elements
-    const logContainer = document.getElementById('drone-status-log');
-    const msgUpload = document.getElementById('drone-msg-upload');
-    const msgConverting = document.getElementById('drone-msg-converting');
-    const msgConverted = document.getElementById('drone-msg-converted');
-
-    if (logContainer) logContainer.style.display = 'block';
-
-    // Step 1: Always show "* successfully uploaded" immediately
-    if (msgUpload) msgUpload.style.display = 'block';
-    if (msgConverting) msgConverting.style.display = 'none';
-    if (msgConverted) msgConverted.style.display = 'none';
-
-    if (uploadedDroneUrl && uploadedDroneUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(uploadedDroneUrl);
-    }
-    uploadedDroneUrl = URL.createObjectURL(file);
-
-    const dateInput = document.getElementById('drone-date-input');
-    if (dateInput && !dateInput.value) {
-        const today = new Date().toISOString().split('T')[0];
-        dateInput.value = today;
-    }
-
-    if (isTiff) {
-        // Step 2 & 3: Multi-step conversion process notes for TIFF files
-        setTimeout(() => {
-            if (msgConverting) msgConverting.style.display = 'block';
-            
-            setTimeout(() => {
-                if (msgConverting) msgConverting.style.display = 'none';
-                if (msgConverted) msgConverted.style.display = 'block';
-
-                const chk = document.getElementById('comp-show-drone-chk');
-                if (chk) chk.checked = true;
-                updateDroneImageOverlay();
-            }, 500);
-        }, 300);
-    } else {
-        // Standard PNG/JPG immediate upload
-        const chk = document.getElementById('comp-show-drone-chk');
-        if (chk) chk.checked = true;
-        updateDroneImageOverlay();
-    }
-}
-
-function updateDroneImageOverlay() {
-    const showDroneChk = document.getElementById('comp-show-drone-chk');
-    const isShowDrone = showDroneChk ? showDroneChk.checked : false;
-    const droneDateInput = document.getElementById('drone-date-input');
-    const selectedDate = droneDateInput ? droneDateInput.value : '';
-
-    // Clean old drone layers & badges
-    if (compDroneLayer && mapComp) {
-        mapComp.removeLayer(compDroneLayer);
-        compDroneLayer = null;
-    }
-    if (stdDroneLayer && mapStd) {
-        mapStd.removeLayer(stdDroneLayer);
-        stdDroneLayer = null;
-    }
-    if (compDroneDateBadge && mapComp) {
-        mapComp.removeLayer(compDroneDateBadge);
-        compDroneDateBadge = null;
-    }
-    if (stdDroneDateBadge && mapStd) {
-        mapStd.removeLayer(stdDroneDateBadge);
-        stdDroneDateBadge = null;
-    }
-
-    if (!isShowDrone) return;
-
-    let activeBoundary = compBoundaryLayer || stdBoundaryLayer;
-    let imgUrl = null;
-    let imgBounds = null;
-    let dateStr = "19/10/2022";
-
-    if (selectedDate) {
-        const parts = selectedDate.split('-');
-        if (parts.length === 3) {
-            dateStr = `${parts[2]}/${parts[1]}/${parts[0]}`;
-        } else {
-            dateStr = selectedDate;
-        }
-    }
-
-    if (uploadedDroneUrl) {
-        imgUrl = uploadedDroneUrl;
-        if (activeBoundary) {
-            imgBounds = activeBoundary.getBounds();
-        }
-    } else {
-        // Pre-loaded high-resolution web orthomosaic (from TIFF-mozek18n19-10-22-MPOB-LD.tif)
-        imgUrl = './assets/drone_lahad_datu_orthomosaic.webp';
-        imgBounds = L.latLngBounds([
-            [5.100963227394144, 118.42332610063347],
-            [5.107033252129366, 118.42819509782328]
-        ]);
-        if (!selectedDate) {
-            dateStr = "19/10/2022";
-        }
-    }
-
-    if (!imgBounds || !imgBounds.isValid()) return;
-
-    if (mapComp) {
-        compDroneLayer = L.imageOverlay(imgUrl, imgBounds, {
-            opacity: 1.0,
-            interactive: false,
-            zIndex: 250
-        }).addTo(mapComp);
-        if (activeBoundary) {
-            clipLayerToBoundary(compDroneLayer, compBoundaryLayer, mapComp);
-        }
-    }
-
-    if (mapStd) {
-        stdDroneLayer = L.imageOverlay(imgUrl, imgBounds, {
-            opacity: 1.0,
-            interactive: false,
-            zIndex: 250
-        }).addTo(mapStd);
-        if (activeBoundary) {
-            clipLayerToBoundary(stdDroneLayer, stdBoundaryLayer, mapStd);
-        }
-    }
-
-    let boundsForBadge = activeBoundary ? activeBoundary.getBounds() : imgBounds;
-    if (boundsForBadge && boundsForBadge.isValid()) {
-        const topLat = boundsForBadge.getNorth();
-        const centerLng = (boundsForBadge.getWest() + boundsForBadge.getEast()) / 2;
-        const badgePos = [topLat, centerLng];
-
-        const badgeHtml = `
-            <div class="sentinel-boundary-badge" style="background: rgba(15, 23, 42, 0.95); border: 1px solid #10b981; color: #ffffff; border-radius: 6px; padding: 2px 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); white-space: nowrap;">
-                <span class="badge-icon">🛸</span>
-                <span class="badge-title" style="color: #34d399; font-weight: 700; margin-right: 6px;">Drone Orthomosaic</span>
-                <span class="badge-date" style="color: #ffffff; font-weight: 600;">Date: ${dateStr}</span>
-            </div>
-        `;
-
-        const badgeIcon = L.divIcon({
-            className: 'sentinel-badge-container',
-            html: badgeHtml,
-            iconSize: [260, 32],
-            iconAnchor: [130, 36]
-        });
-
-        if (mapComp) {
-            compDroneDateBadge = L.marker(badgePos, { icon: badgeIcon, interactive: false, zIndexOffset: 1000 }).addTo(mapComp);
-        }
-        if (mapStd) {
-            stdDroneDateBadge = L.marker(badgePos, { icon: badgeIcon, interactive: false, zIndexOffset: 1000 }).addTo(mapStd);
-        }
-    }
-}
-
 
 function toggleSatDataMode(mode) {
     const realtimeChk = document.getElementById('comp-realtime-chk');
@@ -2704,8 +2427,6 @@ function toggleSatDataMode(mode) {
     }
     updateSentinelClippingAndBadge();
 }
-</script>
-
 </script>
 </head>
 <body>
