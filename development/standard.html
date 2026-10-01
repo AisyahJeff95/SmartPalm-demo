@@ -2254,16 +2254,26 @@ function handleDroneImageUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
 
+    const fileName = file.name.toLowerCase();
+    const isTiff = fileName.endsWith('.tif') || fileName.endsWith('.tiff');
+
+    // Reset status log elements
+    const logContainer = document.getElementById('drone-status-log');
+    const msgUpload = document.getElementById('drone-msg-upload');
+    const msgConverting = document.getElementById('drone-msg-converting');
+    const msgConverted = document.getElementById('drone-msg-converted');
+
+    if (logContainer) logContainer.style.display = 'block';
+
+    // Step 1: Always show "* successfully uploaded" immediately
+    if (msgUpload) msgUpload.style.display = 'block';
+    if (msgConverting) msgConverting.style.display = 'none';
+    if (msgConverted) msgConverted.style.display = 'none';
+
     if (uploadedDroneUrl && uploadedDroneUrl.startsWith('blob:')) {
         URL.revokeObjectURL(uploadedDroneUrl);
     }
     uploadedDroneUrl = URL.createObjectURL(file);
-
-    const msgEl = document.getElementById('drone-success-msg');
-    if (msgEl) msgEl.style.display = 'block';
-
-    const chk = document.getElementById('comp-show-drone-chk');
-    if (chk) chk.checked = true;
 
     const dateInput = document.getElementById('drone-date-input');
     if (dateInput && !dateInput.value) {
@@ -2271,7 +2281,26 @@ function handleDroneImageUpload(event) {
         dateInput.value = today;
     }
 
-    updateDroneImageOverlay();
+    if (isTiff) {
+        // Step 2 & 3: Multi-step conversion process notes for TIFF files
+        setTimeout(() => {
+            if (msgConverting) msgConverting.style.display = 'block';
+            
+            setTimeout(() => {
+                if (msgConverting) msgConverting.style.display = 'none';
+                if (msgConverted) msgConverted.style.display = 'block';
+
+                const chk = document.getElementById('comp-show-drone-chk');
+                if (chk) chk.checked = true;
+                updateDroneImageOverlay();
+            }, 500);
+        }, 300);
+    } else {
+        // Standard PNG/JPG immediate upload
+        const chk = document.getElementById('comp-show-drone-chk');
+        if (chk) chk.checked = true;
+        updateDroneImageOverlay();
+    }
 }
 
 function updateDroneImageOverlay() {
@@ -2485,16 +2514,26 @@ function handleDroneImageUpload(event) {
     const file = event.target.files[0];
     if (!file) return;
 
+    const fileName = file.name.toLowerCase();
+    const isTiff = fileName.endsWith('.tif') || fileName.endsWith('.tiff');
+
+    // Reset status log elements
+    const logContainer = document.getElementById('drone-status-log');
+    const msgUpload = document.getElementById('drone-msg-upload');
+    const msgConverting = document.getElementById('drone-msg-converting');
+    const msgConverted = document.getElementById('drone-msg-converted');
+
+    if (logContainer) logContainer.style.display = 'block';
+
+    // Step 1: Always show "* successfully uploaded" immediately
+    if (msgUpload) msgUpload.style.display = 'block';
+    if (msgConverting) msgConverting.style.display = 'none';
+    if (msgConverted) msgConverted.style.display = 'none';
+
     if (uploadedDroneUrl && uploadedDroneUrl.startsWith('blob:')) {
         URL.revokeObjectURL(uploadedDroneUrl);
     }
     uploadedDroneUrl = URL.createObjectURL(file);
-
-    const msgEl = document.getElementById('drone-success-msg');
-    if (msgEl) msgEl.style.display = 'block';
-
-    const chk = document.getElementById('comp-show-drone-chk');
-    if (chk) chk.checked = true;
 
     const dateInput = document.getElementById('drone-date-input');
     if (dateInput && !dateInput.value) {
@@ -2502,7 +2541,26 @@ function handleDroneImageUpload(event) {
         dateInput.value = today;
     }
 
-    updateDroneImageOverlay();
+    if (isTiff) {
+        // Step 2 & 3: Multi-step conversion process notes for TIFF files
+        setTimeout(() => {
+            if (msgConverting) msgConverting.style.display = 'block';
+            
+            setTimeout(() => {
+                if (msgConverting) msgConverting.style.display = 'none';
+                if (msgConverted) msgConverted.style.display = 'block';
+
+                const chk = document.getElementById('comp-show-drone-chk');
+                if (chk) chk.checked = true;
+                updateDroneImageOverlay();
+            }, 500);
+        }, 300);
+    } else {
+        // Standard PNG/JPG immediate upload
+        const chk = document.getElementById('comp-show-drone-chk');
+        if (chk) chk.checked = true;
+        updateDroneImageOverlay();
+    }
 }
 
 function updateDroneImageOverlay() {
@@ -2887,7 +2945,11 @@ function toggleSatDataMode(mode) {
                             <button class="ui-upload-outline-btn" onclick="document.getElementById('drone-file-input').click()">Upload Drone</button>
                             <input type="file" id="drone-file-input" accept="image/*,.tif,.tiff" style="display:none;" onchange="handleDroneImageUpload(event)">
                         </div>
-                        <div id="drone-success-msg" style="font-size: 11px; color: #00802b; font-weight: 600; display: none; margin-top: 3px;">* Successfully uploaded</div>
+                        <div id="drone-status-log" style="font-size: 11px; margin-top: 4px; display: none;">
+                            <div id="drone-msg-upload" style="color: #00802b; font-weight: 600; display: none;">* successfully uploaded</div>
+                            <div id="drone-msg-converting" style="color: #d97706; font-weight: 600; display: none; margin-top: 2px;">* converting into PNG...</div>
+                            <div id="drone-msg-converted" style="color: #00802b; font-weight: 600; display: none; margin-top: 2px;">* successfully converted to PNG</div>
+                        </div>
                     </div>
 
                     <div class="ui-field-row" style="margin-top: 6px;">
