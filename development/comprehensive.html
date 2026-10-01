@@ -2486,27 +2486,189 @@ function triggerSatelliteNutrientDetection() {
     }, 400);
 }
 
+function buildGeoTIFFArrayBuffer(width, height, west, south, east, north, dataArray) {
+    const dx = (east - west) / width;
+    const dy = (north - south) / height;
+
+    const headerSize = 8;
+    const numEntries = 12;
+    const ifdSize = 2 + numEntries * 12 + 4;
+    
+    let cur = headerSize + ifdSize;
+    const bitsOffset = cur; cur += 2;
+    const scaleOffset = cur; cur += 24;
+    const tieOffset = cur; cur += 48;
+    const dataOffset = cur; cur += width * height * 4;
+
+    const buffer = new ArrayBuffer(cur);
+    const view = new DataView(buffer);
+
+    // TIFF Header: Little Endian ('II'), Magic 42, IFD Offset 8
+    view.setUint16(0, 0x4949, true);
+    view.setUint16(2, 42, true);
+    view.setUint32(4, 8, true);
+
+    let p = 8;
+    view.setUint16(p, numEntries, true); p += 2;
+
+    function tag(t, typ, cnt, val) {
+        view.setUint16(p, t, true);
+        view.setUint16(p + 2, typ, true);
+        view.setUint32(p + 4, cnt, true);
+        view.setUint32(p + 8, val, true);
+        p += 12;
+    }
+
+    tag(256, 4, 1, width);                          // ImageWidth
+    tag(257, 4, 1, height);                         // ImageLength
+    tag(258, 3, 1, bitsOffset);                    // BitsPerSample (32)
+    tag(259, 3, 1, 1);                             // Compression (Uncompressed)
+    tag(262, 3, 1, 1);                             // PhotometricInterpretation (BlackIsZero)
+    tag(273, 4, 1, dataOffset);                    // StripOffsets
+    tag(277, 3, 1, 1);                             // SamplesPerPixel
+    tag(278, 4, 1, height);                        // RowsPerStrip
+    tag(279, 4, 1, width * height * 4);            // StripByteCounts
+    tag(339, 3, 1, 3);                             // SampleFormat (3 = IEEE Float)
+    tag(33550, 12, 3, scaleOffset);                // ModelPixelScaleTag
+    tag(33922, 12, 6, tieOffset);                  // ModelTiepointTag
+
+    view.setUint32(p, 0, true);                    // Next IFD offset = 0
+
+    view.setUint16(bitsOffset, 32, true);
+
+    // ModelPixelScaleTag: [dx, dy, 0.0]
+    view.setFloat64(scaleOffset, dx, true);
+    view.setFloat64(scaleOffset + 8, dy, true);
+    view.setFloat64(scaleOffset + 16, 0.0, true);
+
+    // ModelTiepointTag: [0, 0, 0, west, north, 0.0]
+    view.setFloat64(tieOffset, 0.0, true);
+    view.setFloat64(tieOffset + 8, 0.0, true);
+    view.setFloat64(tieOffset + 16, 0.0, true);
+    view.setFloat64(tieOffset + 24, west, true);
+    view.setFloat64(tieOffset + 32, north, true);
+    view.setFloat64(tieOffset + 40, 0.0, true);
+
+    let dataPos = dataOffset;
+    for (let i = 0; i < dataArray.length; i++) {
+        view.setFloat32(dataPos, dataArray[i], true);
+        dataPos += 4;
+    }
+
+    return buffer;
+}
+
 function downloadNutrientTifRasters() {
+    let activeBoundary = compBoundaryLayer || stdBoundaryLayer;
     const mapSelect = document.getElementById('map-select-comp') || document.getElementById('map-select-std');
     const mapType = mapSelect ? mapSelect.value : 'lahad_datu_combined';
-    const estatePrefix = mapType.toUpperCase().replace(/[^A-Z0-9]/g, '_');
+    const isLahadDatu = mapType.includes('lahad_datu') || mapType.includes('mpob_36_trial');
 
-    const rasterFiles = [
-        { name: `${estatePrefix}_Nutrient_Detection_N.tif`, path: "Merge_Citra_Unsur_N.tif" },
-        { name: `${estatePrefix}_Nutrient_Detection_P.tif`, path: "Merge_Citra_Unsur_P.tif" },
-        { name: `${estatePrefix}_Nutrient_Detection_K.tif`, path: "Merge_Citra_Unsur_K.tif" },
-        { name: `${estatePrefix}_Nutrient_Detection_Mg.tif`, path: "Merge_Citra_Unsur_Mg.tif" }
-    ];
+    if (isLahadDatu) {
+        const estatePrefix = mapType.toUpperCase().replace(/[^A-Z0-9]/g, '_');
+        const rasterFiles = [
+            { name: `${estatePrefix}_Nutrient_Detection_N.tif`, path: "Merge_Citra_Unsur_N.tif" },
+            { name: `${estatePrefix}_Nutrient_Detection_P.tif`, path: "Merge_Citra_Unsur_P.tif" },
+            { name: `${estatePrefix}_Nutrient_Detection_K.tif`, path: "Merge_Citra_Unsur_K.tif" },
+            { name: `${estatePrefix}_Nutrient_Detection_Mg.tif`, path: "Merge_Citra_Unsur_Mg.tif" }
+        ];
 
-    rasterFiles.forEach((file, index) => {
+        rasterFiles.forEach((file, index) => {
+            setTimeout(() => {
+                const link = document.createElement('a');
+                link.href = file.path;
+                link.download = file.name;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }, index * 250);
+        });
+        return;
+    }
+
+    if (!activeBoundary || !activeBoundary.getBounds) {
+        alert("Please select a map boundary polygon first.");
+        return;
+    }
+
+    let bounds = activeBoundary.getBounds();
+    if (!bounds || !bounds.isValid()) {
+        alert("Invalid boundary selection.");
+        return;
+    }
+
+    const north = bounds.getNorth();
+    const south = bounds.getSouth();
+    const east = bounds.getEast();
+    const west = bounds.getWest();
+
+    const estateName = mapType.toUpperCase().replace(/[^A-Z0-9]/g, '_');
+
+    let polyRings = [];
+    activeBoundary.eachLayer(layer => {
+        if (layer.getLatLngs) {
+            let latlngs = layer.getLatLngs();
+            function extractRings(arr) {
+                if (!Array.isArray(arr) || arr.length === 0) return;
+                if (arr[0] && typeof arr[0].lat === 'number') {
+                    polyRings.push(arr.map(ll => [ll.lng, ll.lat]));
+                } else {
+                    arr.forEach(sub => extractRings(sub));
+                }
+            }
+            extractRings(latlngs);
+        }
+    });
+
+    function isPointInRings(lng, lat) {
+        if (polyRings.length === 0) return true;
+        for (let poly of polyRings) {
+            let inside = false;
+            let x = lng, y = lat;
+            for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+                let xi = poly[i][0], yi = poly[i][1];
+                let xj = poly[j][0], yj = poly[j][1];
+                let intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+                if (intersect) inside = !inside;
+            }
+            if (inside) return true;
+        }
+        return false;
+    }
+
+    const width = 120;
+    const height = 120;
+    const nutrients = ['N', 'P', 'K', 'Mg'];
+
+    nutrients.forEach((nut, index) => {
         setTimeout(() => {
-            const link = document.createElement('a');
-            link.href = file.path;
-            link.download = file.name;
+            let data = new Float32Array(width * height);
+            for (let r = 0; r < height; r++) {
+                let lat = north - (r / height) * (north - south);
+                for (let c = 0; c < width; c++) {
+                    let lng = west + (c / width) * (east - west);
+                    let idx = r * width + c;
+                    if (isPointInRings(lng, lat)) {
+                        let sample = sampleRastersOrFallback(lat, lng);
+                        data[idx] = sample[nut.toLowerCase()];
+                    } else {
+                        data[idx] = -9999.0;
+                    }
+                }
+            }
+
+            let tifBuffer = buildGeoTIFFArrayBuffer(width, height, west, south, east, north, data);
+            let blob = new Blob([tifBuffer], { type: 'image/tiff' });
+            let url = URL.createObjectURL(blob);
+
+            let link = document.createElement('a');
+            link.href = url;
+            link.download = `${estateName}_Nutrient_Detection_${nut}.tif`;
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-        }, index * 250);
+            setTimeout(() => URL.revokeObjectURL(url), 1000);
+        }, index * 300);
     });
 }
 
@@ -3737,13 +3899,45 @@ function createContinuousNutrientRaster(boundaryLayer, layerValue, map) {
     let bounds = boundaryLayer.getBounds();
     if (!bounds || !bounds.isValid()) return null;
 
+    let polyRings = [];
+    boundaryLayer.eachLayer(layer => {
+        if (layer.getLatLngs) {
+            let latlngs = layer.getLatLngs();
+            function extractRings(arr) {
+                if (!Array.isArray(arr) || arr.length === 0) return;
+                if (arr[0] && typeof arr[0].lat === 'number') {
+                    polyRings.push(arr.map(ll => [ll.lng, ll.lat]));
+                } else {
+                    arr.forEach(sub => extractRings(sub));
+                }
+            }
+            extractRings(latlngs);
+        }
+    });
+
+    function isPointInAnyRing(lng, lat) {
+        if (polyRings.length === 0) return true;
+        for (let poly of polyRings) {
+            let inside = false;
+            let x = lng, y = lat;
+            for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+                let xi = poly[i][0], yi = poly[i][1];
+                let xj = poly[j][0], yj = poly[j][1];
+                let intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+                if (intersect) inside = !inside;
+            }
+            if (inside) return true;
+        }
+        return false;
+    }
+
     const north = bounds.getNorth();
     const south = bounds.getSouth();
     const east = bounds.getEast();
     const west = bounds.getWest();
 
-    const width = 180;
-    const height = 180;
+    const width = 240;
+    const height = 240;
 
     const canvas = document.createElement('canvas');
     canvas.width = width;
@@ -3758,7 +3952,7 @@ function createContinuousNutrientRaster(boundaryLayer, layerValue, map) {
         if (hex.startsWith('#')) {
             let num = parseInt(hex.slice(1), 16);
             if (hex.length === 7) {
-                return [(num >> 16) & 255, (num >> 8) & 255, num & 255, 215]; // ~85% opacity
+                return [(num >> 16) & 255, (num >> 8) & 255, num & 255, 210]; // ~82% opacity
             }
         }
         return [0, 0, 0, 0];
@@ -3768,26 +3962,29 @@ function createContinuousNutrientRaster(boundaryLayer, layerValue, map) {
         let lat = north - (r / height) * (north - south);
         for (let c = 0; c < width; c++) {
             let lng = west + (c / width) * (east - west);
-            let s = sampleRastersOrFallback(lat, lng);
-            let val = s[layerValue.toLowerCase()];
-            let colorHex = getNutrientColorComp(val, layerValue);
-            let rgba = hexToRgba(colorHex);
-
             let idx = (r * width + c) * 4;
-            data[idx] = rgba[0];
-            data[idx + 1] = rgba[1];
-            data[idx + 2] = rgba[2];
-            data[idx + 3] = rgba[3];
+
+            if (isPointInAnyRing(lng, lat)) {
+                let s = sampleRastersOrFallback(lat, lng);
+                let val = s[layerValue.toLowerCase()];
+                let colorHex = getNutrientColorComp(val, layerValue);
+                let rgba = hexToRgba(colorHex);
+
+                data[idx] = rgba[0];
+                data[idx + 1] = rgba[1];
+                data[idx + 2] = rgba[2];
+                data[idx + 3] = rgba[3];
+            } else {
+                data[idx + 3] = 0; // 100% transparent outside boundary
+            }
         }
     }
 
     ctx.putImageData(imgData, 0, 0);
     const dataUrl = canvas.toDataURL('image/png');
     
+    // Pure Leaflet ImageOverlay anchored to geographic bounds (robust across zoom levels)
     let overlay = L.imageOverlay(dataUrl, bounds, { opacity: 1.0, zIndex: 400 }).addTo(map);
-    if (typeof clipLayerToBoundary === 'function') {
-        clipLayerToBoundary(overlay, boundaryLayer, map);
-    }
     return overlay;
 }
 
