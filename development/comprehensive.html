@@ -2307,11 +2307,7 @@ function handleDroneImageUpload(event) {
     }
     uploadedDroneUrl = URL.createObjectURL(file);
 
-    const dateInput = document.getElementById('drone-date-input');
-    if (dateInput && !dateInput.value) {
-        const today = new Date().toISOString().split('T')[0];
-        dateInput.value = today;
-    }
+    // Leave date input empty if user did not specify one
 
     if (isTiff) {
         setTimeout(() => {
@@ -2361,7 +2357,7 @@ function updateDroneImageOverlay() {
     let activeBoundary = compBoundaryLayer || stdBoundaryLayer;
     let imgUrl = null;
     let imgBounds = null;
-    let dateStr = "19/10/2022";
+    let dateStr = "";
 
     if (selectedDate) {
         const parts = selectedDate.split('-');
@@ -2383,9 +2379,6 @@ function updateDroneImageOverlay() {
             [5.100963227394144, 118.42332610063347],
             [5.107033252129366, 118.42819509782328]
         ]);
-        if (!selectedDate) {
-            dateStr = "19/10/2022";
-        }
     }
 
     if (!imgBounds || !imgBounds.isValid()) return;
@@ -2418,11 +2411,13 @@ function updateDroneImageOverlay() {
         const centerLng = (boundsForBadge.getWest() + boundsForBadge.getEast()) / 2;
         const badgePos = [topLat, centerLng];
 
+        const dateSpanHtml = dateStr ? `<span class="badge-date" style="color: #ffffff; font-weight: 600; border-left: 1px solid rgba(255,255,255,0.3); padding-left: 6px; margin-left: 6px;">Date: ${dateStr}</span>` : '';
+
         const badgeHtml = `
             <div class="sentinel-boundary-badge" style="background: rgba(15, 23, 42, 0.95); border: 1px solid #10b981; color: #ffffff; border-radius: 6px; padding: 2px 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); white-space: nowrap;">
                 <span class="badge-icon">🛸</span>
-                <span class="badge-title" style="color: #34d399; font-weight: 700; margin-right: 6px;">Drone Orthomosaic</span>
-                <span class="badge-date" style="color: #ffffff; font-weight: 600;">Date: ${dateStr}</span>
+                <span class="badge-title" style="color: #34d399; font-weight: 700;">Drone Orthomosaic</span>
+                ${dateSpanHtml}
             </div>
         `;
 
