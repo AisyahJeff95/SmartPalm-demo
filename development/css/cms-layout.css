@@ -277,8 +277,30 @@ body {
 }
 
 /* Card variants */
-.cms-card.comprehensive .cms-card-icon-wrapper { background: #ecfdf5; color: #059669; }
-.cms-card.standard .cms-card-icon-wrapper { background: #eff6ff; color: #2563eb; }
+.cms-card.comprehensive { 
+    background: linear-gradient(135deg, #064e3b 0%, #047857 50%, #059669 100%); 
+    border-color: #047857; 
+    box-shadow: 0 10px 25px -5px rgba(5, 150, 105, 0.4);
+}
+.cms-card.comprehensive .cms-card-title { color: #ffffff; }
+.cms-card.comprehensive .cms-card-desc { color: #a7f3d0; }
+.cms-card.comprehensive .cms-card-icon-wrapper { background: rgba(255, 255, 255, 0.15); color: #ffffff; }
+.cms-card.comprehensive .cms-card-action { color: #6ee7b7; border-top-color: rgba(255, 255, 255, 0.1); }
+.cms-card.comprehensive:hover .cms-card-action { color: #ffffff; }
+.cms-card.comprehensive:hover { box-shadow: 0 15px 35px -5px rgba(5, 150, 105, 0.5); transform: translateY(-4px); }
+
+.cms-card.standard { 
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #1d4ed8 100%); 
+    border-color: #1e40af; 
+    box-shadow: 0 10px 25px -5px rgba(30, 58, 138, 0.4);
+}
+.cms-card.standard .cms-card-title { color: #ffffff; }
+.cms-card.standard .cms-card-desc { color: #bfdbfe; }
+.cms-card.standard .cms-card-icon-wrapper { background: rgba(255, 255, 255, 0.15); color: #ffffff; }
+.cms-card.standard .cms-card-action { color: #93c5fd; border-top-color: rgba(255, 255, 255, 0.1); }
+.cms-card.standard:hover .cms-card-action { color: #ffffff; }
+.cms-card.standard:hover { box-shadow: 0 15px 35px -5px rgba(29, 78, 216, 0.5); transform: translateY(-4px); }
+
 .cms-card.reads { 
     background: linear-gradient(135deg, #112d2b 0%, #0d5c46 100%); 
     border-color: #064e3b; 
@@ -315,6 +337,8 @@ body {
     font-weight: 600;
     color: #0f172a;
     transition: color 0.2s ease;
+    border-top: 1px solid rgba(226, 232, 240, 0.2);
+    padding-top: 16px;
 }
 
 .cms-card-action span {
@@ -330,8 +354,6 @@ body {
 .cms-card:hover .cms-card-action svg {
     transform: translateX(4px);
 }
-.cms-card.comprehensive:hover .cms-card-action { color: #059669; }
-.cms-card.standard:hover .cms-card-action { color: #2563eb; }
 
 
 
