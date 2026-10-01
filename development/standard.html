@@ -3934,6 +3934,100 @@ function toggleSatDataMode(mode) {
             loadShapeBoundaries(val);
         }
 
+// Continuous Point-by-Point Pixel Raster Heatmap Generator with Point-In-Polygon Canvas Masking
+function createContinuousNutrientRaster(boundaryLayer, layerValue, map) {
+    if (!boundaryLayer || !boundaryLayer.getBounds) return null;
+    let bounds = boundaryLayer.getBounds();
+    if (!bounds || !bounds.isValid()) return null;
+
+    let polyRings = [];
+    boundaryLayer.eachLayer(layer => {
+        if (layer.getLatLngs) {
+            let latlngs = layer.getLatLngs();
+            function extractRings(arr) {
+                if (!Array.isArray(arr) || arr.length === 0) return;
+                if (arr[0] && typeof arr[0].lat === 'number') {
+                    polyRings.push(arr.map(ll => [ll.lng, ll.lat]));
+                } else {
+                    arr.forEach(sub => extractRings(sub));
+                }
+            }
+            extractRings(latlngs);
+        }
+    });
+
+    function isPointInAnyRing(lng, lat) {
+        if (polyRings.length === 0) return true;
+        for (let poly of polyRings) {
+            let inside = false;
+            let x = lng, y = lat;
+            for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+                let xi = poly[i][0], yi = poly[i][1];
+                let xj = poly[j][0], yj = poly[j][1];
+                let intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+                if (intersect) inside = !inside;
+            }
+            if (inside) return true;
+        }
+        return false;
+    }
+
+    const north = bounds.getNorth();
+    const south = bounds.getSouth();
+    const east = bounds.getEast();
+    const west = bounds.getWest();
+
+    const width = 240;
+    const height = 240;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+
+    const imgData = ctx.createImageData(width, height);
+    const data = imgData.data;
+
+    function hexToRgba(hex) {
+        if (!hex || hex === 'transparent') return [0, 0, 0, 0];
+        if (hex.startsWith('#')) {
+            let num = parseInt(hex.slice(1), 16);
+            if (hex.length === 7) {
+                return [(num >> 16) & 255, (num >> 8) & 255, num & 255, 210]; // ~82% opacity
+            }
+        }
+        return [0, 0, 0, 0];
+    }
+
+    for (let r = 0; r < height; r++) {
+        let lat = north - (r / height) * (north - south);
+        for (let c = 0; c < width; c++) {
+            let lng = west + (c / width) * (east - west);
+            let idx = (r * width + c) * 4;
+
+            if (isPointInAnyRing(lng, lat)) {
+                let s = sampleRastersOrFallback(lat, lng);
+                let val = s[layerValue.toLowerCase()];
+                let colorHex = getNutrientColorComp(val, layerValue);
+                let rgba = hexToRgba(colorHex);
+
+                data[idx] = rgba[0];
+                data[idx + 1] = rgba[1];
+                data[idx + 2] = rgba[2];
+                data[idx + 3] = rgba[3];
+            } else {
+                data[idx + 3] = 0; // 100% transparent outside boundary
+            }
+        }
+    }
+
+    ctx.putImageData(imgData, 0, 0);
+    const dataUrl = canvas.toDataURL('image/png');
+    
+    let overlay = L.imageOverlay(dataUrl, bounds, { opacity: 1.0, zIndex: 400 }).addTo(map);
+    return overlay;
+}
+
 // Toggle Nutrient Layer Heatmap Overlay on Comprehensive Map
 function toggleNutrientLayerComp(layerValue) {
     if (!mapComp) return;
