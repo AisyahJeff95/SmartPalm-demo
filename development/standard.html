@@ -2865,10 +2865,11 @@ function toggleSatDataMode(mode) {
                 <div class="ui-field-row" style="margin-bottom: 12px;">
                     <label class="ui-input-label">Select Map:</label>
                     <select class="ui-select-input" id="map-select-comp" onchange="onMapSelectChanged(this.value)">
+                        <option value="" selected>-- Select Map Boundary --</option>
                         <option value="mpob_36_trial">MPOB Lahad Datu 36 Trial Plot</option>
                         <option value="lahad_datu">Lahad Datu with block boundary</option>
                         <option value="seraya">Seraya with block boundary</option>
-                        <option value="lahad_datu_combined" selected>Lahad Datu – Boundary + 36 Trial Plots</option>
+                        <option value="lahad_datu_combined">Lahad Datu – Boundary + 36 Trial Plots</option>
                         <option value="jengka24">Ladang Jengka 24</option>
                         <option value="jengka25">Ladang Jengka 25</option>
                         <option value="kota_gelanggi5">Ladang Kota Gelanggi 5</option>
@@ -3406,7 +3407,8 @@ function toggleSatDataMode(mode) {
                     REAL_MAPS_DATA['mpob_36_trial'] = geojson;
 
                     console.log('MPOB shapefile loaded:', geojson.features.length, 'features');
-                    loadShapeBoundaries('lahad_datu_combined');
+                    // Initial state: No map selected (Showing whole Malaysia map)
+                    onMapSelectChanged('');
                     setTimeout(fitVisibleMap, 50);
                     setTimeout(fitVisibleMap, 200);
 
@@ -3571,7 +3573,21 @@ function toggleSatDataMode(mode) {
             document.getElementById('std-n-val').innerText = "-- %";
             document.getElementById('std-p-val').innerText = "-- %";
             document.getElementById('std-k-val').innerText = "-- %";
-            document.getElementById('std-mg-val').innerText = "-- %";
+            if (document.getElementById('std-mg-val')) document.getElementById('std-mg-val').innerText = "-- %";
+
+            // Auto-zoom map view directly to the selected boundary extent
+            if (compBoundaryLayer && mapComp) {
+                try {
+                    let b = compBoundaryLayer.getBounds();
+                    if (b && b.isValid()) mapComp.fitBounds(b, { padding: [30, 30], maxZoom: 16 });
+                } catch(e) {}
+            }
+            if (stdBoundaryLayer && mapStd) {
+                try {
+                    let b = stdBoundaryLayer.getBounds();
+                    if (b && b.isValid()) mapStd.fitBounds(b, { padding: [30, 30], maxZoom: 16 });
+                } catch(e) {}
+            }
         }
 
         // =========================================================================
@@ -3886,111 +3902,37 @@ function toggleSatDataMode(mode) {
 
         // Switch dropdown map change
         function onMapSelectChanged(val) {
-            loadShapeBoundaries(val);
             setElementValue('map-select-comp', val);
             setElementValue('map-select-std', val);
 
-            // Fit the active map to the new boundary
-            fitVisibleMap();
-            setTimeout(fitVisibleMap, 50);
-            setTimeout(fitVisibleMap, 200);
-            setTimeout(fitVisibleMap, 500);
-        }
+            if (!val) {
+                // Clear boundaries & overlays and zoom to whole Malaysia map
+                if (compBoundaryLayer && mapComp) mapComp.removeLayer(compBoundaryLayer);
+                if (stdBoundaryLayer && mapStd) mapStd.removeLayer(stdBoundaryLayer);
+                if (compRasterOverlay && mapComp) { mapComp.removeLayer(compRasterOverlay); compRasterOverlay = null; }
+                if (stdRasterOverlay && mapStd) { mapStd.removeLayer(stdRasterOverlay); stdRasterOverlay = null; }
+                
+                document.querySelectorAll('.nutrient-legend-box').forEach(el => el.style.display = 'none');
 
-                // Continuous Point-by-Point Pixel Raster Heatmap Generator matching left panel point detection
-function createContinuousNutrientRaster(boundaryLayer, layerValue, map) {
-    if (!boundaryLayer || !boundaryLayer.getBounds) return null;
-    let bounds = boundaryLayer.getBounds();
-    if (!bounds || !bounds.isValid()) return null;
+                const malaysiaCenter = [4.2105, 101.9758];
+                const malaysiaZoom = 6.2;
+                if (mapComp) mapComp.setView(malaysiaCenter, malaysiaZoom);
+                if (mapStd) mapStd.setView(malaysiaCenter, malaysiaZoom);
 
-    let polyRings = [];
-    boundaryLayer.eachLayer(layer => {
-        if (layer.getLatLngs) {
-            let latlngs = layer.getLatLngs();
-            function extractRings(arr) {
-                if (!Array.isArray(arr) || arr.length === 0) return;
-                if (arr[0] && typeof arr[0].lat === 'number') {
-                    polyRings.push(arr.map(ll => [ll.lng, ll.lat]));
-                } else {
-                    arr.forEach(sub => extractRings(sub));
-                }
+                setElementText('comp-zone', "Zone: No map selected");
+                setElementText('std-zone', "Zone: No map selected");
+                setElementText('comp-coords', "Coordinates: Select a map boundary to begin");
+                setElementText('std-coords', "Coordinates: Select a map boundary to begin");
+
+                setElementText('comp-n-val', "-- %"); setElementText('comp-p-val', "-- %");
+                setElementText('comp-k-val', "-- %"); setElementText('comp-mg-val', "-- %");
+                setElementText('std-n-val', "-- %"); setElementText('std-p-val', "-- %");
+                setElementText('std-k-val', "-- %"); setElementText('std-mg-val', "-- %");
+                return;
             }
-            extractRings(latlngs);
+
+            loadShapeBoundaries(val);
         }
-    });
-
-    function isPointInAnyRing(lng, lat) {
-        if (polyRings.length === 0) return true;
-        for (let poly of polyRings) {
-            let inside = false;
-            let x = lng, y = lat;
-            for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-                let xi = poly[i][0], yi = poly[i][1];
-                let xj = poly[j][0], yj = poly[j][1];
-                let intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
-                if (intersect) inside = !inside;
-            }
-            if (inside) return true;
-        }
-        return false;
-    }
-
-    const north = bounds.getNorth();
-    const south = bounds.getSouth();
-    const east = bounds.getEast();
-    const west = bounds.getWest();
-
-    const width = 240;
-    const height = 240;
-
-    const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext('2d');
-
-    const imgData = ctx.createImageData(width, height);
-    const data = imgData.data;
-
-    function hexToRgba(hex) {
-        if (!hex || hex === 'transparent') return [0, 0, 0, 0];
-        if (hex.startsWith('#')) {
-            let num = parseInt(hex.slice(1), 16);
-            if (hex.length === 7) {
-                return [(num >> 16) & 255, (num >> 8) & 255, num & 255, 210]; // ~82% opacity
-            }
-        }
-        return [0, 0, 0, 0];
-    }
-
-    for (let r = 0; r < height; r++) {
-        let lat = north - (r / height) * (north - south);
-        for (let c = 0; c < width; c++) {
-            let lng = west + (c / width) * (east - west);
-            let idx = (r * width + c) * 4;
-
-            if (isPointInAnyRing(lng, lat)) {
-                let s = sampleRastersOrFallback(lat, lng);
-                let val = s[layerValue.toLowerCase()];
-                let colorHex = getNutrientColorComp(val, layerValue);
-                let rgba = hexToRgba(colorHex);
-
-                data[idx] = rgba[0];
-                data[idx + 1] = rgba[1];
-                data[idx + 2] = rgba[2];
-                data[idx + 3] = rgba[3];
-            } else {
-                data[idx + 3] = 0; // 100% transparent outside boundary
-            }
-        }
-    }
-
-    ctx.putImageData(imgData, 0, 0);
-    const dataUrl = canvas.toDataURL('image/png');
-    
-    // Pure Leaflet ImageOverlay anchored to geographic bounds (robust across zoom levels)
-    let overlay = L.imageOverlay(dataUrl, bounds, { opacity: 1.0, zIndex: 400 }).addTo(map);
-    return overlay;
-}
 
 // Toggle Nutrient Layer Heatmap Overlay on Comprehensive Map
 function toggleNutrientLayerComp(layerValue) {
