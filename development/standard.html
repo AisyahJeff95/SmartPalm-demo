@@ -2956,20 +2956,6 @@ function toggleSatDataMode(mode) {
                         <input type="checkbox" id="comp-stress-chk"> Remove Stress Areas
                     </label>
 
-                    <!-- Produce Nutrient Detection AI Button -->
-                    <div style="border-top: 1px solid #f2f2f7; padding-top: 10px; margin-top: 10px;">
-                        <button class="ui-action-btn" id="btn-produce-nutrients" onclick="triggerSatelliteNutrientDetection()" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: #ffffff; width: 100%; padding: 10px; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);">
-                            <span>🤖</span> Produce Nutrient Detection for Selected Map Boundary
-                        </button>
-
-                        <!-- AI Status Progress Logger -->
-                        <div id="ai-nutrient-status-log" style="font-size: 11px; margin-top: 6px; display: none; background: rgba(16, 185, 129, 0.08); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(16, 185, 129, 0.2);">
-                            <div id="ai-step-fetch" style="color: #059669; font-weight: 600;">* Fetching Satellite Sentinel-2 bands...</div>
-                            <div id="ai-step-rf" style="color: #d97706; font-weight: 600; display: none; margin-top: 2px;">* Running Random Forest ML model for boundary extent...</div>
-                            <div id="ai-step-done" style="color: #059669; font-weight: 700; display: none; margin-top: 2px;">* Successfully generated boundary rasters! View overlays via bottom-right controls or download .tif files below.</div>
-                        </div>
-                    </div>
-
                     <!-- Download .tif Raster Files Button -->
                     <div style="margin-top: 8px;">
                         <button class="ui-upload-outline-btn" id="btn-download-rasters" onclick="downloadNutrientTifRasters()" style="width: 100%; justify-content: center; padding: 8px; font-weight: 600; border-color: #059669; color: #059669;">
