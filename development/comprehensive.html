@@ -2069,6 +2069,7 @@ let stdDateBadge = null;
 
 function clipLayerToBoundary(tileLayer, boundaryLayer, map) {
     if (!tileLayer || !boundaryLayer || !map) return;
+    if (tileLayer instanceof L.ImageOverlay) return; // Prevent SVG clipPath zoom corruption on image overlays
 
     function updateClip() {
         try {
@@ -4031,9 +4032,6 @@ function toggleNutrientLayerComp(layerValue) {
         if (isLahadDatu && typeof RASTER_OVERLAYS !== 'undefined' && RASTER_OVERLAYS[layerValue]) {
             let oData = RASTER_OVERLAYS[layerValue];
             compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 1.0, zIndex: 400 }).addTo(mapComp);
-            if (compBoundaryLayer) {
-                clipLayerToBoundary(compRasterOverlay, compBoundaryLayer, mapComp);
-            }
         } else if (compBoundaryLayer) {
             compRasterOverlay = createContinuousNutrientRaster(compBoundaryLayer, layerValue, mapComp);
         }
@@ -4068,9 +4066,6 @@ function toggleNutrientLayerStd(layerValue) {
         if (isLahadDatu && typeof RASTER_OVERLAYS !== 'undefined' && RASTER_OVERLAYS[layerValue]) {
             let oData = RASTER_OVERLAYS[layerValue];
             stdRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 1.0, zIndex: 400 }).addTo(mapStd);
-            if (stdBoundaryLayer) {
-                clipLayerToBoundary(stdRasterOverlay, stdBoundaryLayer, mapStd);
-            }
         } else if (stdBoundaryLayer) {
             stdRasterOverlay = createContinuousNutrientRaster(stdBoundaryLayer, layerValue, mapStd);
         }
