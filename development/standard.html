@@ -2945,13 +2945,6 @@ function toggleSatDataMode(mode) {
                     <label class="ui-checkbox-label" style="margin-top: 6px;">
                         <input type="checkbox" id="comp-stress-chk"> Remove Stress Areas
                     </label>
-
-                    <!-- Download .tif Raster Files Button -->
-                    <div style="margin-top: 8px;">
-                        <button class="ui-upload-outline-btn" id="btn-download-rasters" onclick="downloadNutrientTifRasters()" style="width: 100%; justify-content: center; padding: 8px; font-weight: 600; border-color: #059669; color: #059669;">
-                            <span>📥</span> Download .tif Raster Files
-                        </button>
-                    </div>
                 </div>
             </div>
 
@@ -2992,6 +2985,13 @@ function toggleSatDataMode(mode) {
                 </div>
 
                 <button class="ui-full-map-btn" onclick="openFullMapNutrientDialog()">View Full Map of Nutrient Detection</button>
+
+                <!-- Download .tif Raster Files Button -->
+                <div style="margin-top: 8px;">
+                    <button class="ui-upload-outline-btn" id="btn-download-rasters" onclick="downloadNutrientTifRasters()" style="width: 100%; justify-content: center; padding: 8px; font-weight: 600; border-color: #059669; color: #059669;">
+                        <span>📥</span> Download .tif Raster Files
+                    </button>
+                </div>
             </div>
 
             <!-- Section 2 Header: Fertilizer Recommendation -->
