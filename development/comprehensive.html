@@ -2243,7 +2243,7 @@ function updateSentinelClippingAndBadge() {
             layers: 's2cloudless-2020_3857',
             format: 'image/jpeg',
             transparent: false,
-            attribution: 'Sentinel-2 Copernicus',
+            attribution: 'Sentinel-2 Copernicus', //sentinel 2 was used.
             maxZoom: 18,
             opacity: 1.0,
             zIndex: 350
@@ -2277,37 +2277,41 @@ function updateSentinelClippingAndBadge() {
 }
 
 // Drone Image Overlay & Date Badge References
-let compDroneLayer = null;
-let stdDroneLayer = null;
-let compDroneDateBadge = null;
-let stdDroneDateBadge = null;
+let compDroneLayer = null; // Reference to the drone image overlay on the comprehensive map
+let stdDroneLayer = null; // Reference to the drone image overlay on the standard map
+let compDroneDateBadge = null; // Reference to the drone date badge on the comprehensive map
+let stdDroneDateBadge = null; // Reference to the drone date badge on the standard map
 
-let uploadedDroneUrl = null;
+let uploadedDroneUrl = null; // Reference to the uploaded drone image URL (blob URL or external URL). what is blob URL? A blob URL is a temporary URL that points to a file stored in the browser's memory, typically created using URL.createObjectURL(). It allows you to reference local files without uploading them to a server.
 
 function handleDroneImageUpload(event) {
-    const file = event.target.files[0];
+    const file = event.target.files[0]; // Get the first selected file
     if (!file) return;
 
-    const fileName = file.name.toLowerCase();
-    const isTiff = fileName.endsWith('.tif') || fileName.endsWith('.tiff');
+    const fileName = file.name.toLowerCase(); // Get the file name in lowercase for easier comparison
+    const isTiff = fileName.endsWith('.tif') || fileName.endsWith('.tiff'); // Check if the file is a TIFF image
 
-    const logContainer = document.getElementById('drone-status-log');
-    const msgUpload = document.getElementById('drone-msg-upload');
-    const msgConverting = document.getElementById('drone-msg-converting');
-    const msgConverted = document.getElementById('drone-msg-converted');
+    const logContainer = document.getElementById('drone-status-log'); // Get the log container element
+    const msgUpload = document.getElementById('drone-msg-upload'); // Get the upload message element
+    const msgConverting = document.getElementById('drone-msg-converting'); // Get the converting message element
+    const msgConverted = document.getElementById('drone-msg-converted'); // Get the converted message element
 
-    if (logContainer) logContainer.style.display = 'block';
+    if (logContainer) logContainer.style.display = 'block'; // Show the log container
 
-    if (msgUpload) msgUpload.style.display = 'block';
+    if (msgUpload) msgUpload.style.display = 'block'; 
     if (msgConverting) msgConverting.style.display = 'none';
     if (msgConverted) msgConverted.style.display = 'none';
 
-    if (uploadedDroneUrl && uploadedDroneUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(uploadedDroneUrl);
+    if (uploadedDroneUrl && uploadedDroneUrl.startsWith('blob:')) { // Check if the previous uploaded drone URL is a blob URL
+        URL.revokeObjectURL(uploadedDroneUrl); // Revoke the previous blob URL to free up memory
     }
     uploadedDroneUrl = URL.createObjectURL(file);
 
-    // Leave date input empty if user did not specify one
+    const dateInput = document.getElementById('drone-date-input');
+    if (dateInput && !dateInput.value) {
+        const today = new Date().toISOString().split('T')[0];
+        dateInput.value = today;
+    }
 
     if (isTiff) {
         setTimeout(() => {
@@ -2317,20 +2321,20 @@ function handleDroneImageUpload(event) {
                 if (msgConverting) msgConverting.style.display = 'none';
                 if (msgConverted) msgConverted.style.display = 'block';
 
-                const chk = document.getElementById('comp-show-drone-chk');
+                const chk = document.getElementById('comp-show-drone-chk'); 
                 if (chk) chk.checked = true;
                 updateDroneImageOverlay();
-            }, 500);
-        }, 300);
+            }, 500); // Simulate conversion delay
+        }, 300); // Simulate initial processing delay
     } else {
-        const chk = document.getElementById('comp-show-drone-chk');
+        const chk = document.getElementById('comp-show-drone-chk'); // Get the checkbox element for showing the drone overlay
         if (chk) chk.checked = true;
-        updateDroneImageOverlay();
+        updateDroneImageOverlay(); // Update the drone image overlay on the map
     }
 }
 
 function updateDroneImageOverlay() {
-    const showDroneChk = document.getElementById('comp-show-drone-chk');
+    const showDroneChk = document.getElementById('comp-show-drone-chk'); 
     const isShowDrone = showDroneChk ? showDroneChk.checked : false;
     const droneDateInput = document.getElementById('drone-date-input');
     const selectedDate = droneDateInput ? droneDateInput.value : '';
@@ -2354,8 +2358,14 @@ function updateDroneImageOverlay() {
 
     if (!isShowDrone) return;
 
+    if (!uploadedDroneUrl) {
+        alert("Please click 'Upload Drone' to upload your drone image (.tif, .png, or .jpg) first.");
+        if (showDroneChk) showDroneChk.checked = false;
+        return;
+    }
+
     let activeBoundary = compBoundaryLayer || stdBoundaryLayer;
-    let imgUrl = null;
+    let imgUrl = uploadedDroneUrl;
     let imgBounds = null;
     let dateStr = "";
 
@@ -2368,20 +2378,14 @@ function updateDroneImageOverlay() {
         }
     }
 
-    if (uploadedDroneUrl) {
-        imgUrl = uploadedDroneUrl;
-        if (activeBoundary) {
-            imgBounds = activeBoundary.getBounds();
-        }
-    } else {
-        imgUrl = './assets/drone_lahad_datu_orthomosaic.webp';
-        imgBounds = L.latLngBounds([
-            [5.100963227394144, 118.42332610063347],
-            [5.107033252129366, 118.42819509782328]
-        ]);
+    if (activeBoundary) {
+        imgBounds = activeBoundary.getBounds();
     }
 
-    if (!imgBounds || !imgBounds.isValid()) return;
+    if (!imgBounds || !imgBounds.isValid()) {
+        console.warn("No active boundary found to overlay drone image on.");
+        return;
+    }
 
     if (mapComp) {
         compDroneLayer = L.imageOverlay(imgUrl, imgBounds, {

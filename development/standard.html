@@ -2286,7 +2286,7 @@ function handleDroneImageUpload(event) {
 }
 
 function updateDroneImageOverlay() {
-    const showDroneChk = document.getElementById('comp-show-drone-chk');
+    const showDroneChk = document.getElementById('comp-show-drone-chk'); 
     const isShowDrone = showDroneChk ? showDroneChk.checked : false;
     const droneDateInput = document.getElementById('drone-date-input');
     const selectedDate = droneDateInput ? droneDateInput.value : '';
@@ -2310,8 +2310,14 @@ function updateDroneImageOverlay() {
 
     if (!isShowDrone) return;
 
+    if (!uploadedDroneUrl) {
+        alert("Please click 'Upload Drone' to upload your drone image (.tif, .png, or .jpg) first.");
+        if (showDroneChk) showDroneChk.checked = false;
+        return;
+    }
+
     let activeBoundary = compBoundaryLayer || stdBoundaryLayer;
-    let imgUrl = null;
+    let imgUrl = uploadedDroneUrl;
     let imgBounds = null;
     let dateStr = "";
 
@@ -2324,20 +2330,14 @@ function updateDroneImageOverlay() {
         }
     }
 
-    if (uploadedDroneUrl) {
-        imgUrl = uploadedDroneUrl;
-        if (activeBoundary) {
-            imgBounds = activeBoundary.getBounds();
-        }
-    } else {
-        imgUrl = './assets/drone_lahad_datu_orthomosaic.webp';
-        imgBounds = L.latLngBounds([
-            [5.100963227394144, 118.42332610063347],
-            [5.107033252129366, 118.42819509782328]
-        ]);
+    if (activeBoundary) {
+        imgBounds = activeBoundary.getBounds();
     }
 
-    if (!imgBounds || !imgBounds.isValid()) return;
+    if (!imgBounds || !imgBounds.isValid()) {
+        console.warn("No active boundary found to overlay drone image on.");
+        return;
+    }
 
     if (mapComp) {
         compDroneLayer = L.imageOverlay(imgUrl, imgBounds, {
