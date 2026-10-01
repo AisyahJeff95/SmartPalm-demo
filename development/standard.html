@@ -2246,14 +2246,25 @@ function handleDroneImageUpload(event) {
 
     const fileName = file.name.toLowerCase();
     const isTiff = fileName.endsWith('.tif') || fileName.endsWith('.tiff');
+    const fileSizeMB = file.size / (1024 * 1024);
 
+    // Reset status log elements
     const logContainer = document.getElementById('drone-status-log');
     const msgUpload = document.getElementById('drone-msg-upload');
     const msgConverting = document.getElementById('drone-msg-converting');
     const msgConverted = document.getElementById('drone-msg-converted');
 
+    // Memory Safety Check: Prevent Safari / WebKit RAM crash for large raw files (> 50 MB)
+    if (fileSizeMB > 50) {
+        alert(`Selected file size is ${fileSizeMB.toFixed(1)} MB.\n\nWeb browsers limit raw in-memory image rendering to 50 MB to prevent tab crashes.\n\nPlease select a web-optimized drone orthomosaic image (.jpg, .png, or resampled .tif under 50 MB).`);
+        event.target.value = "";
+        if (logContainer) logContainer.style.display = 'none';
+        return;
+    }
+
     if (logContainer) logContainer.style.display = 'block';
 
+    // Step 1: Always show "* successfully uploaded" immediately
     if (msgUpload) msgUpload.style.display = 'block';
     if (msgConverting) msgConverting.style.display = 'none';
     if (msgConverted) msgConverted.style.display = 'none';
@@ -2263,9 +2274,8 @@ function handleDroneImageUpload(event) {
     }
     uploadedDroneUrl = URL.createObjectURL(file);
 
-    // Leave date input empty if user did not specify one
-
     if (isTiff) {
+        // Step 2 & 3: Multi-step conversion process notes for TIFF files
         setTimeout(() => {
             if (msgConverting) msgConverting.style.display = 'block';
             
@@ -2276,7 +2286,7 @@ function handleDroneImageUpload(event) {
                 const chk = document.getElementById('comp-show-drone-chk');
                 if (chk) chk.checked = true;
                 updateDroneImageOverlay();
-            }, 500);
+            }, 600);
         }, 300);
     } else {
         const chk = document.getElementById('comp-show-drone-chk');
