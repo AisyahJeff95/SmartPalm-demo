@@ -3751,10 +3751,15 @@ function toggleSatDataMode(mode) {
                     compBoundaryLayer.setStyle({ color: "#ff7800", fillColor: "#ff7800", fillOpacity: 0.0 });
                 }
                 
-                // Add the authentic GeoTIFF raster overlay
+                // Add the authentic GeoTIFF raster overlay mapped dynamically to active boundary
                 if (typeof RASTER_OVERLAYS !== 'undefined' && RASTER_OVERLAYS[layerValue]) {
                     let oData = RASTER_OVERLAYS[layerValue];
-                    compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 1.0, zIndex: 400 }).addTo(mapComp);
+                    let activeBoundary = compBoundaryLayer || stdBoundaryLayer;
+                    let targetBounds = (activeBoundary && activeBoundary.getBounds && activeBoundary.getBounds().isValid()) ? activeBoundary.getBounds() : oData.bounds;
+                    compRasterOverlay = L.imageOverlay(oData.dataUrl, targetBounds, { opacity: 1.0, zIndex: 400 }).addTo(mapComp);
+                    if (compBoundaryLayer) {
+                        clipLayerToBoundary(compRasterOverlay, compBoundaryLayer, mapComp);
+                    }
                 }
             }
         }
@@ -3786,10 +3791,15 @@ function toggleSatDataMode(mode) {
                     stdBoundaryLayer.setStyle({ color: "#10b981", fillColor: "#10b981", fillOpacity: 0.0 });
                 }
                 
-                // Add the authentic GeoTIFF raster overlay
+                // Add the authentic GeoTIFF raster overlay mapped dynamically to active boundary
                 if (typeof RASTER_OVERLAYS !== 'undefined' && RASTER_OVERLAYS[layerValue]) {
                     let oData = RASTER_OVERLAYS[layerValue];
-                    stdRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 1.0, zIndex: 400 }).addTo(mapStd);
+                    let activeBoundary = stdBoundaryLayer || compBoundaryLayer;
+                    let targetBounds = (activeBoundary && activeBoundary.getBounds && activeBoundary.getBounds().isValid()) ? activeBoundary.getBounds() : oData.bounds;
+                    stdRasterOverlay = L.imageOverlay(oData.dataUrl, targetBounds, { opacity: 1.0, zIndex: 400 }).addTo(mapStd);
+                    if (stdBoundaryLayer) {
+                        clipLayerToBoundary(stdRasterOverlay, stdBoundaryLayer, mapStd);
+                    }
                 }
             }
         }
