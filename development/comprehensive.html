@@ -3251,7 +3251,7 @@ function toggleSatDataMode(mode) {
             // Render on Page 2 map (Comprehensive)
             if (mapComp) {
                 compBoundaryLayer = L.geoJSON(blocksData, {
-                    style: { color: "#ff7800", weight: 2, fillOpacity: 0.15, fillColor: "#ff7800" },
+                    style: { color: "#ff7800", weight: 2, fillOpacity: 0.0, fillColor: "#ff7800" },
                     onEachFeature: (feature, layer) => {
                         const _tipFieldsC = (typeof BOUNDARY_TOOLTIP_FIELDS !== 'undefined' && BOUNDARY_TOOLTIP_FIELDS[type]) || [];
                         const _tipRowsC = _tipFieldsC.filter(k => feature.properties[k] !== undefined && feature.properties[k] !== '' && feature.properties[k] !== null)
@@ -3269,7 +3269,7 @@ function toggleSatDataMode(mode) {
             // Render on Page 3 map (Standard)
             if (mapStd) {
                 stdBoundaryLayer = L.geoJSON(blocksData, {
-                    style: { color: "#12b886", weight: 2, fillOpacity: 0.15, fillColor: "#12b886" },
+                    style: { color: "#12b886", weight: 2, fillOpacity: 0.0, fillColor: "#12b886" },
                     onEachFeature: (feature, layer) => {
                         const _tipFieldsS = (typeof BOUNDARY_TOOLTIP_FIELDS !== 'undefined' && BOUNDARY_TOOLTIP_FIELDS[type]) || [];
                         const _tipRowsS = _tipFieldsS.filter(k => feature.properties[k] !== undefined && feature.properties[k] !== '' && feature.properties[k] !== null)
@@ -3650,7 +3650,7 @@ function toggleSatDataMode(mode) {
             if (layerValue === "OFF") {
                 // Revert to boundary colors
                 if (compBoundaryLayer) {
-                    compBoundaryLayer.setStyle({ color: "#ff7800", fillColor: "#ff7800", fillOpacity: 0.15 });
+                    compBoundaryLayer.setStyle({ color: "#ff7800", fillColor: "#ff7800", fillOpacity: 0.0 });
                 }
             } else {
                 // Show selected legend box
@@ -3685,7 +3685,7 @@ function toggleSatDataMode(mode) {
             if (layerValue === "OFF") {
                 // Revert to boundary colors
                 if (stdBoundaryLayer) {
-                    stdBoundaryLayer.setStyle({ color: "#10b981", fillColor: "#10b981", fillOpacity: 0.20 });
+                    stdBoundaryLayer.setStyle({ color: "#10b981", fillColor: "#10b981", fillOpacity: 0.0 });
                 }
             } else {
                 // Show selected legend box
