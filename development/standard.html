@@ -3976,6 +3976,7 @@ function toggleSatDataMode(mode) {
         }
 
         // Switch dropdown map change with zoom-to-boundary support
+        // Switch dropdown map change with robust zoom-to-boundary support
         function onMapSelectChanged(val) {
             setElementValue('map-select-comp', val);
             setElementValue('map-select-std', val);
@@ -4003,62 +4004,36 @@ function toggleSatDataMode(mode) {
                 setElementText('comp-k-val', "-- %"); setElementText('comp-mg-val', "-- %");
                 setElementText('std-n-val', "-- %"); setElementText('std-p-val', "-- %");
                 setElementText('std-k-val', "-- %"); setElementText('std-mg-val', "-- %");
+
+            let activeBoundary = compBoundaryLayer || stdBoundaryLayer;
+            if (activeBoundary && activeBoundary.getBounds) {
+                let b = activeBoundary.getBounds();
+                if (b && b.isValid()) {
+                    if (mapComp) { mapComp.invalidateSize(); mapComp.fitBounds(b, { padding: [40, 40], maxZoom: 16 }); }
+                    if (mapStd) { mapStd.invalidateSize(); mapStd.fitBounds(b, { padding: [40, 40], maxZoom: 16 }); }
+                }
+            }
                 return;
             }
 
             loadShapeBoundaries(val);
 
-            // Force multi-stage invalidateSize and fitBounds to zoom to selected map boundary reliably
             function zoomToActiveMap() {
-                let activeBoundary = stdBoundaryLayer || compBoundaryLayer;
+                let activeBoundary = compBoundaryLayer || stdBoundaryLayer;
                 if (activeBoundary && activeBoundary.getBounds) {
                     let b = activeBoundary.getBounds();
                     if (b && b.isValid()) {
-                        if (mapStd) { mapStd.invalidateSize(); mapStd.fitBounds(b, { padding: [30, 30], maxZoom: 16 }); }
-                        if (mapComp) { mapComp.invalidateSize(); mapComp.fitBounds(b, { padding: [30, 30], maxZoom: 16 }); }
+                        if (mapComp) { mapComp.invalidateSize(); mapComp.fitBounds(b, { padding: [40, 40], maxZoom: 16 }); }
+                        if (mapStd) { mapStd.invalidateSize(); mapStd.fitBounds(b, { padding: [40, 40], maxZoom: 16 }); }
                     }
                 }
             }
 
             zoomToActiveMap();
-            setTimeout(zoomToActiveMap, 80);
-            setTimeout(zoomToActiveMap, 250);
-            setTimeout(zoomToActiveMap, 600);
+            setTimeout(zoomToActiveMap, 60);
+            setTimeout(zoomToActiveMap, 200);
+            setTimeout(zoomToActiveMap, 500);
         }
-
-// Toggle Nutrient Layer Heatmap Overlay on Comprehensive Map
-function toggleNutrientLayerComp(layerValue) {
-    if (!mapComp) return;
-    document.querySelectorAll('#page-comprehensive .nutrient-legend-box').forEach(el => el.style.display = 'none');
-    
-    if (compRasterOverlay) {
-        mapComp.removeLayer(compRasterOverlay);
-        compRasterOverlay = null;
-    }
-    
-    const currentMapType = document.getElementById('map-select-comp') ? document.getElementById('map-select-comp').value : 'lahad_datu_combined';
-    const isLahadDatu = currentMapType.includes('lahad_datu') || currentMapType.includes('mpob_36_trial');
-
-    if (layerValue === "OFF") {
-        if (compBoundaryLayer) {
-            compBoundaryLayer.setStyle({ color: "#ff7800", fillColor: "none", fillOpacity: 0.0 });
-        }
-    } else {
-        let legendBox = document.getElementById(`${layerValue.toLowerCase()}-comp-legend`);
-        if (legendBox) legendBox.style.display = 'block';
-        
-        if (compBoundaryLayer) {
-            compBoundaryLayer.setStyle({ color: "#ff7800", fillColor: "none", fillOpacity: 0.0 });
-        }
-
-        if (isLahadDatu && typeof RASTER_OVERLAYS !== 'undefined' && RASTER_OVERLAYS[layerValue]) {
-            let oData = RASTER_OVERLAYS[layerValue];
-            compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 1.0, zIndex: 400 }).addTo(mapComp);
-        } else if (compBoundaryLayer) {
-            compRasterOverlay = createContinuousNutrientRaster(compBoundaryLayer, layerValue, mapComp);
-        }
-    }
-}
 
 // Toggle Nutrient Layer Heatmap Overlay on Standard Map
 function toggleNutrientLayerStd(layerValue) {
