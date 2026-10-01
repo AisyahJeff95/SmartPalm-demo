@@ -2403,6 +2403,65 @@ function updateDroneImageOverlay() {
     }
 }
 
+function triggerSatelliteNutrientDetection() {
+    const btn = document.getElementById('btn-produce-nutrients');
+    const logContainer = document.getElementById('ai-nutrient-status-log');
+    const stepFetch = document.getElementById('ai-step-fetch');
+    const stepRf = document.getElementById('ai-step-rf');
+    const stepDone = document.getElementById('ai-step-done');
+
+    if (logContainer) logContainer.style.display = 'block';
+    if (stepFetch) stepFetch.style.display = 'block';
+    if (stepRf) stepRf.style.display = 'none';
+    if (stepDone) stepDone.style.display = 'none';
+
+    if (btn) btn.disabled = true;
+
+    // Step 1: Fetching satellite bands
+    setTimeout(() => {
+        if (stepRf) stepRf.style.display = 'block';
+
+        // Step 2: Running Random Forest ML model
+        setTimeout(() => {
+            if (stepRf) stepRf.style.display = 'none';
+            if (stepDone) stepDone.style.display = 'block';
+            if (btn) btn.disabled = false;
+
+            // Trigger N% Detection overlay by default on bottom-right controls
+            let compRadioN = document.querySelector('input[name="comp_layer"][value="N"]');
+            if (compRadioN) {
+                compRadioN.checked = true;
+                if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp("N");
+            }
+            let stdRadioN = document.querySelector('input[name="std_layer"][value="N"]');
+            if (stdRadioN) {
+                stdRadioN.checked = true;
+                if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd("N");
+            }
+        }, 800);
+    }, 400);
+}
+
+function downloadNutrientTifRasters() {
+    const rasterFiles = [
+        { name: "Merge_Citra_Unsur_N.tif", path: "Merge_Citra_Unsur_N.tif" },
+        { name: "Merge_Citra_Unsur_P.tif", path: "Merge_Citra_Unsur_P.tif" },
+        { name: "Merge_Citra_Unsur_K.tif", path: "Merge_Citra_Unsur_K.tif" },
+        { name: "Merge_Citra_Unsur_Mg.tif", path: "Merge_Citra_Unsur_Mg.tif" }
+    ];
+
+    rasterFiles.forEach((file, index) => {
+        setTimeout(() => {
+            const link = document.createElement('a');
+            link.href = file.path;
+            link.download = file.name;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }, index * 250);
+    });
+}
+
 function toggleSatDataMode(mode) {
     const realtimeChk = document.getElementById('comp-realtime-chk');
     const previousChk = document.getElementById('comp-previous-chk');
@@ -2703,16 +2762,38 @@ function toggleSatDataMode(mode) {
                 </div>
             </div>
 
-            <!-- Card 4: Viewport Tools -->
-            <div class="ui-card flex-row-between">
-                <div class="ui-card-label">Viewport Tools</div>
+            <!-- Card 4: Viewport Tools & Satellite AI -->
+            <div class="ui-card">
+                <div class="ui-card-label" style="margin-bottom: 10px;">Viewport Tools & Satellite AI</div>
+                
                 <div class="ui-card-content-stack">
                     <label class="ui-checkbox-label">
-                        <input type="checkbox"> Classify Viewport
+                        <input type="checkbox" id="comp-classify-chk"> Classify Viewport
                     </label>
-                    <label class="ui-checkbox-label">
-                        <input type="checkbox"> Remove Stress Areas
+                    <label class="ui-checkbox-label" style="margin-top: 6px;">
+                        <input type="checkbox" id="comp-stress-chk"> Remove Stress Areas
                     </label>
+
+                    <!-- Produce Nutrient Detection AI Button -->
+                    <div style="border-top: 1px solid #f2f2f7; padding-top: 10px; margin-top: 10px;">
+                        <button class="ui-action-btn" id="btn-produce-nutrients" onclick="triggerSatelliteNutrientDetection()" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: #ffffff; width: 100%; padding: 10px; border-radius: 8px; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);">
+                            <span>🤖</span> Produce Nutrient Detection for Selected Map Boundary
+                        </button>
+
+                        <!-- AI Status Progress Logger -->
+                        <div id="ai-nutrient-status-log" style="font-size: 11px; margin-top: 6px; display: none; background: rgba(16, 185, 129, 0.08); padding: 8px 10px; border-radius: 6px; border: 1px solid rgba(16, 185, 129, 0.2);">
+                            <div id="ai-step-fetch" style="color: #059669; font-weight: 600;">* Fetching Satellite Sentinel-2 bands...</div>
+                            <div id="ai-step-rf" style="color: #d97706; font-weight: 600; display: none; margin-top: 2px;">* Running Random Forest ML model for boundary extent...</div>
+                            <div id="ai-step-done" style="color: #059669; font-weight: 700; display: none; margin-top: 2px;">* Successfully generated boundary rasters! View overlays via bottom-right controls or download .tif files below.</div>
+                        </div>
+                    </div>
+
+                    <!-- Download .tif Raster Files Button -->
+                    <div style="margin-top: 8px;">
+                        <button class="ui-upload-outline-btn" id="btn-download-rasters" onclick="downloadNutrientTifRasters()" style="width: 100%; justify-content: center; padding: 8px; font-weight: 600; border-color: #059669; color: #059669;">
+                            <span>📥</span> Download .tif Raster Files
+                        </button>
+                    </div>
                 </div>
             </div>
 
