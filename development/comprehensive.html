@@ -2486,18 +2486,18 @@ function triggerSatelliteNutrientDetection() {
     }, 400);
 }
 
-function buildGeoTIFFArrayBuffer(width, height, west, south, east, north, dataArray) {
+function buildRGBAGeoTIFFArrayBuffer(width, height, west, south, east, north, rgbaBytes) {
     const dx = (east - west) / width;
     const dy = (north - south) / height;
 
     const headerSize = 8;
-    const numEntries = 12;
+    const numEntries = 13;
     const ifdSize = 2 + numEntries * 12 + 4;
-    
+
     let cur = headerSize + ifdSize;
-    const bitsOffset = cur; cur += 2;
-    const scaleOffset = cur; cur += 24;
-    const tieOffset = cur; cur += 48;
+    const bitsOffset = cur; cur += 8;      // 4 * uint16 (8, 8, 8, 8)
+    const scaleOffset = cur; cur += 24;    // 3 * float64
+    const tieOffset = cur; cur += 48;      // 6 * float64
     const dataOffset = cur; cur += width * height * 4;
 
     const buffer = new ArrayBuffer(cur);
@@ -2521,20 +2521,25 @@ function buildGeoTIFFArrayBuffer(width, height, west, south, east, north, dataAr
 
     tag(256, 4, 1, width);                          // ImageWidth
     tag(257, 4, 1, height);                         // ImageLength
-    tag(258, 3, 1, bitsOffset);                    // BitsPerSample (32)
-    tag(259, 3, 1, 1);                             // Compression (Uncompressed)
-    tag(262, 3, 1, 1);                             // PhotometricInterpretation (BlackIsZero)
+    tag(258, 3, 4, bitsOffset);                    // BitsPerSample [8, 8, 8, 8]
+    tag(259, 3, 1, 1);                             // Compression (1 = Uncompressed)
+    tag(262, 3, 1, 2);                             // PhotometricInterpretation (2 = RGB)
     tag(273, 4, 1, dataOffset);                    // StripOffsets
-    tag(277, 3, 1, 1);                             // SamplesPerPixel
+    tag(277, 3, 1, 4);                             // SamplesPerPixel = 4
     tag(278, 4, 1, height);                        // RowsPerStrip
     tag(279, 4, 1, width * height * 4);            // StripByteCounts
-    tag(339, 3, 1, 3);                             // SampleFormat (3 = IEEE Float)
+    tag(284, 3, 1, 1);                             // PlanarConfiguration = 1
+    tag(338, 3, 1, 1);                             // ExtraSamples = 1 (Associated Alpha)
     tag(33550, 12, 3, scaleOffset);                // ModelPixelScaleTag
     tag(33922, 12, 6, tieOffset);                  // ModelTiepointTag
 
     view.setUint32(p, 0, true);                    // Next IFD offset = 0
 
-    view.setUint16(bitsOffset, 32, true);
+    // BitsPerSample values: 8, 8, 8, 8
+    view.setUint16(bitsOffset, 8, true);
+    view.setUint16(bitsOffset + 2, 8, true);
+    view.setUint16(bitsOffset + 4, 8, true);
+    view.setUint16(bitsOffset + 6, 8, true);
 
     // ModelPixelScaleTag: [dx, dy, 0.0]
     view.setFloat64(scaleOffset, dx, true);
@@ -2549,11 +2554,9 @@ function buildGeoTIFFArrayBuffer(width, height, west, south, east, north, dataAr
     view.setFloat64(tieOffset + 32, north, true);
     view.setFloat64(tieOffset + 40, 0.0, true);
 
-    let dataPos = dataOffset;
-    for (let i = 0; i < dataArray.length; i++) {
-        view.setFloat32(dataPos, dataArray[i], true);
-        dataPos += 4;
-    }
+    // Copy RGBA byte array into buffer
+    const u8View = new Uint8Array(buffer, dataOffset, width * height * 4);
+    u8View.set(rgbaBytes);
 
     return buffer;
 }
@@ -2636,28 +2639,40 @@ function downloadNutrientTifRasters() {
         return false;
     }
 
-    const width = 120;
-    const height = 120;
+    function hexToRgb(hex) {
+        if (!hex || hex === 'transparent' || !hex.startsWith('#')) return [0, 0, 0, 0];
+        let num = parseInt(hex.slice(1), 16);
+        return [(num >> 16) & 255, (num >> 8) & 255, num & 255, 255];
+    }
+
+    const width = 300;
+    const height = 300;
     const nutrients = ['N', 'P', 'K', 'Mg'];
 
     nutrients.forEach((nut, index) => {
         setTimeout(() => {
-            let data = new Float32Array(width * height);
+            let rgbaBytes = new Uint8Array(width * height * 4);
             for (let r = 0; r < height; r++) {
                 let lat = north - (r / height) * (north - south);
                 for (let c = 0; c < width; c++) {
                     let lng = west + (c / width) * (east - west);
-                    let idx = r * width + c;
+                    let idx = (r * width + c) * 4;
                     if (isPointInRings(lng, lat)) {
                         let sample = sampleRastersOrFallback(lat, lng);
-                        data[idx] = sample[nut.toLowerCase()];
+                        let val = sample[nut.toLowerCase()];
+                        let colorHex = getNutrientColorComp(val, nut);
+                        let rgb = hexToRgb(colorHex);
+                        rgbaBytes[idx] = rgb[0];
+                        rgbaBytes[idx + 1] = rgb[1];
+                        rgbaBytes[idx + 2] = rgb[2];
+                        rgbaBytes[idx + 3] = rgb[3];
                     } else {
-                        data[idx] = -9999.0;
+                        rgbaBytes[idx + 3] = 0;
                     }
                 }
             }
 
-            let tifBuffer = buildGeoTIFFArrayBuffer(width, height, west, south, east, north, data);
+            let tifBuffer = buildRGBAGeoTIFFArrayBuffer(width, height, west, south, east, north, rgbaBytes);
             let blob = new Blob([tifBuffer], { type: 'image/tiff' });
             let url = URL.createObjectURL(blob);
 
