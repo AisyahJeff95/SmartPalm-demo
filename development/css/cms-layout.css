@@ -277,17 +277,8 @@ body {
 }
 
 /* Card variants */
-.cms-card.comprehensive { 
-    background: linear-gradient(135deg, #064e3b 0%, #047857 50%, #059669 100%); 
-    border-color: #047857; 
-    box-shadow: 0 10px 25px -5px rgba(5, 150, 105, 0.4);
-}
-.cms-card.comprehensive .cms-card-title { color: #ffffff; }
-.cms-card.comprehensive .cms-card-desc { color: #a7f3d0; }
-.cms-card.comprehensive .cms-card-icon-wrapper { background: rgba(255, 255, 255, 0.15); color: #ffffff; }
-.cms-card.comprehensive .cms-card-action { color: #6ee7b7; border-top-color: rgba(255, 255, 255, 0.1); }
-.cms-card.comprehensive:hover .cms-card-action { color: #ffffff; }
-.cms-card.comprehensive:hover { box-shadow: 0 15px 35px -5px rgba(5, 150, 105, 0.5); transform: translateY(-4px); }
+.cms-card.comprehensive .cms-card-icon-wrapper { background: #ecfdf5; color: #059669; }
+.cms-card.comprehensive:hover .cms-card-action { color: #059669; }
 
 .cms-card.standard { 
     background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #1d4ed8 100%); 
