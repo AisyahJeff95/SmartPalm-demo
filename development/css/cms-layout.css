@@ -304,6 +304,18 @@ body {
 .cms-card.reads:hover .cms-card-action { color: #ffffff; }
 .cms-card.reads:hover { box-shadow: 0 15px 35px -5px rgba(13, 92, 70, 0.5); transform: translateY(-4px); }
 
+.cms-card.kpsm { 
+    background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%); 
+    border-color: #3730a3; 
+    box-shadow: 0 10px 25px -5px rgba(67, 56, 202, 0.4);
+}
+.cms-card.kpsm .cms-card-title { color: #ffffff; }
+.cms-card.kpsm .cms-card-desc { color: #c7d2fe; }
+.cms-card.kpsm .cms-card-icon-wrapper { background: rgba(255, 255, 255, 0.15); color: #ffffff; }
+.cms-card.kpsm .cms-card-action { color: #a5b4fc; border-top-color: rgba(255, 255, 255, 0.1); }
+.cms-card.kpsm:hover .cms-card-action { color: #ffffff; }
+.cms-card.kpsm:hover { box-shadow: 0 15px 35px -5px rgba(67, 56, 202, 0.5); transform: translateY(-4px); }
+
 .cms-card-title {
     font-family: 'Outfit', sans-serif;
     font-size: 20px;
