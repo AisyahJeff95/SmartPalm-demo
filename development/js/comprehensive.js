@@ -309,7 +309,7 @@ Object.defineProperty(window, 'RASTER_GRID_DATA', { get() { return window._RASTE
                         layer.bindTooltip(blockName, { sticky: true, className: 'block-tooltip' });
                         layer.on('click', (e) => {
                             L.DomEvent.stopPropagation(e);
-                            handleBlockClick(feature, e.latlng, 'comp');
+                            handleBlockClick(feature, e.latlng, 'comp', _tipHtmlC);
                         });
                     }
                 }).addTo(mapComp);
@@ -324,7 +324,7 @@ Object.defineProperty(window, 'RASTER_GRID_DATA', { get() { return window._RASTE
                         layer.bindTooltip(blockName, { sticky: true });
                         layer.on('click', (e) => {
                             L.DomEvent.stopPropagation(e);
-                            handleBlockClick(feature, e.latlng, 'std');
+                            handleBlockClick(feature, e.latlng, 'std', _tipHtmlS);
                         });
                     }
                 }).addTo(mapStd);

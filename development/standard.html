@@ -3548,7 +3548,7 @@ function toggleSatDataMode(mode) {
                         layer.bindTooltip(_tipHtmlC, { sticky: true, className: 'block-tooltip', direction: 'top' });
                         layer.on('click', (e) => {
                             L.DomEvent.stopPropagation(e);
-                            handleBlockClick(feature, e.latlng, 'comp');
+                            handleBlockClick(feature, e.latlng, 'comp', _tipHtmlC);
                         });
                     }
                 }).addTo(mapComp);
@@ -3566,7 +3566,7 @@ function toggleSatDataMode(mode) {
                         layer.bindTooltip(_tipHtmlS, { sticky: true, direction: 'top' });
                         layer.on('click', (e) => {
                             L.DomEvent.stopPropagation(e);
-                            handleBlockClick(feature, e.latlng, 'std');
+                            handleBlockClick(feature, e.latlng, 'std', _tipHtmlS);
                         });
                     }
                 }).addTo(mapStd);
@@ -3795,7 +3795,7 @@ function toggleSatDataMode(mode) {
         }
 
         // Handle Click Event on block boundaries
-        function handleBlockClick(feature, latlng, page) {
+        function handleBlockClick(feature, latlng, page, tipHtml) {
             selectedBlock = feature.properties.name;
             selectedLat = latlng.lat;
             selectedLng = latlng.lng;
@@ -3805,19 +3805,35 @@ function toggleSatDataMode(mode) {
             
             // Update Coordinate Labels
             let coordStr = `Coordinates: Lat=${latlng.lat.toFixed(5)}, Lng=${latlng.lng.toFixed(5)}`;
+
+            if (!tipHtml) {
+                const mapSel = (page === 'comp') ? document.getElementById('map-select-comp') : document.getElementById('map-select-std');
+                const type = mapSel ? mapSel.value : 'polygon_ish';
+                const _tipFields = (typeof BOUNDARY_TOOLTIP_FIELDS !== 'undefined' && BOUNDARY_TOOLTIP_FIELDS[type]) || [];
+                const _tipRows = _tipFields.filter(k => feature.properties && feature.properties[k] !== undefined && feature.properties[k] !== '' && feature.properties[k] !== null)
+                    .map(k => `<tr><td style="font-weight:600;padding:1px 6px;white-space:nowrap">${k}</td><td style="padding:1px 6px">${feature.properties[k]}</td></tr>`).join('');
+                tipHtml = `<div style="font-family:sans-serif;font-size:12px;max-width:300px"><b style="font-size:13px">${feature.properties.name || ''}</b>${_tipRows ? `<table style="margin-top:4px;border-collapse:collapse">${_tipRows}</table>` : ''}</div>`;
+            }
+
             if (page === 'comp' && mapComp) {
                 setElementText('comp-coords', coordStr);
                 setElementText('comp-zone', `Zone: Map boundary (${selectedBlock} with block boundary) loaded`);
                 
-                // Add marker
+                // Open permanent popup with full hovered info (replaces blue pin marker)
                 if (clickedMarkerComp) mapComp.removeLayer(clickedMarkerComp);
-                clickedMarkerComp = L.marker(latlng).addTo(mapComp).bindPopup(`<b>${selectedBlock}</b>`).openPopup();
+                clickedMarkerComp = L.popup({ maxWidth: 320 })
+                    .setLatLng(latlng)
+                    .setContent(tipHtml)
+                    .openOn(mapComp);
             } else if (page === 'std' && mapStd) {
                 setElementText('std-coords', coordStr);
                 setElementText('std-zone', `Zone: Map boundary (${selectedBlock} with block boundary) loaded`);
                 
                 if (clickedMarkerStd) mapStd.removeLayer(clickedMarkerStd);
-                clickedMarkerStd = L.marker(latlng).addTo(mapStd).bindPopup(`<b>${selectedBlock}</b>`).openPopup();
+                clickedMarkerStd = L.popup({ maxWidth: 320 })
+                    .setLatLng(latlng)
+                    .setContent(tipHtml)
+                    .openOn(mapStd);
             }
         }
 
