@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-Generate pre-rendered RASTER_OVERLAYS for Ladang PPPTAR from 10m GeoTIFF rasters.
+Generate pre-rendered RASTER_OVERLAYS for Ladang PPPTAR from 10m GeoTIFF rasters,
+strictly masked inside the boundary of Ladang PPPTAR.shp.
 Matches exact MPOB nutrient thresholds for N, P, K, Mg.
 Also exports RASTER_GRID_DATA_PPPTAR for exact 10m spatial point sampling.
 """
@@ -11,6 +12,10 @@ import json
 import base64
 import numpy as np
 import rasterio
+import shapefile
+from shapely.geometry import shape, Point
+from shapely.ops import unary_union
+from shapely.prepared import prep
 from PIL import Image
 
 def get_color_n(val):
@@ -58,6 +63,15 @@ COLOR_FUNCS = {
 
 def main():
     dev_dir = os.path.dirname(os.path.abspath(__file__))
+    shp_path = os.path.join(dev_dir, "boundaries/Ladang PPPTAR")
+    
+    print("Loading Ladang PPPTAR shapefile boundary...")
+    with shapefile.Reader(shp_path) as sf:
+        geoms = [shape(sr.shape.__geo_interface__).buffer(0) for sr in sf.shapeRecords()]
+    poly_union = unary_union(geoms)
+    prep_poly = prep(poly_union)
+    print("Boundary loaded and prepared successfully.")
+
     overlays_dict = {}
     grid_dict = {}
 
@@ -70,13 +84,22 @@ def main():
         with rasterio.open(tif_path) as src:
             data = src.read(1)
             h, w = data.shape
-            bounds = [[src.bounds.bottom, src.bounds.left], [src.bounds.top, src.bounds.right]]
+            left, bottom, right, top = src.bounds.left, src.bounds.bottom, src.bounds.right, src.bounds.top
+            bounds = [[bottom, left], [top, right]]
 
             rgba_img = np.zeros((h, w, 4), dtype=np.uint8)
+            masked_data = np.full((h, w), -9999, dtype=np.float32)
+
             for r in range(h):
+                lat = top - (r + 0.5) / h * (top - bottom)
                 for c in range(w):
-                    v = data[r, c]
-                    rgba_img[r, c] = color_fn(v)
+                    lng = left + (c + 0.5) / w * (right - left)
+                    # Polygon boundary masking: only render pixels inside PPPTAR boundary
+                    if prep_poly.contains(Point(lng, lat)):
+                        v = data[r, c]
+                        if not np.isnan(v) and v > 0:
+                            rgba_img[r, c] = color_fn(v)
+                            masked_data[r, c] = round(float(v), 3)
 
             img = Image.fromarray(rgba_img)
             img_resized = img.resize((w * 4, h * 4), Image.Resampling.NEAREST)
@@ -91,22 +114,21 @@ def main():
                 "bounds": bounds
             }
 
-            sub = data[::2, ::2]
+            sub = masked_data[::2, ::2]
             sh, sw = sub.shape
-            sub_clean = np.where(np.isnan(sub) | (sub <= 0), -9999, np.round(sub, 3))
             
             grid_dict[nut] = {
                 "bounds": {
-                    "left": src.bounds.left,
-                    "bottom": src.bounds.bottom,
-                    "right": src.bounds.right,
-                    "top": src.bounds.top
+                    "left": left,
+                    "bottom": bottom,
+                    "right": right,
+                    "top": top
                 },
                 "width": sw,
                 "height": sh,
-                "data": sub_clean.tolist()
+                "data": sub.tolist()
             }
-            print(f"Generated overlay & grid for {nut}: PNG={len(data_url)/1024:.1f} KB, Grid shape=({sh},{sw})")
+            print(f"Generated polygon-masked overlay & grid for {nut}: PNG={len(data_url)/1024:.1f} KB, Grid shape=({sh},{sw})")
 
     js_content = f"const RASTER_OVERLAYS_PPPTAR = {json.dumps(overlays_dict)};\nconst RASTER_GRID_DATA_PPPTAR = {json.dumps(grid_dict)};\nif (typeof window !== 'undefined') {{\n    window.RASTER_OVERLAYS_PPPTAR = RASTER_OVERLAYS_PPPTAR;\n    window.RASTER_GRID_DATA_PPPTAR = RASTER_GRID_DATA_PPPTAR;\n}}\n"
     js_path = os.path.join(dev_dir, "js/ppptar_raster_overlays.js")
@@ -114,7 +136,7 @@ def main():
     with open(js_path, "w") as f:
         f.write(js_content)
 
-    print(f"\nSaved RASTER_OVERLAYS_PPPTAR and RASTER_GRID_DATA_PPPTAR to: {js_path}")
+    print(f"\nSaved polygon-masked RASTER_OVERLAYS_PPPTAR and RASTER_GRID_DATA_PPPTAR to: {js_path}")
 
 if __name__ == "__main__":
     main()
