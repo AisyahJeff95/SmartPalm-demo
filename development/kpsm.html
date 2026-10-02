@@ -2779,9 +2779,21 @@ function toggleSatDataMode(mode) {
                 <a href="https://www.palmnex.com.my/PalmnexReaDS" target="_blank" rel="noopener noreferrer" class="cms-nav-item">
                     <img src="reada-logo-final.png" class="icon" style="transform: scale(0.75);" /> <span class="nav-label">PalmNexReaDS</span>
                 </a>
-                <a href="kpsm.html" class="cms-nav-item active">
-                    <img src="std-logo-final.png" class="icon" /> <span class="nav-label">KPSM Smallholder Monitoring System</span>
-                </a>
+                <div class="cms-nav-group">
+                    <div class="cms-nav-item active" style="cursor: pointer;" onclick="var el=document.getElementById('kpsm-sub-menu'); if(el) el.style.display=(el.style.display==='none'?'flex':'none');">
+                        <img src="std-logo-final.png" class="icon" /> 
+                        <span class="nav-label">KPSM System</span>
+                        <span style="margin-left: auto; font-size: 10px;">▼</span>
+                    </div>
+                    <div class="cms-sub-nav" id="kpsm-sub-menu">
+                        <a href="kpsm.html" class="cms-sub-nav-item active">
+                            <span>📊</span> <span>Monitoring Dashboard</span>
+                        </a>
+                        <a href="kpsm-database.html" class="cms-sub-nav-item">
+                            <span>🗃️</span> <span>Database</span>
+                        </a>
+                    </div>
+                </div>
             </nav>
         </aside>
         

@@ -72,9 +72,21 @@
                 <a href="https://www.palmnex.com.my/PalmnexReaDS" target="_blank" class="cms-nav-item">
                     <img src="reada-logo-final.png" class="icon" style="transform: scale(0.75);" /> <span class="nav-label">PalmNexReaDS</span>
                 </a>
-                <a href="kpsm.html" class="cms-nav-item">
-                    <img src="std-logo-final.png" class="icon" /> <span class="nav-label">KPSM Smallholder Monitoring System</span>
-                </a>
+                <div class="cms-nav-group">
+                    <div class="cms-nav-item" style="cursor: pointer;" onclick="var el=document.getElementById('kpsm-sub-menu'); if(el) el.style.display=(el.style.display==='none'?'flex':'none');">
+                        <img src="std-logo-final.png" class="icon" /> 
+                        <span class="nav-label">KPSM System</span>
+                        <span style="margin-left: auto; font-size: 10px;">▼</span>
+                    </div>
+                    <div class="cms-sub-nav" id="kpsm-sub-menu">
+                        <a href="kpsm.html" class="cms-sub-nav-item">
+                            <span>📊</span> <span>Monitoring Dashboard</span>
+                        </a>
+                        <a href="kpsm-database.html" class="cms-sub-nav-item">
+                            <span>🗃️</span> <span>Database</span>
+                        </a>
+                    </div>
+                </div>
             </nav>
         </aside>
 
@@ -144,15 +156,19 @@
                         </div>
                     </div>
 
-                    <div class="cms-card kpsm" onclick="location.href='kpsm.html'">
+                    <div class="cms-card kpsm">
                         <div class="cms-card-icon-wrapper" style="background: transparent; width: 86px; height: 86px;">
                             <img src="std-logo-final.png" alt="KPSM Logo" style="width: 100%; height: 100%; object-fit: contain;" />
                         </div>
                         <h3 class="cms-card-title">KPSM Smallholder Monitoring System</h3>
-                        <p class="cms-card-desc">Smallholder monitoring system and fertilizer recommendations.</p>
-                        <div class="cms-card-action">
-                            <span>Get Started</span>
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        <p class="cms-card-desc">Smallholder monitoring system, MSPO certification records, and fertilizer recommendations.</p>
+                        <div style="display: flex; gap: 10px; margin-top: auto; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.15);">
+                            <button type="button" onclick="location.href='kpsm.html'" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 12px; background: rgba(255,255,255,0.18); color: #ffffff; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                                📊 Monitoring Dashboard
+                            </button>
+                            <button type="button" onclick="location.href='kpsm-database.html'" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 12px; background: #ffffff; color: #1e1b4b; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.2s;">
+                                🗃️ Database
+                            </button>
                         </div>
                     </div>
                 </div>
