@@ -360,6 +360,7 @@
     </div>
 
     <!-- External JS Scripts -->
+    <script src="js/kpsm_dbf_data.js"></script>
     <script src="js/comprehensive.js"></script>
     <script>
         // Default ISH SPOC Database Records (Fetches POLYGON ISH GeoJSON if available, fallback to SPOC master dataset)
@@ -386,32 +387,58 @@
 
         function initKpsmDatabase() {
             let records = [];
-            // Try fetching from REAL_MAPS_DATA['polygon_ish']
-            let polygonIshData = window.REAL_MAPS_DATA && window.REAL_MAPS_DATA['polygon_ish'];
-            if (polygonIshData && polygonIshData.features && polygonIshData.features.length > 0) {
-                records = polygonIshData.features.map((f, i) => {
+
+            if (typeof POLYGON_ISH_REAL_RECORDS !== 'undefined' && POLYGON_ISH_REAL_RECORDS.length > 0) {
+                records = POLYGON_ISH_REAL_RECORDS;
+            } else if (window.REAL_MAPS_DATA && window.REAL_MAPS_DATA['polygon_ish'] && window.REAL_MAPS_DATA['polygon_ish'].features) {
+                records = window.REAL_MAPS_DATA['polygon_ish'].features.map((f, i) => {
                     let p = f.properties || {};
                     return {
-                        smallholder: p.Smallholder || p.smallholder || p.Smallholder_Name || p.name || `Smallholder SPOC-${i+1}`,
-                        state: p.State || p.state || p.Negeri || "Sabah",
-                        district: p.District || p.district || p.Daerah || "Lahad Datu",
-                        spoc: p.SPOC_Name || p.spoc_name || p.SPOC || "SPOC A7 Lahad Datu",
-                        lot: p.Lot_No || p.lot_no || p.LOT || p.Lot || `LOT ${101 + i}`,
-                        planted_ar: p.planted_ar || p.Planted_Area || p.Area || (3.0 + (i % 5) * 0.7).toFixed(2),
-                        mspo: p.MSPO_cert || p.mspo_cert || p.MSPO || (i % 8 === 6 ? "In-Progress" : "MSPO Certified"),
-                        license_no: p.LICENSE_NO || p.license_no || p.MSPO_CERTI || p.mspo_certi || `MSPO-${50415331 + i}`,
-                        land: p.Land_type || p.land_type || p.LandType || (i % 4 === 2 ? "Organic Peat" : (i % 4 === 3 ? "Riverine Alluvial" : "Inland Mineral"))
+                        smallholder: p.SMALLHOLDE || p.Smallholder || p.smallholder || p.name || `Smallholder #${i+1}`,
+                        state: p.STATE || p.State || p.state || "PERAK",
+                        district: p.DISTRICT || p.District || p.district || "BAGAN DATUK",
+                        spoc: p.SPOC_NAME || p.spoc_name || p.spoc || "HUTAN MELINTANG",
+                        lot: p.LOT_NO || p.lot_no || p.lot || str(i+1),
+                        planted_ar: p.PLANTED_AR || p.planted_ar || "0.00",
+                        mspo: (p.MSPO_CERTI || p.mspo_certi || '').trim() ? "MSPO Certified" : "In-Progress",
+                        mspo_certi: p.MSPO_CERTI || p.mspo_certi || '',
+                        license_no: p.LICENSE_NO || p.license_no || p.MSPO_CERTI || `LIC-${i+1}`,
+                        land: p.LAND_TYPE || p.land_type || p.land || "FINAL TITLE",
+                        lat: p.LATITUDE || '',
+                        lng: p.LONGITUDE || ''
                     };
                 });
-            }
-
-            if (records.length === 0) {
+            } else {
                 records = SAMPLE_ISH_RECORDS;
             }
 
             allKpsmRecords = records;
             updateStatsSummary();
+            populateFilterDropdowns();
             renderKpsmTable(allKpsmRecords);
+        }
+
+        
+        function populateFilterDropdowns() {
+            const stateSel = document.getElementById('filter-state');
+            const districtSel = document.getElementById('filter-district');
+            const landSel = document.getElementById('filter-land');
+
+            if (!allKpsmRecords || allKpsmRecords.length === 0) return;
+
+            const states = [...new Set(allKpsmRecords.map(r => (r.state || '').trim()).filter(Boolean))].sort();
+            const districts = [...new Set(allKpsmRecords.map(r => (r.district || '').trim()).filter(Boolean))].sort();
+            const lands = [...new Set(allKpsmRecords.map(r => (r.land || '').trim()).filter(Boolean))].sort();
+
+            if (stateSel) {
+                stateSel.innerHTML = '<option value="">All States</option>' + states.map(s => `<option value="${s}">${s}</option>`).join('');
+            }
+            if (districtSel) {
+                districtSel.innerHTML = '<option value="">All Districts</option>' + districts.map(d => `<option value="${d}">${d}</option>`).join('');
+            }
+            if (landSel) {
+                landSel.innerHTML = '<option value="">All Land Types</option>' + lands.map(l => `<option value="${l}">${l}</option>`).join('');
+            }
         }
 
         function updateStatsSummary() {
@@ -454,9 +481,10 @@
 
         function filterKpsmTable() {
             const query = (document.getElementById('kpsm-search').value || '').toLowerCase().trim();
-            const stateF = document.getElementById('filter-state').value;
-            const mspoF = document.getElementById('filter-mspo').value;
-            const landF = document.getElementById('filter-land').value;
+            const stateF = document.getElementById('filter-state') ? document.getElementById('filter-state').value : '';
+            const districtF = document.getElementById('filter-district') ? document.getElementById('filter-district').value : '';
+            const mspoF = document.getElementById('filter-mspo') ? document.getElementById('filter-mspo').value : '';
+            const landF = document.getElementById('filter-land') ? document.getElementById('filter-land').value : '';
 
             const filtered = allKpsmRecords.filter(r => {
                 const matchesSearch = !query || 
@@ -465,13 +493,15 @@
                     (r.district && r.district.toLowerCase().includes(query)) ||
                     (r.spoc && r.spoc.toLowerCase().includes(query)) ||
                     (r.lot && r.lot.toLowerCase().includes(query)) ||
-                    (r.license_no && r.license_no.toLowerCase().includes(query));
+                    (r.license_no && r.license_no.toLowerCase().includes(query)) ||
+                    (r.mspo_certi && r.mspo_certi.toLowerCase().includes(query));
 
-                const matchesState = !stateF || r.state === stateF;
+                const matchesState = !stateF || (r.state || '').toUpperCase() === stateF.toUpperCase();
+                const matchesDistrict = !districtF || (r.district || '').toUpperCase() === districtF.toUpperCase();
                 const matchesMspo = !mspoF || r.mspo === mspoF;
-                const matchesLand = !landF || r.land === landF;
+                const matchesLand = !landF || (r.land || '').toUpperCase() === landF.toUpperCase();
 
-                return matchesSearch && matchesState && matchesMspo && matchesLand;
+                return matchesSearch && matchesState && matchesDistrict && matchesMspo && matchesLand;
             });
 
             renderKpsmTable(filtered);

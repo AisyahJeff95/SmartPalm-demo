@@ -1990,6 +1990,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://unpkg.com/proj4@latest/dist/proj4.js"></script>
     <script src="https://unpkg.com/shpjs@latest/dist/shp.js"></script>
+    <script src="js/kpsm_dbf_data.js"></script>
 <script>
 
 
@@ -3960,8 +3961,9 @@ function toggleSatDataMode(mode) {
                 });
             }
 
-            // 3. Search SAMPLE_ISH_RECORDS database records
-            SAMPLE_ISH_RECORDS.forEach(function(rec, idx) {
+            // 3. Search POLYGON_ISH_REAL_RECORDS (1,057 real DBF records)
+            let masterRecords = (typeof POLYGON_ISH_REAL_RECORDS !== 'undefined' && POLYGON_ISH_REAL_RECORDS.length > 0) ? POLYGON_ISH_REAL_RECORDS : SAMPLE_ISH_RECORDS;
+            masterRecords.forEach(function(rec, idx) {
                 let recProps = {
                     SMALLHOLDER: rec.smallholder,
                     STATE: rec.state,
@@ -3969,9 +3971,11 @@ function toggleSatDataMode(mode) {
                     SPOC_NAME: rec.spoc,
                     LOT_NO: rec.lot,
                     PLANTED_AR: rec.planted_ar,
-                    MSPO_CERTI: rec.mspo,
+                    MSPO_CERTI: rec.mspo_certi || rec.mspo,
                     LICENSE_NO: rec.license_no,
                     LAND_TYPE: rec.land,
+                    LATITUDE: rec.lat,
+                    LONGITUDE: rec.lng,
                     name: rec.smallholder + ' (' + rec.lot + ')'
                 };
 
@@ -4072,6 +4076,14 @@ function toggleSatDataMode(mode) {
                 } else if (geom.type === 'MultiPolygon' && geom.coordinates[0] && geom.coordinates[0][0] && geom.coordinates[0][0][0]) {
                     let firstPt = geom.coordinates[0][0][0];
                     latlng = L.latLng(firstPt[1], firstPt[0]);
+                }
+            }
+
+            if (!latlng && props.LATITUDE && props.LONGITUDE) {
+                let pLat = parseFloat(props.LATITUDE);
+                let pLng = parseFloat(props.LONGITUDE);
+                if (!isNaN(pLat) && !isNaN(pLng) && pLat !== 0 && pLng !== 0) {
+                    latlng = L.latLng(pLat, pLng);
                 }
             }
 
