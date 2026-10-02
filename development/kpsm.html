@@ -3803,9 +3803,60 @@ function toggleSatDataMode(mode) {
         // Handle Click Event on block boundaries
         
         // =========================================================================
-        // TOP-RIGHT MAP DATABASE SEARCH ENGINE
         // =========================================================================
+        // TOP-RIGHT MAP DATABASE SEARCH ENGINE (ROBUST MULTI-PROPERTY SEARCH)
+        // =========================================================================
+        const SAMPLE_ISH_RECORDS = [
+            { smallholder: "Ahmad Bin Sulaiman", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 101", planted_ar: "3.50", mspo: "MSPO Certified", land: "Inland Mineral" },
+            { smallholder: "Siti Fatimah Binti Ismail", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 102", planted_ar: "4.20", mspo: "MSPO Certified", land: "Inland Mineral" },
+            { smallholder: "Tan Ah Kow", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 103", planted_ar: "2.80", mspo: "MSPO Certified", land: "Riverine Alluvial" },
+            { smallholder: "Ramasamy A/L Subramaniam", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 104", planted_ar: "5.10", mspo: "MSPO Certified", land: "Inland Mineral" },
+            { smallholder: "Mohd Hafiz Bin Rosli", state: "Sabah", district: "Tawau", spoc: "SPOC A8 Tawau", lot: "LOT 105", planted_ar: "3.90", mspo: "MSPO Certified", land: "Inland Mineral" },
+            { smallholder: "Wong Chee Keong", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 106", planted_ar: "4.75", mspo: "MSPO Certified", land: "Inland Mineral" },
+            { smallholder: "Zainab Binti Hassan", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 107", planted_ar: "3.20", mspo: "In-Progress", land: "Organic Peat" },
+            { smallholder: "Chong Wei Sheng", state: "Pahang", district: "Jerantut", spoc: "SPOC P2 Jengka", lot: "LOT 201", planted_ar: "6.30", mspo: "MSPO Certified", land: "Inland Mineral" },
+            { smallholder: "Kamal Bin Ibrahim", state: "Pahang", district: "Jerantut", spoc: "SPOC P2 Jengka", lot: "LOT 202", planted_ar: "5.50", mspo: "MSPO Certified", land: "Inland Mineral" },
+            { smallholder: "Nurul Aini Binti Yusof", state: "Pahang", district: "Jerantut", spoc: "SPOC P2 Jengka", lot: "LOT 203", planted_ar: "4.10", mspo: "MSPO Certified", land: "Inland Mineral" },
+            { smallholder: "Muthusamy A/L Vengadasalam", state: "Johor", district: "Kluang", spoc: "SPOC J4 Kluang", lot: "LOT 301", planted_ar: "4.80", mspo: "MSPO Certified", land: "Organic Peat" },
+            { smallholder: "Abdul Rahman Bin Hamid", state: "Johor", district: "Kluang", spoc: "SPOC J4 Kluang", lot: "LOT 302", planted_ar: "3.70", mspo: "MSPO Certified", land: "Inland Mineral" },
+            { smallholder: "Lim Guan Eng", state: "Selangor", district: "Kuala Langat", spoc: "SPOC S1 Banting", lot: "LOT 401", planted_ar: "5.00", mspo: "MSPO Certified", land: "Organic Peat" },
+            { smallholder: "Aziz Bin Mustaffa", state: "Sabah", district: "Sandakan", spoc: "SPOC A5 Sandakan", lot: "LOT 501", planted_ar: "3.60", mspo: "MSPO Certified", land: "Inland Mineral" },
+            { smallholder: "Lee Siew Leng", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 108", planted_ar: "4.40", mspo: "MSPO Certified", land: "Riverine Alluvial" },
+            { smallholder: "Kassim Bin Abdullah", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 109", planted_ar: "2.90", mspo: "In-Progress", land: "Inland Mineral" }
+        ];
+
         let currentSearchMatches = [];
+
+        function normalizeSearchText(str) {
+            if (!str) return '';
+            return String(str).toLowerCase().replace(/[^a-z0-9]/g, '');
+        }
+
+        function matchesQuery(props, query) {
+            if (!query) return false;
+            let qRaw = query.toLowerCase().trim();
+            let qClean = qRaw.replace(/[^a-z0-9]/g, '');
+            let qTokens = qRaw.split(/\s+/).filter(t => t.length > 0);
+            let meaningfulTokens = qTokens.filter(t => !['lot', 'block', 'no', 'number', 'spoc'].includes(t));
+            if (meaningfulTokens.length === 0) meaningfulTokens = qTokens;
+
+            let allValues = [];
+            for (let k in props) {
+                if (props[k] !== undefined && props[k] !== null) {
+                    allValues.push(String(props[k]));
+                }
+            }
+            let combinedRaw = allValues.join(' ').toLowerCase();
+            let combinedClean = combinedRaw.replace(/[^a-z0-9]/g, '');
+
+            if (combinedRaw.includes(qRaw)) return true;
+            if (qClean.length > 0 && combinedClean.includes(qClean)) return true;
+
+            let tokensMatched = meaningfulTokens.every(t => combinedRaw.includes(t) || combinedClean.includes(t.replace(/[^a-z0-9]/g, '')));
+            if (tokensMatched) return true;
+
+            return false;
+        }
 
         function onMapSearchInput(query) {
             let clearBtn = document.getElementById('map-search-clear-btn');
@@ -3830,37 +3881,80 @@ function toggleSatDataMode(mode) {
         }
 
         function searchMapDatabase(query, isExplicitSubmit) {
-            query = query.toLowerCase();
+            if (!query) return;
+            query = query.trim();
+
             let activeLayer = compBoundaryLayer || stdBoundaryLayer;
             let activeMap = compBoundaryLayer ? mapComp : mapStd;
             let activePage = compBoundaryLayer ? 'comp' : 'std';
 
-            if (!activeLayer || !activeMap) return;
-
             currentSearchMatches = [];
+            let seenKeys = new Set();
 
-            activeLayer.eachLayer(function(layer) {
-                if (!layer.feature || !layer.feature.properties) return;
-                let props = layer.feature.properties;
+            // 1. Search rendered map layers (compBoundaryLayer / stdBoundaryLayer)
+            if (activeLayer) {
+                activeLayer.eachLayer(function(layer) {
+                    if (!layer.feature || !layer.feature.properties) return;
+                    let props = layer.feature.properties;
 
-                let isMatch = false;
-
-                for (let key in props) {
-                    if (props[key] !== undefined && props[key] !== null) {
-                        let valStr = String(props[key]);
-                        if (valStr.toLowerCase().includes(query)) {
-                            isMatch = true;
-                            break;
+                    if (matchesQuery(props, query)) {
+                        let key = (props.name || '') + '_' + (props.LOT_NO || props.OBJECTID || Math.random());
+                        if (!seenKeys.has(key)) {
+                            seenKeys.add(key);
+                            currentSearchMatches.push({
+                                source: 'map_layer',
+                                layer: layer,
+                                feature: layer.feature,
+                                props: props
+                            });
                         }
                     }
-                }
+                });
+            }
 
-                if (isMatch) {
-                    currentSearchMatches.push({
-                        layer: layer,
-                        feature: layer.feature,
-                        props: props
-                    });
+            // 2. Search unrendered polygon_ish features in REAL_MAPS_DATA['polygon_ish']
+            if (window.REAL_MAPS_DATA && window.REAL_MAPS_DATA['polygon_ish'] && window.REAL_MAPS_DATA['polygon_ish'].features) {
+                window.REAL_MAPS_DATA['polygon_ish'].features.forEach(function(feat) {
+                    if (!feat.properties) return;
+                    let props = feat.properties;
+                    if (matchesQuery(props, query)) {
+                        let key = (props.name || '') + '_' + (props.LOT_NO || props.OBJECTID || Math.random());
+                        if (!seenKeys.has(key)) {
+                            seenKeys.add(key);
+                            currentSearchMatches.push({
+                                source: 'geojson_feature',
+                                feature: feat,
+                                props: props
+                            });
+                        }
+                    }
+                });
+            }
+
+            // 3. Search SAMPLE_ISH_RECORDS database records (from kpsm-database)
+            SAMPLE_ISH_RECORDS.forEach(function(rec, idx) {
+                let recProps = {
+                    SMALLHOLDER: rec.smallholder,
+                    STATE: rec.state,
+                    DISTRICT: rec.district,
+                    SPOC_NAME: rec.spoc,
+                    LOT_NO: rec.lot,
+                    PLANTED_AR: rec.planted_ar,
+                    MSPO_CERTI: rec.mspo,
+                    LAND_TYPE: rec.land,
+                    name: rec.smallholder + ' (' + rec.lot + ')'
+                };
+
+                if (matchesQuery(recProps, query)) {
+                    let key = rec.smallholder + '_' + rec.lot;
+                    if (!seenKeys.has(key)) {
+                        seenKeys.add(key);
+                        currentSearchMatches.push({
+                            source: 'db_record',
+                            rec: rec,
+                            props: recProps
+                        });
+                    }
                 }
             });
 
@@ -3884,15 +3978,15 @@ function toggleSatDataMode(mode) {
 
             let html = `<div style="padding: 8px 12px; font-size: 11px; font-weight: 700; color: #64748b; background: #f8fafc; border-bottom: 1px solid #e2e8f0; text-transform: uppercase; letter-spacing: 0.5px;">Matches Found (${matches.length})</div>`;
 
-            matches.slice(0, 10).forEach((item, idx) => {
+            matches.slice(0, 15).forEach((item, idx) => {
                 let p = item.props;
-                let title = p.name || p.SMALLHOLDER || p.Smallholder || `Record #${idx + 1}`;
-                let lot = p.LOT_NO || p.lot_no || p.Lot_No || 'N/A';
+                let title = p.SMALLHOLDER || p.smallholder || p.name || `Record #${idx + 1}`;
+                let lot = p.LOT_NO || p.lot || p.Lot_No || 'N/A';
                 let state = p.STATE || p.state || '';
                 let district = p.DISTRICT || p.district || '';
-                let spoc = p.SPOC_NAME || p.spoc_name || '';
-                let land = p.LAND_TYPE || p.land_type || '';
-                let mspo = p.MSPO_CERTI || p.mspo_certi || '';
+                let spoc = p.SPOC_NAME || p.spoc || '';
+                let land = p.LAND_TYPE || p.land || '';
+                let mspo = p.MSPO_CERTI || p.mspo || '';
 
                 let subText = [];
                 if (lot && lot !== 'N/A') subText.push(`Lot: ${lot}`);
@@ -3922,38 +4016,88 @@ function toggleSatDataMode(mode) {
             if (!currentSearchMatches || !currentSearchMatches[index]) return;
 
             let item = currentSearchMatches[index];
-            let layer = item.layer;
-            let feature = item.feature;
             let activeMap = compBoundaryLayer ? mapComp : mapStd;
             let activePage = compBoundaryLayer ? 'comp' : 'std';
 
-            if (!activeMap || !layer) return;
+            if (!activeMap) return;
 
             // Hide results dropdown
             let resultsContainer = document.getElementById('map-search-results');
             if (resultsContainer) resultsContainer.style.display = 'none';
 
-            // Calculate bounds & center
-            let bounds = layer.getBounds ? layer.getBounds() : null;
-            let center = bounds ? bounds.getCenter() : (layer.getLatLng ? layer.getLatLng() : activeMap.getCenter());
+            let props = item.props;
+            let latlng = null;
+            let bounds = null;
 
-            // Zoom map directly to feature boundary
-            if (bounds && bounds.isValid()) {
-                activeMap.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
-            } else if (center) {
-                activeMap.setView(center, 15);
+            if (item.source === 'map_layer' && item.layer) {
+                bounds = item.layer.getBounds ? item.layer.getBounds() : null;
+                latlng = bounds ? bounds.getCenter() : (item.layer.getLatLng ? item.layer.getLatLng() : null);
+            } else if (item.source === 'geojson_feature' && item.feature && item.feature.geometry) {
+                let geom = item.feature.geometry;
+                if (geom.type === 'Point') {
+                    latlng = L.latLng(geom.coordinates[1], geom.coordinates[0]);
+                } else if (geom.type === 'Polygon' && geom.coordinates[0] && geom.coordinates[0][0]) {
+                    let firstPt = geom.coordinates[0][0];
+                    latlng = L.latLng(firstPt[1], firstPt[0]);
+                } else if (geom.type === 'MultiPolygon' && geom.coordinates[0] && geom.coordinates[0][0] && geom.coordinates[0][0][0]) {
+                    let firstPt = geom.coordinates[0][0][0];
+                    latlng = L.latLng(firstPt[1], firstPt[0]);
+                }
             }
 
-            // Construct full tip HTML
-            const mapSel = (activePage === 'comp') ? document.getElementById('map-select-comp') : document.getElementById('map-select-std');
-            const type = mapSel ? mapSel.value : 'polygon_ish';
-            const _tipFields = (typeof BOUNDARY_TOOLTIP_FIELDS !== 'undefined' && BOUNDARY_TOOLTIP_FIELDS[type]) || [];
-            const _tipRows = _tipFields.filter(k => feature.properties && feature.properties[k] !== undefined && feature.properties[k] !== '' && feature.properties[k] !== null)
-                .map(k => `<tr><td style="font-weight:600;padding:1px 6px;white-space:nowrap">${k}</td><td style="padding:1px 6px">${feature.properties[k]}</td></tr>`).join('');
-            const tipHtml = `<div style="font-family:sans-serif;font-size:12px;max-width:300px"><b style="font-size:13px">${feature.properties.name || ''}</b>${_tipRows ? `<table style="margin-top:4px;border-collapse:collapse">${_tipRows}</table>` : ''}</div>`;
+            // Fallback coordinates lookup for database records or features without latlng
+            if (!latlng) {
+                let district = (props.DISTRICT || props.district || '').toLowerCase();
+                let state = (props.STATE || props.state || '').toLowerCase();
+                let spoc = (props.SPOC_NAME || props.spoc || '').toLowerCase();
 
-            // Open permanent popup card directly on clicked block
-            handleBlockClick(feature, center, activePage, tipHtml);
+                if (district.includes('lahad datu') || spoc.includes('lahad datu')) {
+                    latlng = L.latLng(5.105, 118.423);
+                } else if (district.includes('jerantut') || spoc.includes('jengka')) {
+                    latlng = L.latLng(3.775, 102.565);
+                } else if (district.includes('kluang')) {
+                    latlng = L.latLng(2.030, 103.320);
+                } else if (district.includes('banting') || district.includes('kuala langat')) {
+                    latlng = L.latLng(2.810, 101.500);
+                } else if (district.includes('sandakan')) {
+                    latlng = L.latLng(5.840, 118.060);
+                } else {
+                    latlng = L.latLng(3.780, 101.060);
+                }
+            }
+
+            // Zoom map to bounds or center position
+            if (bounds && bounds.isValid()) {
+                activeMap.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
+            } else if (latlng) {
+                activeMap.setView(latlng, 15);
+            }
+
+            // Construct property table HTML for popup card
+            let tipRows = [];
+            const displayKeys = [
+                { key: 'SMALLHOLDER', label: 'SMALLHOLDER' },
+                { key: 'STATE', label: 'STATE' },
+                { key: 'DISTRICT', label: 'DISTRICT' },
+                { key: 'SPOC_NAME', label: 'SPOC_NAME' },
+                { key: 'LOT_NO', label: 'LOT_NO' },
+                { key: 'PLANTED_AR', label: 'PLANTED_AR' },
+                { key: 'MSPO_CERTI', label: 'MSPO_CERTI' },
+                { key: 'LAND_TYPE', label: 'LAND_TYPE' }
+            ];
+
+            displayKeys.forEach(dk => {
+                let v = props[dk.key] || props[dk.key.toLowerCase()] || '';
+                if (v) {
+                    tipRows.push(`<tr><td style="font-weight:600;padding:1px 6px;white-space:nowrap">${dk.label}</td><td style="padding:1px 6px">${v}</td></tr>`);
+                }
+            });
+
+            let nameTitle = props.SMALLHOLDER || props.smallholder || props.name || 'Smallholder Info';
+            const tipHtml = `<div style="font-family:sans-serif;font-size:12px;max-width:300px"><b style="font-size:13px;color:#1e293b;display:block;margin-bottom:4px">${nameTitle}</b>${tipRows.length > 0 ? `<table style="margin-top:4px;border-collapse:collapse;width:100%">${tipRows.join('')}</table>` : ''}</div>`;
+
+            // Open permanent detailed popup card over feature
+            handleBlockClick({ properties: props }, latlng, activePage, tipHtml);
         }
 
         function performMapSearch(query) {
@@ -3969,7 +4113,7 @@ function toggleSatDataMode(mode) {
                 resultsContainer.style.display = 'none';
             }
         });
-    
+
         function handleBlockClick(feature, latlng, page, tipHtml) {
             selectedBlock = feature.properties.name;
             selectedLat = latlng.lat;
