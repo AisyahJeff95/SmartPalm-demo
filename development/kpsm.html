@@ -3077,6 +3077,19 @@ function toggleSatDataMode(mode) {
         <div class="map-wrapper">
             <div id="map-comprehensive-element" class="map-element"></div>
             
+            <!-- Top-Right Map Search Box Widget -->
+            <div class="map-search-container" style="position: absolute; top: 16px; right: 16px; z-index: 1000; width: 340px; max-width: calc(100% - 32px);">
+                <div class="map-search-card" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid #cbd5e1; border-radius: 12px; padding: 6px 8px 6px 14px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.18), 0 4px 6px -2px rgba(0, 0, 0, 0.08); display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 15px; color: #64748b; flex-shrink: 0;">🔍</span>
+                    <input type="text" id="map-search-input" placeholder="Search smallholder, lot no, state, SPOC..." style="flex: 1; border: none; background: transparent; font-size: 13px; font-family: 'Inter', sans-serif; color: #0f172a; outline: none; padding: 6px 0;" oninput="onMapSearchInput(this.value)" onkeydown="if(event.key==='Enter') performMapSearch(this.value);" />
+                    <button type="button" id="map-search-clear-btn" style="display: none; background: none; border: none; color: #94a3b8; font-size: 14px; cursor: pointer; padding: 4px;" onclick="clearMapSearch()">✕</button>
+                    <button type="button" class="map-search-btn" onclick="performMapSearch(document.getElementById('map-search-input').value)" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: #ffffff; border: none; border-radius: 8px; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3); transition: transform 0.15s; flex-shrink: 0;">Search</button>
+                </div>
+                
+                <!-- Search Autocomplete & Results Dropdown -->
+                <div id="map-search-results" style="display: none; margin-top: 6px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 12px; max-height: 320px; overflow-y: auto; box-shadow: 0 12px 30px rgba(0,0,0,0.18);"></div>
+            </div>
+            
             <!-- Map Overlay Legend Widget -->
             <div class="leaflet-nutrient-selector">
                 <div class="layer-selector-title">Nutrient Layer Selection</div>
@@ -3788,6 +3801,175 @@ function toggleSatDataMode(mode) {
         }
 
         // Handle Click Event on block boundaries
+        
+        // =========================================================================
+        // TOP-RIGHT MAP DATABASE SEARCH ENGINE
+        // =========================================================================
+        let currentSearchMatches = [];
+
+        function onMapSearchInput(query) {
+            let clearBtn = document.getElementById('map-search-clear-btn');
+            if (clearBtn) clearBtn.style.display = query.trim() ? 'block' : 'none';
+
+            if (!query || query.trim().length < 1) {
+                let resultsContainer = document.getElementById('map-search-results');
+                if (resultsContainer) resultsContainer.style.display = 'none';
+                return;
+            }
+
+            searchMapDatabase(query.trim(), false);
+        }
+
+        function clearMapSearch() {
+            let input = document.getElementById('map-search-input');
+            if (input) input.value = '';
+            let clearBtn = document.getElementById('map-search-clear-btn');
+            if (clearBtn) clearBtn.style.display = 'none';
+            let resultsContainer = document.getElementById('map-search-results');
+            if (resultsContainer) resultsContainer.style.display = 'none';
+        }
+
+        function searchMapDatabase(query, isExplicitSubmit) {
+            query = query.toLowerCase();
+            let activeLayer = compBoundaryLayer || stdBoundaryLayer;
+            let activeMap = compBoundaryLayer ? mapComp : mapStd;
+            let activePage = compBoundaryLayer ? 'comp' : 'std';
+
+            if (!activeLayer || !activeMap) return;
+
+            currentSearchMatches = [];
+
+            activeLayer.eachLayer(function(layer) {
+                if (!layer.feature || !layer.feature.properties) return;
+                let props = layer.feature.properties;
+
+                let isMatch = false;
+
+                for (let key in props) {
+                    if (props[key] !== undefined && props[key] !== null) {
+                        let valStr = String(props[key]);
+                        if (valStr.toLowerCase().includes(query)) {
+                            isMatch = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (isMatch) {
+                    currentSearchMatches.push({
+                        layer: layer,
+                        feature: layer.feature,
+                        props: props
+                    });
+                }
+            });
+
+            renderSearchDropdown(currentSearchMatches, activeMap, activePage, query, isExplicitSubmit);
+        }
+
+        function renderSearchDropdown(matches, activeMap, activePage, query, isExplicitSubmit) {
+            let resultsContainer = document.getElementById('map-search-results');
+            if (!resultsContainer) return;
+
+            if (matches.length === 0) {
+                resultsContainer.innerHTML = `<div style="padding: 12px 14px; font-size: 12px; color: #64748b; text-align: center;">No matching database records found for "<b>${query}</b>"</div>`;
+                resultsContainer.style.display = 'block';
+                return;
+            }
+
+            if (isExplicitSubmit && matches.length === 1) {
+                selectSearchResult(0);
+                return;
+            }
+
+            let html = `<div style="padding: 8px 12px; font-size: 11px; font-weight: 700; color: #64748b; background: #f8fafc; border-bottom: 1px solid #e2e8f0; text-transform: uppercase; letter-spacing: 0.5px;">Matches Found (${matches.length})</div>`;
+
+            matches.slice(0, 10).forEach((item, idx) => {
+                let p = item.props;
+                let title = p.name || p.SMALLHOLDER || p.Smallholder || `Record #${idx + 1}`;
+                let lot = p.LOT_NO || p.lot_no || p.Lot_No || 'N/A';
+                let state = p.STATE || p.state || '';
+                let district = p.DISTRICT || p.district || '';
+                let spoc = p.SPOC_NAME || p.spoc_name || '';
+                let land = p.LAND_TYPE || p.land_type || '';
+                let mspo = p.MSPO_CERTI || p.mspo_certi || '';
+
+                let subText = [];
+                if (lot && lot !== 'N/A') subText.push(`Lot: ${lot}`);
+                if (district || state) subText.push(`${district}${district && state ? ', ' : ''}${state}`);
+                if (spoc) subText.push(`SPOC: ${spoc}`);
+                if (mspo) subText.push(`MSPO: ${mspo}`);
+                if (land) subText.push(`Land: ${land}`);
+
+                html += `
+                    <div class="map-search-item" style="padding: 10px 14px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background 0.15s;" 
+                         onmouseover="this.style.background='#f1f5f9'" 
+                         onmouseout="this.style.background='#ffffff'" 
+                         onclick="selectSearchResult(${idx})">
+                        <div style="font-weight: 700; font-size: 13px; color: #0f172a;">${title}</div>
+                        <div style="font-size: 11px; color: #475569; margin-top: 2px;">
+                            ${subText.join(' · ')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            resultsContainer.innerHTML = html;
+            resultsContainer.style.display = 'block';
+        }
+
+        function selectSearchResult(index) {
+            if (!currentSearchMatches || !currentSearchMatches[index]) return;
+
+            let item = currentSearchMatches[index];
+            let layer = item.layer;
+            let feature = item.feature;
+            let activeMap = compBoundaryLayer ? mapComp : mapStd;
+            let activePage = compBoundaryLayer ? 'comp' : 'std';
+
+            if (!activeMap || !layer) return;
+
+            // Hide results dropdown
+            let resultsContainer = document.getElementById('map-search-results');
+            if (resultsContainer) resultsContainer.style.display = 'none';
+
+            // Calculate bounds & center
+            let bounds = layer.getBounds ? layer.getBounds() : null;
+            let center = bounds ? bounds.getCenter() : (layer.getLatLng ? layer.getLatLng() : activeMap.getCenter());
+
+            // Zoom map directly to feature boundary
+            if (bounds && bounds.isValid()) {
+                activeMap.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
+            } else if (center) {
+                activeMap.setView(center, 15);
+            }
+
+            // Construct full tip HTML
+            const mapSel = (activePage === 'comp') ? document.getElementById('map-select-comp') : document.getElementById('map-select-std');
+            const type = mapSel ? mapSel.value : 'polygon_ish';
+            const _tipFields = (typeof BOUNDARY_TOOLTIP_FIELDS !== 'undefined' && BOUNDARY_TOOLTIP_FIELDS[type]) || [];
+            const _tipRows = _tipFields.filter(k => feature.properties && feature.properties[k] !== undefined && feature.properties[k] !== '' && feature.properties[k] !== null)
+                .map(k => `<tr><td style="font-weight:600;padding:1px 6px;white-space:nowrap">${k}</td><td style="padding:1px 6px">${feature.properties[k]}</td></tr>`).join('');
+            const tipHtml = `<div style="font-family:sans-serif;font-size:12px;max-width:300px"><b style="font-size:13px">${feature.properties.name || ''}</b>${_tipRows ? `<table style="margin-top:4px;border-collapse:collapse">${_tipRows}</table>` : ''}</div>`;
+
+            // Open permanent popup card directly on clicked block
+            handleBlockClick(feature, center, activePage, tipHtml);
+        }
+
+        function performMapSearch(query) {
+            if (!query || query.trim().length === 0) return;
+            searchMapDatabase(query.trim(), true);
+        }
+
+        // Hide search results dropdown when clicking anywhere outside
+        document.addEventListener('click', function(e) {
+            let container = document.querySelector('.map-search-container');
+            let resultsContainer = document.getElementById('map-search-results');
+            if (container && resultsContainer && !container.contains(e.target)) {
+                resultsContainer.style.display = 'none';
+            }
+        });
+    
         function handleBlockClick(feature, latlng, page, tipHtml) {
             selectedBlock = feature.properties.name;
             selectedLat = latlng.lat;
