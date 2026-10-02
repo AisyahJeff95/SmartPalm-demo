@@ -3520,7 +3520,7 @@ function toggleSatDataMode(mode) {
             // Render on Page 2 map (Comprehensive)
             if (mapComp) {
                 compBoundaryLayer = L.geoJSON(blocksData, {
-                    style: { color: "#ff7800", weight: 2, fillOpacity: 0.0, fillColor: "#ff7800" },
+                    style: function(f) { return { color: "#ff7800", weight: 2, fillOpacity: (type === "polygon_ish" ? 0.15 : 0.0), fillColor: "#ff7800" }; },
                     onEachFeature: (feature, layer) => {
                         const _tipFieldsC = (typeof BOUNDARY_TOOLTIP_FIELDS !== 'undefined' && BOUNDARY_TOOLTIP_FIELDS[type]) || [];
                         const _tipRowsC = _tipFieldsC.filter(k => feature.properties[k] !== undefined && feature.properties[k] !== '' && feature.properties[k] !== null)
@@ -3538,7 +3538,7 @@ function toggleSatDataMode(mode) {
             // Render on Page 3 map (Standard)
             if (mapStd) {
                 stdBoundaryLayer = L.geoJSON(blocksData, {
-                    style: { color: "#12b886", weight: 2, fillOpacity: 0.0, fillColor: "#12b886" },
+                    style: function(f) { return { color: "#12b886", weight: 2, fillOpacity: (type === "polygon_ish" ? 0.15 : 0.0), fillColor: "#12b886" }; },
                     onEachFeature: (feature, layer) => {
                         const _tipFieldsS = (typeof BOUNDARY_TOOLTIP_FIELDS !== 'undefined' && BOUNDARY_TOOLTIP_FIELDS[type]) || [];
                         const _tipRowsS = _tipFieldsS.filter(k => feature.properties[k] !== undefined && feature.properties[k] !== '' && feature.properties[k] !== null)
@@ -4079,14 +4079,14 @@ function toggleNutrientLayerComp(layerValue) {
 
     if (layerValue === "OFF") {
         if (compBoundaryLayer) {
-            compBoundaryLayer.setStyle({ color: "#ff7800", fillColor: "none", fillOpacity: 0.0 });
+            compBoundaryLayer.setStyle({ color: "#ff7800", fillColor: (currentMapType === "polygon_ish" ? "#ff7800" : "none"), fillOpacity: (currentMapType === "polygon_ish" ? 0.15 : 0.0) });
         }
     } else {
         let legendBox = document.getElementById(`${layerValue.toLowerCase()}-comp-legend`);
         if (legendBox) legendBox.style.display = 'block';
         
         if (compBoundaryLayer) {
-            compBoundaryLayer.setStyle({ color: "#ff7800", fillColor: "none", fillOpacity: 0.0 });
+            compBoundaryLayer.setStyle({ color: "#ff7800", fillColor: (currentMapType === "polygon_ish" ? "#ff7800" : "none"), fillOpacity: (currentMapType === "polygon_ish" ? 0.15 : 0.0) });
         }
 
         if (isLahadDatu && typeof RASTER_OVERLAYS !== 'undefined' && RASTER_OVERLAYS[layerValue]) {
@@ -4113,14 +4113,14 @@ function toggleNutrientLayerStd(layerValue) {
 
     if (layerValue === "OFF") {
         if (stdBoundaryLayer) {
-            stdBoundaryLayer.setStyle({ color: "#10b981", fillColor: "none", fillOpacity: 0.0 });
+            stdBoundaryLayer.setStyle({ color: "#10b981", fillColor: (currentMapType === "polygon_ish" ? "#10b981" : "none"), fillOpacity: (currentMapType === "polygon_ish" ? 0.15 : 0.0) });
         }
     } else {
         let legendBox = document.getElementById(`${layerValue.toLowerCase()}-std-legend`);
         if (legendBox) legendBox.style.display = 'block';
         
         if (stdBoundaryLayer) {
-            stdBoundaryLayer.setStyle({ color: "#10b981", fillColor: "none", fillOpacity: 0.0 });
+            stdBoundaryLayer.setStyle({ color: "#10b981", fillColor: (currentMapType === "polygon_ish" ? "#10b981" : "none"), fillOpacity: (currentMapType === "polygon_ish" ? 0.15 : 0.0) });
         }
 
         if (isLahadDatu && typeof RASTER_OVERLAYS !== 'undefined' && RASTER_OVERLAYS[layerValue]) {
