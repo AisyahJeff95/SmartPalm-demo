@@ -1,4 +1,4 @@
-// Master Real Database Records generated from POLYGON_ISH_SPOC_A7.dbf (1057 records)
+// Master Real Database Records generated from POLYGON_ISH_SPOC_A7.dbf & SOIL_SERIES_SPOC_A7.dbf (1057 records)
 const POLYGON_ISH_REAL_RECORDS = [
   {
     "smallholder": "HASIMAH BINTI SIKING",
@@ -10,9 +10,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "MSPO - 056/19",
     "license_no": "836690001005",
-    "land": "FINAL TITLE",
-    "lat": "3.731729000000000",
-    "lng": "101.071689000000006"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.731729",
+    "lng": "101.071689"
   },
   {
     "smallholder": "NORHISHAM BIN BADARUDDIN",
@@ -24,9 +25,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "In-Progress",
     "mspo_certi": "",
     "license_no": "806073001005",
-    "land": "FINAL TITLE",
-    "lat": "3.781898000000000",
-    "lng": "100.957390000000004"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.781898",
+    "lng": "100.95739"
   },
   {
     "smallholder": "SAM BIN HAROMAN",
@@ -38,9 +40,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "MSPO - 056/19",
     "license_no": "0",
-    "land": "FINAL TITLE",
-    "lat": "3.747271000000000",
-    "lng": "101.077413000000007"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.747271",
+    "lng": "101.077413"
   },
   {
     "smallholder": "JAMALIAH BINTI SALEHUN",
@@ -52,9 +55,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "In-Progress",
     "mspo_certi": "",
     "license_no": "806199001005",
-    "land": "FINAL TITLE",
-    "lat": "3.850812000000000",
-    "lng": "100.937652999999997"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.850812",
+    "lng": "100.937653"
   },
   {
     "smallholder": "TOW TEONG CHENG",
@@ -66,9 +70,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "In-Progress",
     "mspo_certi": "",
     "license_no": "845457001005",
-    "land": "FINAL TITLE",
-    "lat": "3.795182000000000",
-    "lng": "100.958466000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.795182",
+    "lng": "100.958466"
   },
   {
     "smallholder": "CHIA LEE HING",
@@ -80,9 +85,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "In-Progress",
     "mspo_certi": "",
     "license_no": "790225001005",
-    "land": "FINAL TITLE",
-    "lat": "3.800168000000000",
-    "lng": "100.962773999999996"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.800168",
+    "lng": "100.962774"
   },
   {
     "smallholder": "MUHAMAD BIN JAMRAH",
@@ -94,9 +100,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "226758501000",
-    "land": "FINAL TITLE",
-    "lat": "3.873907000000000",
-    "lng": "100.917916000000005"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.873907",
+    "lng": "100.917916"
   },
   {
     "smallholder": "HENG HUNG JOO",
@@ -108,9 +115,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "814497001002",
-    "land": "FINAL TITLE",
-    "lat": "3.888824000000000",
-    "lng": "100.926620000000000"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.888824",
+    "lng": "100.92662"
   },
   {
     "smallholder": "HENG HUNG JOO",
@@ -122,9 +130,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "814497001002",
-    "land": "FINAL TITLE",
-    "lat": "3.887994000000000",
-    "lng": "100.926544000000007"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.887994",
+    "lng": "100.926544"
   },
   {
     "smallholder": "NOOR SHAHIDAH BINTI DAWOOD",
@@ -136,9 +145,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "820980001002",
-    "land": "FINAL TITLE",
-    "lat": "3.886517000000000",
-    "lng": "100.926083000000006"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.886517",
+    "lng": "100.926083"
   },
   {
     "smallholder": "KEE TACK HENG",
@@ -150,9 +160,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "507070101000",
-    "land": "FINAL TITLE",
-    "lat": "3.884103000000000",
-    "lng": "100.926123000000004"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.884103",
+    "lng": "100.926123"
   },
   {
     "smallholder": "KEE SOON KHAN",
@@ -164,9 +175,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "507070101000",
-    "land": "FINAL TITLE",
-    "lat": "3.884668000000000",
-    "lng": "100.930150999999995"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.884668",
+    "lng": "100.930151"
   },
   {
     "smallholder": "UPTOWN HECTARES SDN BHD",
@@ -178,9 +190,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "769467001002",
-    "land": "FINAL TITLE",
-    "lat": "3.891429000000000",
-    "lng": "100.920468000000000"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.891429",
+    "lng": "100.920468"
   },
   {
     "smallholder": "ABDULLAH BIN SIKANDAR ALI",
@@ -192,9 +205,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO48",
     "license_no": "569676601000",
-    "land": "FINAL TITLE",
-    "lat": "3.885681000000000",
-    "lng": "100.919990999999996"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.885681",
+    "lng": "100.919991"
   },
   {
     "smallholder": "ABDULLAH BIN SIKANDAR ALI",
@@ -206,9 +220,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO49",
     "license_no": "569676601000",
-    "land": "FINAL TITLE",
-    "lat": "3.885772000000000",
-    "lng": "100.921184999999994"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.885772",
+    "lng": "100.921185"
   },
   {
     "smallholder": "ABDULLAH BIN SIKANDAR ALI",
@@ -220,9 +235,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO50",
     "license_no": "569676601000",
-    "land": "FINAL TITLE",
-    "lat": "3.885894000000000",
-    "lng": "100.922493000000003"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.885894",
+    "lng": "100.922493"
   },
   {
     "smallholder": "S.KHALIMATUS SA'ADIYAH BINTI M.BAJURI",
@@ -234,9 +250,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "836615001002",
-    "land": "FINAL TITLE",
-    "lat": "3.828063000000000",
-    "lng": "100.989047999999997"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.828063",
+    "lng": "100.989048"
   },
   {
     "smallholder": "ISHAK BIN SALIM",
@@ -248,9 +265,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "426563501000",
-    "land": "FINAL TITLE",
-    "lat": "3.826891000000000",
-    "lng": "100.990525000000005"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.826891",
+    "lng": "100.990525"
   },
   {
     "smallholder": "SHARIFAH AINI BINTI AHMAD JUNARI",
@@ -262,9 +280,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "834840001002",
-    "land": "FINAL TITLE",
-    "lat": "3.821428000000000",
-    "lng": "100.987566000000001"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.821428",
+    "lng": "100.987566"
   },
   {
     "smallholder": "NGAINON BINTI MOHAMMAD ASKAR",
@@ -276,9 +295,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "817805001002",
-    "land": "FINAL TITLE",
-    "lat": "3.818860000000000",
-    "lng": "100.986986000000002"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.81886",
+    "lng": "100.986986"
   },
   {
     "smallholder": "SHAIFOL BIN SHAMSURI",
@@ -290,9 +310,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "785717001002",
-    "land": "FINAL TITLE",
-    "lat": "3.818480000000000",
-    "lng": "100.988631999999996"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.81848",
+    "lng": "100.988632"
   },
   {
     "smallholder": "PERUMAL A/L VARATHARAJOO",
@@ -304,9 +325,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "504881101000",
-    "land": "FINAL TITLE",
-    "lat": "3.874050000000000",
-    "lng": "101.072496000000001"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.87405",
+    "lng": "101.072496"
   },
   {
     "smallholder": "SIVANESVARAN A/L SUPERMANI",
@@ -318,9 +340,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO62",
     "license_no": "471047701000",
-    "land": "FINAL TITLE",
-    "lat": "3.877417000000000",
-    "lng": "101.069345999999996"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.877417",
+    "lng": "101.069346"
   },
   {
     "smallholder": "GOPAL A/L MUTHIAH",
@@ -332,9 +355,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "586512601000",
-    "land": "FINAL TITLE",
-    "lat": "3.878810000000000",
-    "lng": "101.065977000000004"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.87881",
+    "lng": "101.065977"
   },
   {
     "smallholder": "NITHIYANANDA VEL A/L ARJUNAN",
@@ -346,9 +370,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "766738001002",
-    "land": "FINAL TITLE",
-    "lat": "3.879979000000000",
-    "lng": "101.058099999999996"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.879979",
+    "lng": "101.0581"
   },
   {
     "smallholder": "BALAKRISHNAN A/L AKIAH",
@@ -360,9 +385,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "435950800100",
-    "land": "FINAL TITLE",
-    "lat": "3.878404000000000",
-    "lng": "101.057096000000001"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.878404",
+    "lng": "101.057096"
   },
   {
     "smallholder": "KAMAYA A/L AKIAH",
@@ -374,9 +400,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "435950801000",
-    "land": "FINAL TITLE",
-    "lat": "3.878404000000000",
-    "lng": "101.057096000000001"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.878404",
+    "lng": "101.057096"
   },
   {
     "smallholder": "CHAI YUEN CHOY",
@@ -388,9 +415,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "526385101000",
-    "land": "FINAL TITLE",
-    "lat": "3.877740000000000",
-    "lng": "101.058711000000002"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.87774",
+    "lng": "101.058711"
   },
   {
     "smallholder": "CHAI MEOW SUAN",
@@ -402,9 +430,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "522260801000",
-    "land": "FINAL TITLE",
-    "lat": "3.877076000000000",
-    "lng": "101.060327999999998"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.877076",
+    "lng": "101.060328"
   },
   {
     "smallholder": "CHAI BEW KWAI",
@@ -416,9 +445,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "819431001002",
-    "land": "FINAL TITLE",
-    "lat": "3.876407000000000",
-    "lng": "101.061942000000002"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.876407",
+    "lng": "101.061942"
   },
   {
     "smallholder": "CHIA KIM LENG",
@@ -430,9 +460,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "451048601000",
-    "land": "FINAL TITLE",
-    "lat": "3.880389000000000",
-    "lng": "101.052267999999998"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.880389",
+    "lng": "101.052268"
   },
   {
     "smallholder": "CHIA KIM CHUAN",
@@ -444,9 +475,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "817750001002",
-    "land": "FINAL TITLE",
-    "lat": "3.879728000000000",
-    "lng": "101.053875000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.879728",
+    "lng": "101.053875"
   },
   {
     "smallholder": "BALAKRISHNAN A/L AKIAH",
@@ -458,9 +490,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "435950800100",
-    "land": "FINAL TITLE",
-    "lat": "3.879067000000000",
-    "lng": "101.055484000000007"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.879067",
+    "lng": "101.055484"
   },
   {
     "smallholder": "KAMAYA A/L AKIAH",
@@ -472,9 +505,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "435950801000",
-    "land": "FINAL TITLE",
-    "lat": "3.879067000000000",
-    "lng": "101.055484000000007"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.879067",
+    "lng": "101.055484"
   },
   {
     "smallholder": "SIVANESVARAN A/L SUPERMANI",
@@ -486,9 +520,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO66",
     "license_no": "471047701000",
-    "land": "FINAL TITLE",
-    "lat": "3.876035000000000",
-    "lng": "101.067695000000001"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.876035",
+    "lng": "101.067695"
   },
   {
     "smallholder": "NAZRAH NOR KHAYATI BT MUHD JEMANGIN",
@@ -500,9 +535,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "745978001002",
-    "land": "FINAL TITLE",
-    "lat": "3.795308000000000",
-    "lng": "101.064762999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.795308",
+    "lng": "101.064763"
   },
   {
     "smallholder": "SUMADIN BIN HASAN BARDI",
@@ -514,9 +550,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "214171901000",
-    "land": "FINAL TITLE",
-    "lat": "3.792659000000000",
-    "lng": "101.069901000000002"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.792659",
+    "lng": "101.069901"
   },
   {
     "smallholder": "JAMALI BIN JUBRI",
@@ -528,9 +565,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "874824001002",
-    "land": "FINAL TITLE",
-    "lat": "3.791033000000000",
-    "lng": "101.069084000000004"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.791033",
+    "lng": "101.069084"
   },
   {
     "smallholder": "MOHD GHAZALI BIN SAMIKIN",
@@ -542,9 +580,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "835586001002",
-    "land": "FINAL TITLE",
-    "lat": "3.788730000000000",
-    "lng": "101.071590000000000"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.78873",
+    "lng": "101.07159"
   },
   {
     "smallholder": "SALMAH BINTI YUNUS",
@@ -556,9 +595,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO4",
     "license_no": "869900001002",
-    "land": "FINAL TITLE",
-    "lat": "3.787920000000000",
-    "lng": "101.071178000000003"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.78792",
+    "lng": "101.071178"
   },
   {
     "smallholder": "ADNI BIN SAID",
@@ -570,9 +610,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "223270601000",
-    "land": "FINAL TITLE",
-    "lat": "3.788092000000000",
-    "lng": "101.068835000000007"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.788092",
+    "lng": "101.068835"
   },
   {
     "smallholder": "NGAT BIN DAHLAN",
@@ -584,9 +625,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "819965001002",
-    "land": "FINAL TITLE",
-    "lat": "3.738554000000000",
-    "lng": "101.080616000000006"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.738554",
+    "lng": "101.080616"
   },
   {
     "smallholder": "SITI UMI AZAR BINTI MISNADI",
@@ -598,9 +640,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "483696901000",
-    "land": "FINAL TITLE",
-    "lat": "3.737841000000000",
-    "lng": "101.078299000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.737841",
+    "lng": "101.078299"
   },
   {
     "smallholder": "MOHD HAFRIZAL BIN SANUSI",
@@ -612,9 +655,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "819964001002",
-    "land": "FINAL TITLE",
-    "lat": "3.735528000000000",
-    "lng": "101.079825000000000"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.735528",
+    "lng": "101.079825"
   },
   {
     "smallholder": "ERADAKRISHNAN A/L MUTHUSAMY",
@@ -626,9 +670,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "793397001002",
-    "land": "FINAL TITLE",
-    "lat": "3.861470000000000",
-    "lng": "101.088082000000000"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.86147",
+    "lng": "101.088082"
   },
   {
     "smallholder": "TEH HOCK LAI",
@@ -640,9 +685,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "522094001000",
-    "land": "FINAL TITLE",
-    "lat": "3.860490000000000",
-    "lng": "101.090452999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.86049",
+    "lng": "101.090453"
   },
   {
     "smallholder": "TEH HOCK LAI",
@@ -654,9 +700,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "522094001000",
-    "land": "FINAL TITLE",
-    "lat": "3.860164000000000",
-    "lng": "101.091239999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.860164",
+    "lng": "101.09124"
   },
   {
     "smallholder": "TEH HOCK LAI",
@@ -668,9 +715,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "522094001000",
-    "land": "FINAL TITLE",
-    "lat": "3.859837000000000",
-    "lng": "101.092026000000004"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.859837",
+    "lng": "101.092026"
   },
   {
     "smallholder": "TEH TEK AN",
@@ -682,9 +730,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424590101000",
-    "land": "FINAL TITLE",
-    "lat": "3.859362000000000",
-    "lng": "101.093120999999996"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.859362",
+    "lng": "101.093121"
   },
   {
     "smallholder": "TEH HOCK SING",
@@ -696,9 +745,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424591001000",
-    "land": "FINAL TITLE",
-    "lat": "3.859590000000000",
-    "lng": "101.092619999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.85959",
+    "lng": "101.09262"
   },
   {
     "smallholder": "SITI SUHAILA BINTI MOHAMAD SALLEH",
@@ -710,9 +760,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "868992001002",
-    "land": "FINAL TITLE",
-    "lat": "3.883686000000000",
-    "lng": "100.914220000000000"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.883686",
+    "lng": "100.91422"
   },
   {
     "smallholder": "NOR AZIZAH BINTI ABDUL TALIB",
@@ -724,9 +775,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "852753001002",
-    "land": "FINAL TITLE",
-    "lat": "3.877957000000000",
-    "lng": "100.914569000000000"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.877957",
+    "lng": "100.914569"
   },
   {
     "smallholder": "SALMAH BINTI CHE OM",
@@ -738,9 +790,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "821672001002",
-    "land": "FINAL TITLE",
-    "lat": "3.872508000000000",
-    "lng": "100.914855000000003"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.872508",
+    "lng": "100.914855"
   },
   {
     "smallholder": "NASARUDDIN BIN MOHD ALI",
@@ -752,9 +805,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "820968001002",
-    "land": "FINAL TITLE",
-    "lat": "3.871223000000000",
-    "lng": "100.915306000000001"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.871223",
+    "lng": "100.915306"
   },
   {
     "smallholder": "SALASIAH BINTI CHE OM",
@@ -766,9 +820,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "851952001002",
-    "land": "FINAL TITLE",
-    "lat": "3.871594000000000",
-    "lng": "100.919173000000001"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.871594",
+    "lng": "100.919173"
   },
   {
     "smallholder": "SUBRAMANIAM A/L MUNIANDY",
@@ -780,9 +835,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "834906001002",
-    "land": "FINAL TITLE",
-    "lat": "3.888185000000000",
-    "lng": "100.934141999999994"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.888185",
+    "lng": "100.934142"
   },
   {
     "smallholder": "SIRIMAH BINTI KAMARUDIN",
@@ -794,9 +850,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "572162101000",
-    "land": "FINAL TITLE",
-    "lat": "3.793547000000000",
-    "lng": "101.071168000000000"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.793547",
+    "lng": "101.071168"
   },
   {
     "smallholder": "SALLEHEN BIN, MUKHYI",
@@ -808,9 +865,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "767586001002",
-    "land": "FINAL TITLE",
-    "lat": "3.798122000000000",
-    "lng": "101.099086999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.798122",
+    "lng": "101.099087"
   },
   {
     "smallholder": "ZAITUN BINTI ABAS",
@@ -822,9 +880,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "551481101000",
-    "land": "FINAL TITLE",
-    "lat": "3.793962000000000",
-    "lng": "101.067460999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.793962",
+    "lng": "101.067461"
   },
   {
     "smallholder": "PATCHAIAMMAH A/P GOVINDASAMY",
@@ -836,9 +895,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "477672901000",
-    "land": "FINAL TITLE",
-    "lat": "3.790916000000000",
-    "lng": "101.101937000000007"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.790916",
+    "lng": "101.101937"
   },
   {
     "smallholder": "TASMERAH BINTI KAMBALI",
@@ -850,9 +910,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "835007001002",
-    "land": "FINAL TITLE",
-    "lat": "3.777329000000000",
-    "lng": "101.100868000000006"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.777329",
+    "lng": "101.100868"
   },
   {
     "smallholder": "MOHD SAHARUDDIN BIN ABD SHUKOR",
@@ -864,9 +925,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "838799001002",
-    "land": "FINAL TITLE",
-    "lat": "3.778756000000000",
-    "lng": "101.097932000000000"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.778756",
+    "lng": "101.097932"
   },
   {
     "smallholder": "ZAILANI BIN IBRAHIM",
@@ -878,9 +940,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "838671001002",
-    "land": "FINAL TITLE",
-    "lat": "3.782094000000000",
-    "lng": "101.094071999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.782094",
+    "lng": "101.094072"
   },
   {
     "smallholder": "MOHAMAD RIZAL BIN SUDIN @ SAMSUDIN",
@@ -892,9 +955,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "837261001002",
-    "land": "FINAL TITLE",
-    "lat": "3.781347000000000",
-    "lng": "101.095557999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.781347",
+    "lng": "101.095558"
   },
   {
     "smallholder": "JAHYA BIN ABD HAMID",
@@ -906,9 +970,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "835605001002",
-    "land": "FINAL TITLE",
-    "lat": "3.780645000000000",
-    "lng": "101.097032999999996"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.780645",
+    "lng": "101.097033"
   },
   {
     "smallholder": "MAT ASAN BIN JAMALUDIN",
@@ -920,9 +985,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "542184801000",
-    "land": "FINAL TITLE",
-    "lat": "3.779465000000000",
-    "lng": "101.096470999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.779465",
+    "lng": "101.096471"
   },
   {
     "smallholder": "MAIMUNAH BINTI SAAD",
@@ -934,9 +1000,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "836982001002",
-    "land": "FINAL TITLE",
-    "lat": "3.779822000000000",
-    "lng": "101.095737000000000"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.779822",
+    "lng": "101.095737"
   },
   {
     "smallholder": "ZAIRUN BIN YUSOP",
@@ -948,9 +1015,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "592479301000",
-    "land": "FINAL TITLE",
-    "lat": "3.778305000000000",
-    "lng": "101.095671999999993"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.778305",
+    "lng": "101.095672"
   },
   {
     "smallholder": "MOHAMAD IZAD BIN HASHIM",
@@ -962,9 +1030,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO17",
     "license_no": "879394001002",
-    "land": "FINAL TITLE",
-    "lat": "3.777577000000000",
-    "lng": "101.097132999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.777577",
+    "lng": "101.097133"
   },
   {
     "smallholder": "NORAZAH BINTI SALLEH",
@@ -976,9 +1045,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "803140001002",
-    "land": "FINAL TITLE",
-    "lat": "3.776358000000000",
-    "lng": "101.096539000000007"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.776358",
+    "lng": "101.096539"
   },
   {
     "smallholder": "MUKLAS BIN DARUS",
@@ -990,9 +1060,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "803142001002",
-    "land": "FINAL TITLE",
-    "lat": "3.776723000000000",
-    "lng": "101.095809000000003"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.776723",
+    "lng": "101.095809"
   },
   {
     "smallholder": "YA'ACOB BIN SAMAD",
@@ -1004,9 +1075,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "836651001002",
-    "land": "FINAL TITLE",
-    "lat": "3.752236000000000",
-    "lng": "101.106476000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.752236",
+    "lng": "101.106476"
   },
   {
     "smallholder": "NAZHATUL HASNAH BINTI SAMAD",
@@ -1018,9 +1090,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "834977001002",
-    "land": "FINAL TITLE",
-    "lat": "3.751782000000000",
-    "lng": "101.107561000000004"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.751782",
+    "lng": "101.107561"
   },
   {
     "smallholder": "HASNAH BINTI SAJAT",
@@ -1032,9 +1105,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "791572001002",
-    "land": "FINAL TITLE",
-    "lat": "3.751391000000000",
-    "lng": "101.105181999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.751391",
+    "lng": "101.105182"
   },
   {
     "smallholder": "ARPAH BINTI ALI",
@@ -1046,9 +1120,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "218792101000",
-    "land": "FINAL TITLE",
-    "lat": "3.751391000000000",
-    "lng": "101.105181999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.751391",
+    "lng": "101.105182"
   },
   {
     "smallholder": "AZMAN BIN ABDUL MANAN",
@@ -1060,9 +1135,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "590514401000",
-    "land": "FINAL TITLE",
-    "lat": "3.750687000000000",
-    "lng": "101.106975000000006"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.750687",
+    "lng": "101.106975"
   },
   {
     "smallholder": "MOHD TA'OUFID BIN YUNUS",
@@ -1074,9 +1150,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO3",
     "license_no": "869899001002",
-    "land": "FINAL TITLE",
-    "lat": "3.749718000000000",
-    "lng": "101.105642000000003"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.749718",
+    "lng": "101.105642"
   },
   {
     "smallholder": "NUR NADIAH BINTI MASTOL",
@@ -1088,9 +1165,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "819095001002",
-    "land": "FINAL TITLE",
-    "lat": "3.748459000000000",
-    "lng": "101.105592000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.748459",
+    "lng": "101.105592"
   },
   {
     "smallholder": "NAYATIMAH BINTI HUSSIN",
@@ -1102,9 +1180,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "834995001002",
-    "land": "FINAL TITLE",
-    "lat": "3.747337000000000",
-    "lng": "101.105035000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.747337",
+    "lng": "101.105035"
   },
   {
     "smallholder": "SAMSIAH BINTI ABD RAMAN",
@@ -1116,9 +1195,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO12",
     "license_no": "875201001002",
-    "land": "FINAL TITLE",
-    "lat": "3.746349000000000",
-    "lng": "101.104557999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.746349",
+    "lng": "101.104558"
   },
   {
     "smallholder": "ABU OSMAN BIN MUSA",
@@ -1130,9 +1210,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "219875301000",
-    "land": "FINAL TITLE",
-    "lat": "3.759745000000000",
-    "lng": "101.105206999999993"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.759745",
+    "lng": "101.105207"
   },
   {
     "smallholder": "DZULAZRI BIN MOHAMAD ARIFFIN",
@@ -1144,9 +1225,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "534938101000",
-    "land": "FINAL TITLE",
-    "lat": "3.777267000000000",
-    "lng": "101.122764000000004"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.777267",
+    "lng": "101.122764"
   },
   {
     "smallholder": "MOHAMED NASOHA BIN JEMARON",
@@ -1158,9 +1240,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "834979001002",
-    "land": "FINAL TITLE",
-    "lat": "3.776745000000000",
-    "lng": "101.122513999999995"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.776745",
+    "lng": "101.122514"
   },
   {
     "smallholder": "ZALKAFLI BIN HANIN HAMJAH",
@@ -1172,9 +1255,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO68",
     "license_no": "882944001002",
-    "land": "FINAL TITLE",
-    "lat": "3.776414000000000",
-    "lng": "101.124285999999998"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.776414",
+    "lng": "101.124286"
   },
   {
     "smallholder": "MUHAMMAD ZULKAFLI BIN USIN",
@@ -1186,9 +1270,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "763539001002",
-    "land": "FINAL TITLE",
-    "lat": "3.784603000000000",
-    "lng": "101.130127999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.784603",
+    "lng": "101.130128"
   },
   {
     "smallholder": "JANARIAH BINTI AHMAD JOHARI",
@@ -1200,9 +1285,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "762680001002",
-    "land": "FINAL TITLE",
-    "lat": "3.782656000000000",
-    "lng": "101.129245999999995"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.782656",
+    "lng": "101.129246"
   },
   {
     "smallholder": "ISMAIL BIN OTHMAN",
@@ -1214,9 +1300,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "777245001002",
-    "land": "FINAL TITLE",
-    "lat": "3.770911000000000",
-    "lng": "101.125342000000003"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.770911",
+    "lng": "101.125342"
   },
   {
     "smallholder": "NORMAH BINTI MAIMON",
@@ -1228,9 +1315,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "854955001002",
-    "land": "FINAL TITLE",
-    "lat": "3.769410000000000",
-    "lng": "101.124588000000003"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.76941",
+    "lng": "101.124588"
   },
   {
     "smallholder": "MOHAMAD YAAKOB BIN ABDULLAH",
@@ -1242,9 +1330,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "558289201000",
-    "land": "FINAL TITLE",
-    "lat": "3.771302000000000",
-    "lng": "101.127650000000003"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.771302",
+    "lng": "101.12765"
   },
   {
     "smallholder": "KAMSINAH BINTI MAINON",
@@ -1256,9 +1345,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "849840001002",
-    "land": "FINAL TITLE",
-    "lat": "3.770517000000000",
-    "lng": "101.126633999999996"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.770517",
+    "lng": "101.126634"
   },
   {
     "smallholder": "MOHD SALLEH BIN ABD SHUKOR",
@@ -1270,9 +1360,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "834292001002",
-    "land": "FINAL TITLE",
-    "lat": "3.769196000000000",
-    "lng": "101.125974999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.769196",
+    "lng": "101.125975"
   },
   {
     "smallholder": "ZULKAFALI BIN HURI",
@@ -1284,9 +1375,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "782742001002",
-    "land": "FINAL TITLE",
-    "lat": "3.769340000000000",
-    "lng": "101.130193000000006"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.76934",
+    "lng": "101.130193"
   },
   {
     "smallholder": "RAJAJI A/L BOYAN",
@@ -1298,9 +1390,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "587586501000",
-    "land": "FINAL TITLE",
-    "lat": "3.768496000000000",
-    "lng": "101.129868999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.768496",
+    "lng": "101.129869"
   },
   {
     "smallholder": "KAMARIAH BINTI ASMAWI @ ISMAIL",
@@ -1312,9 +1405,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "791673001002",
-    "land": "FINAL TITLE",
-    "lat": "3.764749000000000",
-    "lng": "101.123355000000004"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.764749",
+    "lng": "101.123355"
   },
   {
     "smallholder": "ONG LIAN FONG",
@@ -1326,9 +1420,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "566960201000",
-    "land": "FINAL TITLE",
-    "lat": "3.764372000000000",
-    "lng": "101.124039999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.764372",
+    "lng": "101.12404"
   },
   {
     "smallholder": "JUMA'AYAH BINTI SALEH",
@@ -1340,9 +1435,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "869653001002",
-    "land": "FINAL TITLE",
-    "lat": "3.764372000000000",
-    "lng": "101.124039999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.764372",
+    "lng": "101.12404"
   },
   {
     "smallholder": "SHARIFAL @ SHARIFAH BINTI KALOMTAR",
@@ -1354,9 +1450,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "822883001002",
-    "land": "FINAL TITLE",
-    "lat": "3.763556000000000",
-    "lng": "101.122686000000002"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.763556",
+    "lng": "101.122686"
   },
   {
     "smallholder": "ZULKARNAEN BIN MOHAMMED RABAWI",
@@ -1368,9 +1465,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "826258001002",
-    "land": "FINAL TITLE",
-    "lat": "3.765763000000000",
-    "lng": "101.118386999999998"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.765763",
+    "lng": "101.118387"
   },
   {
     "smallholder": "EE AH BENG",
@@ -1382,9 +1480,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "858291001002",
-    "land": "FINAL TITLE",
-    "lat": "3.766495000000000",
-    "lng": "101.116950000000003"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.766495",
+    "lng": "101.11695"
   },
   {
     "smallholder": "ONG LIAN FONG",
@@ -1396,9 +1495,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "566960201000",
-    "land": "FINAL TITLE",
-    "lat": "3.765318000000000",
-    "lng": "101.116291000000004"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.765318",
+    "lng": "101.116291"
   },
   {
     "smallholder": "AHMAD BIN HARUN",
@@ -1410,9 +1510,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "594387901000",
-    "land": "FINAL TITLE",
-    "lat": "3.764928000000000",
-    "lng": "101.117012000000003"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.764928",
+    "lng": "101.117012"
   },
   {
     "smallholder": "JUNAIDAH BINTI TAMBI @ MD RASHID",
@@ -1424,9 +1525,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "791576001002",
-    "land": "FINAL TITLE",
-    "lat": "3.764928000000000",
-    "lng": "101.117012000000003"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.764928",
+    "lng": "101.117012"
   },
   {
     "smallholder": "HAIRI BIN HASAN",
@@ -1438,9 +1540,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "824785001002",
-    "land": "FINAL TITLE",
-    "lat": "3.764200000000000",
-    "lng": "101.118449999999996"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.7642",
+    "lng": "101.11845"
   },
   {
     "smallholder": "SAIFUL BAHRI BIN SARBANI",
@@ -1452,9 +1555,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "821543001002",
-    "land": "FINAL TITLE",
-    "lat": "3.763836000000000",
-    "lng": "101.119157999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.763836",
+    "lng": "101.119158"
   },
   {
     "smallholder": "MOHAMAD ASRI BIN MAINON",
@@ -1466,9 +1570,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "499256101000",
-    "land": "FINAL TITLE",
-    "lat": "3.771341000000000",
-    "lng": "101.123757999999995"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.771341",
+    "lng": "101.123758"
   },
   {
     "smallholder": "NOR SA'ADAH BINTI MOHAMMAD IKHSAN",
@@ -1480,9 +1585,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "854162001002",
-    "land": "FINAL TITLE",
-    "lat": "3.771341000000000",
-    "lng": "101.123757999999995"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.771341",
+    "lng": "101.123758"
   },
   {
     "smallholder": "MOHAMAD BOHARI BIN MAINON",
@@ -1494,9 +1600,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "852230001002",
-    "land": "FINAL TITLE",
-    "lat": "3.770770000000000",
-    "lng": "101.123469000000000"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.77077",
+    "lng": "101.123469"
   },
   {
     "smallholder": "NOIYALAN A/L CHENGAPILLAI",
@@ -1508,9 +1615,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "598397801000",
-    "land": "FINAL TITLE",
-    "lat": "3.783037000000000",
-    "lng": "101.131208000000001"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.783037",
+    "lng": "101.131208"
   },
   {
     "smallholder": "HASAN NODIN BIN AHMED JOHARI",
@@ -1522,9 +1630,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "540519201000",
-    "land": "FINAL TITLE",
-    "lat": "3.782624000000000",
-    "lng": "101.131105000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.782624",
+    "lng": "101.131105"
   },
   {
     "smallholder": "ROSLAN BIN HASAN NODIN",
@@ -1536,9 +1645,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "540520601000",
-    "land": "FINAL TITLE",
-    "lat": "3.782141000000000",
-    "lng": "101.130730999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.782141",
+    "lng": "101.130731"
   },
   {
     "smallholder": "RATNAWATI BINTI ESLAH",
@@ -1550,9 +1660,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "685825001002",
-    "land": "FINAL TITLE",
-    "lat": "3.781553000000000",
-    "lng": "101.130556999999996"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.781553",
+    "lng": "101.130557"
   },
   {
     "smallholder": "MOHAMAD SUKRI AZWANI BIN HAMDAN",
@@ -1564,9 +1675,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "561553701000",
-    "land": "FINAL TITLE",
-    "lat": "3.781010000000000",
-    "lng": "101.130302999999998"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.78101",
+    "lng": "101.130303"
   },
   {
     "smallholder": "ISMUN BIN HJ MARSOM",
@@ -1578,9 +1690,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "869668001002",
-    "land": "FINAL TITLE",
-    "lat": "3.749088000000000",
-    "lng": "101.090620000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.749088",
+    "lng": "101.09062"
   },
   {
     "smallholder": "TUMIRAN BIN BASIRUN",
@@ -1592,9 +1705,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "222434701000",
-    "land": "FINAL TITLE",
-    "lat": "3.744312000000000",
-    "lng": "101.084006000000002"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.744312",
+    "lng": "101.084006"
   },
   {
     "smallholder": "SAIFUDDIN BIN HAJI ABDUL HAMID",
@@ -1606,9 +1720,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "555432501000",
-    "land": "FINAL TITLE",
-    "lat": "3.774639000000000",
-    "lng": "101.117390000000000"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.774639",
+    "lng": "101.11739"
   },
   {
     "smallholder": "KHADIRAN BIN SIDI",
@@ -1620,9 +1735,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "228183901000",
-    "land": "FINAL TITLE",
-    "lat": "3.772734000000000",
-    "lng": "101.118761000000006"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.772734",
+    "lng": "101.118761"
   },
   {
     "smallholder": "SAIPUL LIZAM BIN ESLAH",
@@ -1634,9 +1750,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "763541001002",
-    "land": "FINAL TITLE",
-    "lat": "3.763005000000000",
-    "lng": "101.129917000000006"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.763005",
+    "lng": "101.129917"
   },
   {
     "smallholder": "MOHAMAD LAMUDDIN BIN SAPARI",
@@ -1648,9 +1765,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "763537001002",
-    "land": "FINAL TITLE",
-    "lat": "3.747050000000000",
-    "lng": "101.098519999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.74705",
+    "lng": "101.09852"
   },
   {
     "smallholder": "AHMAD ZAINUDDIN BIN KAMBALI",
@@ -1662,9 +1780,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "583301101000",
-    "land": "FINAL TITLE",
-    "lat": "3.764458000000000",
-    "lng": "101.092059000000006"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.764458",
+    "lng": "101.092059"
   },
   {
     "smallholder": "JAMALARSAD BIN BASRI",
@@ -1676,9 +1795,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "576877501000",
-    "land": "FINAL TITLE",
-    "lat": "3.763133000000000",
-    "lng": "101.094254000000006"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.763133",
+    "lng": "101.094254"
   },
   {
     "smallholder": "MD ISHAK BIN SABRAN",
@@ -1690,9 +1810,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "835609001002",
-    "land": "FINAL TITLE",
-    "lat": "3.752558000000000",
-    "lng": "101.103855999999993"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.752558",
+    "lng": "101.103856"
   },
   {
     "smallholder": "MOHAMAD NAJIB BIN TUMIJAN",
@@ -1704,9 +1825,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "771881001002",
-    "land": "FINAL TITLE",
-    "lat": "3.779656000000000",
-    "lng": "101.055815999999993"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.779656",
+    "lng": "101.055816"
   },
   {
     "smallholder": "TAN SOOK CHING",
@@ -1718,9 +1840,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "795861001002",
-    "land": "FINAL TITLE",
-    "lat": "3.793445000000000",
-    "lng": "101.031865999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.793445",
+    "lng": "101.031866"
   },
   {
     "smallholder": "TAN SOOK CHING",
@@ -1732,9 +1855,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "795861001002",
-    "land": "FINAL TITLE",
-    "lat": "3.792596000000000",
-    "lng": "101.031710000000004"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.792596",
+    "lng": "101.03171"
   },
   {
     "smallholder": "PATMAWATI BINTI SARBINI",
@@ -1746,9 +1870,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "576036701000",
-    "land": "FINAL TITLE",
-    "lat": "3.769708000000000",
-    "lng": "101.067222999999998"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.769708",
+    "lng": "101.067223"
   },
   {
     "smallholder": "ROSDIN BIN HJ NAPIAH",
@@ -1760,9 +1885,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "841305001002",
-    "land": "FINAL TITLE",
-    "lat": "3.771533000000000",
-    "lng": "101.061689999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.771533",
+    "lng": "101.06169"
   },
   {
     "smallholder": "KAMARIAH BINTI UTOH",
@@ -1774,9 +1900,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "456832801000",
-    "land": "FINAL TITLE",
-    "lat": "3.773454000000000",
-    "lng": "101.063877000000005"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.773454",
+    "lng": "101.063877"
   },
   {
     "smallholder": "KAMARIAH BINTI UTOH",
@@ -1788,9 +1915,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "456832801000",
-    "land": "FINAL TITLE",
-    "lat": "3.774170000000000",
-    "lng": "101.060587999999996"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.77417",
+    "lng": "101.060588"
   },
   {
     "smallholder": "KAMARIAH BINTI UTOH",
@@ -1802,9 +1930,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "456832801000",
-    "land": "FINAL TITLE",
-    "lat": "3.773955000000000",
-    "lng": "101.062905999999998"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.773955",
+    "lng": "101.062906"
   },
   {
     "smallholder": "ABD RAHMAN BIN ABD WAHAB",
@@ -1816,9 +1945,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "822784001002",
-    "land": "FINAL TITLE",
-    "lat": "3.776792000000000",
-    "lng": "101.059469000000007"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.776792",
+    "lng": "101.059469"
   },
   {
     "smallholder": "MOHD SHAHNIZAM BIN MOHD ROZAR",
@@ -1830,9 +1960,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "869681001002",
-    "land": "FINAL TITLE",
-    "lat": "3.745861000000000",
-    "lng": "101.093616999999995"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.745861",
+    "lng": "101.093617"
   },
   {
     "smallholder": "MOHD ROZAR BIN ABD RAHMAN",
@@ -1844,9 +1975,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "869667001002",
-    "land": "FINAL TITLE",
-    "lat": "3.744208000000000",
-    "lng": "101.092865000000003"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.744208",
+    "lng": "101.092865"
   },
   {
     "smallholder": "MISBAKHUL HADI BIN ZUHRI @ DARMO",
@@ -1858,9 +1990,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "221249701000",
-    "land": "FINAL TITLE",
-    "lat": "3.775568000000000",
-    "lng": "101.066586999999998"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.775568",
+    "lng": "101.066587"
   },
   {
     "smallholder": "MD ISHAK BIN SALAM",
@@ -1872,9 +2005,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "223176901000",
-    "land": "FINAL TITLE",
-    "lat": "3.773109000000000",
-    "lng": "101.071431000000004"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.773109",
+    "lng": "101.071431"
   },
   {
     "smallholder": "MOHD NOR TAOFEK BIN SARBANI",
@@ -1886,9 +2020,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "854738001002",
-    "land": "FINAL TITLE",
-    "lat": "3.774224000000000",
-    "lng": "101.077280999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.774224",
+    "lng": "101.077281"
   },
   {
     "smallholder": "SALAMIAH BT MAT ALI",
@@ -1900,9 +2035,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "224955201000",
-    "land": "FINAL TITLE",
-    "lat": "3.773904000000000",
-    "lng": "101.075899000000007"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.773904",
+    "lng": "101.075899"
   },
   {
     "smallholder": "ATIYAH BINTI SEKIN",
@@ -1914,9 +2050,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "577002801000",
-    "land": "FINAL TITLE",
-    "lat": "3.773411000000000",
-    "lng": "101.076871999999995"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.773411",
+    "lng": "101.076872"
   },
   {
     "smallholder": "PARUWATY A/P GANESAN",
@@ -1928,9 +2065,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "793952001002",
-    "land": "FINAL TITLE",
-    "lat": "3.756400000000000",
-    "lng": "101.124457000000007"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.7564",
+    "lng": "101.124457"
   },
   {
     "smallholder": "ONG CHENG HOW",
@@ -1942,9 +2080,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "468179501000",
-    "land": "FINAL TITLE",
-    "lat": "3.757883000000000",
-    "lng": "101.121559000000005"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.757883",
+    "lng": "101.121559"
   },
   {
     "smallholder": "SAIFUL AZHARI BIN SAIPI",
@@ -1956,9 +2095,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "806638001002",
-    "land": "FINAL TITLE",
-    "lat": "3.754399000000000",
-    "lng": "101.125358000000006"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.754399",
+    "lng": "101.125358"
   },
   {
     "smallholder": "ROZALI BIN SAHARONI",
@@ -1970,9 +2110,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "827971001002",
-    "land": "FINAL TITLE",
-    "lat": "3.753181000000000",
-    "lng": "101.124740000000003"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.753181",
+    "lng": "101.12474"
   },
   {
     "smallholder": "SOLIAH BINTI KONTING",
@@ -1984,9 +2125,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "229309801000",
-    "land": "FINAL TITLE",
-    "lat": "3.754694000000000",
-    "lng": "101.121820999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.754694",
+    "lng": "101.121821"
   },
   {
     "smallholder": "MOHAMAD FADZLI BIN AHMAD NAWI",
@@ -1998,9 +2140,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "852234001002",
-    "land": "FINAL TITLE",
-    "lat": "3.755070000000000",
-    "lng": "101.121095999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.75507",
+    "lng": "101.121096"
   },
   {
     "smallholder": "MOHD SUKRI BIN ABDUL TALIB",
@@ -2012,9 +2155,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "829236001002",
-    "land": "FINAL TITLE",
-    "lat": "3.755453000000000",
-    "lng": "101.120339999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.755453",
+    "lng": "101.12034"
   },
   {
     "smallholder": "JAZLINA FARAH BINTI JAMALUDIN",
@@ -2026,9 +2170,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "818364001002",
-    "land": "FINAL TITLE",
-    "lat": "3.754610000000000",
-    "lng": "101.118836999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.75461",
+    "lng": "101.118837"
   },
   {
     "smallholder": "CHANDRASEGARAN RAMASAMY",
@@ -2040,9 +2185,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "560565501000",
-    "land": "FINAL TITLE",
-    "lat": "3.754963000000000",
-    "lng": "101.118126000000004"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.754963",
+    "lng": "101.118126"
   },
   {
     "smallholder": "ARBAIAH BINTI BASRI",
@@ -2054,9 +2200,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "834988001002",
-    "land": "FINAL TITLE",
-    "lat": "3.754963000000000",
-    "lng": "101.118126000000004"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.754963",
+    "lng": "101.118126"
   },
   {
     "smallholder": "SOLIAH BINTI KONTING",
@@ -2068,9 +2215,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "229309801000",
-    "land": "FINAL TITLE",
-    "lat": "3.747742000000000",
-    "lng": "101.117053999999996"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.747742",
+    "lng": "101.117054"
   },
   {
     "smallholder": "SOLIAH BINTI KONTING",
@@ -2082,9 +2230,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "229309801000",
-    "land": "FINAL TITLE",
-    "lat": "3.748493000000000",
-    "lng": "101.115604000000005"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.748493",
+    "lng": "101.115604"
   },
   {
     "smallholder": "ABD HALIM BIN SALLEHUDDIN",
@@ -2096,9 +2245,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "830872001002",
-    "land": "FINAL TITLE",
-    "lat": "3.749240000000000",
-    "lng": "101.114155999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.74924",
+    "lng": "101.114156"
   },
   {
     "smallholder": "MOHD MUZAIYIN BIN HAJI ASMAIL",
@@ -2110,9 +2260,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "473222501000",
-    "land": "FINAL TITLE",
-    "lat": "3.747652000000000",
-    "lng": "101.114259000000004"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.747652",
+    "lng": "101.114259"
   },
   {
     "smallholder": "BADRUL HISHAM BIN MUHAMMAD",
@@ -2124,9 +2275,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "685824001002",
-    "land": "FINAL TITLE",
-    "lat": "3.746527000000000",
-    "lng": "101.116432000000003"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.746527",
+    "lng": "101.116432"
   },
   {
     "smallholder": "MUHAMMAD RAZIF BIN SABUDIN",
@@ -2138,9 +2290,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "590574801000",
-    "land": "FINAL TITLE",
-    "lat": "3.745402000000000",
-    "lng": "101.118606000000000"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.745402",
+    "lng": "101.118606"
   },
   {
     "smallholder": "MOHD MUZAIYIN BIN HAJI ASMAIL",
@@ -2152,9 +2305,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "473222501000",
-    "land": "FINAL TITLE",
-    "lat": "3.745184000000000",
-    "lng": "101.116642999999996"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.745184",
+    "lng": "101.116643"
   },
   {
     "smallholder": "SOLIAH BINTI KONTING",
@@ -2166,9 +2320,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "229309801000",
-    "land": "FINAL TITLE",
-    "lat": "3.744575000000000",
-    "lng": "101.117851000000002"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.744575",
+    "lng": "101.117851"
   },
   {
     "smallholder": "MOHD MUZAIYIN BIN HAJI ASMAIL",
@@ -2180,9 +2335,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "473222501000",
-    "land": "FINAL TITLE",
-    "lat": "3.743290000000000",
-    "lng": "101.116935999999995"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.74329",
+    "lng": "101.116936"
   },
   {
     "smallholder": "MOHD RAFEI BIN HAMID",
@@ -2194,9 +2350,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "558290601000",
-    "land": "FINAL TITLE",
-    "lat": "3.746300000000000",
-    "lng": "101.120396999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.7463",
+    "lng": "101.120397"
   },
   {
     "smallholder": "MOHD MUZAIYIN BIN HAJI ASMAIL",
@@ -2208,9 +2365,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "473222501000",
-    "land": "FINAL TITLE",
-    "lat": "3.744114000000000",
-    "lng": "101.119290000000007"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.744114",
+    "lng": "101.11929"
   },
   {
     "smallholder": "SAIFUL BAHRI BIN SARBANI",
@@ -2222,9 +2380,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "821543001002",
-    "land": "FINAL TITLE",
-    "lat": "3.762022000000000",
-    "lng": "101.125658000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.762022",
+    "lng": "101.125658"
   },
   {
     "smallholder": "MOHD ROSLI BIN BASERAN",
@@ -2236,9 +2395,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO16",
     "license_no": "878188001002",
-    "land": "FINAL TITLE",
-    "lat": "3.762022000000000",
-    "lng": "101.125658000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.762022",
+    "lng": "101.125658"
   },
   {
     "smallholder": "MUHAMMAD FIRDAUS BIN AHMAD NAWI",
@@ -2250,9 +2410,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "839847001002",
-    "land": "FINAL TITLE",
-    "lat": "3.761558000000000",
-    "lng": "101.123582999999996"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.761558",
+    "lng": "101.123583"
   },
   {
     "smallholder": "MD ISHAK BIN SABRAN",
@@ -2264,9 +2425,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "835609001002",
-    "land": "FINAL TITLE",
-    "lat": "3.761184000000000",
-    "lng": "101.124307999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.761184",
+    "lng": "101.124308"
   },
   {
     "smallholder": "SITI SANDORA BINTI MOHD ZAIDI",
@@ -2278,9 +2440,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "485393601000",
-    "land": "FINAL TITLE",
-    "lat": "3.760052000000000",
-    "lng": "101.126479000000003"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.760052",
+    "lng": "101.126479"
   },
   {
     "smallholder": "ABDUL HALIM BIN MANFIT",
@@ -2292,9 +2455,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "216844701000",
-    "land": "FINAL TITLE",
-    "lat": "3.759680000000000",
-    "lng": "101.127206000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.75968",
+    "lng": "101.127206"
   },
   {
     "smallholder": "AZNI BINTI SAMAD",
@@ -2306,9 +2470,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "474428201000",
-    "land": "FINAL TITLE",
-    "lat": "3.759310000000000",
-    "lng": "101.127932000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.75931",
+    "lng": "101.127932"
   },
   {
     "smallholder": "JAMAL BIN ARSAD",
@@ -2320,9 +2485,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "791575001002",
-    "land": "FINAL TITLE",
-    "lat": "3.758845000000000",
-    "lng": "101.125850999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.758845",
+    "lng": "101.125851"
   },
   {
     "smallholder": "SATTIYAN RAMASAMY",
@@ -2334,9 +2500,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO43",
     "license_no": "560566301000",
-    "land": "FINAL TITLE",
-    "lat": "3.758845000000000",
-    "lng": "101.125850999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.758845",
+    "lng": "101.125851"
   },
   {
     "smallholder": "RAJAJI A/L BOYAN",
@@ -2348,9 +2515,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "587586501000",
-    "land": "FINAL TITLE",
-    "lat": "3.759220000000000",
-    "lng": "101.125124000000000"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.75922",
+    "lng": "101.125124"
   },
   {
     "smallholder": "MOHD FAKHRUL RAZI BIN AHMAD NAWI",
@@ -2362,9 +2530,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "839842001002",
-    "land": "FINAL TITLE",
-    "lat": "3.760354000000000",
-    "lng": "101.122918999999996"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.760354",
+    "lng": "101.122919"
   },
   {
     "smallholder": "MOHD NIZAM BIN MAT ARHAM @ ELHAM",
@@ -2376,9 +2545,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "837234001002",
-    "land": "FINAL TITLE",
-    "lat": "3.774878000000000",
-    "lng": "101.109202999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.774878",
+    "lng": "101.109203"
   },
   {
     "smallholder": "MHD OTHMAN BIN ABD SALAM",
@@ -2390,9 +2560,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "837454001002",
-    "land": "FINAL TITLE",
-    "lat": "3.774878000000000",
-    "lng": "101.109202999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.774878",
+    "lng": "101.109203"
   },
   {
     "smallholder": "SHAFIEE BIN KAMBALI",
@@ -2404,9 +2575,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "834914001002",
-    "land": "FINAL TITLE",
-    "lat": "3.774539000000000",
-    "lng": "101.109965000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.774539",
+    "lng": "101.109965"
   },
   {
     "smallholder": "MOHD ROHMAT BIN SUYUT",
@@ -2418,9 +2590,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "226611201000",
-    "land": "FINAL TITLE",
-    "lat": "3.774178000000000",
-    "lng": "101.110668000000004"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.774178",
+    "lng": "101.110668"
   },
   {
     "smallholder": "FATORI BIN ABDULLAH",
@@ -2432,9 +2605,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "539277501000",
-    "land": "FINAL TITLE",
-    "lat": "3.773818000000000",
-    "lng": "101.111379999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.773818",
+    "lng": "101.11138"
   },
   {
     "smallholder": "AHMAD BIN DALIMIN",
@@ -2446,9 +2620,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "829919001002",
-    "land": "FINAL TITLE",
-    "lat": "3.758205000000000",
-    "lng": "101.118003999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.758205",
+    "lng": "101.118004"
   },
   {
     "smallholder": "ROHMI BINTI HASHIM",
@@ -2460,9 +2635,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "835502001002",
-    "land": "FINAL TITLE",
-    "lat": "3.779947000000000",
-    "lng": "101.098502999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.779947",
+    "lng": "101.098503"
   },
   {
     "smallholder": "ROHAYAZAT BINTI DOLAH",
@@ -2474,9 +2650,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "807045001002",
-    "land": "FINAL TITLE",
-    "lat": "3.779596000000000",
-    "lng": "101.099241000000006"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.779596",
+    "lng": "101.099241"
   },
   {
     "smallholder": "SUBHI BIN SUMSY",
@@ -2488,9 +2665,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "835771001002",
-    "land": "FINAL TITLE",
-    "lat": "3.778543000000000",
-    "lng": "101.101450999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.778543",
+    "lng": "101.101451"
   },
   {
     "smallholder": "MAT MUKRI BIN KAHAMBALI",
@@ -2502,9 +2680,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "835312001002",
-    "land": "FINAL TITLE",
-    "lat": "3.777840000000000",
-    "lng": "101.102929000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.77784",
+    "lng": "101.102929"
   },
   {
     "smallholder": "NORNISAH BINTI SAIMIN",
@@ -2516,9 +2695,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "835620001002",
-    "land": "FINAL TITLE",
-    "lat": "3.777136000000000",
-    "lng": "101.104405000000000"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.777136",
+    "lng": "101.104405"
   },
   {
     "smallholder": "ELIANTI BINTI JAWAHIR",
@@ -2530,9 +2710,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "799661001002",
-    "land": "FINAL TITLE",
-    "lat": "3.776431000000000",
-    "lng": "101.105881999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.776431",
+    "lng": "101.105882"
   },
   {
     "smallholder": "MHD OTHMAN BIN ABD SALAM",
@@ -2544,9 +2725,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "837454001002",
-    "land": "FINAL TITLE",
-    "lat": "3.776431000000000",
-    "lng": "101.105881999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.776431",
+    "lng": "101.105882"
   },
   {
     "smallholder": "SAPUAN BIN HJ. A. SALAM",
@@ -2558,9 +2740,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "218765401000",
-    "land": "FINAL TITLE",
-    "lat": "3.774504000000000",
-    "lng": "101.106752000000000"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.774504",
+    "lng": "101.106752"
   },
   {
     "smallholder": "SITI SARAH BINTI SARBINI",
@@ -2572,9 +2755,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "221247101000",
-    "land": "FINAL TITLE",
-    "lat": "3.776259000000000",
-    "lng": "101.103069000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.776259",
+    "lng": "101.103069"
   },
   {
     "smallholder": "ASWATUN NAZIRIN BINTI TAJUL ARIFIN",
@@ -2586,9 +2770,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO10",
     "license_no": "853297001002",
-    "land": "FINAL TITLE",
-    "lat": "3.776259000000000",
-    "lng": "101.103069000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.776259",
+    "lng": "101.103069"
   },
   {
     "smallholder": "ASUHADA ASIKIN BINTI TAJUL ARIFIN",
@@ -2600,9 +2785,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO11",
     "license_no": "872080001002",
-    "land": "FINAL TITLE",
-    "lat": "3.776259000000000",
-    "lng": "101.103069000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.776259",
+    "lng": "101.103069"
   },
   {
     "smallholder": "MOHD KOSNI BIN HAMDI",
@@ -2614,9 +2800,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "837269001002",
-    "land": "FINAL TITLE",
-    "lat": "3.776615000000000",
-    "lng": "101.102337000000006"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.776615",
+    "lng": "101.102337"
   },
   {
     "smallholder": "SHAHARAH BINTI MOHD DOM",
@@ -2628,9 +2815,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "823152001002",
-    "land": "FINAL TITLE",
-    "lat": "3.771118000000000",
-    "lng": "101.103948000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.771118",
+    "lng": "101.103948"
   },
   {
     "smallholder": "ABD HADI KAMIL BIN SANUSI",
@@ -2642,9 +2830,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "833920001002",
-    "land": "FINAL TITLE",
-    "lat": "3.770981000000000",
-    "lng": "101.101181999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.770981",
+    "lng": "101.101182"
   },
   {
     "smallholder": "MOHAMAD HALID BIN SANUSI",
@@ -2656,9 +2845,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "833919001002",
-    "land": "FINAL TITLE",
-    "lat": "3.770981000000000",
-    "lng": "101.101181999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.770981",
+    "lng": "101.101182"
   },
   {
     "smallholder": "MOHD MOKHOLEH BIN MUNIEEN",
@@ -2670,9 +2860,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "835573001002",
-    "land": "FINAL TITLE",
-    "lat": "3.771340000000000",
-    "lng": "101.100443999999996"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.77134",
+    "lng": "101.100444"
   },
   {
     "smallholder": "SITI RAHMATON BINTI BADROS",
@@ -2684,9 +2875,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "582296601000",
-    "land": "FINAL TITLE",
-    "lat": "3.771697000000000",
-    "lng": "101.099712999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.771697",
+    "lng": "101.099713"
   },
   {
     "smallholder": "NORAINI BINTI SALAMUN",
@@ -2698,9 +2890,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "793806001002",
-    "land": "FINAL TITLE",
-    "lat": "3.752522000000000",
-    "lng": "101.105695999999995"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.752522",
+    "lng": "101.105696"
   },
   {
     "smallholder": "MARLAN @ AHMAD BIN KUSNI",
@@ -2712,9 +2905,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "769585001002",
-    "land": "FINAL TITLE",
-    "lat": "3.763259000000000",
-    "lng": "101.107057999999995"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.763259",
+    "lng": "101.107058"
   },
   {
     "smallholder": "ABDUL SAMAD BIN MANJOK",
@@ -2726,9 +2920,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "450134701000",
-    "land": "FINAL TITLE",
-    "lat": "3.762969000000000",
-    "lng": "101.108987999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.762969",
+    "lng": "101.108988"
   },
   {
     "smallholder": "MOHD FAUZI BIN SALAMUN",
@@ -2740,9 +2935,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "827292001002",
-    "land": "FINAL TITLE",
-    "lat": "3.761744000000000",
-    "lng": "101.106240999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.761744",
+    "lng": "101.106241"
   },
   {
     "smallholder": "NORLIAH BINTI MASTOL",
@@ -2754,9 +2950,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "819097001002",
-    "land": "FINAL TITLE",
-    "lat": "3.760695000000000",
-    "lng": "101.109809999999996"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.760695",
+    "lng": "101.10981"
   },
   {
     "smallholder": "ZALIYANI BINTI JAINI",
@@ -2768,9 +2965,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "834987001002",
-    "land": "FINAL TITLE",
-    "lat": "3.765648000000000",
-    "lng": "101.096620999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.765648",
+    "lng": "101.096621"
   },
   {
     "smallholder": "SITI SANDORA BINTI MOHD ZAIDI",
@@ -2782,9 +2980,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "485393601000",
-    "land": "FINAL TITLE",
-    "lat": "3.772596000000000",
-    "lng": "101.092592999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.772596",
+    "lng": "101.092593"
   },
   {
     "smallholder": "SALBIAH BINTI SUFAAT",
@@ -2796,9 +2995,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "791661001002",
-    "land": "FINAL TITLE",
-    "lat": "3.772192000000000",
-    "lng": "101.093430999999995"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.772192",
+    "lng": "101.093431"
   },
   {
     "smallholder": "SULAIMAN BIN ABD RANI",
@@ -2810,9 +3010,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "795860001002",
-    "land": "FINAL TITLE",
-    "lat": "3.771449000000000",
-    "lng": "101.092089000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.771449",
+    "lng": "101.092089"
   },
   {
     "smallholder": "HAMIDAH BINTI KAMIDON",
@@ -2824,9 +3025,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "869651001002",
-    "land": "FINAL TITLE",
-    "lat": "3.770504000000000",
-    "lng": "101.091689000000002"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.770504",
+    "lng": "101.091689"
   },
   {
     "smallholder": "AHMAD ZAMRI BIN SHAMSUDIN",
@@ -2838,9 +3040,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO15",
     "license_no": "855545001002",
-    "land": "FINAL TITLE",
-    "lat": "3.768955000000000",
-    "lng": "101.096130000000002"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.768955",
+    "lng": "101.09613"
   },
   {
     "smallholder": "AZMI BIN TAMRIN",
@@ -2852,9 +3055,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "837529001002",
-    "land": "FINAL TITLE",
-    "lat": "3.768924000000000",
-    "lng": "101.090997999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.768924",
+    "lng": "101.090998"
   },
   {
     "smallholder": "MOHD MAHMUDIN BIN ABD SALAM",
@@ -2866,9 +3070,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "220974701000",
-    "land": "FINAL TITLE",
-    "lat": "3.780867000000000",
-    "lng": "101.083055999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.780867",
+    "lng": "101.083056"
   },
   {
     "smallholder": "JAMIRAN @ BAHARI BIN SENIN",
@@ -2880,9 +3085,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "218780801000",
-    "land": "FINAL TITLE",
-    "lat": "3.783022000000000",
-    "lng": "101.073997000000006"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.783022",
+    "lng": "101.073997"
   },
   {
     "smallholder": "SITI AMINAH BINTI IBRAHIM",
@@ -2894,9 +3100,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "476753301000",
-    "land": "FINAL TITLE",
-    "lat": "3.782209000000000",
-    "lng": "101.073592000000005"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.782209",
+    "lng": "101.073592"
   },
   {
     "smallholder": "SAIFUL KHAFIZ BIN MASDUKI",
@@ -2908,9 +3115,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "592977901000",
-    "land": "FINAL TITLE",
-    "lat": "3.782381000000000",
-    "lng": "101.071252000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.782381",
+    "lng": "101.071252"
   },
   {
     "smallholder": "IMAM BIN MOHD YUSOF",
@@ -2922,9 +3130,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "456493401000",
-    "land": "FINAL TITLE",
-    "lat": "3.781395000000000",
-    "lng": "101.073187000000004"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.781395",
+    "lng": "101.073187"
   },
   {
     "smallholder": "NAZRAH BINTI YUSOF",
@@ -2936,9 +3145,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "783321001002",
-    "land": "FINAL TITLE",
-    "lat": "3.780905000000000",
-    "lng": "101.074147999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.780905",
+    "lng": "101.074148"
   },
   {
     "smallholder": "MUKLAS BIN DARUS",
@@ -2950,9 +3160,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "808809001002",
-    "land": "FINAL TITLE",
-    "lat": "3.779585000000000",
-    "lng": "101.078767999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.779585",
+    "lng": "101.078768"
   },
   {
     "smallholder": "ROSIAHTIMAH BINTI DARUS",
@@ -2964,9 +3175,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "803138001002",
-    "land": "FINAL TITLE",
-    "lat": "3.778286000000000",
-    "lng": "101.079324999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.778286",
+    "lng": "101.079325"
   },
   {
     "smallholder": "SAIFUL BAHRI BIN SARBANI",
@@ -2978,9 +3190,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "821543001002",
-    "land": "FINAL TITLE",
-    "lat": "3.777408000000000",
-    "lng": "101.081064999999995"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.777408",
+    "lng": "101.081065"
   },
   {
     "smallholder": "MOHD BASRI BIN NASDOR",
@@ -2992,9 +3205,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "854161001002",
-    "land": "FINAL TITLE",
-    "lat": "3.776615000000000",
-    "lng": "101.080624999999998"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.776615",
+    "lng": "101.080625"
   },
   {
     "smallholder": "NIDZAM BIN SALEH",
@@ -3006,9 +3220,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "834293001002",
-    "land": "FINAL TITLE",
-    "lat": "3.747628000000000",
-    "lng": "101.082472999999993"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.747628",
+    "lng": "101.082473"
   },
   {
     "smallholder": "MOHD SARWANI BIN SALLEH",
@@ -3020,9 +3235,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "792868001002",
-    "land": "FINAL TITLE",
-    "lat": "3.778451000000000",
-    "lng": "101.076982999999998"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.778451",
+    "lng": "101.076983"
   },
   {
     "smallholder": "SAIFUL BAHRI BIN SARBANI",
@@ -3034,9 +3250,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "821543001002",
-    "land": "FINAL TITLE",
-    "lat": "3.776659000000000",
-    "lng": "101.078512000000003"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.776659",
+    "lng": "101.078512"
   },
   {
     "smallholder": "SARTINAH BINTI LEHAN @ SALIHAN",
@@ -3048,9 +3265,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "746959001002",
-    "land": "FINAL TITLE",
-    "lat": "3.787273000000000",
-    "lng": "101.108720000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.787273",
+    "lng": "101.10872"
   },
   {
     "smallholder": "KASMAWATI SUPARMAN",
@@ -3062,9 +3280,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "761858001002",
-    "land": "FINAL TITLE",
-    "lat": "3.787273000000000",
-    "lng": "101.108720000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.787273",
+    "lng": "101.10872"
   },
   {
     "smallholder": "KAMARUDIN BIN ISHAK",
@@ -3076,9 +3295,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "881366001002",
-    "land": "FINAL TITLE",
-    "lat": "3.790990000000000",
-    "lng": "101.116236999999998"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.79099",
+    "lng": "101.116237"
   },
   {
     "smallholder": "MARFUATUN BINTI DARUS",
@@ -3090,9 +3310,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "803143001002",
-    "land": "FINAL TITLE",
-    "lat": "3.769757000000000",
-    "lng": "101.073226000000005"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.769757",
+    "lng": "101.073226"
   },
   {
     "smallholder": "SAPIAN B YUSUFF",
@@ -3104,9 +3325,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "225670201000",
-    "land": "FINAL TITLE",
-    "lat": "3.770572000000000",
-    "lng": "101.073628999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.770572",
+    "lng": "101.073629"
   },
   {
     "smallholder": "SAIFUL BAHRI BIN SARBANI",
@@ -3118,9 +3340,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "821543001002",
-    "land": "FINAL TITLE",
-    "lat": "3.770929000000000",
-    "lng": "101.064864000000000"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.770929",
+    "lng": "101.064864"
   },
   {
     "smallholder": "AHMAD SAPARI BIN SEMAON",
@@ -3132,9 +3355,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "831594001002",
-    "land": "FINAL TITLE",
-    "lat": "3.771634000000000",
-    "lng": "101.069490999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.771634",
+    "lng": "101.069491"
   },
   {
     "smallholder": "MOHD ZAMANI BIN DANURI",
@@ -3146,9 +3370,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "575439101000",
-    "land": "FINAL TITLE",
-    "lat": "3.779871000000000",
-    "lng": "101.058183999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.779871",
+    "lng": "101.058184"
   },
   {
     "smallholder": "YUSMAN BIN LUKMAN",
@@ -3160,9 +3385,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "538839501000",
-    "land": "FINAL TITLE",
-    "lat": "3.778715000000000",
-    "lng": "101.060450000000003"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.778715",
+    "lng": "101.06045"
   },
   {
     "smallholder": "MD ATARAS BIN LUKMAN",
@@ -3174,9 +3400,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "849841001002",
-    "land": "FINAL TITLE",
-    "lat": "3.778715000000000",
-    "lng": "101.060450000000003"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.778715",
+    "lng": "101.06045"
   },
   {
     "smallholder": "ISMIAH BINTI YUSOF",
@@ -3188,9 +3415,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "838150001002",
-    "land": "FINAL TITLE",
-    "lat": "3.777225000000000",
-    "lng": "101.063354000000004"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.777225",
+    "lng": "101.063354"
   },
   {
     "smallholder": "SITI HUZAIMAH BT WAHUDIN",
@@ -3202,9 +3430,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "221916501000",
-    "land": "FINAL TITLE",
-    "lat": "3.775866000000000",
-    "lng": "101.074044000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.775866",
+    "lng": "101.074044"
   },
   {
     "smallholder": "MOHD TALIB BIN MUJIR",
@@ -3216,9 +3445,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "224141101000",
-    "land": "FINAL TITLE",
-    "lat": "3.778001000000000",
-    "lng": "101.067822000000007"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.778001",
+    "lng": "101.067822"
   },
   {
     "smallholder": "JAMALI BIN MUJIR",
@@ -3230,9 +3460,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "833621001002",
-    "land": "FINAL TITLE",
-    "lat": "3.777512000000000",
-    "lng": "101.068787999999998"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.777512",
+    "lng": "101.068788"
   },
   {
     "smallholder": "MUSTAKIM BIN ISAN",
@@ -3244,9 +3475,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "838794001002",
-    "land": "FINAL TITLE",
-    "lat": "3.774541000000000",
-    "lng": "101.100198000000006"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.774541",
+    "lng": "101.100198"
   },
   {
     "smallholder": "NOR AZIZAH BINTI ASMAWI @ HJ ISMAIL",
@@ -3258,9 +3490,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "541975401000",
-    "land": "FINAL TITLE",
-    "lat": "3.774902000000000",
-    "lng": "101.099468000000002"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.774902",
+    "lng": "101.099468"
   },
   {
     "smallholder": "MUSTAKIM BIN ISAN",
@@ -3272,9 +3505,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "838794001002",
-    "land": "FINAL TITLE",
-    "lat": "3.774902000000000",
-    "lng": "101.099468000000002"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.774902",
+    "lng": "101.099468"
   },
   {
     "smallholder": "AHMAD PAUZI BIN ABD HAMID",
@@ -3286,9 +3520,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "799418001002",
-    "land": "FINAL TITLE",
-    "lat": "3.775267000000000",
-    "lng": "101.098736000000002"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.775267",
+    "lng": "101.098736"
   },
   {
     "smallholder": "JAMA'AIAH BINTI SAMAD",
@@ -3300,9 +3535,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "826707001002",
-    "land": "FINAL TITLE",
-    "lat": "3.775631000000000",
-    "lng": "101.098001999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.775631",
+    "lng": "101.098002"
   },
   {
     "smallholder": "NORAIDAH BINTI SADEK",
@@ -3314,9 +3550,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "837203001002",
-    "land": "FINAL TITLE",
-    "lat": "3.774316000000000",
-    "lng": "101.097410999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.774316",
+    "lng": "101.097411"
   },
   {
     "smallholder": "MANSOR BIN MOHAMMED AYON",
@@ -3328,9 +3565,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "819428001002",
-    "land": "FINAL TITLE",
-    "lat": "3.772524000000000",
-    "lng": "101.101011000000000"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.772524",
+    "lng": "101.101011"
   },
   {
     "smallholder": "MUSNI BIN AB SALAM",
@@ -3342,9 +3580,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "219075201000",
-    "land": "FINAL TITLE",
-    "lat": "3.766096000000000",
-    "lng": "101.107580999999996"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.766096",
+    "lng": "101.107581"
   },
   {
     "smallholder": "SITI NASIAH@ASIAH BINTI MOHD SUPARNI",
@@ -3356,9 +3595,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "835614001002",
-    "land": "FINAL TITLE",
-    "lat": "3.765613000000000",
-    "lng": "101.109926000000002"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.765613",
+    "lng": "101.109926"
   },
   {
     "smallholder": "SITI NASIAH@ASIAH BINTI MOHD SUPARNI",
@@ -3370,9 +3610,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "835614001002",
-    "land": "FINAL TITLE",
-    "lat": "3.764858000000000",
-    "lng": "101.111613000000006"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.764858",
+    "lng": "101.111613"
   },
   {
     "smallholder": "MOHAMMED ESKAK @ KHAIRI BIN MURAD",
@@ -3384,9 +3625,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "229359401000",
-    "land": "FINAL TITLE",
-    "lat": "3.763365000000000",
-    "lng": "101.112373000000005"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.763365",
+    "lng": "101.112373"
   },
   {
     "smallholder": "MOHD ASFAN BIN SUPAAT",
@@ -3398,9 +3640,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "583683501000",
-    "land": "FINAL TITLE",
-    "lat": "3.763331000000000",
-    "lng": "101.097440000000006"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.763331",
+    "lng": "101.09744"
   },
   {
     "smallholder": "FAUZIAH BINTI ABDUL HAMID",
@@ -3412,9 +3655,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "591694401000",
-    "land": "FINAL TITLE",
-    "lat": "3.766074000000000",
-    "lng": "101.091650999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.766074",
+    "lng": "101.091651"
   },
   {
     "smallholder": "BAHARIN BIN ISHAK",
@@ -3426,9 +3670,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "218758101000",
-    "land": "FINAL TITLE",
-    "lat": "3.765674000000000",
-    "lng": "101.092495000000000"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.765674",
+    "lng": "101.092495"
   },
   {
     "smallholder": "MUHAMMAD FAIZ BIN MASLOS",
@@ -3440,9 +3685,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "835607001002",
-    "land": "FINAL TITLE",
-    "lat": "3.765280000000000",
-    "lng": "101.093328000000000"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.76528",
+    "lng": "101.093328"
   },
   {
     "smallholder": "MUHAMMAD ALI BIN MANJOK",
@@ -3454,9 +3700,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "547532801000",
-    "land": "FINAL TITLE",
-    "lat": "3.764500000000000",
-    "lng": "101.094972999999996"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.7645",
+    "lng": "101.094973"
   },
   {
     "smallholder": "SALIHUDDIN BIN SUPA AT",
@@ -3468,9 +3715,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "489746101000",
-    "land": "FINAL TITLE",
-    "lat": "3.764111000000000",
-    "lng": "101.095796000000007"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.764111",
+    "lng": "101.095796"
   },
   {
     "smallholder": "KHAIRUDDIN BIN AHMAD SAWRI",
@@ -3482,9 +3730,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "550477801000",
-    "land": "FINAL TITLE",
-    "lat": "3.759327000000000",
-    "lng": "101.099429999999998"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.759327",
+    "lng": "101.09943"
   },
   {
     "smallholder": "MASRIAH BINTI IBAR",
@@ -3496,9 +3745,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "807064001002",
-    "land": "FINAL TITLE",
-    "lat": "3.782169000000000",
-    "lng": "101.129024999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.782169",
+    "lng": "101.129025"
   },
   {
     "smallholder": "USIN BIN MD YUSOF",
@@ -3510,9 +3760,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "524180701000",
-    "land": "FINAL TITLE",
-    "lat": "3.781573000000000",
-    "lng": "101.126690999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.781573",
+    "lng": "101.126691"
   },
   {
     "smallholder": "AHMAD BIN JUPRI",
@@ -3524,9 +3775,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "750406001002",
-    "land": "FINAL TITLE",
-    "lat": "3.779062000000000",
-    "lng": "101.123620000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.779062",
+    "lng": "101.12362"
   },
   {
     "smallholder": "NALANI A/P SUBRAMANIAM",
@@ -3538,9 +3790,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "539266001000",
-    "land": "FINAL TITLE",
-    "lat": "3.756462000000000",
-    "lng": "101.115228000000002"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.756462",
+    "lng": "101.115228"
   },
   {
     "smallholder": "HARUN BIN SALEH",
@@ -3552,9 +3805,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "746632001002",
-    "land": "FINAL TITLE",
-    "lat": "3.756838000000000",
-    "lng": "101.114502999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.756838",
+    "lng": "101.114503"
   },
   {
     "smallholder": "AZMI BIN HAJI MAT JALI",
@@ -3566,9 +3820,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "320332101000",
-    "land": "FINAL TITLE",
-    "lat": "3.756757000000000",
-    "lng": "101.111677000000000"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.756757",
+    "lng": "101.111677"
   },
   {
     "smallholder": "RAMLI BIN MANTOK",
@@ -3580,9 +3835,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "499286301000",
-    "land": "FINAL TITLE",
-    "lat": "3.755637000000000",
-    "lng": "101.113885999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.755637",
+    "lng": "101.113886"
   },
   {
     "smallholder": "MD AMBIA BIN SADIKIN",
@@ -3594,9 +3850,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "220018901000",
-    "land": "FINAL TITLE",
-    "lat": "3.755260000000000",
-    "lng": "101.114587000000000"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.75526",
+    "lng": "101.114587"
   },
   {
     "smallholder": "CHANDRASEGARAN RAMASAMY",
@@ -3608,9 +3865,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "560565501000",
-    "land": "FINAL TITLE",
-    "lat": "3.753761000000000",
-    "lng": "101.117482999999993"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.753761",
+    "lng": "101.117483"
   },
   {
     "smallholder": "CHANDRASEGARAN RAMASAMY",
@@ -3622,9 +3880,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "560565501000",
-    "land": "FINAL TITLE",
-    "lat": "3.753384000000000",
-    "lng": "101.118181000000007"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.753384",
+    "lng": "101.118181"
   },
   {
     "smallholder": "SANI BIN AHMAD",
@@ -3636,9 +3895,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "452140201000",
-    "land": "FINAL TITLE",
-    "lat": "3.753308000000000",
-    "lng": "101.115392000000000"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.753308",
+    "lng": "101.115392"
   },
   {
     "smallholder": "UMAR BIN TUKACHIL",
@@ -3650,9 +3910,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "224940401000",
-    "land": "FINAL TITLE",
-    "lat": "3.753683000000000",
-    "lng": "101.114666999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.753683",
+    "lng": "101.114667"
   },
   {
     "smallholder": "SALIMI KHOIREN BIN HAMBALI",
@@ -3664,9 +3925,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "777244001002",
-    "land": "FINAL TITLE",
-    "lat": "3.779536000000000",
-    "lng": "101.115527999999998"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.779536",
+    "lng": "101.115528"
   },
   {
     "smallholder": "MOHD RIDZUAN BIN KHADIRAN",
@@ -3678,9 +3940,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "560269901000",
-    "land": "FINAL TITLE",
-    "lat": "3.777973000000000",
-    "lng": "101.114779999999996"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.777973",
+    "lng": "101.11478"
   },
   {
     "smallholder": "MOHD SUFHAR BIN SALAMUN",
@@ -3692,9 +3955,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "793806001002",
-    "land": "FINAL TITLE",
-    "lat": "3.767703000000000",
-    "lng": "101.093532999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.767703",
+    "lng": "101.093533"
   },
   {
     "smallholder": "ABDOL HAMID BIN ISHAK",
@@ -3706,9 +3970,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "827294001002",
-    "land": "FINAL TITLE",
-    "lat": "3.766501000000000",
-    "lng": "101.096029000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.766501",
+    "lng": "101.096029"
   },
   {
     "smallholder": "FAIZAH BINTI BUROK",
@@ -3720,9 +3985,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "516262101000",
-    "land": "FINAL TITLE",
-    "lat": "3.739533000000000",
-    "lng": "101.078789000000000"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.739533",
+    "lng": "101.078789"
   },
   {
     "smallholder": "S RAFIDAH BINTI BADROS",
@@ -3734,9 +4000,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "579925501000",
-    "land": "FINAL TITLE",
-    "lat": "3.791322000000000",
-    "lng": "101.074507999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.791322",
+    "lng": "101.074508"
   },
   {
     "smallholder": "MOHAMED YUSOF BIN HJ ARSHAD",
@@ -3748,9 +4015,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "824332001002",
-    "land": "FINAL TITLE",
-    "lat": "3.751463000000000",
-    "lng": "101.121905999999996"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.751463",
+    "lng": "101.121906"
   },
   {
     "smallholder": "SALMAH BINTI YUSSOF",
@@ -3762,9 +4030,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "824331001002",
-    "land": "FINAL TITLE",
-    "lat": "3.751382000000000",
-    "lng": "101.119099000000006"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.751382",
+    "lng": "101.119099"
   },
   {
     "smallholder": "S PUTERA BIN SHAPIAI",
@@ -3776,9 +4045,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "222207701000",
-    "land": "FINAL TITLE",
-    "lat": "3.750631000000000",
-    "lng": "101.120547999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.750631",
+    "lng": "101.120548"
   },
   {
     "smallholder": "MOHAMAD NABIL BIN MOHAMAD ARIFFIN",
@@ -3790,9 +4060,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "534940301000",
-    "land": "FINAL TITLE",
-    "lat": "3.749879000000000",
-    "lng": "101.121998000000005"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.749879",
+    "lng": "101.121998"
   },
   {
     "smallholder": "ABU OSMAN BIN MUSA",
@@ -3804,9 +4075,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "219875301000",
-    "land": "FINAL TITLE",
-    "lat": "3.749429000000000",
-    "lng": "101.119919999999993"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.749429",
+    "lng": "101.11992"
   },
   {
     "smallholder": "TASRIF BIN ADAM @ OMAR",
@@ -3818,9 +4090,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "856419001002",
-    "land": "FINAL TITLE",
-    "lat": "3.750570000000000",
-    "lng": "101.117716999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.75057",
+    "lng": "101.117717"
   },
   {
     "smallholder": "SOLIAH BINTI KONTING",
@@ -3832,9 +4105,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "229309801000",
-    "land": "FINAL TITLE",
-    "lat": "3.751204000000000",
-    "lng": "101.113331000000002"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.751204",
+    "lng": "101.113331"
   },
   {
     "smallholder": "ABD HALIM BIN SALLEHUDDIN",
@@ -3846,9 +4120,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "830872001002",
-    "land": "FINAL TITLE",
-    "lat": "3.749995000000000",
-    "lng": "101.112701000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.749995",
+    "lng": "101.112701"
   },
   {
     "smallholder": "LEELA MUTHUVELU (MALAYSIA) SDN BHD",
@@ -3860,9 +4135,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "556152601000",
-    "land": "FINAL TITLE",
-    "lat": "3.865342000000000",
-    "lng": "101.083618000000001"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.865342",
+    "lng": "101.083618"
   },
   {
     "smallholder": "BAN BOON TENG",
@@ -3874,9 +4150,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "503766501000",
-    "land": "FINAL TITLE",
-    "lat": "3.889171000000000",
-    "lng": "100.907798999999997"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.889171",
+    "lng": "100.907799"
   },
   {
     "smallholder": "HALIMAH BINTI MUKNI",
@@ -3888,9 +4165,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "744537001002",
-    "land": "FINAL TITLE",
-    "lat": "3.882103000000000",
-    "lng": "100.868359999999996"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.882103",
+    "lng": "100.86836"
   },
   {
     "smallholder": "HATIJAH BINTI ABD JALIL",
@@ -3902,9 +4180,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "809455001002",
-    "land": "FINAL TITLE",
-    "lat": "3.882760000000000",
-    "lng": "100.908007999999995"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.88276",
+    "lng": "100.908008"
   },
   {
     "smallholder": "HUHAYAH BT MD YASIN",
@@ -3916,9 +4195,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "488684201000",
-    "land": "FINAL TITLE",
-    "lat": "3.878083000000000",
-    "lng": "100.897409999999994"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.878083",
+    "lng": "100.89741"
   },
   {
     "smallholder": "HALI BIN ZAIDON",
@@ -3930,9 +4210,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "539762901000",
-    "land": "FINAL TITLE",
-    "lat": "3.885739000000000",
-    "lng": "100.903543999999997"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.885739",
+    "lng": "100.903544"
   },
   {
     "smallholder": "ZAMRI BIN ABDUL RAHMAN",
@@ -3944,9 +4225,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "511422801000",
-    "land": "FINAL TITLE",
-    "lat": "3.875068000000000",
-    "lng": "100.868268000000000"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.875068",
+    "lng": "100.868268"
   },
   {
     "smallholder": "SAIPULLAH BIN BOHARI",
@@ -3958,9 +4240,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "566745601000",
-    "land": "FINAL TITLE",
-    "lat": "3.884220000000000",
-    "lng": "100.890750999999995"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.88422",
+    "lng": "100.890751"
   },
   {
     "smallholder": "MD DESA BIN AZIZ",
@@ -3972,9 +4255,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "808830001002",
-    "land": "FINAL TITLE",
-    "lat": "3.886998000000000",
-    "lng": "100.907859999999999"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.886998",
+    "lng": "100.90786"
   },
   {
     "smallholder": "FAZILAH BINTI ABDULLAH SANI",
@@ -3986,9 +4270,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO35",
     "license_no": "886782001002",
-    "land": "FINAL TITLE",
-    "lat": "3.861220000000000",
-    "lng": "100.828523000000004"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.86122",
+    "lng": "100.828523"
   },
   {
     "smallholder": "CHEONG SEK CHYE",
@@ -4000,9 +4285,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "486870401000",
-    "land": "FINAL TITLE",
-    "lat": "3.802367000000000",
-    "lng": "100.991398000000004"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.802367",
+    "lng": "100.991398"
   },
   {
     "smallholder": "SUHAIMI BIN BAHARIN",
@@ -4014,9 +4300,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "844485001002",
-    "land": "FINAL TITLE",
-    "lat": "3.789988000000000",
-    "lng": "100.983070999999995"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.789988",
+    "lng": "100.983071"
   },
   {
     "smallholder": "SUHAIMI BIN BAHARIN",
@@ -4028,9 +4315,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "844485001002",
-    "land": "FINAL TITLE",
-    "lat": "3.789521000000000",
-    "lng": "100.983007999999998"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.789521",
+    "lng": "100.983008"
   },
   {
     "smallholder": "LOW POH HUAT",
@@ -4042,9 +4330,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "796065001002",
-    "land": "FINAL TITLE",
-    "lat": "3.784807000000000",
-    "lng": "100.983445000000003"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.784807",
+    "lng": "100.983445"
   },
   {
     "smallholder": "SUZILA BINTI GHAZALI",
@@ -4056,9 +4345,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "844490001002",
-    "land": "FINAL TITLE",
-    "lat": "3.783261000000000",
-    "lng": "100.960763999999998"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.783261",
+    "lng": "100.960764"
   },
   {
     "smallholder": "LETCHAMANAN A/L SANYACY",
@@ -4070,9 +4360,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "752049001002",
-    "land": "FINAL TITLE",
-    "lat": "3.868203000000000",
-    "lng": "101.086659999999995"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.868203",
+    "lng": "101.08666"
   },
   {
     "smallholder": "NG YOKE LIN",
@@ -4084,9 +4375,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "548569201000",
-    "land": "FINAL TITLE",
-    "lat": "3.868896000000000",
-    "lng": "101.080145999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.868896",
+    "lng": "101.080146"
   },
   {
     "smallholder": "ERADAKRISHNAN A/L MUTHUSAMY",
@@ -4098,9 +4390,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "793397001002",
-    "land": "FINAL TITLE",
-    "lat": "3.868565000000000",
-    "lng": "101.080950000000001"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.868565",
+    "lng": "101.08095"
   },
   {
     "smallholder": "ERADAKRISHNAN A/L MUTHUSAMY",
@@ -4112,9 +4405,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "793397001002",
-    "land": "FINAL TITLE",
-    "lat": "3.868233000000000",
-    "lng": "101.081754000000004"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.868233",
+    "lng": "101.081754"
   },
   {
     "smallholder": "ERADAKRISHNAN A/L MUTHUSAMY",
@@ -4126,9 +4420,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "793397001002",
-    "land": "FINAL TITLE",
-    "lat": "3.867901000000000",
-    "lng": "101.082559000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.867901",
+    "lng": "101.082559"
   },
   {
     "smallholder": "ENDARA KUMAR A/L MUTHUVELU",
@@ -4140,9 +4435,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "430858001002",
-    "land": "FINAL TITLE",
-    "lat": "3.867808000000000",
-    "lng": "101.077625999999995"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.867808",
+    "lng": "101.077626"
   },
   {
     "smallholder": "TAN CHU HOOI",
@@ -4154,9 +4450,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "774821001002",
-    "land": "FINAL TITLE",
-    "lat": "3.871181000000000",
-    "lng": "101.079395000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.871181",
+    "lng": "101.079395"
   },
   {
     "smallholder": "PERUMAL A/L VARATHARAJOO",
@@ -4168,9 +4465,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "504881101000",
-    "land": "FINAL TITLE",
-    "lat": "3.870846000000000",
-    "lng": "101.080211000000006"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.870846",
+    "lng": "101.080211"
   },
   {
     "smallholder": "CHIA KIM SING",
@@ -4182,9 +4480,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "451052401000",
-    "land": "FINAL TITLE",
-    "lat": "3.870512000000000",
-    "lng": "101.081024999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.870512",
+    "lng": "101.081025"
   },
   {
     "smallholder": "CHIA KIM SING",
@@ -4196,9 +4495,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "451052401000",
-    "land": "FINAL TITLE",
-    "lat": "3.870180000000000",
-    "lng": "101.081836999999993"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.87018",
+    "lng": "101.081837"
   },
   {
     "smallholder": "ARJUNAN A/L GOVINDARAJU",
@@ -4210,9 +4510,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "512753201000",
-    "land": "FINAL TITLE",
-    "lat": "3.869228000000000",
-    "lng": "101.079342999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.869228",
+    "lng": "101.079343"
   },
   {
     "smallholder": "NITHIYANANDA VEL A/L ARJUNAN",
@@ -4224,9 +4525,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "766738001002",
-    "land": "FINAL TITLE",
-    "lat": "3.869228000000000",
-    "lng": "101.079342999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.869228",
+    "lng": "101.079343"
   },
   {
     "smallholder": "TAN CHU HOOI",
@@ -4238,9 +4540,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "774821001002",
-    "land": "FINAL TITLE",
-    "lat": "3.871909000000000",
-    "lng": "101.077681999999996"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.871909",
+    "lng": "101.077682"
   },
   {
     "smallholder": "ON KEE SOON @ OON KEE SOON",
@@ -4252,9 +4555,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "784422001002",
-    "land": "FINAL TITLE",
-    "lat": "3.902994000000000",
-    "lng": "100.931678000000005"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.902994",
+    "lng": "100.931678"
   },
   {
     "smallholder": "CHONG PIANG KIM",
@@ -4266,9 +4570,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "779470001002",
-    "land": "FINAL TITLE",
-    "lat": "3.900197000000000",
-    "lng": "100.934319000000002"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.900197",
+    "lng": "100.934319"
   },
   {
     "smallholder": "TAN BOON HUA",
@@ -4280,9 +4585,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "877437001002",
-    "land": "FINAL TITLE",
-    "lat": "3.895962000000000",
-    "lng": "100.919651000000002"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.895962",
+    "lng": "100.919651"
   },
   {
     "smallholder": "LADANG JAYA",
@@ -4294,9 +4600,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "793639001002",
-    "land": "FINAL TITLE",
-    "lat": "3.897168000000000",
-    "lng": "100.914928000000003"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.897168",
+    "lng": "100.914928"
   },
   {
     "smallholder": "BEH CHON KIAH",
@@ -4308,9 +4615,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "791567001002",
-    "land": "FINAL TITLE",
-    "lat": "3.895006000000000",
-    "lng": "100.924801000000002"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.895006",
+    "lng": "100.924801"
   },
   {
     "smallholder": "RAVI A/L GOPAL",
@@ -4322,9 +4630,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "802817001002",
-    "land": "FINAL TITLE",
-    "lat": "3.907452000000000",
-    "lng": "100.945306000000002"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.907452",
+    "lng": "100.945306"
   },
   {
     "smallholder": "TEH HOCK SING",
@@ -4336,9 +4645,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424591001000",
-    "land": "FINAL TITLE",
-    "lat": "3.907974000000000",
-    "lng": "100.944716000000000"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.907974",
+    "lng": "100.944716"
   },
   {
     "smallholder": "LIM TING MAN",
@@ -4350,9 +4660,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "433423801000",
-    "land": "FINAL TITLE",
-    "lat": "3.902731000000000",
-    "lng": "100.953001999999998"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.902731",
+    "lng": "100.953002"
   },
   {
     "smallholder": "LIM TING MAN",
@@ -4364,9 +4675,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "433423801000",
-    "land": "FINAL TITLE",
-    "lat": "3.902497000000000",
-    "lng": "100.953376000000006"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.902497",
+    "lng": "100.953376"
   },
   {
     "smallholder": "LIM TING MAN",
@@ -4378,9 +4690,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "433423801000",
-    "land": "FINAL TITLE",
-    "lat": "3.902287000000000",
-    "lng": "100.953750999999997"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.902287",
+    "lng": "100.953751"
   },
   {
     "smallholder": "RENGA NATHAN A/L MUNISAMY",
@@ -4392,9 +4705,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "516528101000",
-    "land": "FINAL TITLE",
-    "lat": "3.901853000000000",
-    "lng": "100.954443999999995"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.901853",
+    "lng": "100.954444"
   },
   {
     "smallholder": "M VIGIA A/P MUNIANDY",
@@ -4406,9 +4720,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "815359001002",
-    "land": "FINAL TITLE",
-    "lat": "3.901141000000000",
-    "lng": "100.955572000000004"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.901141",
+    "lng": "100.955572"
   },
   {
     "smallholder": "LIM TEAN CHOW",
@@ -4420,9 +4735,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "223205601000",
-    "land": "FINAL TITLE",
-    "lat": "3.900917000000000",
-    "lng": "100.955967000000001"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.900917",
+    "lng": "100.955967"
   },
   {
     "smallholder": "LIM TEAN CHOW",
@@ -4434,9 +4750,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "223205601000",
-    "land": "FINAL TITLE",
-    "lat": "3.900674000000000",
-    "lng": "100.956310999999999"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.900674",
+    "lng": "100.956311"
   },
   {
     "smallholder": "LIM TING MAN",
@@ -4448,9 +4765,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "433423801000",
-    "land": "FINAL TITLE",
-    "lat": "3.900476000000000",
-    "lng": "100.956671000000000"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.900476",
+    "lng": "100.956671"
   },
   {
     "smallholder": "LIM SAI HOCK",
@@ -4462,9 +4780,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "819266001002",
-    "land": "FINAL TITLE",
-    "lat": "3.900224000000000",
-    "lng": "100.957048999999998"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.900224",
+    "lng": "100.957049"
   },
   {
     "smallholder": "LIM KIAN HOO @ LIM KEAN WAH",
@@ -4476,9 +4795,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "861342001002",
-    "land": "FINAL TITLE",
-    "lat": "3.900002000000000",
-    "lng": "100.957431000000000"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.900002",
+    "lng": "100.957431"
   },
   {
     "smallholder": "RAMIS A/L RAMULU",
@@ -4490,9 +4810,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "835575001002",
-    "land": "FINAL TITLE",
-    "lat": "3.744080000000000",
-    "lng": "101.093535000000003"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.74408",
+    "lng": "101.093535"
   },
   {
     "smallholder": "ISHAK B HASAN",
@@ -4504,9 +4825,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "445797601000",
-    "land": "FINAL TITLE",
-    "lat": "3.797555000000000",
-    "lng": "101.033665999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.797555",
+    "lng": "101.033666"
   },
   {
     "smallholder": "ABD. ROHIM BIN MOHIDIN",
@@ -4518,9 +4840,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "886139001002",
-    "land": "FINAL TITLE",
-    "lat": "3.796195000000000",
-    "lng": "101.035488000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.796195",
+    "lng": "101.035488"
   },
   {
     "smallholder": "TOHIR BIN KARIM",
@@ -4532,9 +4855,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "744513001002",
-    "land": "FINAL TITLE",
-    "lat": "3.820296000000000",
-    "lng": "100.989036999999996"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.820296",
+    "lng": "100.989037"
   },
   {
     "smallholder": "NOR AHMADI BIN ABAS",
@@ -4546,9 +4870,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "774781001002",
-    "land": "FINAL TITLE",
-    "lat": "3.866158000000000",
-    "lng": "100.831891999999996"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.866158",
+    "lng": "100.831892"
   },
   {
     "smallholder": "BAHARUDDIN BIN DALAIL",
@@ -4560,9 +4885,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO31",
     "license_no": "886482001002",
-    "land": "FINAL TITLE",
-    "lat": "3.866158000000000",
-    "lng": "100.831891999999996"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.866158",
+    "lng": "100.831892"
   },
   {
     "smallholder": "SUZILA BINTI GHAZALI",
@@ -4574,9 +4900,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "844490001002",
-    "land": "FINAL TITLE",
-    "lat": "3.783401000000000",
-    "lng": "100.961539999999999"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.783401",
+    "lng": "100.96154"
   },
   {
     "smallholder": "SUZILA BINTI GHAZALI",
@@ -4588,9 +4915,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "844490001002",
-    "land": "FINAL TITLE",
-    "lat": "3.782854000000000",
-    "lng": "100.960401000000005"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.782854",
+    "lng": "100.960401"
   },
   {
     "smallholder": "NOR AZMI BIN HASAN",
@@ -4602,9 +4930,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "844006001002",
-    "land": "FINAL TITLE",
-    "lat": "3.770813000000000",
-    "lng": "100.975899999999996"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.770813",
+    "lng": "100.9759"
   },
   {
     "smallholder": "YAP CHIN YONG",
@@ -4616,9 +4945,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "819427001002",
-    "land": "FINAL TITLE",
-    "lat": "3.775265000000000",
-    "lng": "100.982145000000003"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.775265",
+    "lng": "100.982145"
   },
   {
     "smallholder": "YAP CHIN YONG",
@@ -4630,9 +4960,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "819427001002",
-    "land": "FINAL TITLE",
-    "lat": "3.774767000000000",
-    "lng": "100.982547999999994"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.774767",
+    "lng": "100.982548"
   },
   {
     "smallholder": "SUZILA BINTI GHAZALI",
@@ -4644,9 +4975,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "844490001002",
-    "land": "FINAL TITLE",
-    "lat": "3.797545000000000",
-    "lng": "100.965348000000006"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.797545",
+    "lng": "100.965348"
   },
   {
     "smallholder": "SUZILA BINTI GHAZALI",
@@ -4658,9 +4990,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "844490001002",
-    "land": "FINAL TITLE",
-    "lat": "3.796377000000000",
-    "lng": "100.965829999999997"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.796377",
+    "lng": "100.96583"
   },
   {
     "smallholder": "ABD AZIZ BIN ABAS",
@@ -4672,9 +5005,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "515880201000",
-    "land": "FINAL TITLE",
-    "lat": "3.798671000000000",
-    "lng": "100.967983000000004"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.798671",
+    "lng": "100.967983"
   },
   {
     "smallholder": "TAN SEM SIN",
@@ -4686,9 +5020,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "817751001002",
-    "land": "FINAL TITLE",
-    "lat": "3.779999000000000",
-    "lng": "100.966038999999995"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.779999",
+    "lng": "100.966039"
   },
   {
     "smallholder": "MOHD AZIZI BIN MAT ARHAM@ELHAM",
@@ -4700,9 +5035,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "836526001002",
-    "land": "FINAL TITLE",
-    "lat": "3.758992000000000",
-    "lng": "101.106875000000002"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.758992",
+    "lng": "101.106875"
   },
   {
     "smallholder": "HASSAN BIN FAKAR",
@@ -4714,9 +5050,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "218763801000",
-    "land": "FINAL TITLE",
-    "lat": "3.759074000000000",
-    "lng": "101.107945000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.759074",
+    "lng": "101.107945"
   },
   {
     "smallholder": "NOOR HADAYAAH BINTI MASTOL",
@@ -4728,9 +5065,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "819096001002",
-    "land": "FINAL TITLE",
-    "lat": "3.757804000000000",
-    "lng": "101.110742999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.757804",
+    "lng": "101.110743"
   },
   {
     "smallholder": "KAMARUDIN BIN SABRAN",
@@ -4742,9 +5080,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "218766201000",
-    "land": "FINAL TITLE",
-    "lat": "3.758026000000000",
-    "lng": "101.102269000000007"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.758026",
+    "lng": "101.102269"
   },
   {
     "smallholder": "SULAIMAN BIN ABD RANI",
@@ -4756,9 +5095,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "795860001002",
-    "land": "FINAL TITLE",
-    "lat": "3.759316000000000",
-    "lng": "101.115859999999998"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.759316",
+    "lng": "101.11586"
   },
   {
     "smallholder": "MUHAMAD SANI BIN ABD RANI",
@@ -4770,9 +5110,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "793361001002",
-    "land": "FINAL TITLE",
-    "lat": "3.759689000000000",
-    "lng": "101.115136000000007"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.759689",
+    "lng": "101.115136"
   },
   {
     "smallholder": "SALIKON BIN ABDUL SALAM",
@@ -4784,9 +5125,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "784401001002",
-    "land": "FINAL TITLE",
-    "lat": "3.760450000000000",
-    "lng": "101.113656000000006"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.76045",
+    "lng": "101.113656"
   },
   {
     "smallholder": "NORLIAH BINTI LUKMAN",
@@ -4798,9 +5140,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "850791001002",
-    "land": "FINAL TITLE",
-    "lat": "3.760450000000000",
-    "lng": "101.113656000000006"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.76045",
+    "lng": "101.113656"
   },
   {
     "smallholder": "ZABIDAH BINTI MANJOK",
@@ -4812,9 +5155,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "835613001002",
-    "land": "FINAL TITLE",
-    "lat": "3.758476000000000",
-    "lng": "101.114520999999996"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.758476",
+    "lng": "101.114521"
   },
   {
     "smallholder": "RAMLI BIN MANTOK",
@@ -4826,9 +5170,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "499286301000",
-    "land": "FINAL TITLE",
-    "lat": "3.758100000000000",
-    "lng": "101.115246999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.7581",
+    "lng": "101.115247"
   },
   {
     "smallholder": "P.THANGARAJA A/L PONUSAMY",
@@ -4840,9 +5185,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "750395001002",
-    "land": "FINAL TITLE",
-    "lat": "3.757349000000000",
-    "lng": "101.116677999999993"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.757349",
+    "lng": "101.116678"
   },
   {
     "smallholder": "SOLIAH BINTI KONTING",
@@ -4854,9 +5200,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "229309801000",
-    "land": "FINAL TITLE",
-    "lat": "3.757349000000000",
-    "lng": "101.116677999999993"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.757349",
+    "lng": "101.116678"
   },
   {
     "smallholder": "CHANDRAN AL RAJAGOPAL",
@@ -4868,9 +5215,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "226920101000",
-    "land": "FINAL TITLE",
-    "lat": "3.756240000000000",
-    "lng": "101.118837999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.75624",
+    "lng": "101.118838"
   },
   {
     "smallholder": "M.RIZAL BIN MOHAMAD",
@@ -4882,9 +5230,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "532588101000",
-    "land": "FINAL TITLE",
-    "lat": "3.759126000000000",
-    "lng": "101.122148999999993"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.759126",
+    "lng": "101.122149"
   },
   {
     "smallholder": "FATIMAH BINTI HASHIM",
@@ -4896,9 +5245,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "532592001000",
-    "land": "FINAL TITLE",
-    "lat": "3.758395000000000",
-    "lng": "101.123572999999993"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.758395",
+    "lng": "101.123573"
   },
   {
     "smallholder": "MARMAH BINTI SARIH",
@@ -4910,9 +5260,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "767668001002",
-    "land": "FINAL TITLE",
-    "lat": "3.892146000000000",
-    "lng": "100.939944999999994"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.892146",
+    "lng": "100.939945"
   },
   {
     "smallholder": "SITI MARIAM BINTI WAN MUD",
@@ -4924,9 +5275,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "795463001002",
-    "land": "FINAL TITLE",
-    "lat": "3.793082000000000",
-    "lng": "100.982339999999994"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.793082",
+    "lng": "100.98234"
   },
   {
     "smallholder": "WHO KOK KOWE",
@@ -4938,9 +5290,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "825689001002",
-    "land": "FINAL TITLE",
-    "lat": "3.789220000000000",
-    "lng": "100.981459999999998"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.78922",
+    "lng": "100.98146"
   },
   {
     "smallholder": "LEE TECK GEE",
@@ -4952,9 +5305,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "591678201000",
-    "land": "FINAL TITLE",
-    "lat": "3.788647000000000",
-    "lng": "100.981283000000005"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.788647",
+    "lng": "100.981283"
   },
   {
     "smallholder": "LEE TECK GEE",
@@ -4966,9 +5320,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "591678201000",
-    "land": "FINAL TITLE",
-    "lat": "3.787326000000000",
-    "lng": "100.980710000000002"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.787326",
+    "lng": "100.98071"
   },
   {
     "smallholder": "LEE TECK GEE",
@@ -4980,9 +5335,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "591678201000",
-    "land": "FINAL TITLE",
-    "lat": "3.786969000000000",
-    "lng": "100.980134000000007"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.786969",
+    "lng": "100.980134"
   },
   {
     "smallholder": "LIM SOON CHIANG",
@@ -4994,9 +5350,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "218442601000",
-    "land": "FINAL TITLE",
-    "lat": "3.824205000000000",
-    "lng": "100.978978999999995"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.824205",
+    "lng": "100.978979"
   },
   {
     "smallholder": "LIM KIM SENG",
@@ -5008,9 +5365,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "217979101000",
-    "land": "FINAL TITLE",
-    "lat": "3.829517000000000",
-    "lng": "100.968960999999993"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.829517",
+    "lng": "100.968961"
   },
   {
     "smallholder": "ARUNASALAM A/L SUBRAMANIAM",
@@ -5022,9 +5380,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "214809801000",
-    "land": "FINAL TITLE",
-    "lat": "3.827302000000000",
-    "lng": "100.971507000000003"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.827302",
+    "lng": "100.971507"
   },
   {
     "smallholder": "USAHA SELALU SDN. BHD.",
@@ -5036,9 +5395,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "794314001002",
-    "land": "FINAL TITLE",
-    "lat": "3.888066000000000",
-    "lng": "100.942589999999996"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.888066",
+    "lng": "100.94259"
   },
   {
     "smallholder": "LIM BAH BAH",
@@ -5050,9 +5410,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "835624001002",
-    "land": "FINAL TITLE",
-    "lat": "3.854746000000000",
-    "lng": "100.946106999999998"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.854746",
+    "lng": "100.946107"
   },
   {
     "smallholder": "CHIA KAI CHONG",
@@ -5064,9 +5425,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "223664701000",
-    "land": "FINAL TITLE",
-    "lat": "3.833490000000000",
-    "lng": "100.956078000000005"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.83349",
+    "lng": "100.956078"
   },
   {
     "smallholder": "JAGADESAN A/L PERUMAL",
@@ -5078,9 +5440,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "537020801000",
-    "land": "FINAL TITLE",
-    "lat": "3.896596000000000",
-    "lng": "100.947650999999993"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.896596",
+    "lng": "100.947651"
   },
   {
     "smallholder": "KAMACHI A/P RAJJU",
@@ -5092,9 +5455,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "768477001002",
-    "land": "FINAL TITLE",
-    "lat": "3.896596000000000",
-    "lng": "100.947650999999993"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.896596",
+    "lng": "100.947651"
   },
   {
     "smallholder": "GOVINDANSAMY A/L MANICKAM",
@@ -5106,9 +5470,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "221947501000",
-    "land": "FINAL TITLE",
-    "lat": "3.891049000000000",
-    "lng": "100.955325000000002"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.891049",
+    "lng": "100.955325"
   },
   {
     "smallholder": "BEH CHIN HONG",
@@ -5120,9 +5485,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "480233901000",
-    "land": "FINAL TITLE",
-    "lat": "3.891049000000000",
-    "lng": "100.955325000000002"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.891049",
+    "lng": "100.955325"
   },
   {
     "smallholder": "TEOH CHAN HUAT",
@@ -5134,9 +5500,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "764513001002",
-    "land": "FINAL TITLE",
-    "lat": "3.891049000000000",
-    "lng": "100.955325000000002"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.891049",
+    "lng": "100.955325"
   },
   {
     "smallholder": "VELLAIMAH A/P RAJOO",
@@ -5148,9 +5515,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "759327001002",
-    "land": "FINAL TITLE",
-    "lat": "3.891049000000000",
-    "lng": "100.955325000000002"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.891049",
+    "lng": "100.955325"
   },
   {
     "smallholder": "SARTINAH BINTI LEHAN @ SALIHAN",
@@ -5162,9 +5530,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "746959001002",
-    "land": "FINAL TITLE",
-    "lat": "3.787090000000000",
-    "lng": "101.032229999999998"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.78709",
+    "lng": "101.03223"
   },
   {
     "smallholder": "SALIMAH BINTI ABDUL HAMID",
@@ -5176,9 +5545,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "502424501000",
-    "land": "FINAL TITLE",
-    "lat": "3.755145000000000",
-    "lng": "101.087198999999998"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.755145",
+    "lng": "101.087199"
   },
   {
     "smallholder": "MUHAMAD ZULKAPLI BIN SELAMAT",
@@ -5190,9 +5560,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "869666001002",
-    "land": "FINAL TITLE",
-    "lat": "3.754262000000000",
-    "lng": "101.085059999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.754262",
+    "lng": "101.08506"
   },
   {
     "smallholder": "SABARIAH BINTI ISMAIL",
@@ -5204,9 +5575,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "578394401000",
-    "land": "FINAL TITLE",
-    "lat": "3.754959000000000",
-    "lng": "101.088160000000002"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.754959",
+    "lng": "101.08816"
   },
   {
     "smallholder": "NG YOKE LIN",
@@ -5218,9 +5590,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "548569201000",
-    "land": "FINAL TITLE",
-    "lat": "3.870741000000000",
-    "lng": "101.085498999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.870741",
+    "lng": "101.085499"
   },
   {
     "smallholder": "NG YOKE LIN",
@@ -5232,9 +5605,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "548569201000",
-    "land": "FINAL TITLE",
-    "lat": "3.870402000000000",
-    "lng": "101.086332999999996"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.870402",
+    "lng": "101.086333"
   },
   {
     "smallholder": "PATUMALAI A/L ARUMUGHAM",
@@ -5246,9 +5620,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "815905001002",
-    "land": "FINAL TITLE",
-    "lat": "3.870062000000000",
-    "lng": "101.087166999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.870062",
+    "lng": "101.087167"
   },
   {
     "smallholder": "PARIMALA A/P SINNAPPAN",
@@ -5260,9 +5635,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "45591601000",
-    "land": "FINAL TITLE",
-    "lat": "3.869723000000000",
-    "lng": "101.088002000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.869723",
+    "lng": "101.088002"
   },
   {
     "smallholder": "PATUMALAI A/L ARUMUGHAM",
@@ -5274,9 +5650,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "815905001002",
-    "land": "FINAL TITLE",
-    "lat": "3.869723000000000",
-    "lng": "101.088002000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.869723",
+    "lng": "101.088002"
   },
   {
     "smallholder": "TEH TEK SOON",
@@ -5288,9 +5665,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424595201000",
-    "land": "FINAL TITLE",
-    "lat": "3.873484000000000",
-    "lng": "101.093558000000002"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.873484",
+    "lng": "101.093558"
   },
   {
     "smallholder": "TEH HOCK LAI",
@@ -5302,9 +5680,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "522094001000",
-    "land": "FINAL TITLE",
-    "lat": "3.872832000000000",
-    "lng": "101.095162000000002"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.872832",
+    "lng": "101.095162"
   },
   {
     "smallholder": "TEH HOCK LAI",
@@ -5316,9 +5695,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "522094001000",
-    "land": "FINAL TITLE",
-    "lat": "3.872508000000000",
-    "lng": "101.095960000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.872508",
+    "lng": "101.09596"
   },
   {
     "smallholder": "TEH TEK SOON",
@@ -5330,9 +5710,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424595201000",
-    "land": "FINAL TITLE",
-    "lat": "3.872185000000000",
-    "lng": "101.096755000000002"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.872185",
+    "lng": "101.096755"
   },
   {
     "smallholder": "TEH TEK SOON",
@@ -5344,9 +5725,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424595201000",
-    "land": "FINAL TITLE",
-    "lat": "3.871784000000000",
-    "lng": "101.097593000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.871784",
+    "lng": "101.097593"
   },
   {
     "smallholder": "ROS FARA IZREEN BINTI MOHD SAPAWI",
@@ -5358,9 +5740,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "596269501000",
-    "land": "FINAL TITLE",
-    "lat": "3.779270000000000",
-    "lng": "100.969863000000004"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.77927",
+    "lng": "100.969863"
   },
   {
     "smallholder": "SHAHRUL FADZILAH BIN ABDUL KAHAR",
@@ -5372,9 +5755,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "227657601000",
-    "land": "FINAL TITLE",
-    "lat": "3.781446000000000",
-    "lng": "101.109603000000007"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.781446",
+    "lng": "101.109603"
   },
   {
     "smallholder": "SURAKUN BIN SAMUSI",
@@ -5386,9 +5770,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "229215601000",
-    "land": "FINAL TITLE",
-    "lat": "3.821097000000000",
-    "lng": "100.992896999999999"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.821097",
+    "lng": "100.992897"
   },
   {
     "smallholder": "NORAINI BINTI SURATIN",
@@ -5400,9 +5785,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "750054001002",
-    "land": "FINAL TITLE",
-    "lat": "3.821097000000000",
-    "lng": "100.992896999999999"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.821097",
+    "lng": "100.992897"
   },
   {
     "smallholder": "MOHD HABIB BIN MD SAID",
@@ -5414,9 +5800,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "781731001002",
-    "land": "FINAL TITLE",
-    "lat": "3.818069000000000",
-    "lng": "100.990454999999997"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.818069",
+    "lng": "100.990455"
   },
   {
     "smallholder": "ENG TYE HUP HOLDINGS SDN BHD",
@@ -5428,9 +5815,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "750514001002",
-    "land": "FINAL TITLE",
-    "lat": "3.807887000000000",
-    "lng": "101.011431999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.807887",
+    "lng": "101.011432"
   },
   {
     "smallholder": "KHIRUDDIN BIN HJ ZAKARIA",
@@ -5442,9 +5830,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "223244701000",
-    "land": "FINAL TITLE",
-    "lat": "3.807887000000000",
-    "lng": "101.011431999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.807887",
+    "lng": "101.011432"
   },
   {
     "smallholder": "M. ROSLI BIN BAKRI",
@@ -5456,9 +5845,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "532497401000",
-    "land": "FINAL TITLE",
-    "lat": "3.807796000000000",
-    "lng": "101.012180999999998"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.807796",
+    "lng": "101.012181"
   },
   {
     "smallholder": "CHEONG SEK SUN",
@@ -5470,9 +5860,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "457279101000",
-    "land": "FINAL TITLE",
-    "lat": "3.794952000000000",
-    "lng": "100.966500999999994"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.794952",
+    "lng": "100.966501"
   },
   {
     "smallholder": "SARIPAH BINTI JAMAL",
@@ -5484,9 +5875,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "818746001002",
-    "land": "FINAL TITLE",
-    "lat": "3.827256000000000",
-    "lng": "100.988872999999998"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.827256",
+    "lng": "100.988873"
   },
   {
     "smallholder": "MUNAWIYAH BINTI AB WAHAB",
@@ -5498,9 +5890,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "810015001002",
-    "land": "FINAL TITLE",
-    "lat": "3.826450000000000",
-    "lng": "100.988692999999998"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.82645",
+    "lng": "100.988693"
   },
   {
     "smallholder": "SAHRI BIN AMIR",
@@ -5512,9 +5905,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "587979801000",
-    "land": "FINAL TITLE",
-    "lat": "3.824840000000000",
-    "lng": "100.988333999999995"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.82484",
+    "lng": "100.988334"
   },
   {
     "smallholder": "JAMILAH BINTI ABDUL RAHMAN",
@@ -5526,9 +5920,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "795445001002",
-    "land": "FINAL TITLE",
-    "lat": "3.786355000000000",
-    "lng": "100.971171999999996"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.786355",
+    "lng": "100.971172"
   },
   {
     "smallholder": "GEJANTHIRAN A/L MANOKARAN",
@@ -5540,9 +5935,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "530643701000",
-    "land": "FINAL TITLE",
-    "lat": "3.796262000000000",
-    "lng": "100.983114000000000"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.796262",
+    "lng": "100.983114"
   },
   {
     "smallholder": "SITI MARIAM BINTI WAN MUD",
@@ -5554,9 +5950,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "795463001002",
-    "land": "FINAL TITLE",
-    "lat": "3.796545000000000",
-    "lng": "100.980699999999999"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.796545",
+    "lng": "100.9807"
   },
   {
     "smallholder": "SIMAH BINTI ABD HAMID",
@@ -5568,9 +5965,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "221967001000",
-    "land": "FINAL TITLE",
-    "lat": "3.795445000000000",
-    "lng": "100.982791000000006"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.795445",
+    "lng": "100.982791"
   },
   {
     "smallholder": "MASHUDI BIN A FATAH",
@@ -5582,9 +5980,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "215487001000",
-    "land": "FINAL TITLE",
-    "lat": "3.817999000000000",
-    "lng": "100.994929999999997"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.817999",
+    "lng": "100.99493"
   },
   {
     "smallholder": "KHAIROL NIZAM BIN ARSHAD",
@@ -5596,9 +5995,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "769107001002",
-    "land": "FINAL TITLE",
-    "lat": "3.818007000000000",
-    "lng": "100.995835000000000"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.818007",
+    "lng": "100.995835"
   },
   {
     "smallholder": "MARAN A/L ANNAPPAN",
@@ -5610,9 +6010,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "547094601000",
-    "land": "FINAL TITLE",
-    "lat": "3.816208000000000",
-    "lng": "100.993656000000001"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.816208",
+    "lng": "100.993656"
   },
   {
     "smallholder": "NOR FARIZAN BINTI RAMLAN",
@@ -5624,9 +6025,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "541495701000",
-    "land": "FINAL TITLE",
-    "lat": "3.818108000000000",
-    "lng": "100.993914000000004"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.818108",
+    "lng": "100.993914"
   },
   {
     "smallholder": "NOR HASNIZAM BINTI PARMAN",
@@ -5638,9 +6040,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "795863001002",
-    "land": "FINAL TITLE",
-    "lat": "3.814920000000000",
-    "lng": "100.997150000000005"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.81492",
+    "lng": "100.99715"
   },
   {
     "smallholder": "ABD HALIM BIN MOHAMMED KHUSNAN",
@@ -5652,9 +6055,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "849444001002",
-    "land": "FINAL TITLE",
-    "lat": "3.818064000000000",
-    "lng": "101.003418999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.818064",
+    "lng": "101.003419"
   },
   {
     "smallholder": "LIM KIAN SENG",
@@ -5666,9 +6070,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "784237001002",
-    "land": "FINAL TITLE",
-    "lat": "3.890310000000000",
-    "lng": "100.942898999999997"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.89031",
+    "lng": "100.942899"
   },
   {
     "smallholder": "ONG CHING SAI",
@@ -5680,9 +6085,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "224827101000",
-    "land": "FINAL TITLE",
-    "lat": "3.877573000000000",
-    "lng": "100.939138000000000"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.877573",
+    "lng": "100.939138"
   },
   {
     "smallholder": "RAFBAH BT SUJAEI",
@@ -5694,9 +6100,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "741043001002",
-    "land": "FINAL TITLE",
-    "lat": "3.767661000000000",
-    "lng": "101.114585000000005"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.767661",
+    "lng": "101.114585"
   },
   {
     "smallholder": "HAMIDAH BINTI ABAS",
@@ -5708,9 +6115,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "551483801000",
-    "land": "FINAL TITLE",
-    "lat": "3.768370000000000",
-    "lng": "101.113119999999995"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.76837",
+    "lng": "101.11312"
   },
   {
     "smallholder": "WAHIDUN BIN ABD RAHAMAN",
@@ -5722,9 +6130,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "834986001002",
-    "land": "FINAL TITLE",
-    "lat": "3.768370000000000",
-    "lng": "101.113119999999995"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.76837",
+    "lng": "101.11312"
   },
   {
     "smallholder": "RUSMAWATI BINTI ABAS",
@@ -5736,9 +6145,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "551486201000",
-    "land": "FINAL TITLE",
-    "lat": "3.769074000000000",
-    "lng": "101.111673999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.769074",
+    "lng": "101.111674"
   },
   {
     "smallholder": "SAKINI BINTI SAKIMIN",
@@ -5750,9 +6160,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "859509001002",
-    "land": "FINAL TITLE",
-    "lat": "3.769772000000000",
-    "lng": "101.110226999999995"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.769772",
+    "lng": "101.110227"
   },
   {
     "smallholder": "RUSMAWATI BINTI DARDIRI",
@@ -5764,9 +6175,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "834992001002",
-    "land": "FINAL TITLE",
-    "lat": "3.770814000000000",
-    "lng": "101.108017000000004"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.770814",
+    "lng": "101.108017"
   },
   {
     "smallholder": "ROPIATON BINTI DARDARI",
@@ -5778,9 +6190,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "834990001002",
-    "land": "FINAL TITLE",
-    "lat": "3.771187000000000",
-    "lng": "101.107247000000001"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.771187",
+    "lng": "101.107247"
   },
   {
     "smallholder": "SITI AISAH BINTI ZAID",
@@ -5792,9 +6205,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "834989001002",
-    "land": "FINAL TITLE",
-    "lat": "3.769194000000000",
-    "lng": "101.107961000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.769194",
+    "lng": "101.107961"
   },
   {
     "smallholder": "ISHAK BIN MAJOK",
@@ -5806,9 +6220,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "744463001002",
-    "land": "FINAL TITLE",
-    "lat": "3.765699000000000",
-    "lng": "101.115317000000005"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.765699",
+    "lng": "101.115317"
   },
   {
     "smallholder": "BADARIAH BINTI MANJOK",
@@ -5820,9 +6235,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "835612001002",
-    "land": "FINAL TITLE",
-    "lat": "3.765699000000000",
-    "lng": "101.115317000000005"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.765699",
+    "lng": "101.115317"
   },
   {
     "smallholder": "JAMALIAH BINTI JUMANI",
@@ -5834,9 +6250,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "836525001002",
-    "land": "FINAL TITLE",
-    "lat": "3.780480000000000",
-    "lng": "101.111202000000006"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.78048",
+    "lng": "101.111202"
   },
   {
     "smallholder": "AZRINA BINTI MOHAMAD ARIFFIN",
@@ -5848,9 +6265,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "511204701000",
-    "land": "FINAL TITLE",
-    "lat": "3.778363000000000",
-    "lng": "101.109058000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.778363",
+    "lng": "101.109058"
   },
   {
     "smallholder": "NORIZAH BINTI MOHD SARPAN",
@@ -5862,9 +6280,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO8",
     "license_no": "871646001002",
-    "land": "FINAL TITLE",
-    "lat": "3.777046000000000",
-    "lng": "101.111692000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.777046",
+    "lng": "101.111692"
   },
   {
     "smallholder": "RAMLAN BIN ABDUL RAHIM PENTIAH",
@@ -5876,9 +6295,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "839558001002",
-    "land": "FINAL TITLE",
-    "lat": "3.886901000000000",
-    "lng": "100.827088000000003"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.886901",
+    "lng": "100.827088"
   },
   {
     "smallholder": "KHAIRUL BIN HUSSAIN",
@@ -5890,9 +6310,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "752395001002",
-    "land": "FINAL TITLE",
-    "lat": "3.789793000000000",
-    "lng": "101.062762000000006"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.789793",
+    "lng": "101.062762"
   },
   {
     "smallholder": "SABARIAH BINTI SARBANI",
@@ -5904,9 +6325,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "579494601000",
-    "land": "FINAL TITLE",
-    "lat": "3.775215000000000",
-    "lng": "101.071297000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.775215",
+    "lng": "101.071297"
   },
   {
     "smallholder": "LAILATUL BADARIAH BINTI DARMUJI",
@@ -5918,9 +6340,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO18",
     "license_no": "868993001002",
-    "land": "FINAL TITLE",
-    "lat": "3.774739000000000",
-    "lng": "101.072247000000004"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.774739",
+    "lng": "101.072247"
   },
   {
     "smallholder": "SAPARI BIN MARMAN",
@@ -5932,9 +6355,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "551363701000",
-    "land": "FINAL TITLE",
-    "lat": "3.775893000000000",
-    "lng": "101.067965000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.775893",
+    "lng": "101.067965"
   },
   {
     "smallholder": "RUZAILYANI BINTI MOHD SAZUKI",
@@ -5946,9 +6370,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "752396001002",
-    "land": "FINAL TITLE",
-    "lat": "3.774895000000000",
-    "lng": "101.069913999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.774895",
+    "lng": "101.069914"
   },
   {
     "smallholder": "HENG HUNG JOO",
@@ -5960,9 +6385,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "814497001002",
-    "land": "FINAL TITLE",
-    "lat": "3.893325000000000",
-    "lng": "100.931927999999999"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.893325",
+    "lng": "100.931928"
   },
   {
     "smallholder": "SITI MASHITAH BINTI MAULUD",
@@ -5974,9 +6400,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "791660001002",
-    "land": "FINAL TITLE",
-    "lat": "3.790442000000000",
-    "lng": "101.033158999999998"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.790442",
+    "lng": "101.033159"
   },
   {
     "smallholder": "ROHANI BINTI JEMAIN",
@@ -5988,9 +6415,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "769106001002",
-    "land": "FINAL TITLE",
-    "lat": "3.790570000000000",
-    "lng": "101.034571000000000"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.79057",
+    "lng": "101.034571"
   },
   {
     "smallholder": "NORAINI BINTI SALAMUN",
@@ -6002,9 +6430,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "793806001002",
-    "land": "FINAL TITLE",
-    "lat": "3.796264000000000",
-    "lng": "101.038077000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.796264",
+    "lng": "101.038077"
   },
   {
     "smallholder": "ASROR BIN HANAFI",
@@ -6016,9 +6445,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "571672401001",
-    "land": "FINAL TITLE",
-    "lat": "3.794318000000000",
-    "lng": "101.036235000000005"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.794318",
+    "lng": "101.036235"
   },
   {
     "smallholder": "LEELA MUTHUVELU (MALAYSIA) SDN BHD",
@@ -6030,9 +6460,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "556152601000",
-    "land": "FINAL TITLE",
-    "lat": "3.866000000000000",
-    "lng": "101.082020000000000"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.866",
+    "lng": "101.08202"
   },
   {
     "smallholder": "LEELA MUTHUVELU (MALAYSIA) SDN BHD",
@@ -6044,9 +6475,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "556152601000",
-    "land": "FINAL TITLE",
-    "lat": "3.866328000000000",
-    "lng": "101.081220999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.866328",
+    "lng": "101.081221"
   },
   {
     "smallholder": "LEELA MUTHUVELU (MALAYSIA) SDN BHD",
@@ -6058,9 +6490,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "556152601000",
-    "land": "FINAL TITLE",
-    "lat": "3.864684000000000",
-    "lng": "101.085216000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.864684",
+    "lng": "101.085216"
   },
   {
     "smallholder": "ABD HALIM BIN NAPIAH",
@@ -6072,9 +6505,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "788573001002",
-    "land": "FINAL TITLE",
-    "lat": "3.777925000000000",
-    "lng": "101.057193999999996"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.777925",
+    "lng": "101.057194"
   },
   {
     "smallholder": "ANUAR BIN HJ HANAPIAH",
@@ -6086,9 +6520,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "854954001002",
-    "land": "FINAL TITLE",
-    "lat": "3.771036000000000",
-    "lng": "101.062667000000005"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.771036",
+    "lng": "101.062667"
   },
   {
     "smallholder": "ZURINAH BINTI BASRI",
@@ -6100,9 +6535,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO7",
     "license_no": "473226801000",
-    "land": "FINAL TITLE",
-    "lat": "3.768394000000000",
-    "lng": "101.067837999999995"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.768394",
+    "lng": "101.067838"
   },
   {
     "smallholder": "SHAMSUDDIN BIN ISMAIL",
@@ -6114,9 +6550,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "226600701000",
-    "land": "FINAL TITLE",
-    "lat": "3.776518000000000",
-    "lng": "100.974418000000000"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.776518",
+    "lng": "100.974418"
   },
   {
     "smallholder": "PERUMAL A/L RAMMAN",
@@ -6128,9 +6565,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "755064001002",
-    "land": "FINAL TITLE",
-    "lat": "3.812156000000000",
-    "lng": "100.994653999999997"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.812156",
+    "lng": "100.994654"
   },
   {
     "smallholder": "SADARIAH BINTI BAKIR",
@@ -6142,9 +6580,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "558256601000",
-    "land": "FINAL TITLE",
-    "lat": "3.809791000000000",
-    "lng": "100.994225000000000"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.809791",
+    "lng": "100.994225"
   },
   {
     "smallholder": "ISMAIL BIN AJIT",
@@ -6156,9 +6595,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "827705001002",
-    "land": "FINAL TITLE",
-    "lat": "3.809791000000000",
-    "lng": "100.994225000000000"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.809791",
+    "lng": "100.994225"
   },
   {
     "smallholder": "CHANDRASEGARAN RAMASAMY",
@@ -6170,9 +6610,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "560565501000",
-    "land": "FINAL TITLE",
-    "lat": "3.807087000000000",
-    "lng": "100.991625999999997"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.807087",
+    "lng": "100.991626"
   },
   {
     "smallholder": "MARIAYEE A/P KANDASAMY",
@@ -6184,9 +6625,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "767522001002",
-    "land": "FINAL TITLE",
-    "lat": "3.807436000000000",
-    "lng": "100.993790000000004"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.807436",
+    "lng": "100.99379"
   },
   {
     "smallholder": "RAMLU A/L SANNASY",
@@ -6198,9 +6640,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "220593801000",
-    "land": "FINAL TITLE",
-    "lat": "3.807023000000000",
-    "lng": "100.995125999999999"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.807023",
+    "lng": "100.995126"
   },
   {
     "smallholder": "KRISHNAN A/L SANNASY",
@@ -6212,9 +6655,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "215484501000",
-    "land": "FINAL TITLE",
-    "lat": "3.805251000000000",
-    "lng": "100.994435999999993"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.805251",
+    "lng": "100.994436"
   },
   {
     "smallholder": "TEOH TEK HOCK",
@@ -6226,9 +6670,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424596101000",
-    "land": "FINAL TITLE",
-    "lat": "3.887029000000000",
-    "lng": "101.084738000000002"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.887029",
+    "lng": "101.084738"
   },
   {
     "smallholder": "TEH HOCK LAI",
@@ -6240,9 +6685,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "522094001000",
-    "land": "FINAL TITLE",
-    "lat": "3.886728000000000",
-    "lng": "101.085469000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.886728",
+    "lng": "101.085469"
   },
   {
     "smallholder": "TEH HOCK SING",
@@ -6254,9 +6700,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424591001000",
-    "land": "FINAL TITLE",
-    "lat": "3.886427000000000",
-    "lng": "101.086201000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.886427",
+    "lng": "101.086201"
   },
   {
     "smallholder": "NANIA GOBALAN A/L PUNUSAMY",
@@ -6268,9 +6715,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "595289401000",
-    "land": "FINAL TITLE",
-    "lat": "3.886958000000000",
-    "lng": "101.079858000000002"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.886958",
+    "lng": "101.079858"
   },
   {
     "smallholder": "RAJESWARY A/P KARUPPIAH",
@@ -6282,9 +6730,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "544471601000",
-    "land": "FINAL TITLE",
-    "lat": "3.867566000000000",
-    "lng": "101.073365999999993"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.867566",
+    "lng": "101.073366"
   },
   {
     "smallholder": "TEH HOCK SING",
@@ -6296,9 +6745,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424591001000",
-    "land": "FINAL TITLE",
-    "lat": "3.882334000000000",
-    "lng": "101.086601999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.882334",
+    "lng": "101.086602"
   },
   {
     "smallholder": "SUBRAMANIAM A/L MARIAH",
@@ -6310,9 +6760,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "227809901000",
-    "land": "FINAL TITLE",
-    "lat": "3.873019000000000",
-    "lng": "101.079897000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.873019",
+    "lng": "101.079897"
   },
   {
     "smallholder": "SUBRAMANIAM A/L MARIAH",
@@ -6324,9 +6775,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "227809901000",
-    "land": "FINAL TITLE",
-    "lat": "3.872773000000000",
-    "lng": "101.080500999999998"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.872773",
+    "lng": "101.080501"
   },
   {
     "smallholder": "TEOH TEK HOCK",
@@ -6338,9 +6790,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424596101000",
-    "land": "FINAL TITLE",
-    "lat": "3.877792000000000",
-    "lng": "101.082959000000002"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.877792",
+    "lng": "101.082959"
   },
   {
     "smallholder": "TEOH TEK HOCK",
@@ -6352,9 +6805,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424596101000",
-    "land": "FINAL TITLE",
-    "lat": "3.877450000000000",
-    "lng": "101.083800999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.87745",
+    "lng": "101.083801"
   },
   {
     "smallholder": "TEOH TEK HOCK",
@@ -6366,9 +6820,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424596101000",
-    "land": "FINAL TITLE",
-    "lat": "3.877109000000000",
-    "lng": "101.084639999999993"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.877109",
+    "lng": "101.08464"
   },
   {
     "smallholder": "LETCHAMANAN A/L SANYACY",
@@ -6380,9 +6835,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "752049001002",
-    "land": "FINAL TITLE",
-    "lat": "3.877615000000000",
-    "lng": "101.078485999999998"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.877615",
+    "lng": "101.078486"
   },
   {
     "smallholder": "TEOH TEK HOCK",
@@ -6394,9 +6850,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424596101000",
-    "land": "FINAL TITLE",
-    "lat": "3.876769000000000",
-    "lng": "101.085476000000000"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.876769",
+    "lng": "101.085476"
   },
   {
     "smallholder": "TEOH TEK HOCK",
@@ -6408,9 +6865,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424596101000",
-    "land": "FINAL TITLE",
-    "lat": "3.876431000000000",
-    "lng": "101.086308000000002"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.876431",
+    "lng": "101.086308"
   },
   {
     "smallholder": "TEH TEK SOON",
@@ -6422,9 +6880,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424595201000",
-    "land": "FINAL TITLE",
-    "lat": "3.876094000000000",
-    "lng": "101.087137999999996"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.876094",
+    "lng": "101.087138"
   },
   {
     "smallholder": "TEH TEK SOON",
@@ -6436,9 +6895,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424595201000",
-    "land": "FINAL TITLE",
-    "lat": "3.875755000000000",
-    "lng": "101.087963000000002"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.875755",
+    "lng": "101.087963"
   },
   {
     "smallholder": "TEH TEK SOON",
@@ -6450,9 +6910,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424595201000",
-    "land": "FINAL TITLE",
-    "lat": "3.875425000000000",
-    "lng": "101.088789000000006"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.875425",
+    "lng": "101.088789"
   },
   {
     "smallholder": "TEH TEK SOON",
@@ -6464,9 +6925,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424595201000",
-    "land": "FINAL TITLE",
-    "lat": "3.875091000000000",
-    "lng": "101.089608999999996"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.875091",
+    "lng": "101.089609"
   },
   {
     "smallholder": "TEH TEK SOON",
@@ -6478,9 +6940,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424595201000",
-    "land": "FINAL TITLE",
-    "lat": "3.874757000000000",
-    "lng": "101.090425999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.874757",
+    "lng": "101.090426"
   },
   {
     "smallholder": "CHIA KIM HOCK",
@@ -6492,9 +6955,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "451075301000",
-    "land": "FINAL TITLE",
-    "lat": "3.875126000000000",
-    "lng": "101.084597000000002"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.875126",
+    "lng": "101.084597"
   },
   {
     "smallholder": "CHIA KIM HOCK",
@@ -6506,9 +6970,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "451075301000",
-    "land": "FINAL TITLE",
-    "lat": "3.875459000000000",
-    "lng": "101.083786000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.875459",
+    "lng": "101.083786"
   },
   {
     "smallholder": "HOR LEE HAR",
@@ -6520,9 +6985,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "440947501000",
-    "land": "FINAL TITLE",
-    "lat": "3.874452000000000",
-    "lng": "101.081012000000001"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.874452",
+    "lng": "101.081012"
   },
   {
     "smallholder": "HOR LEE HAR",
@@ -6534,9 +7000,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "440947501000",
-    "land": "FINAL TITLE",
-    "lat": "3.874111000000000",
-    "lng": "101.081846999999996"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.874111",
+    "lng": "101.081847"
   },
   {
     "smallholder": "TEH TEK AN",
@@ -6548,9 +7015,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424590101000",
-    "land": "FINAL TITLE",
-    "lat": "3.879467000000000",
-    "lng": "101.083906999999996"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.879467",
+    "lng": "101.083907"
   },
   {
     "smallholder": "TEH TEK AN",
@@ -6562,9 +7030,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424590101000",
-    "land": "FINAL TITLE",
-    "lat": "3.879140000000000",
-    "lng": "101.084714000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.87914",
+    "lng": "101.084714"
   },
   {
     "smallholder": "TEH TEK AN",
@@ -6576,9 +7045,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424590101000",
-    "land": "FINAL TITLE",
-    "lat": "3.878811000000000",
-    "lng": "101.085522999999995"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.878811",
+    "lng": "101.085523"
   },
   {
     "smallholder": "TEH TEK AN",
@@ -6590,9 +7060,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424590101000",
-    "land": "FINAL TITLE",
-    "lat": "3.878482000000000",
-    "lng": "101.086335000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.878482",
+    "lng": "101.086335"
   },
   {
     "smallholder": "CHIA KIM MIN",
@@ -6604,9 +7075,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "451074501000",
-    "land": "FINAL TITLE",
-    "lat": "3.874794000000000",
-    "lng": "101.085408000000001"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.874794",
+    "lng": "101.085408"
   },
   {
     "smallholder": "PAIDARLAI A/L GURAIH",
@@ -6618,9 +7090,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "801465001002",
-    "land": "FINAL TITLE",
-    "lat": "3.873794000000000",
-    "lng": "101.087845999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.873794",
+    "lng": "101.087846"
   },
   {
     "smallholder": "PRASHANTHE REDDY A/L PAIDARLAI",
@@ -6632,9 +7105,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "801465001002",
-    "land": "FINAL TITLE",
-    "lat": "3.873794000000000",
-    "lng": "101.087845999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.873794",
+    "lng": "101.087846"
   },
   {
     "smallholder": "PERUMAL A/L VARATHARAJOO",
@@ -6646,9 +7120,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "504881101000",
-    "land": "FINAL TITLE",
-    "lat": "3.885016000000000",
-    "lng": "101.065279000000004"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.885016",
+    "lng": "101.065279"
   },
   {
     "smallholder": "PERUMAL A/L VARATHARAJOO",
@@ -6660,9 +7135,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "504881101000",
-    "land": "FINAL TITLE",
-    "lat": "3.884346000000000",
-    "lng": "101.066912000000002"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.884346",
+    "lng": "101.066912"
   },
   {
     "smallholder": "BALA A/L MANIKAM",
@@ -6674,9 +7150,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "751137001002",
-    "land": "FINAL TITLE",
-    "lat": "3.883008000000000",
-    "lng": "101.070170000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.883008",
+    "lng": "101.07017"
   },
   {
     "smallholder": "SRI JAYAKRISHNA RAO A/L SIMANTURI",
@@ -6688,9 +7165,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "564331001000",
-    "land": "FINAL TITLE",
-    "lat": "3.888150000000000",
-    "lng": "101.062723000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.88815",
+    "lng": "101.062723"
   },
   {
     "smallholder": "KISTAMMAH A/P SUBRAMANIAM",
@@ -6702,9 +7180,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "834269001002",
-    "land": "FINAL TITLE",
-    "lat": "3.887482000000000",
-    "lng": "101.064349000000007"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.887482",
+    "lng": "101.064349"
   },
   {
     "smallholder": "PERUMAL A/L VARATHARAJOO",
@@ -6716,9 +7195,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "504881101000",
-    "land": "FINAL TITLE",
-    "lat": "3.885464000000000",
-    "lng": "101.069254000000001"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.885464",
+    "lng": "101.069254"
   },
   {
     "smallholder": "THANGARAJ A/L VARATHARAJOO",
@@ -6730,9 +7210,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "515470001000",
-    "land": "FINAL TITLE",
-    "lat": "3.884788000000000",
-    "lng": "101.070898999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.884788",
+    "lng": "101.070899"
   },
   {
     "smallholder": "MAHENDRAN A/L JEYARAMAN",
@@ -6744,9 +7225,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "570519601000",
-    "land": "FINAL TITLE",
-    "lat": "3.887033000000000",
-    "lng": "101.060361999999998"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.887033",
+    "lng": "101.060362"
   },
   {
     "smallholder": "TAN YOKE WAI",
@@ -6758,9 +7240,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "520710201000",
-    "land": "FINAL TITLE",
-    "lat": "3.880122000000000",
-    "lng": "101.082239999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.880122",
+    "lng": "101.08224"
   },
   {
     "smallholder": "HENG HUI KHENG",
@@ -6772,9 +7255,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "212476801000",
-    "land": "FINAL TITLE",
-    "lat": "3.885819000000000",
-    "lng": "101.053517999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.885819",
+    "lng": "101.053518"
   },
   {
     "smallholder": "MUNISAMY@MUNUSAMY A/L PONNUSAMY",
@@ -6786,9 +7270,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "819263001002",
-    "land": "FINAL TITLE",
-    "lat": "3.884970000000000",
-    "lng": "101.050977000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.88497",
+    "lng": "101.050977"
   },
   {
     "smallholder": "SEKARAN A/L MUNIANDY",
@@ -6800,9 +7285,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "541492201000",
-    "land": "FINAL TITLE",
-    "lat": "3.884292000000000",
-    "lng": "101.052627000000001"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.884292",
+    "lng": "101.052627"
   },
   {
     "smallholder": "CHIA SONG PHUA",
@@ -6814,9 +7300,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "592888801000",
-    "land": "FINAL TITLE",
-    "lat": "3.883612000000000",
-    "lng": "101.054281000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.883612",
+    "lng": "101.054281"
   },
   {
     "smallholder": "CHIA SONG PHUA",
@@ -6828,9 +7315,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "592888801000",
-    "land": "FINAL TITLE",
-    "lat": "3.882931000000000",
-    "lng": "101.055937000000000"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.882931",
+    "lng": "101.055937"
   },
   {
     "smallholder": "NITHIYANANDA VEL A/L ARJUNAN",
@@ -6842,9 +7330,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "766738001002",
-    "land": "FINAL TITLE",
-    "lat": "3.880642000000000",
-    "lng": "101.056486000000007"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.880642",
+    "lng": "101.056486"
   },
   {
     "smallholder": "OMAR BIN MD NOOR",
@@ -6856,9 +7345,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "792079001002",
-    "land": "FINAL TITLE",
-    "lat": "3.871467000000000",
-    "lng": "100.902944000000005"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.871467",
+    "lng": "100.902944"
   },
   {
     "smallholder": "ZAIDI BIN ASMAWI",
@@ -6870,9 +7360,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "868989001002",
-    "land": "FINAL TITLE",
-    "lat": "3.870133000000000",
-    "lng": "100.902096000000000"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.870133",
+    "lng": "100.902096"
   },
   {
     "smallholder": "TONDIAJID BIN SAIMIN",
@@ -6884,9 +7375,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "519034001000",
-    "land": "FINAL TITLE",
-    "lat": "3.796122000000000",
-    "lng": "101.034976000000000"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.796122",
+    "lng": "101.034976"
   },
   {
     "smallholder": "ANUAR BIN JAFAR",
@@ -6898,9 +7390,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "753413001002",
-    "land": "FINAL TITLE",
-    "lat": "3.795944000000000",
-    "lng": "101.034351999999998"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.795944",
+    "lng": "101.034352"
   },
   {
     "smallholder": "SHAMSUDIN BIN KASSAH",
@@ -6912,9 +7405,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "221419801000",
-    "land": "FINAL TITLE",
-    "lat": "3.795641000000000",
-    "lng": "101.032190000000000"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.795641",
+    "lng": "101.03219"
   },
   {
     "smallholder": "MD. ADNAN BIN MD. ZAHID",
@@ -6926,9 +7420,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "461970401000",
-    "land": "FINAL TITLE",
-    "lat": "3.858061000000000",
-    "lng": "100.841970000000003"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.858061",
+    "lng": "100.84197"
   },
   {
     "smallholder": "YEE SUAN SIM",
@@ -6940,9 +7435,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "763533001002",
-    "land": "FINAL TITLE",
-    "lat": "3.886830000000000",
-    "lng": "101.056139999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.88683",
+    "lng": "101.05614"
   },
   {
     "smallholder": "YASOTHA A/P ARUMUGAM",
@@ -6954,9 +7450,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "741925001002",
-    "land": "FINAL TITLE",
-    "lat": "3.886151000000000",
-    "lng": "101.057785999999993"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.886151",
+    "lng": "101.057786"
   },
   {
     "smallholder": "KANG JOO HONG",
@@ -6968,9 +7465,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "539119101000",
-    "land": "FINAL TITLE",
-    "lat": "3.886151000000000",
-    "lng": "101.057785999999993"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.886151",
+    "lng": "101.057786"
   },
   {
     "smallholder": "SUBRAMANIAM A/L ELLUMALAI",
@@ -6982,9 +7480,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "808916001002",
-    "land": "FINAL TITLE",
-    "lat": "3.889975000000000",
-    "lng": "101.068033000000000"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.889975",
+    "lng": "101.068033"
   },
   {
     "smallholder": "LAW SENG THIEN",
@@ -6996,9 +7495,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "781990001002",
-    "land": "FINAL TITLE",
-    "lat": "3.888623000000000",
-    "lng": "101.071326999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.888623",
+    "lng": "101.071327"
   },
   {
     "smallholder": "TAN HUEY THENG",
@@ -7010,9 +7510,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "778252001002",
-    "land": "FINAL TITLE",
-    "lat": "3.887569000000000",
-    "lng": "101.068876000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.887569",
+    "lng": "101.068876"
   },
   {
     "smallholder": "TEH TEK AN",
@@ -7024,9 +7525,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424590101000",
-    "land": "FINAL TITLE",
-    "lat": "3.885469000000000",
-    "lng": "101.083479999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.885469",
+    "lng": "101.08348"
   },
   {
     "smallholder": "ENDARA KUMAR A/L MUTHUVELU",
@@ -7038,9 +7540,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "430858001002",
-    "land": "FINAL TITLE",
-    "lat": "3.865098000000000",
-    "lng": "101.079305000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.865098",
+    "lng": "101.079305"
   },
   {
     "smallholder": "ENDARA KUMAR A/L MUTHUVELU",
@@ -7052,9 +7555,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "430858001002",
-    "land": "FINAL TITLE",
-    "lat": "3.863772000000000",
-    "lng": "101.082511999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.863772",
+    "lng": "101.082512"
   },
   {
     "smallholder": "LEELA MUTHUVELU (MALAYSIA) SDN BHD",
@@ -7066,9 +7570,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "556152601000",
-    "land": "FINAL TITLE",
-    "lat": "3.865671000000000",
-    "lng": "101.082819000000001"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.865671",
+    "lng": "101.082819"
   },
   {
     "smallholder": "LEELA MUTHUVELU (MALAYSIA) SDN BHD",
@@ -7080,9 +7585,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "556152601000",
-    "land": "FINAL TITLE",
-    "lat": "3.865013000000000",
-    "lng": "101.084417000000002"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.865013",
+    "lng": "101.084417"
   },
   {
     "smallholder": "TANABALAN A/L SINNIAH",
@@ -7094,9 +7600,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "437080301000",
-    "land": "FINAL TITLE",
-    "lat": "3.876030000000000",
-    "lng": "101.072698000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.87603",
+    "lng": "101.072698"
   },
   {
     "smallholder": "MOHD HABIB BIN MD SAID",
@@ -7108,9 +7615,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "781731001002",
-    "land": "FINAL TITLE",
-    "lat": "3.816514000000000",
-    "lng": "100.990082000000001"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.816514",
+    "lng": "100.990082"
   },
   {
     "smallholder": "MISWAN BIN SIRAJ",
@@ -7122,9 +7630,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO59",
     "license_no": "321641501000",
-    "land": "FINAL TITLE",
-    "lat": "3.815179000000000",
-    "lng": "101.007052000000002"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.815179",
+    "lng": "101.007052"
   },
   {
     "smallholder": "AB HAMID BIN SHAMSURI",
@@ -7136,9 +7645,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "217002601000",
-    "land": "FINAL TITLE",
-    "lat": "3.815174000000000",
-    "lng": "101.007962000000006"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.815174",
+    "lng": "101.007962"
   },
   {
     "smallholder": "MOHD HABIB BIN MD SAID",
@@ -7150,9 +7660,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "781731001002",
-    "land": "FINAL TITLE",
-    "lat": "3.813714000000000",
-    "lng": "101.007069000000001"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.813714",
+    "lng": "101.007069"
   },
   {
     "smallholder": "INSA BIN SALAM",
@@ -7164,9 +7675,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "579539001000",
-    "land": "FINAL TITLE",
-    "lat": "3.812338000000000",
-    "lng": "101.002813000000003"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.812338",
+    "lng": "101.002813"
   },
   {
     "smallholder": "KAMSAH BIN MAT DASPAR",
@@ -7178,9 +7690,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "521713201000",
-    "land": "FINAL TITLE",
-    "lat": "3.812171000000000",
-    "lng": "101.007085000000004"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.812171",
+    "lng": "101.007085"
   },
   {
     "smallholder": "MISRI BIN YAHYA",
@@ -7192,9 +7705,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "837253001002",
-    "land": "FINAL TITLE",
-    "lat": "3.812171000000000",
-    "lng": "101.007085000000004"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.812171",
+    "lng": "101.007085"
   },
   {
     "smallholder": "MOHD JOHARI BIN AMIR",
@@ -7206,9 +7720,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "832517001002",
-    "land": "FINAL TITLE",
-    "lat": "3.823960000000000",
-    "lng": "101.000322999999995"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.82396",
+    "lng": "101.000323"
   },
   {
     "smallholder": "LAU TIAM TONG",
@@ -7220,9 +7735,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "839984001002",
-    "land": "FINAL TITLE",
-    "lat": "3.824010000000000",
-    "lng": "101.006101999999998"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.82401",
+    "lng": "101.006102"
   },
   {
     "smallholder": "RAHMAH BINTI MARAHUDDIN",
@@ -7234,9 +7750,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "784433001002",
-    "land": "FINAL TITLE",
-    "lat": "3.822562000000000",
-    "lng": "101.007013000000001"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.822562",
+    "lng": "101.007013"
   },
   {
     "smallholder": "NAHWANY@ RADZIAH BT MARAHUDIN",
@@ -7248,9 +7765,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "499886101000",
-    "land": "FINAL TITLE",
-    "lat": "3.822559000000000",
-    "lng": "101.007915999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.822559",
+    "lng": "101.007916"
   },
   {
     "smallholder": "KHAR AH WAH",
@@ -7262,9 +7780,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "791565001002",
-    "land": "FINAL TITLE",
-    "lat": "3.819699000000000",
-    "lng": "101.015726000000001"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.819699",
+    "lng": "101.015726"
   },
   {
     "smallholder": "NG AH PHEOW",
@@ -7276,9 +7795,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "505900601000",
-    "land": "FINAL TITLE",
-    "lat": "3.818119000000000",
-    "lng": "101.013023000000004"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.818119",
+    "lng": "101.013023"
   },
   {
     "smallholder": "SUBRAMANIAM A/L APPALASAMY",
@@ -7290,9 +7810,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO71",
     "license_no": "875786001002",
-    "land": "FINAL TITLE",
-    "lat": "3.818126000000000",
-    "lng": "101.013929000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.818126",
+    "lng": "101.013929"
   },
   {
     "smallholder": "NORSIAH BINTI BAHARUDDIN",
@@ -7304,9 +7825,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "747979001002",
-    "land": "FINAL TITLE",
-    "lat": "3.824059000000000",
-    "lng": "101.015737999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.824059",
+    "lng": "101.015738"
   },
   {
     "smallholder": "LOO AH PUANG",
@@ -7318,9 +7840,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "784651001002",
-    "land": "FINAL TITLE",
-    "lat": "3.824061000000000",
-    "lng": "101.016649999999998"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.824061",
+    "lng": "101.01665"
   },
   {
     "smallholder": "LIM TIANG",
@@ -7332,9 +7855,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "776631001002",
-    "land": "FINAL TITLE",
-    "lat": "3.822598000000000",
-    "lng": "101.012994000000006"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.822598",
+    "lng": "101.012994"
   },
   {
     "smallholder": "TAN SEE NGOR",
@@ -7346,9 +7870,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "84074001002",
-    "land": "FINAL TITLE",
-    "lat": "3.822604000000000",
-    "lng": "101.013903999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.822604",
+    "lng": "101.013904"
   },
   {
     "smallholder": "MOHD YUSRI BIN MOHD KASIM",
@@ -7360,9 +7885,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "818747001002",
-    "land": "FINAL TITLE",
-    "lat": "3.829948000000000",
-    "lng": "101.011122999999998"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.829948",
+    "lng": "101.011123"
   },
   {
     "smallholder": "KAMSAH BIN MAT DASPAR",
@@ -7374,9 +7900,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "521713201000",
-    "land": "FINAL TITLE",
-    "lat": "3.821118000000000",
-    "lng": "101.010282000000004"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.821118",
+    "lng": "101.010282"
   },
   {
     "smallholder": "M. ROSLI BIN BAKRI",
@@ -7388,9 +7915,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "532497401000",
-    "land": "FINAL TITLE",
-    "lat": "3.821139000000000",
-    "lng": "101.012998999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.821139",
+    "lng": "101.012999"
   },
   {
     "smallholder": "PAYAH BINTI KUSNI",
@@ -7402,9 +7930,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "547712601000",
-    "land": "FINAL TITLE",
-    "lat": "3.791518000000000",
-    "lng": "101.106710000000007"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.791518",
+    "lng": "101.10671"
   },
   {
     "smallholder": "LEE TECK GEE",
@@ -7416,9 +7945,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "591678201000",
-    "land": "FINAL TITLE",
-    "lat": "3.787607000000000",
-    "lng": "100.977616999999995"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.787607",
+    "lng": "100.977617"
   },
   {
     "smallholder": "AB HAMID BIN SHAMSURI",
@@ -7430,9 +7960,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "544865701000",
-    "land": "FINAL TITLE",
-    "lat": "3.818138000000000",
-    "lng": "101.014832999999996"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.818138",
+    "lng": "101.014833"
   },
   {
     "smallholder": "RADIAH BINTI ABDULLAH",
@@ -7444,9 +7975,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "839805001002",
-    "land": "FINAL TITLE",
-    "lat": "3.815211000000000",
-    "lng": "101.013951000000006"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.815211",
+    "lng": "101.013951"
   },
   {
     "smallholder": "AINON BINTI BAHAROM",
@@ -7458,9 +7990,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "474766401000",
-    "land": "FINAL TITLE",
-    "lat": "3.834386000000000",
-    "lng": "101.006010000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.834386",
+    "lng": "101.00601"
   },
   {
     "smallholder": "DHIVADAMUDU A/L SANNASY",
@@ -7472,9 +8005,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "219303401000",
-    "land": "FINAL TITLE",
-    "lat": "3.834388000000000",
-    "lng": "101.007813999999996"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.834388",
+    "lng": "101.007814"
   },
   {
     "smallholder": "BEH BOON HUA",
@@ -7486,9 +8020,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "806963001002",
-    "land": "FINAL TITLE",
-    "lat": "3.832900000000000",
-    "lng": "101.002424000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.8329",
+    "lng": "101.002424"
   },
   {
     "smallholder": "BEH BOON MENG",
@@ -7500,9 +8035,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "806964001002",
-    "land": "FINAL TITLE",
-    "lat": "3.832900000000000",
-    "lng": "101.002424000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.8329",
+    "lng": "101.002424"
   },
   {
     "smallholder": "BEH BOON CHUNG",
@@ -7514,9 +8050,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "811469001002",
-    "land": "FINAL TITLE",
-    "lat": "3.832900000000000",
-    "lng": "101.002424000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.8329",
+    "lng": "101.002424"
   },
   {
     "smallholder": "BEH BOON HEE",
@@ -7528,9 +8065,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "811468001002",
-    "land": "FINAL TITLE",
-    "lat": "3.832900000000000",
-    "lng": "101.002424000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.8329",
+    "lng": "101.002424"
   },
   {
     "smallholder": "ZAILAN BIN AHMAD",
@@ -7542,9 +8080,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "576342101000",
-    "land": "FINAL TITLE",
-    "lat": "3.832937000000000",
-    "lng": "101.007824999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.832937",
+    "lng": "101.007825"
   },
   {
     "smallholder": "NASAAH BIN HUSSIN",
@@ -7556,9 +8095,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "751615001002",
-    "land": "FINAL TITLE",
-    "lat": "3.831445000000000",
-    "lng": "101.002435000000006"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.831445",
+    "lng": "101.002435"
   },
   {
     "smallholder": "MOHD SALAM BIN SOMUDI",
@@ -7570,9 +8110,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "567726501000",
-    "land": "FINAL TITLE",
-    "lat": "3.809368000000000",
-    "lng": "101.015787000000003"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.809368",
+    "lng": "101.015787"
   },
   {
     "smallholder": "LAW KEAN OOI",
@@ -7584,9 +8125,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "820182001002",
-    "land": "FINAL TITLE",
-    "lat": "3.838781000000000",
-    "lng": "101.004178999999993"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.838781",
+    "lng": "101.004179"
   },
   {
     "smallholder": "LOW NYAP MAN",
@@ -7598,9 +8140,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "213685501000",
-    "land": "FINAL TITLE",
-    "lat": "3.837365000000000",
-    "lng": "101.005077000000000"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.837365",
+    "lng": "101.005077"
   },
   {
     "smallholder": "NG HOCK SOON",
@@ -7612,9 +8155,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "NO 50451330 MSPO 2",
     "license_no": "818020001002",
-    "land": "FINAL TITLE",
-    "lat": "3.894167000000000",
-    "lng": "100.911285000000007"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.894167",
+    "lng": "100.911285"
   },
   {
     "smallholder": "ENG HOK HING @NG HOK HING",
@@ -7626,9 +8170,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "NO 50451330 MSPO 2",
     "license_no": "818022001002",
-    "land": "FINAL TITLE",
-    "lat": "3.894167000000000",
-    "lng": "100.911285000000007"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.894167",
+    "lng": "100.911285"
   },
   {
     "smallholder": "NG HOOK AN",
@@ -7640,9 +8185,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "NO 50451330 MSPO 2",
     "license_no": "851239001002",
-    "land": "FINAL TITLE",
-    "lat": "3.894167000000000",
-    "lng": "100.911285000000007"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.894167",
+    "lng": "100.911285"
   },
   {
     "smallholder": "NG HOK CHUN",
@@ -7654,9 +8200,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "NO 50451330 MSPO 2",
     "license_no": "852242001002",
-    "land": "FINAL TITLE",
-    "lat": "3.894167000000000",
-    "lng": "100.911285000000007"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.894167",
+    "lng": "100.911285"
   },
   {
     "smallholder": "NG HOCK SING",
@@ -7668,9 +8215,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "NO 50451330 MSPO 2",
     "license_no": "874938001002",
-    "land": "FINAL TITLE",
-    "lat": "3.894167000000000",
-    "lng": "100.911285000000007"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.894167",
+    "lng": "100.911285"
   },
   {
     "smallholder": "HABSAH BINTI TAH",
@@ -7682,9 +8230,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "503275201000",
-    "land": "FINAL TITLE",
-    "lat": "3.904926000000000",
-    "lng": "100.949681999999996"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.904926",
+    "lng": "100.949682"
   },
   {
     "smallholder": "GOVINDANSAMY A/L MANICKAM",
@@ -7696,9 +8245,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "221947501000",
-    "land": "FINAL TITLE",
-    "lat": "3.893145000000000",
-    "lng": "100.944284999999994"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.893145",
+    "lng": "100.944285"
   },
   {
     "smallholder": "BEH CHIN HONG",
@@ -7710,9 +8260,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "480233901000",
-    "land": "FINAL TITLE",
-    "lat": "3.893145000000000",
-    "lng": "100.944284999999994"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.893145",
+    "lng": "100.944285"
   },
   {
     "smallholder": "TEOH CHAN HUAT",
@@ -7724,9 +8275,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "764513001002",
-    "land": "FINAL TITLE",
-    "lat": "3.893145000000000",
-    "lng": "100.944284999999994"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.893145",
+    "lng": "100.944285"
   },
   {
     "smallholder": "RUKUMANY A/P RENGASAMY",
@@ -7738,9 +8290,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO60",
     "license_no": "501522001000",
-    "land": "FINAL TITLE",
-    "lat": "3.838656000000000",
-    "lng": "100.953353000000007"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.838656",
+    "lng": "100.953353"
   },
   {
     "smallholder": "SIVANESVARAN A/L SUPERMANI",
@@ -7752,9 +8305,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO63",
     "license_no": "471047701000",
-    "land": "FINAL TITLE",
-    "lat": "3.878004000000000",
-    "lng": "101.062921000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.878004",
+    "lng": "101.062921"
   },
   {
     "smallholder": "SIVANESVARAN A/L SUPERMANI",
@@ -7766,9 +8320,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO64",
     "license_no": "471047701000",
-    "land": "FINAL TITLE",
-    "lat": "3.877351000000000",
-    "lng": "101.064511999999993"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.877351",
+    "lng": "101.064512"
   },
   {
     "smallholder": "SIVANESVARAN A/L SUPERMANI",
@@ -7780,9 +8335,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO65",
     "license_no": "471047701000",
-    "land": "FINAL TITLE",
-    "lat": "3.876694000000000",
-    "lng": "101.066102000000001"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.876694",
+    "lng": "101.066102"
   },
   {
     "smallholder": "TAN PENG CHONG",
@@ -7794,9 +8350,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "784246001002",
-    "land": "FINAL TITLE",
-    "lat": "3.800130000000000",
-    "lng": "100.975786999999997"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.80013",
+    "lng": "100.975787"
   },
   {
     "smallholder": "TAMIL SELVAM A/L SUNDRAMURTHI",
@@ -7808,9 +8365,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "825250001002",
-    "land": "FINAL TITLE",
-    "lat": "3.808143000000000",
-    "lng": "100.979483999999999"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.808143",
+    "lng": "100.979484"
   },
   {
     "smallholder": "DENGKIL PALM OIL MILL SDN BHD",
@@ -7822,9 +8380,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "803149001002",
-    "land": "FINAL TITLE",
-    "lat": "3.799238000000000",
-    "lng": "100.974502999999999"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.799238",
+    "lng": "100.974503"
   },
   {
     "smallholder": "ABD AZIZ BIN ABAS",
@@ -7836,9 +8395,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "515880201000",
-    "land": "FINAL TITLE",
-    "lat": "3.800992000000000",
-    "lng": "100.979481000000007"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.800992",
+    "lng": "100.979481"
   },
   {
     "smallholder": "PONIAH BINTI HUSIAN",
@@ -7850,9 +8410,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "750407001002",
-    "land": "FINAL TITLE",
-    "lat": "3.837346000000000",
-    "lng": "101.003500000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.837346",
+    "lng": "101.0035"
   },
   {
     "smallholder": "KRISHNAN A/L SANNASY",
@@ -7864,9 +8425,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "215484501000",
-    "land": "FINAL TITLE",
-    "lat": "3.803393000000000",
-    "lng": "100.992870999999994"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.803393",
+    "lng": "100.992871"
   },
   {
     "smallholder": "CHEONG SEK CHYE",
@@ -7878,9 +8440,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "486870401000",
-    "land": "FINAL TITLE",
-    "lat": "3.816109000000000",
-    "lng": "100.981797000000000"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.816109",
+    "lng": "100.981797"
   },
   {
     "smallholder": "NOORSARIPAH BINTI RASIKON",
@@ -7892,9 +8455,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "569998601000",
-    "land": "FINAL TITLE",
-    "lat": "3.797789000000000",
-    "lng": "100.987785000000002"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.797789",
+    "lng": "100.987785"
   },
   {
     "smallholder": "ANG HOOI SEONG",
@@ -7906,9 +8470,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "778243001002",
-    "land": "FINAL TITLE",
-    "lat": "3.800200000000000",
-    "lng": "100.988746000000006"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.8002",
+    "lng": "100.988746"
   },
   {
     "smallholder": "AZMIR BIN RAMLI",
@@ -7920,9 +8485,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "824810001002",
-    "land": "FINAL TITLE",
-    "lat": "3.801430000000000",
-    "lng": "100.990482000000000"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.80143",
+    "lng": "100.990482"
   },
   {
     "smallholder": "JAMILAH BINTI MOHAMED",
@@ -7934,9 +8500,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "444011901000",
-    "land": "FINAL TITLE",
-    "lat": "3.828097000000000",
-    "lng": "101.004275000000007"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.828097",
+    "lng": "101.004275"
   },
   {
     "smallholder": "ROSMAWATI BINTI MOHAMAD ROSDI",
@@ -7948,9 +8515,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "796064001002",
-    "land": "FINAL TITLE",
-    "lat": "3.805635000000000",
-    "lng": "100.993067999999994"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.805635",
+    "lng": "100.993068"
   },
   {
     "smallholder": "KRISHNAN A/L SANNASY",
@@ -7962,9 +8530,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "215484501000",
-    "land": "FINAL TITLE",
-    "lat": "3.804537000000000",
-    "lng": "100.992841999999996"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.804537",
+    "lng": "100.992842"
   },
   {
     "smallholder": "FADZILAH BINTI AHMAD",
@@ -7976,9 +8545,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "869634001002",
-    "land": "FINAL TITLE",
-    "lat": "3.793663000000000",
-    "lng": "100.982543000000007"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.793663",
+    "lng": "100.982543"
   },
   {
     "smallholder": "PUZIAH @ FAUZIAH BINTI ARSHAD",
@@ -7990,9 +8560,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "852981001002",
-    "land": "FINAL TITLE",
-    "lat": "3.891587000000000",
-    "lng": "100.914293000000001"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.891587",
+    "lng": "100.914293"
   },
   {
     "smallholder": "KHAIRUN NIHLAH BINTI JALIL",
@@ -8004,9 +8575,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "852231001002",
-    "land": "FINAL TITLE",
-    "lat": "3.789266000000000",
-    "lng": "101.079555999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.789266",
+    "lng": "101.079556"
   },
   {
     "smallholder": "MOHAMAD SUMERI BIN HUSSIN",
@@ -8018,9 +8590,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO19",
     "license_no": "878248001002",
-    "land": "FINAL TITLE",
-    "lat": "3.788773000000000",
-    "lng": "101.080523999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.788773",
+    "lng": "101.080524"
   },
   {
     "smallholder": "MOHD KHAIR BIN MUNIB",
@@ -8032,9 +8605,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "869654001002",
-    "land": "FINAL TITLE",
-    "lat": "3.788622000000000",
-    "lng": "101.073763999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.788622",
+    "lng": "101.073764"
   },
   {
     "smallholder": "JUMHURI B. ABD JAMIL @ HAJI ABDUL HAMID",
@@ -8046,9 +8620,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "851748001002",
-    "land": "FINAL TITLE",
-    "lat": "3.787479000000000",
-    "lng": "101.075013999999996"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.787479",
+    "lng": "101.075014"
   },
   {
     "smallholder": "RUBIAH BINTI MIJAN",
@@ -8060,9 +8635,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "226702001000",
-    "land": "FINAL TITLE",
-    "lat": "3.784560000000000",
-    "lng": "101.077804000000000"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.78456",
+    "lng": "101.077804"
   },
   {
     "smallholder": "MAHPOT BIN MOHD SULAM",
@@ -8074,9 +8650,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "831258001002",
-    "land": "FINAL TITLE",
-    "lat": "3.785066000000000",
-    "lng": "101.071982000000006"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.785066",
+    "lng": "101.071982"
   },
   {
     "smallholder": "RUSMIAH BINTI SARIJO",
@@ -8088,9 +8665,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "808936001002",
-    "land": "FINAL TITLE",
-    "lat": "3.781023000000000",
-    "lng": "101.065895999999995"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.781023",
+    "lng": "101.065896"
   },
   {
     "smallholder": "SITI AMANAH BINTI IBRAHIM",
@@ -8102,9 +8680,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "850266001002",
-    "land": "FINAL TITLE",
-    "lat": "3.781023000000000",
-    "lng": "101.065895999999995"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.781023",
+    "lng": "101.065896"
   },
   {
     "smallholder": "MUHAMAD HALIM BIN YASWAN",
@@ -8116,9 +8695,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "811467001002",
-    "land": "FINAL TITLE",
-    "lat": "3.781167000000000",
-    "lng": "101.061644000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.781167",
+    "lng": "101.061644"
   },
   {
     "smallholder": "SAID BIN SARKAWI",
@@ -8130,9 +8710,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "765690001002",
-    "land": "FINAL TITLE",
-    "lat": "3.779218000000000",
-    "lng": "101.068432000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.779218",
+    "lng": "101.068432"
   },
   {
     "smallholder": "NG HOCK SOON",
@@ -8144,9 +8725,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "NO 50451330 MSPO 2",
     "license_no": "818020001002",
-    "land": "FINAL TITLE",
-    "lat": "3.893498000000000",
-    "lng": "100.907867999999993"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.893498",
+    "lng": "100.907868"
   },
   {
     "smallholder": "ENG HOK HING @NG HOK HING",
@@ -8158,9 +8740,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "NO 50451330 MSPO 2",
     "license_no": "818022001002",
-    "land": "FINAL TITLE",
-    "lat": "3.893498000000000",
-    "lng": "100.907867999999993"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.893498",
+    "lng": "100.907868"
   },
   {
     "smallholder": "NG HOOK AN",
@@ -8172,9 +8755,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "NO 50451330 MSPO 2",
     "license_no": "851239001002",
-    "land": "FINAL TITLE",
-    "lat": "3.893498000000000",
-    "lng": "100.907867999999993"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.893498",
+    "lng": "100.907868"
   },
   {
     "smallholder": "NG HOK CHUN",
@@ -8186,9 +8770,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "NO 50451330 MSPO 2",
     "license_no": "852242001002",
-    "land": "FINAL TITLE",
-    "lat": "3.893498000000000",
-    "lng": "100.907867999999993"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.893498",
+    "lng": "100.907868"
   },
   {
     "smallholder": "NG HOCK SING",
@@ -8200,9 +8785,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "NO 50451330 MSPO 2",
     "license_no": "874938001002",
-    "land": "FINAL TITLE",
-    "lat": "3.893498000000000",
-    "lng": "100.907867999999993"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.893498",
+    "lng": "100.907868"
   },
   {
     "smallholder": "S.KHALIMATUS SA'ADIYAH BINTI M.BAJURI",
@@ -8214,9 +8800,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "836615001002",
-    "land": "FINAL TITLE",
-    "lat": "3.831895000000000",
-    "lng": "100.991628000000006"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.831895",
+    "lng": "100.991628"
   },
   {
     "smallholder": "SITI ZAINAB BINTI DAIR",
@@ -8228,9 +8815,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "818748001002",
-    "land": "FINAL TITLE",
-    "lat": "3.833673000000000",
-    "lng": "100.992024000000001"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.833673",
+    "lng": "100.992024"
   },
   {
     "smallholder": "SUZALI BIN MOHD AHIR",
@@ -8242,9 +8830,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "565746901000",
-    "land": "FINAL TITLE",
-    "lat": "3.819616000000000",
-    "lng": "101.002516999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.819616",
+    "lng": "101.002517"
   },
   {
     "smallholder": "RAJA A/L MANIKAM",
@@ -8256,9 +8845,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "750397001002",
-    "land": "FINAL TITLE",
-    "lat": "3.819646000000000",
-    "lng": "101.004327000000004"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.819646",
+    "lng": "101.004327"
   },
   {
     "smallholder": "SAIFUL FAHMI BIN MASDUKI",
@@ -8270,9 +8860,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "833921001002",
-    "land": "FINAL TITLE",
-    "lat": "3.824031000000000",
-    "lng": "101.004302999999993"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.824031",
+    "lng": "101.004303"
   },
   {
     "smallholder": "KAMARUZAMAN BIN ABIDAN@JAIDIN",
@@ -8284,9 +8875,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "831269001002",
-    "land": "FINAL TITLE",
-    "lat": "3.822524000000000",
-    "lng": "101.002502000000007"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.822524",
+    "lng": "101.002502"
   },
   {
     "smallholder": "SHAFIEE BIN KAMBALI",
@@ -8298,9 +8890,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "834914001002",
-    "land": "FINAL TITLE",
-    "lat": "3.821104000000000",
-    "lng": "101.005222000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.821104",
+    "lng": "101.005222"
   },
   {
     "smallholder": "TARMIZI BIN MAT RASHID",
@@ -8312,9 +8905,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "465352001000",
-    "land": "FINAL TITLE",
-    "lat": "3.821154000000000",
-    "lng": "101.014810999999995"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.821154",
+    "lng": "101.014811"
   },
   {
     "smallholder": "MARIAYEE A/P KANDASAMY",
@@ -8326,9 +8920,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "767522001002",
-    "land": "FINAL TITLE",
-    "lat": "3.831533000000000",
-    "lng": "101.016582000000000"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.831533",
+    "lng": "101.016582"
   },
   {
     "smallholder": "NG AH FONG",
@@ -8340,9 +8935,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "444209001000",
-    "land": "FINAL TITLE",
-    "lat": "3.829956000000000",
-    "lng": "101.012038000000004"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.829956",
+    "lng": "101.012038"
   },
   {
     "smallholder": "LOW KENG KIM",
@@ -8354,9 +8950,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "496363401000",
-    "land": "FINAL TITLE",
-    "lat": "3.832266000000000",
-    "lng": "100.997421000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.832266",
+    "lng": "100.997421"
   },
   {
     "smallholder": "LIM TIANG",
@@ -8368,9 +8965,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "776631001002",
-    "land": "FINAL TITLE",
-    "lat": "3.831154000000000",
-    "lng": "100.997299999999996"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.831154",
+    "lng": "100.9973"
   },
   {
     "smallholder": "PARMESHPARAN A/L KULLAN",
@@ -8382,9 +8980,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "834993001002",
-    "land": "FINAL TITLE",
-    "lat": "3.827007000000000",
-    "lng": "101.006068999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.827007",
+    "lng": "101.006069"
   },
   {
     "smallholder": "GANESAN A/L KULLAN",
@@ -8396,9 +8995,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "834991001002",
-    "land": "FINAL TITLE",
-    "lat": "3.827013000000000",
-    "lng": "101.006972000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.827013",
+    "lng": "101.006972"
   },
   {
     "smallholder": "BANIAH BINTI RAJIKAN",
@@ -8410,9 +9010,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "460585101000",
-    "land": "FINAL TITLE",
-    "lat": "3.825533000000000",
-    "lng": "101.004272000000000"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.825533",
+    "lng": "101.004272"
   },
   {
     "smallholder": "MARUCHI BIN NOOR",
@@ -8424,9 +9025,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "778143001002",
-    "land": "FINAL TITLE",
-    "lat": "3.825544000000000",
-    "lng": "101.005173999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.825544",
+    "lng": "101.005174"
   },
   {
     "smallholder": "AHMAD ZAKARIA BIN AZIT",
@@ -8438,9 +9040,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "751252001002",
-    "land": "FINAL TITLE",
-    "lat": "3.825556000000000",
-    "lng": "101.006981999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.825556",
+    "lng": "101.006982"
   },
   {
     "smallholder": "MAD'ATARI BIN MUHAMAD SANIF",
@@ -8452,9 +9055,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "747893001002",
-    "land": "FINAL TITLE",
-    "lat": "3.840276000000000",
-    "lng": "101.001056000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.840276",
+    "lng": "101.001056"
   },
   {
     "smallholder": "KEE KAU KEA @ KEE KOOI SENG",
@@ -8466,9 +9070,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "519952501000",
-    "land": "FINAL TITLE",
-    "lat": "3.838726000000000",
-    "lng": "100.999151999999995"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.838726",
+    "lng": "100.999152"
   },
   {
     "smallholder": "FARIDAH BINTI OTHMAN",
@@ -8480,9 +9085,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "441965901000",
-    "land": "FINAL TITLE",
-    "lat": "3.834356000000000",
-    "lng": "101.002412000000007"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.834356",
+    "lng": "101.002412"
   },
   {
     "smallholder": "ENDARA KUMAR A/L MUTHUVELU",
@@ -8494,9 +9100,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "430858001002",
-    "land": "FINAL TITLE",
-    "lat": "3.866388000000000",
-    "lng": "101.076183000000000"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.866388",
+    "lng": "101.076183"
   },
   {
     "smallholder": "ENDARA KUMAR A/L MUTHUVELU",
@@ -8508,9 +9115,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "430858001002",
-    "land": "FINAL TITLE",
-    "lat": "3.866097000000000",
-    "lng": "101.076886999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.866097",
+    "lng": "101.076887"
   },
   {
     "smallholder": "TAN HUEY SAN",
@@ -8522,9 +9130,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "778254001002",
-    "land": "FINAL TITLE",
-    "lat": "3.871617000000000",
-    "lng": "101.078367000000000"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.871617",
+    "lng": "101.078367"
   },
   {
     "smallholder": "SATHIYA VANI A/P ARJUNAN",
@@ -8536,9 +9145,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "775638001002",
-    "land": "FINAL TITLE",
-    "lat": "3.868526000000000",
-    "lng": "101.075924000000001"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.868526",
+    "lng": "101.075924"
   },
   {
     "smallholder": "TAN HUEY SAN",
@@ -8550,9 +9160,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "778254001002",
-    "land": "FINAL TITLE",
-    "lat": "3.871397000000000",
-    "lng": "101.078867000000002"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.871397",
+    "lng": "101.078867"
   },
   {
     "smallholder": "SINNAIAH A/L MUNIANDY",
@@ -8564,9 +9175,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "860825001002",
-    "land": "FINAL TITLE",
-    "lat": "3.780024000000000",
-    "lng": "101.134096000000000"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.780024",
+    "lng": "101.134096"
   },
   {
     "smallholder": "DEVANDARAN A/L NOIYALAN",
@@ -8578,9 +9190,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "598393501000",
-    "land": "FINAL TITLE",
-    "lat": "3.779576000000000",
-    "lng": "101.133926000000002"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.779576",
+    "lng": "101.133926"
   },
   {
     "smallholder": "SATTIYAN RAMASAMY",
@@ -8592,9 +9205,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO42",
     "license_no": "560566301000",
-    "land": "FINAL TITLE",
-    "lat": "3.778691000000000",
-    "lng": "101.133557999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.778691",
+    "lng": "101.133558"
   },
   {
     "smallholder": "CHANDRASEGARAN RAMASAMY",
@@ -8606,9 +9220,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "560565501000",
-    "land": "FINAL TITLE",
-    "lat": "3.778212000000000",
-    "lng": "101.133381999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.778212",
+    "lng": "101.133382"
   },
   {
     "smallholder": "IBRAHIM BIN JARAKASI",
@@ -8620,9 +9235,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "545817201000",
-    "land": "FINAL TITLE",
-    "lat": "3.777345000000000",
-    "lng": "101.130801000000005"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.777345",
+    "lng": "101.130801"
   },
   {
     "smallholder": "GUNESUNDARY A/P AMMASIS",
@@ -8634,9 +9250,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "598395101000",
-    "land": "FINAL TITLE",
-    "lat": "3.776811000000000",
-    "lng": "101.132709000000006"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.776811",
+    "lng": "101.132709"
   },
   {
     "smallholder": "AZMA'IZA BINTI HAMZAH",
@@ -8648,9 +9265,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "761067001002",
-    "land": "FINAL TITLE",
-    "lat": "3.763368000000000",
-    "lng": "101.129193000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.763368",
+    "lng": "101.129193"
   },
   {
     "smallholder": "BADRUL HIZAZ BIN MOHD RAZALI",
@@ -8662,9 +9280,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "760964001002",
-    "land": "FINAL TITLE",
-    "lat": "3.763727000000000",
-    "lng": "101.128456999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.763727",
+    "lng": "101.128457"
   },
   {
     "smallholder": "BAHAROM BIN ABDUL MANAN",
@@ -8676,9 +9295,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "225805501000",
-    "land": "FINAL TITLE",
-    "lat": "3.765614000000000",
-    "lng": "101.124838999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.765614",
+    "lng": "101.124839"
   },
   {
     "smallholder": "AYOB BIN SAMAD",
@@ -8690,9 +9310,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "218756501000",
-    "land": "FINAL TITLE",
-    "lat": "3.765986000000000",
-    "lng": "101.124115000000003"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.765986",
+    "lng": "101.124115"
   },
   {
     "smallholder": "RUSMAN BIN ESLAH",
@@ -8704,9 +9325,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "565807401000",
-    "land": "FINAL TITLE",
-    "lat": "3.766733000000000",
-    "lng": "101.122664000000000"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.766733",
+    "lng": "101.122664"
   },
   {
     "smallholder": "RUSMAN BIN ESLAH",
@@ -8718,9 +9340,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "565807401000",
-    "land": "FINAL TITLE",
-    "lat": "3.767113000000000",
-    "lng": "101.121942000000004"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.767113",
+    "lng": "101.121942"
   },
   {
     "smallholder": "RUSMAN BIN ESLAH",
@@ -8732,9 +9355,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "565807401000",
-    "land": "FINAL TITLE",
-    "lat": "3.767495000000000",
-    "lng": "101.121224999999995"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.767495",
+    "lng": "101.121225"
   },
   {
     "smallholder": "RUSMAN BIN ESLAH",
@@ -8746,9 +9370,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "565807401000",
-    "land": "FINAL TITLE",
-    "lat": "3.767846000000000",
-    "lng": "101.120510999999993"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.767846",
+    "lng": "101.120511"
   },
   {
     "smallholder": "EE AH BENG",
@@ -8760,9 +9385,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "858291001002",
-    "land": "FINAL TITLE",
-    "lat": "3.768969000000000",
-    "lng": "101.118326999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.768969",
+    "lng": "101.118327"
   },
   {
     "smallholder": "JOHAN BIN ABD MANAN",
@@ -8774,9 +9400,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "228588501000",
-    "land": "FINAL TITLE",
-    "lat": "3.767706000000000",
-    "lng": "101.117605999999995"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.767706",
+    "lng": "101.117606"
   },
   {
     "smallholder": "MOHAMAD BIN HASSAN",
@@ -8788,9 +9415,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "483692601000",
-    "land": "FINAL TITLE",
-    "lat": "3.750370000000000",
-    "lng": "101.111977999999993"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.75037",
+    "lng": "101.111978"
   },
   {
     "smallholder": "SITI ROHANA BINTI ABD RAHMAN",
@@ -8802,9 +9430,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "535445801000",
-    "land": "FINAL TITLE",
-    "lat": "3.750664000000000",
-    "lng": "101.108430999999996"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.750664",
+    "lng": "101.108431"
   },
   {
     "smallholder": "SULAIMAN BIN TALIB",
@@ -8816,9 +9445,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "763542001002",
-    "land": "FINAL TITLE",
-    "lat": "3.750273000000000",
-    "lng": "101.109187000000006"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.750273",
+    "lng": "101.109187"
   },
   {
     "smallholder": "SITI SANDORA BINTI MOHD ZAIDI",
@@ -8830,9 +9460,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "485393601000",
-    "land": "FINAL TITLE",
-    "lat": "3.749524000000000",
-    "lng": "101.110641000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.749524",
+    "lng": "101.110641"
   },
   {
     "smallholder": "HASSAN BIN ABDUL RAHMAN",
@@ -8844,9 +9475,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "535443101000",
-    "land": "FINAL TITLE",
-    "lat": "3.749569000000000",
-    "lng": "101.108110999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.749569",
+    "lng": "101.108111"
   },
   {
     "smallholder": "SALMAH BINTI ABD MANAN",
@@ -8858,9 +9490,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "590513601000",
-    "land": "FINAL TITLE",
-    "lat": "3.748954000000000",
-    "lng": "101.109339000000006"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.748954",
+    "lng": "101.109339"
   },
   {
     "smallholder": "ABD HALIM BIN SALLEHUDDIN",
@@ -8872,9 +9505,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "830872001002",
-    "land": "FINAL TITLE",
-    "lat": "3.750454000000000",
-    "lng": "101.114779999999996"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.750454",
+    "lng": "101.11478"
   },
   {
     "smallholder": "ANJUR BIN MARWAM",
@@ -8886,9 +9520,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "793704001002",
-    "land": "FINAL TITLE",
-    "lat": "3.749704000000000",
-    "lng": "101.116228000000007"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.749704",
+    "lng": "101.116228"
   },
   {
     "smallholder": "SOLIAH BINTI KONTING",
@@ -8900,9 +9535,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "229309801000",
-    "land": "FINAL TITLE",
-    "lat": "3.749329000000000",
-    "lng": "101.116952999999995"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.749329",
+    "lng": "101.116953"
   },
   {
     "smallholder": "YATINAH BINTI HJ NOOR",
@@ -8914,9 +9550,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "875204001002",
-    "land": "FINAL TITLE",
-    "lat": "3.748579000000000",
-    "lng": "101.118403000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.748579",
+    "lng": "101.118403"
   },
   {
     "smallholder": "YANTI LIANA BINTI AHMAD",
@@ -8928,9 +9565,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "825997001002",
-    "land": "FINAL TITLE",
-    "lat": "3.748203000000000",
-    "lng": "101.119128000000003"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.748203",
+    "lng": "101.119128"
   },
   {
     "smallholder": "YATINAH BINTI HJ NOOR",
@@ -8942,9 +9580,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "875204001002",
-    "land": "FINAL TITLE",
-    "lat": "3.747828000000000",
-    "lng": "101.119854000000004"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.747828",
+    "lng": "101.119854"
   },
   {
     "smallholder": "NOR HAMIZA BINTI ABDUL HAMID",
@@ -8956,9 +9595,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "819100001002",
-    "land": "FINAL TITLE",
-    "lat": "3.746615000000000",
-    "lng": "101.119230000000002"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.746615",
+    "lng": "101.11923"
   },
   {
     "smallholder": "ABDULLAH BIN HAJI TAIB",
@@ -8970,9 +9610,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "824787001002",
-    "land": "FINAL TITLE",
-    "lat": "3.755555000000000",
-    "lng": "101.111053999999996"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.755555",
+    "lng": "101.111054"
   },
   {
     "smallholder": "AMIR HAMZAH BIN SADRI",
@@ -8984,9 +9625,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "829551001002",
-    "land": "FINAL TITLE",
-    "lat": "3.753588000000000",
-    "lng": "101.111890000000002"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.753588",
+    "lng": "101.11189"
   },
   {
     "smallholder": "AHMAD BIN DALIMIN",
@@ -8998,9 +9640,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "829919001002",
-    "land": "FINAL TITLE",
-    "lat": "3.750981000000000",
-    "lng": "101.116923999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.750981",
+    "lng": "101.116924"
   },
   {
     "smallholder": "KENCANA GALAXY SDN BHD",
@@ -9012,9 +9655,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "598628401000",
-    "land": "FINAL TITLE",
-    "lat": "3.753805000000000",
-    "lng": "101.120358999999993"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.753805",
+    "lng": "101.120359"
   },
   {
     "smallholder": "MOHD RUDI BIN SAHARONI",
@@ -9026,9 +9670,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "846022001002",
-    "land": "FINAL TITLE",
-    "lat": "3.751936000000000",
-    "lng": "101.123970999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.751936",
+    "lng": "101.123971"
   },
   {
     "smallholder": "LEE TECK GEE",
@@ -9040,9 +9685,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "591678201000",
-    "land": "FINAL TITLE",
-    "lat": "3.788088000000000",
-    "lng": "100.977872000000005"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.788088",
+    "lng": "100.977872"
   },
   {
     "smallholder": "GHS COMMODITIES TRADING SDN BHD",
@@ -9054,9 +9700,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "802322001002",
-    "land": "FINAL TITLE",
-    "lat": "3.788561000000000",
-    "lng": "100.978139999999996"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.788561",
+    "lng": "100.97814"
   },
   {
     "smallholder": "LEE TECK GEE",
@@ -9068,9 +9715,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "591678201000",
-    "land": "FINAL TITLE",
-    "lat": "3.789985000000000",
-    "lng": "100.978987000000004"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.789985",
+    "lng": "100.978987"
   },
   {
     "smallholder": "TAN AH NGOO",
@@ -9082,9 +9730,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "499799701000",
-    "land": "FINAL TITLE",
-    "lat": "3.839527000000000",
-    "lng": "100.944333000000000"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.839527",
+    "lng": "100.944333"
   },
   {
     "smallholder": "THULUKANAM A/L THANKAVELI",
@@ -9096,9 +9745,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "NO 50451330 MSPO 2",
     "license_no": "444093301000",
-    "land": "FINAL TITLE",
-    "lat": "3.931362000000000",
-    "lng": "100.951295999999999"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.931362",
+    "lng": "100.951296"
   },
   {
     "smallholder": "CHEONG SEK CHYE",
@@ -9110,9 +9760,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "486870401000",
-    "land": "FINAL TITLE",
-    "lat": "3.800013000000000",
-    "lng": "100.987365999999994"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.800013",
+    "lng": "100.987366"
   },
   {
     "smallholder": "KENCANA GALAXY SDN BHD",
@@ -9124,9 +9775,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "598628401000",
-    "land": "FINAL TITLE",
-    "lat": "3.813706000000000",
-    "lng": "100.987275999999994"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.813706",
+    "lng": "100.987276"
   },
   {
     "smallholder": "NGAINON BINTI MOHAMMAD ASKAR",
@@ -9138,9 +9790,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "817805001002",
-    "land": "FINAL TITLE",
-    "lat": "3.798467000000000",
-    "lng": "100.985774000000006"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.798467",
+    "lng": "100.985774"
   },
   {
     "smallholder": "MOHAMED ZAKUAN BIN AHMAD",
@@ -9152,9 +9805,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "222872501000",
-    "land": "FINAL TITLE",
-    "lat": "3.779412000000000",
-    "lng": "101.065072999999998"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.779412",
+    "lng": "101.065073"
   },
   {
     "smallholder": "MOHD RADZI BIN JUANI",
@@ -9166,9 +9820,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "825648001002",
-    "land": "FINAL TITLE",
-    "lat": "3.778285000000000",
-    "lng": "101.063278999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.778285",
+    "lng": "101.063279"
   },
   {
     "smallholder": "SALASIAH BINTI HANAPIAH",
@@ -9180,9 +9835,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "869679001002",
-    "land": "FINAL TITLE",
-    "lat": "3.753513000000000",
-    "lng": "101.090537999999995"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.753513",
+    "lng": "101.090538"
   },
   {
     "smallholder": "CHAN GUAT BEE",
@@ -9194,9 +9850,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "795920001002",
-    "land": "FINAL TITLE",
-    "lat": "3.902899000000000",
-    "lng": "100.930837999999994"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.902899",
+    "lng": "100.930838"
   },
   {
     "smallholder": "NEOH CHUONG @ SON SDN BHD",
@@ -9208,9 +9865,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "213375901000",
-    "land": "FINAL TITLE",
-    "lat": "3.903151000000000",
-    "lng": "100.933209000000005"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.903151",
+    "lng": "100.933209"
   },
   {
     "smallholder": "CHAN KUAN SIN",
@@ -9222,9 +9880,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "571717801000",
-    "land": "FINAL TITLE",
-    "lat": "3.902376000000000",
-    "lng": "100.925411999999994"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.902376",
+    "lng": "100.925412"
   },
   {
     "smallholder": "TEH HOCK SING",
@@ -9236,9 +9895,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424591001000",
-    "land": "FINAL TITLE",
-    "lat": "3.877486000000000",
-    "lng": "101.088789000000006"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.877486",
+    "lng": "101.088789"
   },
   {
     "smallholder": "TEH HOCK SING",
@@ -9250,9 +9910,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424591001000",
-    "land": "FINAL TITLE",
-    "lat": "3.877151000000000",
-    "lng": "101.089612000000002"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.877151",
+    "lng": "101.089612"
   },
   {
     "smallholder": "TEH HOCK LAI",
@@ -9264,9 +9925,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "522094001000",
-    "land": "FINAL TITLE",
-    "lat": "3.876816000000000",
-    "lng": "101.090439000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.876816",
+    "lng": "101.090439"
   },
   {
     "smallholder": "TEH HOCK LAI",
@@ -9278,9 +9940,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "522094001000",
-    "land": "FINAL TITLE",
-    "lat": "3.876482000000000",
-    "lng": "101.091267999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.876482",
+    "lng": "101.091268"
   },
   {
     "smallholder": "TEH TEK SOON",
@@ -9292,9 +9955,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424595201000",
-    "land": "FINAL TITLE",
-    "lat": "3.876148000000000",
-    "lng": "101.092097999999993"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.876148",
+    "lng": "101.092098"
   },
   {
     "smallholder": "TEH TEK SOON",
@@ -9306,9 +9970,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424595201000",
-    "land": "FINAL TITLE",
-    "lat": "3.875814000000000",
-    "lng": "101.092928999999998"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.875814",
+    "lng": "101.092929"
   },
   {
     "smallholder": "TEH HOCK SING",
@@ -9320,9 +9985,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424591001000",
-    "land": "FINAL TITLE",
-    "lat": "3.878151000000000",
-    "lng": "101.087149999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.878151",
+    "lng": "101.08715"
   },
   {
     "smallholder": "TEH HOCK SING",
@@ -9334,9 +10000,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424591001000",
-    "land": "FINAL TITLE",
-    "lat": "3.877819000000000",
-    "lng": "101.087968000000004"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.877819",
+    "lng": "101.087968"
   },
   {
     "smallholder": "SINAR JAGOH SDN BHD",
@@ -9348,9 +10015,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "225991401000",
-    "land": "FINAL TITLE",
-    "lat": "3.929885000000000",
-    "lng": "100.960853999999998"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.929885",
+    "lng": "100.960854"
   },
   {
     "smallholder": "CHEONG SEK CHYE",
@@ -9362,9 +10030,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "486870401000",
-    "land": "FINAL TITLE",
-    "lat": "3.809794000000000",
-    "lng": "100.986633999999995"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.809794",
+    "lng": "100.986634"
   },
   {
     "smallholder": "TEE BEE LENG",
@@ -9376,9 +10045,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "410728201000",
-    "land": "FINAL TITLE",
-    "lat": "3.795873000000000",
-    "lng": "100.984752000000000"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.795873",
+    "lng": "100.984752"
   },
   {
     "smallholder": "TEE BEE LENG",
@@ -9390,9 +10060,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "410728201000",
-    "land": "FINAL TITLE",
-    "lat": "3.795199000000000",
-    "lng": "100.985792000000004"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.795199",
+    "lng": "100.985792"
   },
   {
     "smallholder": "CHUA BOON HONG",
@@ -9404,9 +10075,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "415703401000",
-    "land": "FINAL TITLE",
-    "lat": "3.795932000000000",
-    "lng": "100.986315000000005"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.795932",
+    "lng": "100.986315"
   },
   {
     "smallholder": "JABRI BIN HASHIM",
@@ -9418,9 +10090,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "747635001002",
-    "land": "FINAL TITLE",
-    "lat": "3.808360000000000",
-    "lng": "100.986401999999998"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.80836",
+    "lng": "100.986402"
   },
   {
     "smallholder": "CHEONG SEK CHYE",
@@ -9432,9 +10105,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "486870401000",
-    "land": "FINAL TITLE",
-    "lat": "3.808634000000000",
-    "lng": "100.984055999999995"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.808634",
+    "lng": "100.984056"
   },
   {
     "smallholder": "MOHD SHAH RIZAL BIN MOHD SALLEH",
@@ -9446,9 +10120,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "539832301000",
-    "land": "FINAL TITLE",
-    "lat": "3.806179000000000",
-    "lng": "100.986028000000005"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.806179",
+    "lng": "100.986028"
   },
   {
     "smallholder": "ONG KANG LIN",
@@ -9460,9 +10135,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "803751001002",
-    "land": "FINAL TITLE",
-    "lat": "3.762450000000000",
-    "lng": "101.062421999999998"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.76245",
+    "lng": "101.062422"
   },
   {
     "smallholder": "SITI SAPINAH BINTI JAMAL",
@@ -9474,9 +10150,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "791574001002",
-    "land": "FINAL TITLE",
-    "lat": "3.757744000000000",
-    "lng": "101.127916999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.757744",
+    "lng": "101.127917"
   },
   {
     "smallholder": "NORIDAH BINTI DUKI",
@@ -9488,9 +10165,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "752394001002",
-    "land": "FINAL TITLE",
-    "lat": "3.786895000000000",
-    "lng": "101.127359999999996"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.786895",
+    "lng": "101.12736"
   },
   {
     "smallholder": "SAMSIAH BINTI NORAHIM",
@@ -9502,9 +10180,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "750408001002",
-    "land": "FINAL TITLE",
-    "lat": "3.785851000000000",
-    "lng": "101.126861000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.785851",
+    "lng": "101.126861"
   },
   {
     "smallholder": "RUSITAH BINTI ABD RAHMAN",
@@ -9516,9 +10195,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "835621001002",
-    "land": "FINAL TITLE",
-    "lat": "3.776403000000000",
-    "lng": "101.132350000000002"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.776403",
+    "lng": "101.13235"
   },
   {
     "smallholder": "MASRIAH BINTI IBAR",
@@ -9530,9 +10210,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "807064001002",
-    "land": "FINAL TITLE",
-    "lat": "3.773570000000000",
-    "lng": "101.127405999999993"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.77357",
+    "lng": "101.127406"
   },
   {
     "smallholder": "SULIMIN BIN NASAK",
@@ -9544,9 +10225,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "750737001002",
-    "land": "FINAL TITLE",
-    "lat": "3.805740000000000",
-    "lng": "101.012865000000005"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.80574",
+    "lng": "101.012865"
   },
   {
     "smallholder": "GHAZALI BIN MANSOR",
@@ -9558,9 +10240,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "214721101000",
-    "land": "FINAL TITLE",
-    "lat": "3.834250000000000",
-    "lng": "101.013497999999998"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.83425",
+    "lng": "101.013498"
   },
   {
     "smallholder": "CHIA KUAN YANG",
@@ -9572,9 +10255,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "218111701000",
-    "land": "FINAL TITLE",
-    "lat": "3.832940000000000",
-    "lng": "101.010186000000004"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.83294",
+    "lng": "101.010186"
   },
   {
     "smallholder": "SITI SARIAH BINTI SAMAD",
@@ -9586,9 +10270,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "748688001002",
-    "land": "FINAL TITLE",
-    "lat": "3.822463000000000",
-    "lng": "100.995818000000000"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.822463",
+    "lng": "100.995818"
   },
   {
     "smallholder": "JAAFAR BIN MARZUKI",
@@ -9600,9 +10285,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "464269201000",
-    "land": "FINAL TITLE",
-    "lat": "3.822471000000000",
-    "lng": "100.996720999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.822471",
+    "lng": "100.996721"
   },
   {
     "smallholder": "JALIAH BINTI YATIM",
@@ -9614,9 +10300,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "755393001002",
-    "land": "FINAL TITLE",
-    "lat": "3.822471000000000",
-    "lng": "100.996720999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.822471",
+    "lng": "100.996721"
   },
   {
     "smallholder": "LIM TIANG",
@@ -9628,9 +10315,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "776631001002",
-    "land": "FINAL TITLE",
-    "lat": "3.822498000000000",
-    "lng": "100.999429000000006"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.822498",
+    "lng": "100.999429"
   },
   {
     "smallholder": "FARIZAL BIN DASUKI",
@@ -9642,9 +10330,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO57",
     "license_no": "460749801000",
-    "land": "FINAL TITLE",
-    "lat": "3.819537000000000",
-    "lng": "100.994101999999998"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.819537",
+    "lng": "100.994102"
   },
   {
     "smallholder": "RAMESH A/L S SUBRAMANIAM",
@@ -9656,9 +10345,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "789111001002",
-    "land": "FINAL TITLE",
-    "lat": "3.819561000000000",
-    "lng": "100.996746999999999"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.819561",
+    "lng": "100.996747"
   },
   {
     "smallholder": "ABDUL RAZAK BIN. HASHIM",
@@ -9670,9 +10360,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "815453001002",
-    "land": "FINAL TITLE",
-    "lat": "3.819606000000000",
-    "lng": "101.001255000000000"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.819606",
+    "lng": "101.001255"
   },
   {
     "smallholder": "KEE KAU KEA @ KEE KOOI SENG",
@@ -9684,9 +10375,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "519952501000",
-    "land": "FINAL TITLE",
-    "lat": "3.838781000000000",
-    "lng": "101.000180999999998"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.838781",
+    "lng": "101.000181"
   },
   {
     "smallholder": "S.MUNIANDY A/L SUPRAMANIAM",
@@ -9698,9 +10390,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "812019001002",
-    "land": "FINAL TITLE",
-    "lat": "3.834321000000000",
-    "lng": "101.000225000000000"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.834321",
+    "lng": "101.000225"
   },
   {
     "smallholder": "MOHD YAACOB BIN HAJI ZAINAL ABIDIN",
@@ -9712,9 +10405,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "579254401000",
-    "land": "FINAL TITLE",
-    "lat": "3.832861000000000",
-    "lng": "100.999331999999995"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.832861",
+    "lng": "100.999332"
   },
   {
     "smallholder": "SULAIMAN BIN AHMAD ZAKARIA",
@@ -9726,9 +10420,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "218547301000",
-    "land": "FINAL TITLE",
-    "lat": "3.831397000000000",
-    "lng": "100.998450000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.831397",
+    "lng": "100.99845"
   },
   {
     "smallholder": "TANG YOKE CHOO",
@@ -9740,9 +10435,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "763853001002",
-    "land": "FINAL TITLE",
-    "lat": "3.835813000000000",
-    "lng": "101.005088999999998"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.835813",
+    "lng": "101.005089"
   },
   {
     "smallholder": "SUZILA BINTI GHAZALI",
@@ -9754,9 +10450,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "844490001002",
-    "land": "FINAL TITLE",
-    "lat": "3.796994000000000",
-    "lng": "100.983429999999998"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.796994",
+    "lng": "100.98343"
   },
   {
     "smallholder": "CHUA BOON HONG",
@@ -9768,9 +10465,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "415703401000",
-    "land": "FINAL TITLE",
-    "lat": "3.796603000000000",
-    "lng": "100.985232999999994"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.796603",
+    "lng": "100.985233"
   },
   {
     "smallholder": "KARUPAYEE A/P ARUMUGAM",
@@ -9782,9 +10480,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "574850201000",
-    "land": "FINAL TITLE",
-    "lat": "3.783166000000000",
-    "lng": "101.133325999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.783166",
+    "lng": "101.133326"
   },
   {
     "smallholder": "M.RAMAKIRUSNAN A/L MOGANADZAHGANDY",
@@ -9796,9 +10495,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "531287901000",
-    "land": "FINAL TITLE",
-    "lat": "3.782533000000000",
-    "lng": "101.135040000000004"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.782533",
+    "lng": "101.13504"
   },
   {
     "smallholder": "M.RAMAKIRUSNAN A/L MOGANADZAHGANDY",
@@ -9810,9 +10510,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "531287901000",
-    "land": "FINAL TITLE",
-    "lat": "3.782031000000000",
-    "lng": "101.134923999999998"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.782031",
+    "lng": "101.134924"
   },
   {
     "smallholder": "ZULIAH BINTI YAHYA",
@@ -9824,9 +10525,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "592477701000",
-    "land": "FINAL TITLE",
-    "lat": "3.782122000000000",
-    "lng": "101.132919999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.782122",
+    "lng": "101.13292"
   },
   {
     "smallholder": "MAYASAROH BINTI SRIKIN",
@@ -9838,9 +10540,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "798332001002",
-    "land": "FINAL TITLE",
-    "lat": "3.781617000000000",
-    "lng": "101.132676000000004"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.781617",
+    "lng": "101.132676"
   },
   {
     "smallholder": "MOHD SAHODI BIN SAMIKON",
@@ -9852,9 +10555,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "851429001002",
-    "land": "FINAL TITLE",
-    "lat": "3.750600000000000",
-    "lng": "101.081117000000006"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.7506",
+    "lng": "101.081117"
   },
   {
     "smallholder": "SITI ZALIPAH BINTI SELAMAT",
@@ -9866,9 +10570,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "869657001002",
-    "land": "FINAL TITLE",
-    "lat": "3.753383000000000",
-    "lng": "101.083588000000006"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.753383",
+    "lng": "101.083588"
   },
   {
     "smallholder": "TUKIRAN BIN SULAIMAN",
@@ -9880,9 +10585,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO33",
     "license_no": "886485001002",
-    "land": "FINAL TITLE",
-    "lat": "3.753383000000000",
-    "lng": "101.083588000000006"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.753383",
+    "lng": "101.083588"
   },
   {
     "smallholder": "SITI BINTI SHAMSURI",
@@ -9894,9 +10600,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "502425301000",
-    "land": "FINAL TITLE",
-    "lat": "3.750580000000000",
-    "lng": "101.083029999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.75058",
+    "lng": "101.08303"
   },
   {
     "smallholder": "MOHAMAD KESNAN B. SARIF",
@@ -9908,9 +10615,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "747929001002",
-    "land": "FINAL TITLE",
-    "lat": "3.892397000000000",
-    "lng": "100.940267000000006"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.892397",
+    "lng": "100.940267"
   },
   {
     "smallholder": "MOHD MAAROF BIN SALIMAN",
@@ -9922,9 +10630,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "437817101000",
-    "land": "FINAL TITLE",
-    "lat": "3.825280000000000",
-    "lng": "100.990167999999997"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.82528",
+    "lng": "100.990168"
   },
   {
     "smallholder": "ABDUL AZIM BIN MOHD.BORHAM",
@@ -9936,9 +10645,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "520839701000",
-    "land": "FINAL TITLE",
-    "lat": "3.824473000000000",
-    "lng": "100.989987999999997"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.824473",
+    "lng": "100.989988"
   },
   {
     "smallholder": "ABU TALHAH BIN MOHAMED NASOHA",
@@ -9950,9 +10660,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "579482201000",
-    "land": "FINAL TITLE",
-    "lat": "3.824473000000000",
-    "lng": "100.989987999999997"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.824473",
+    "lng": "100.989988"
   },
   {
     "smallholder": "AIMAN BIN MOHD SOLEH",
@@ -9964,9 +10675,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO39",
     "license_no": "885341001002",
-    "land": "FINAL TITLE",
-    "lat": "3.823047000000000",
-    "lng": "100.987934999999993"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.823047",
+    "lng": "100.987935"
   },
   {
     "smallholder": "AHMAD JUBAIDI BIN TAHIR",
@@ -9978,9 +10690,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "472396001000",
-    "land": "FINAL TITLE",
-    "lat": "3.822235000000000",
-    "lng": "100.987750000000005"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.822235",
+    "lng": "100.98775"
   },
   {
     "smallholder": "ILLANGO A/L M.SUBRAMANIAM",
@@ -9992,9 +10705,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "879699001002",
-    "land": "FINAL TITLE",
-    "lat": "3.888819000000000",
-    "lng": "101.075331000000006"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.888819",
+    "lng": "101.075331"
   },
   {
     "smallholder": "ILLANGO A/L M.SUBRAMANIAM",
@@ -10006,9 +10720,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "879699001002",
-    "land": "FINAL TITLE",
-    "lat": "3.888447000000000",
-    "lng": "101.076237000000006"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.888447",
+    "lng": "101.076237"
   },
   {
     "smallholder": "VADIVELLU A/L SUBRAMANIAM",
@@ -10020,9 +10735,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "575452901000",
-    "land": "FINAL TITLE",
-    "lat": "3.888075000000000",
-    "lng": "101.077141999999995"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.888075",
+    "lng": "101.077142"
   },
   {
     "smallholder": "VADIVELLU A/L SUBRAMANIAM",
@@ -10034,9 +10750,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "575452901000",
-    "land": "FINAL TITLE",
-    "lat": "3.887702000000000",
-    "lng": "101.078046999999998"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.887702",
+    "lng": "101.078047"
   },
   {
     "smallholder": "MUTUKUMARAN A/L SUBRAMANIAN",
@@ -10048,9 +10765,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "567000701000",
-    "land": "FINAL TITLE",
-    "lat": "3.887330000000000",
-    "lng": "101.078952999999998"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.88733",
+    "lng": "101.078953"
   },
   {
     "smallholder": "SIVAGURU A/L NARAYANASAMY",
@@ -10062,9 +10780,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "587463001000",
-    "land": "FINAL TITLE",
-    "lat": "3.889134000000000",
-    "lng": "101.079616999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.889134",
+    "lng": "101.079617"
   },
   {
     "smallholder": "LETCHAMANAN A/L SANYACY",
@@ -10076,9 +10795,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "752049001002",
-    "land": "FINAL TITLE",
-    "lat": "3.889564000000000",
-    "lng": "101.073520000000002"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.889564",
+    "lng": "101.07352"
   },
   {
     "smallholder": "SUTHANDHRAN A/L LETCHAMANAN",
@@ -10090,9 +10810,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "818313001002",
-    "land": "FINAL TITLE",
-    "lat": "3.889564000000000",
-    "lng": "101.073520000000002"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.889564",
+    "lng": "101.07352"
   },
   {
     "smallholder": "MAHMUD BIN NASEHAH",
@@ -10104,9 +10825,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "480891401000",
-    "land": "FINAL TITLE",
-    "lat": "3.779356000000000",
-    "lng": "101.121599000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.779356",
+    "lng": "101.121599"
   },
   {
     "smallholder": "MASDAR BIN TAHIR",
@@ -10118,9 +10840,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "869637001002",
-    "land": "FINAL TITLE",
-    "lat": "3.778550000000000",
-    "lng": "101.121217999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.77855",
+    "lng": "101.121218"
   },
   {
     "smallholder": "HAFSAH BINTI HJ ABDULLAH",
@@ -10132,9 +10855,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "755077001002",
-    "land": "FINAL TITLE",
-    "lat": "3.766749000000000",
-    "lng": "101.099467000000004"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.766749",
+    "lng": "101.099467"
   },
   {
     "smallholder": "NITHIYANANDA VEL A/L ARJUNAN",
@@ -10146,9 +10870,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "766738001002",
-    "land": "FINAL TITLE",
-    "lat": "3.778565000000000",
-    "lng": "101.119197000000000"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.778565",
+    "lng": "101.119197"
   },
   {
     "smallholder": "MUHAMAD MURIZAL BIN JOSTI",
@@ -10160,9 +10885,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "568250101000",
-    "land": "FINAL TITLE",
-    "lat": "3.825607000000000",
-    "lng": "101.015730000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.825607",
+    "lng": "101.01573"
   },
   {
     "smallholder": "SIVANESVARAN A/L SUPERMANI",
@@ -10174,9 +10900,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO67",
     "license_no": "471047701000",
-    "land": "FINAL TITLE",
-    "lat": "3.821125000000000",
-    "lng": "101.011188000000004"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.821125",
+    "lng": "101.011188"
   },
   {
     "smallholder": "YAHAYA BIN MOLOK",
@@ -10188,9 +10915,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "221424401000",
-    "land": "FINAL TITLE",
-    "lat": "3.819681000000000",
-    "lng": "101.013917000000006"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.819681",
+    "lng": "101.013917"
   },
   {
     "smallholder": "GHAZALI BIN MANSOR",
@@ -10202,9 +10930,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "214721101000",
-    "land": "FINAL TITLE",
-    "lat": "3.834510000000000",
-    "lng": "101.012422999999998"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.83451",
+    "lng": "101.012423"
   },
   {
     "smallholder": "LOW KAR MENG",
@@ -10216,9 +10945,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "486016901000",
-    "land": "FINAL TITLE",
-    "lat": "3.832801000000000",
-    "lng": "101.016351000000000"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.832801",
+    "lng": "101.016351"
   },
   {
     "smallholder": "NORRIMAH BINTI ABD. LATIFF",
@@ -10230,9 +10960,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "878791001002",
-    "land": "FINAL TITLE",
-    "lat": "3.829959000000000",
-    "lng": "101.012953999999993"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.829959",
+    "lng": "101.012954"
   },
   {
     "smallholder": "MOHD HAFIZ BIN MOHD MUKRI",
@@ -10244,9 +10975,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "784559001002",
-    "land": "FINAL TITLE",
-    "lat": "3.829973000000000",
-    "lng": "101.015696000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.829973",
+    "lng": "101.015696"
   },
   {
     "smallholder": "MUHAMMAD HASBULLAH BIN ABU HASSAN",
@@ -10258,9 +10990,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "595451001000",
-    "land": "FINAL TITLE",
-    "lat": "3.828492000000000",
-    "lng": "101.011133999999998"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.828492",
+    "lng": "101.011134"
   },
   {
     "smallholder": "MUHAMMAD HASSANUL HIBRI BIN SAPUAN",
@@ -10272,9 +11005,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "586182101000",
-    "land": "FINAL TITLE",
-    "lat": "3.828502000000000",
-    "lng": "101.013880999999998"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.828502",
+    "lng": "101.013881"
   },
   {
     "smallholder": "FADHLINA BINTI ABD KARIM",
@@ -10286,9 +11020,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "793806001002",
-    "land": "FINAL TITLE",
-    "lat": "3.773472000000000",
-    "lng": "101.112121000000002"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.773472",
+    "lng": "101.112121"
   },
   {
     "smallholder": "FASEHAH BINTI ABD KARIM",
@@ -10300,9 +11035,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "793806001002",
-    "land": "FINAL TITLE",
-    "lat": "3.773472000000000",
-    "lng": "101.112121000000002"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.773472",
+    "lng": "101.112121"
   },
   {
     "smallholder": "MHD OTHMAN BIN ABD SALAM",
@@ -10314,9 +11050,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "837454001002",
-    "land": "FINAL TITLE",
-    "lat": "3.772785000000000",
-    "lng": "101.113591999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.772785",
+    "lng": "101.113592"
   },
   {
     "smallholder": "MOHD MAPOT BIN NASEHAH",
@@ -10328,9 +11065,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "784402001002",
-    "land": "FINAL TITLE",
-    "lat": "3.771736000000000",
-    "lng": "101.115793999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.771736",
+    "lng": "101.115794"
   },
   {
     "smallholder": "MUSNI BIN AB SALAM",
@@ -10342,9 +11080,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "219075201000",
-    "land": "FINAL TITLE",
-    "lat": "3.771230000000000",
-    "lng": "101.113710999999995"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.77123",
+    "lng": "101.113711"
   },
   {
     "smallholder": "MAHYUDDIN B MOHAMMAD",
@@ -10356,9 +11095,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "435469701000",
-    "land": "FINAL TITLE",
-    "lat": "3.772945000000000",
-    "lng": "101.110046999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.772945",
+    "lng": "101.110047"
   },
   {
     "smallholder": "ADNAN BIN ABD RASID",
@@ -10370,9 +11110,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "819623001002",
-    "land": "FINAL TITLE",
-    "lat": "3.773341000000000",
-    "lng": "101.109347999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.773341",
+    "lng": "101.109348"
   },
   {
     "smallholder": "TEO HENG SING",
@@ -10384,9 +11125,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "500128801000",
-    "land": "FINAL TITLE",
-    "lat": "3.850056000000000",
-    "lng": "100.947196000000005"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.850056",
+    "lng": "100.947196"
   },
   {
     "smallholder": "FARAH WAHIDA BINTI ABDUL WAHAB",
@@ -10398,9 +11140,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "795464001002",
-    "land": "FINAL TITLE",
-    "lat": "3.817778000000000",
-    "lng": "100.981909999999999"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.817778",
+    "lng": "100.98191"
   },
   {
     "smallholder": "MAT BARI BIN HUSIN",
@@ -10412,9 +11155,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "218748401000",
-    "land": "FINAL TITLE",
-    "lat": "3.764157000000000",
-    "lng": "101.115589999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.764157",
+    "lng": "101.11559"
   },
   {
     "smallholder": "HAJARIAH BINTI ACHIL",
@@ -10426,9 +11170,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "834978001002",
-    "land": "FINAL TITLE",
-    "lat": "3.762667000000000",
-    "lng": "101.118449999999996"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.762667",
+    "lng": "101.11845"
   },
   {
     "smallholder": "RAMLI BIN MANTOK",
@@ -10440,9 +11185,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "499286301000",
-    "land": "FINAL TITLE",
-    "lat": "3.761557000000000",
-    "lng": "101.120621000000000"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.761557",
+    "lng": "101.120621"
   },
   {
     "smallholder": "ALI BIDIN BIN HOMDAN",
@@ -10454,9 +11200,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "836980001002",
-    "land": "FINAL TITLE",
-    "lat": "3.760809000000000",
-    "lng": "101.122094000000004"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.760809",
+    "lng": "101.122094"
   },
   {
     "smallholder": "SAIFUL BAHRI BIN SARBANI",
@@ -10468,9 +11215,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "821543001002",
-    "land": "FINAL TITLE",
-    "lat": "3.762847000000000",
-    "lng": "101.127002000000005"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.762847",
+    "lng": "101.127002"
   },
   {
     "smallholder": "ZUBAIDAH BINTI SHAMSUDIN",
@@ -10482,9 +11230,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "832440001002",
-    "land": "FINAL TITLE",
-    "lat": "3.761794000000000",
-    "lng": "101.129322999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.761794",
+    "lng": "101.129323"
   },
   {
     "smallholder": "MHD KASIM BIN JAMALUDIN",
@@ -10496,9 +11245,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "222457601000",
-    "land": "FINAL TITLE",
-    "lat": "3.761268000000000",
-    "lng": "101.127105999999998"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.761268",
+    "lng": "101.127106"
   },
   {
     "smallholder": "NORHAWA BINTI SAMURI",
@@ -10510,9 +11260,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "455158101000",
-    "land": "FINAL TITLE",
-    "lat": "3.817702000000000",
-    "lng": "100.992082999999994"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.817702",
+    "lng": "100.992083"
   },
   {
     "smallholder": "NOR HAYATI BT SAION",
@@ -10524,9 +11275,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "222980201000",
-    "land": "FINAL TITLE",
-    "lat": "3.827887000000000",
-    "lng": "100.994517000000002"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.827887",
+    "lng": "100.994517"
   },
   {
     "smallholder": "MUHAMMAD SYAFIQ BIN MOHYEE",
@@ -10538,9 +11290,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "589035001000",
-    "land": "FINAL TITLE",
-    "lat": "3.826485000000000",
-    "lng": "100.992351999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.826485",
+    "lng": "100.992352"
   },
   {
     "smallholder": "RADIAH BINTI ABDULLAH",
@@ -10552,9 +11305,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "839805001002",
-    "land": "FINAL TITLE",
-    "lat": "3.826909000000000",
-    "lng": "100.994277999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.826909",
+    "lng": "100.994278"
   },
   {
     "smallholder": "MASRIPAH BINTI ISMAIL",
@@ -10566,9 +11320,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "818745001002",
-    "land": "FINAL TITLE",
-    "lat": "3.826105000000000",
-    "lng": "100.994090999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.826105",
+    "lng": "100.994091"
   },
   {
     "smallholder": "SUMINAH BINTI SIMUN",
@@ -10580,9 +11335,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "782140001002",
-    "land": "FINAL TITLE",
-    "lat": "3.824493000000000",
-    "lng": "100.993714999999995"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.824493",
+    "lng": "100.993715"
   },
   {
     "smallholder": "AHMAD MAHMUD BIN MOHD SUKAIMI",
@@ -10594,9 +11350,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "766910001002",
-    "land": "FINAL TITLE",
-    "lat": "3.823687000000000",
-    "lng": "100.993525000000005"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.823687",
+    "lng": "100.993525"
   },
   {
     "smallholder": "AHMAD FARID BIN OMAR",
@@ -10608,9 +11365,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "577593301000",
-    "land": "FINAL TITLE",
-    "lat": "3.778997000000000",
-    "lng": "100.972183000000001"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.778997",
+    "lng": "100.972183"
   },
   {
     "smallholder": "KAMARUDIN BIN SHAARY",
@@ -10622,9 +11380,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "464358301000",
-    "land": "FINAL TITLE",
-    "lat": "3.778243000000000",
-    "lng": "100.972977000000000"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.778243",
+    "lng": "100.972977"
   },
   {
     "smallholder": "SITI RAHIMAH BINTI ALI",
@@ -10636,9 +11395,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "829669001002",
-    "land": "FINAL TITLE",
-    "lat": "3.778243000000000",
-    "lng": "100.972977000000000"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.778243",
+    "lng": "100.972977"
   },
   {
     "smallholder": "LIM TIAN SEAH",
@@ -10650,9 +11410,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "400808001000",
-    "land": "FINAL TITLE",
-    "lat": "3.837320000000000",
-    "lng": "101.000196000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.83732",
+    "lng": "101.000196"
   },
   {
     "smallholder": "LIM TIANG",
@@ -10664,9 +11425,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "776631001002",
-    "land": "FINAL TITLE",
-    "lat": "3.837343000000000",
-    "lng": "100.999311000000006"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.837343",
+    "lng": "100.999311"
   },
   {
     "smallholder": "FAIRUZ FAZELY BIN KAMARZAMAN",
@@ -10678,9 +11440,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "464357501000",
-    "land": "FINAL TITLE",
-    "lat": "3.774457000000000",
-    "lng": "100.976941999999994"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.774457",
+    "lng": "100.976942"
   },
   {
     "smallholder": "LIM CHUAN AUN",
@@ -10692,9 +11455,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "819680001002",
-    "land": "FINAL TITLE",
-    "lat": "3.882987000000000",
-    "lng": "101.079965999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.882987",
+    "lng": "101.079966"
   },
   {
     "smallholder": "JEEWA A/L VILVASAMY",
@@ -10706,9 +11470,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "583189201000",
-    "land": "FINAL TITLE",
-    "lat": "3.881674000000000",
-    "lng": "101.073419000000001"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.881674",
+    "lng": "101.073419"
   },
   {
     "smallholder": "QUAH SAY HOCK",
@@ -10720,9 +11485,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "884365001002",
-    "land": "FINAL TITLE",
-    "lat": "3.903378000000000",
-    "lng": "100.935391999999993"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.903378",
+    "lng": "100.935392"
   },
   {
     "smallholder": "CHONG PIANG KIM",
@@ -10734,9 +11500,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "779470001002",
-    "land": "FINAL TITLE",
-    "lat": "3.897388000000000",
-    "lng": "100.919550000000001"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.897388",
+    "lng": "100.91955"
   },
   {
     "smallholder": "MAH ENG KIAN",
@@ -10748,9 +11515,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "801464001002",
-    "land": "FINAL TITLE",
-    "lat": "3.894512000000000",
-    "lng": "100.918931000000001"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.894512",
+    "lng": "100.918931"
   },
   {
     "smallholder": "IMAM MUSTANGIN BIN KADIMIN",
@@ -10762,9 +11530,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "751847001002",
-    "land": "FINAL TITLE",
-    "lat": "3.830302000000000",
-    "lng": "100.991277999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.830302",
+    "lng": "100.991278"
   },
   {
     "smallholder": "HALIMATUL SAADIAH BINTI TOHA @ TOHARA",
@@ -10776,9 +11545,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "579296001000",
-    "land": "FINAL TITLE",
-    "lat": "3.837472000000000",
-    "lng": "100.996790000000004"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.837472",
+    "lng": "100.99679"
   },
   {
     "smallholder": "ADNAN BIN NASAK",
@@ -10790,9 +11560,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "533463501000",
-    "land": "FINAL TITLE",
-    "lat": "3.834861000000000",
-    "lng": "100.994314000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.834861",
+    "lng": "100.994314"
   },
   {
     "smallholder": "ZAINAL ABIDIN BIN SHADAN",
@@ -10804,9 +11575,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "795442001002",
-    "land": "FINAL TITLE",
-    "lat": "3.832787000000000",
-    "lng": "100.995742000000007"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.832787",
+    "lng": "100.995742"
   },
   {
     "smallholder": "MOHD FOUZI BIN HAMIDUN",
@@ -10818,9 +11590,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "467897201000",
-    "land": "FINAL TITLE",
-    "lat": "3.837208000000000",
-    "lng": "100.994866999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.837208",
+    "lng": "100.994867"
   },
   {
     "smallholder": "SITI ROGAYAH BINTI SARIF",
@@ -10832,9 +11605,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "852542001002",
-    "land": "FINAL TITLE",
-    "lat": "3.892317000000000",
-    "lng": "100.939785999999998"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.892317",
+    "lng": "100.939786"
   },
   {
     "smallholder": "KEE SIAK GUAN@KEE TUCK HOOI",
@@ -10846,9 +11620,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "885852001002",
-    "land": "FINAL TITLE",
-    "lat": "3.891364000000000",
-    "lng": "100.939379000000002"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.891364",
+    "lng": "100.939379"
   },
   {
     "smallholder": "LIM SON WEE",
@@ -10860,9 +11635,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "217142101000",
-    "land": "FINAL TITLE",
-    "lat": "3.832945000000000",
-    "lng": "101.006923999999998"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.832945",
+    "lng": "101.006924"
   },
   {
     "smallholder": "MOHD SHAMSUDDIN BIN AHMAD",
@@ -10874,9 +11650,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "507571101000",
-    "land": "FINAL TITLE",
-    "lat": "3.868412000000000",
-    "lng": "100.845325000000003"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.868412",
+    "lng": "100.845325"
   },
   {
     "smallholder": "ABD HARIS BIN BAHARAN",
@@ -10888,9 +11665,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "588905001000",
-    "land": "FINAL TITLE",
-    "lat": "3.866226000000000",
-    "lng": "100.844049999999996"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.866226",
+    "lng": "100.84405"
   },
   {
     "smallholder": "MATHAVA A/L LETSHAMANAN",
@@ -10902,9 +11680,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "502371101000",
-    "land": "FINAL TITLE",
-    "lat": "3.889835000000000",
-    "lng": "101.041590999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.889835",
+    "lng": "101.041591"
   },
   {
     "smallholder": "SUBRAMANIAM A/L NADARAJA",
@@ -10916,9 +11695,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "462832101000",
-    "land": "FINAL TITLE",
-    "lat": "3.889835000000000",
-    "lng": "101.041590999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.889835",
+    "lng": "101.041591"
   },
   {
     "smallholder": "NG KIM THEONG",
@@ -10930,9 +11710,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "836159001002",
-    "land": "FINAL TITLE",
-    "lat": "3.889835000000000",
-    "lng": "101.041590999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.889835",
+    "lng": "101.041591"
   },
   {
     "smallholder": "HALIM BIN MOHD NOOR",
@@ -10944,9 +11725,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "825323001002",
-    "land": "FINAL TITLE",
-    "lat": "3.828433000000000",
-    "lng": "101.001191000000006"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.828433",
+    "lng": "101.001191"
   },
   {
     "smallholder": "MASDIANA AYURAFIDA BINTI SAMSUDIN",
@@ -10958,9 +11740,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "802382001002",
-    "land": "FINAL TITLE",
-    "lat": "3.826957000000000",
-    "lng": "100.999392000000000"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.826957",
+    "lng": "100.999392"
   },
   {
     "smallholder": "ROKIAH BT. ISMAIL",
@@ -10972,9 +11755,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "228430701000",
-    "land": "FINAL TITLE",
-    "lat": "3.814992000000000",
-    "lng": "100.996360999999993"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.814992",
+    "lng": "100.996361"
   },
   {
     "smallholder": "KHAIRUL AZIZI BIN SULAIMAN",
@@ -10986,9 +11770,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "485778801000",
-    "land": "FINAL TITLE",
-    "lat": "3.820643000000000",
-    "lng": "100.991038000000003"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.820643",
+    "lng": "100.991038"
   },
   {
     "smallholder": "SULIMIN BIN NASAK",
@@ -11000,9 +11785,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "750737001002",
-    "land": "FINAL TITLE",
-    "lat": "3.820283000000000",
-    "lng": "100.992706999999996"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.820283",
+    "lng": "100.992707"
   },
   {
     "smallholder": "ENDARA KUMAR A/L MUTHUVELU",
@@ -11014,9 +11800,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "430858001002",
-    "land": "FINAL TITLE",
-    "lat": "3.866657000000000",
-    "lng": "101.080421999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.866657",
+    "lng": "101.080422"
   },
   {
     "smallholder": "ENDARA KUMAR A/L MUTHUVELU",
@@ -11028,9 +11815,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "430858001002",
-    "land": "FINAL TITLE",
-    "lat": "3.865431000000000",
-    "lng": "101.078501000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.865431",
+    "lng": "101.078501"
   },
   {
     "smallholder": "ENDARA KUMAR A/L MUTHUVELU",
@@ -11042,9 +11830,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "430858001002",
-    "land": "FINAL TITLE",
-    "lat": "3.867315000000000",
-    "lng": "101.078823999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.867315",
+    "lng": "101.078824"
   },
   {
     "smallholder": "EMI LIANA BINTI MOHAMAD ASRI",
@@ -11056,9 +11845,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "820892001002",
-    "land": "FINAL TITLE",
-    "lat": "3.890053000000000",
-    "lng": "100.913847000000004"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.890053",
+    "lng": "100.913847"
   },
   {
     "smallholder": "AHMAD BOHANI BIN SAMIGAN",
@@ -11070,9 +11860,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "792531001002",
-    "land": "FINAL TITLE",
-    "lat": "3.885513000000000",
-    "lng": "100.914116000000007"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.885513",
+    "lng": "100.914116"
   },
   {
     "smallholder": "MARIAM BINTI MUHAMAD",
@@ -11084,9 +11875,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "754958001002",
-    "land": "FINAL TITLE",
-    "lat": "3.892337000000000",
-    "lng": "100.939537999999999"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.892337",
+    "lng": "100.939538"
   },
   {
     "smallholder": "GENESAN A/L RAMALINGAM",
@@ -11098,9 +11890,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "784365001002",
-    "land": "FINAL TITLE",
-    "lat": "3.873092000000000",
-    "lng": "101.069986999999998"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.873092",
+    "lng": "101.069987"
   },
   {
     "smallholder": "GENESAN A/L RAMALINGAM",
@@ -11112,9 +11905,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "784365001002",
-    "land": "FINAL TITLE",
-    "lat": "3.872428000000000",
-    "lng": "101.071597999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.872428",
+    "lng": "101.071598"
   },
   {
     "smallholder": "KRISTEN SAMY A/L PARUMAL",
@@ -11126,9 +11920,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "749123001002",
-    "land": "FINAL TITLE",
-    "lat": "3.875924000000000",
-    "lng": "101.058003999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.875924",
+    "lng": "101.058004"
   },
   {
     "smallholder": "LIM YAN SHEN",
@@ -11140,9 +11935,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "765278001002",
-    "land": "FINAL TITLE",
-    "lat": "3.873221000000000",
-    "lng": "101.064543000000000"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.873221",
+    "lng": "101.064543"
   },
   {
     "smallholder": "PUNITHAVATHE A/P RATNAM",
@@ -11154,9 +11950,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "543205001000",
-    "land": "FINAL TITLE",
-    "lat": "3.874994000000000",
-    "lng": "101.055443999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.874994",
+    "lng": "101.055444"
   },
   {
     "smallholder": "ENDARA KUMAR A/L MUTHUVELU",
@@ -11168,9 +11965,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "430858001002",
-    "land": "FINAL TITLE",
-    "lat": "3.865764000000000",
-    "lng": "101.077695000000006"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.865764",
+    "lng": "101.077695"
   },
   {
     "smallholder": "CHIA KIM YIT",
@@ -11182,9 +11980,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "451050801000",
-    "land": "FINAL TITLE",
-    "lat": "3.875616000000000",
-    "lng": "101.078238999999996"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.875616",
+    "lng": "101.078239"
   },
   {
     "smallholder": "TEH HOCK LAI",
@@ -11196,9 +11995,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "522094001000",
-    "land": "FINAL TITLE",
-    "lat": "3.873935000000000",
-    "lng": "101.097599000000002"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.873935",
+    "lng": "101.097599"
   },
   {
     "smallholder": "TEH HOCK LAI",
@@ -11210,9 +12010,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "522094001000",
-    "land": "FINAL TITLE",
-    "lat": "3.873571000000000",
-    "lng": "101.098360999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.873571",
+    "lng": "101.098361"
   },
   {
     "smallholder": "LIM YUE KOOI",
@@ -11224,9 +12025,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "601136201000",
-    "land": "FINAL TITLE",
-    "lat": "3.878389000000000",
-    "lng": "101.081417999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.878389",
+    "lng": "101.081418"
   },
   {
     "smallholder": "TAN POH POH",
@@ -11238,9 +12040,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424586301000",
-    "land": "FINAL TITLE",
-    "lat": "3.878102000000000",
-    "lng": "101.082120000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.878102",
+    "lng": "101.08212"
   },
   {
     "smallholder": "JAMA'YAH BINTI IBRAHIM",
@@ -11252,9 +12055,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "820975001002",
-    "land": "FINAL TITLE",
-    "lat": "3.885517000000000",
-    "lng": "100.907912999999994"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.885517",
+    "lng": "100.907913"
   },
   {
     "smallholder": "TEH TEK AN",
@@ -11266,9 +12070,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424590101000",
-    "land": "FINAL TITLE",
-    "lat": "3.892247000000000",
-    "lng": "101.071269999999998"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.892247",
+    "lng": "101.07127"
   },
   {
     "smallholder": "MD BARI BIN OTHMAN",
@@ -11280,9 +12085,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "453858501000",
-    "land": "FINAL TITLE",
-    "lat": "3.786463000000000",
-    "lng": "101.069230000000005"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.786463",
+    "lng": "101.06923"
   },
   {
     "smallholder": "MOHD RADZI BIN SAARI",
@@ -11294,9 +12100,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "572164701000",
-    "land": "FINAL TITLE",
-    "lat": "3.784422000000000",
-    "lng": "101.059270999999995"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.784422",
+    "lng": "101.059271"
   },
   {
     "smallholder": "SAHABUDIN BIN DUKI",
@@ -11308,9 +12115,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "841306001002",
-    "land": "FINAL TITLE",
-    "lat": "3.783934000000000",
-    "lng": "101.060231999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.783934",
+    "lng": "101.060232"
   },
   {
     "smallholder": "PATUMALAI A/L ARUMUGHAM",
@@ -11322,9 +12130,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "815905001002",
-    "land": "FINAL TITLE",
-    "lat": "3.889764000000000",
-    "lng": "101.063537999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.889764",
+    "lng": "101.063538"
   },
   {
     "smallholder": "KARPUDEWIR A/L SEVANANDY",
@@ -11336,9 +12145,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "589421501000",
-    "land": "FINAL TITLE",
-    "lat": "3.889426000000000",
-    "lng": "101.064363999999998"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.889426",
+    "lng": "101.064364"
   },
   {
     "smallholder": "PATUMALAI A/L ARUMUGHAM",
@@ -11350,9 +12160,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "815905001002",
-    "land": "FINAL TITLE",
-    "lat": "3.888749000000000",
-    "lng": "101.066008999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.888749",
+    "lng": "101.066009"
   },
   {
     "smallholder": "TEH TEK AN",
@@ -11364,9 +12175,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424590101000",
-    "land": "FINAL TITLE",
-    "lat": "3.891689000000000",
-    "lng": "101.073189999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.891689",
+    "lng": "101.07319"
   },
   {
     "smallholder": "TAN YOKE WAI",
@@ -11378,9 +12190,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "520710201000",
-    "land": "FINAL TITLE",
-    "lat": "3.893856000000000",
-    "lng": "101.062820000000002"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.893856",
+    "lng": "101.06282"
   },
   {
     "smallholder": "LETCHAMANAN A/L SANYACY",
@@ -11392,9 +12205,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "752049001002",
-    "land": "FINAL TITLE",
-    "lat": "3.890341000000000",
-    "lng": "101.071628000000004"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.890341",
+    "lng": "101.071628"
   },
   {
     "smallholder": "LETCHAMANAN A/L SANYACY",
@@ -11406,9 +12220,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "752049001002",
-    "land": "FINAL TITLE",
-    "lat": "3.889936000000000",
-    "lng": "101.072614999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.889936",
+    "lng": "101.072615"
   },
   {
     "smallholder": "SUTHANDHRAN A/L LETCHAMANAN",
@@ -11420,9 +12235,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "818313001002",
-    "land": "FINAL TITLE",
-    "lat": "3.889936000000000",
-    "lng": "101.072614999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.889936",
+    "lng": "101.072615"
   },
   {
     "smallholder": "SIVANANDAM A/L G ELLUMALAI",
@@ -11434,9 +12250,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "808915001002",
-    "land": "FINAL TITLE",
-    "lat": "3.890650000000000",
-    "lng": "101.066388000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.89065",
+    "lng": "101.066388"
   },
   {
     "smallholder": "TEOH TEK HOCK",
@@ -11448,9 +12265,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424596101000",
-    "land": "FINAL TITLE",
-    "lat": "3.893166000000000",
-    "lng": "101.064757000000000"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.893166",
+    "lng": "101.064757"
   },
   {
     "smallholder": "TEH HOCK SING",
@@ -11462,9 +12280,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424591001000",
-    "land": "FINAL TITLE",
-    "lat": "3.892422000000000",
-    "lng": "101.066568000000004"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.892422",
+    "lng": "101.066568"
   },
   {
     "smallholder": "TEH HOCK SING",
@@ -11476,9 +12295,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424591001000",
-    "land": "FINAL TITLE",
-    "lat": "3.891678000000000",
-    "lng": "101.068377999999996"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.891678",
+    "lng": "101.068378"
   },
   {
     "smallholder": "TAN KIM LIAN",
@@ -11490,9 +12310,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "582815801000",
-    "land": "FINAL TITLE",
-    "lat": "3.893016000000000",
-    "lng": "101.055638999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.893016",
+    "lng": "101.055639"
   },
   {
     "smallholder": "TEH HOCK LAI",
@@ -11504,9 +12325,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "522094001000",
-    "land": "FINAL TITLE",
-    "lat": "3.893126000000000",
-    "lng": "101.068271999999993"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.893126",
+    "lng": "101.068272"
   },
   {
     "smallholder": "SUBRAMANIAM A/L MARIAH",
@@ -11518,9 +12340,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "227809901000",
-    "land": "FINAL TITLE",
-    "lat": "3.871758000000000",
-    "lng": "101.082999000000001"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.871758",
+    "lng": "101.082999"
   },
   {
     "smallholder": "ARUJUANA A/L MARIAH",
@@ -11532,9 +12355,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "486908501000",
-    "land": "FINAL TITLE",
-    "lat": "3.871419000000000",
-    "lng": "101.083832000000001"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.871419",
+    "lng": "101.083832"
   },
   {
     "smallholder": "SP INDAH PLANTATION SDN BHD",
@@ -11546,9 +12370,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "792012001002",
-    "land": "FINAL TITLE",
-    "lat": "3.901069000000000",
-    "lng": "100.914496000000000"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.901069",
+    "lng": "100.914496"
   },
   {
     "smallholder": "MOHAMMAD DANIEL LIM BIN ABDULLAH",
@@ -11560,9 +12385,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "765277001002",
-    "land": "FINAL TITLE",
-    "lat": "3.872547000000000",
-    "lng": "101.066176999999996"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.872547",
+    "lng": "101.066177"
   },
   {
     "smallholder": "BALA A/L MANIKAM",
@@ -11574,9 +12400,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "751137001002",
-    "land": "FINAL TITLE",
-    "lat": "3.871202000000000",
-    "lng": "101.069436999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.871202",
+    "lng": "101.069437"
   },
   {
     "smallholder": "SIVA SAKTHYVEL A/L ARJUNAN",
@@ -11588,9 +12415,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "775636001002",
-    "land": "FINAL TITLE",
-    "lat": "3.870532000000000",
-    "lng": "101.071062999999995"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.870532",
+    "lng": "101.071063"
   },
   {
     "smallholder": "NITHIYANANDA VEL A/L ARJUNAN",
@@ -11602,9 +12430,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "766738001002",
-    "land": "FINAL TITLE",
-    "lat": "3.869862000000000",
-    "lng": "101.072686000000004"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.869862",
+    "lng": "101.072686"
   },
   {
     "smallholder": "SATYA NANDA VEL A/L ARJUNAN",
@@ -11616,9 +12445,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "775637001002",
-    "land": "FINAL TITLE",
-    "lat": "3.869194000000000",
-    "lng": "101.074307000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.869194",
+    "lng": "101.074307"
   },
   {
     "smallholder": "PARAKAS A/L MUNISAMY@MUNUSAMY",
@@ -11630,9 +12460,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO70",
     "license_no": "881898001002",
-    "land": "FINAL TITLE",
-    "lat": "3.870924000000000",
-    "lng": "101.065262000000004"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.870924",
+    "lng": "101.065262"
   },
   {
     "smallholder": "MANIKAM A/P PERUMAL",
@@ -11644,9 +12475,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "757097001002",
-    "land": "FINAL TITLE",
-    "lat": "3.813769000000000",
-    "lng": "101.014861999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.813769",
+    "lng": "101.014862"
   },
   {
     "smallholder": "NOR FATIN ANIS BINTI OTHMAN",
@@ -11658,9 +12490,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "475769401000",
-    "land": "FINAL TITLE",
-    "lat": "3.812237000000000",
-    "lng": "101.016678999999996"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.812237",
+    "lng": "101.016679"
   },
   {
     "smallholder": "ARHAM BIN ABDUL RAHMAN",
@@ -11672,9 +12505,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "784449001002",
-    "land": "FINAL TITLE",
-    "lat": "3.822561000000000",
-    "lng": "101.008816999999993"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.822561",
+    "lng": "101.008817"
   },
   {
     "smallholder": "MOHAMAD SANI BIN SAMURI",
@@ -11686,9 +12520,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "802324001002",
-    "land": "FINAL TITLE",
-    "lat": "3.816619000000000",
-    "lng": "101.006141999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.816619",
+    "lng": "101.006142"
   },
   {
     "smallholder": "ABIDAN @JAIDIN BIN MARWI",
@@ -11700,9 +12535,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "534492401000",
-    "land": "FINAL TITLE",
-    "lat": "3.815138000000000",
-    "lng": "101.003433999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.815138",
+    "lng": "101.003434"
   },
   {
     "smallholder": "NAGAMMAH A/P MARAPPAN",
@@ -11714,9 +12550,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "831272001002",
-    "land": "FINAL TITLE",
-    "lat": "3.813721000000000",
-    "lng": "101.007975999999999"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.813721",
+    "lng": "101.007976"
   },
   {
     "smallholder": "UMIKALSUM BINTI MOHAMED BAHARI",
@@ -11728,9 +12565,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "750396001002",
-    "land": "FINAL TITLE",
-    "lat": "3.812180000000000",
-    "lng": "101.007990000000007"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.81218",
+    "lng": "101.00799"
   },
   {
     "smallholder": "TEH TEK SOON",
@@ -11742,9 +12580,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424595201000",
-    "land": "FINAL TITLE",
-    "lat": "3.888401000000000",
-    "lng": "101.087002999999996"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.888401",
+    "lng": "101.087003"
   },
   {
     "smallholder": "NANIA GOBALAN A/L PUNUSAMY",
@@ -11756,9 +12595,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "595289401000",
-    "land": "FINAL TITLE",
-    "lat": "3.888232000000000",
-    "lng": "101.081811999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.888232",
+    "lng": "101.081812"
   },
   {
     "smallholder": "NANIA GOBALAN A/L PUNUSAMY",
@@ -11770,9 +12610,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "595289401000",
-    "land": "FINAL TITLE",
-    "lat": "3.887931000000000",
-    "lng": "101.082543000000001"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.887931",
+    "lng": "101.082543"
   },
   {
     "smallholder": "SUBRAMANIAM A/L MARIAH",
@@ -11784,9 +12625,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "227809901000",
-    "land": "FINAL TITLE",
-    "lat": "3.890296000000000",
-    "lng": "101.081478000000004"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.890296",
+    "lng": "101.081478"
   },
   {
     "smallholder": "SUBRAMANIAM A/L MARIAH",
@@ -11798,9 +12640,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "227809901000",
-    "land": "FINAL TITLE",
-    "lat": "3.890071000000000",
-    "lng": "101.082414999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.890071",
+    "lng": "101.082415"
   },
   {
     "smallholder": "SUBRAMANIAM A/L MARIAH",
@@ -11812,9 +12655,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "227809901000",
-    "land": "FINAL TITLE",
-    "lat": "3.889927000000000",
-    "lng": "101.083222000000006"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.889927",
+    "lng": "101.083222"
   },
   {
     "smallholder": "ILLANGO A/L M.SUBRAMANIAM",
@@ -11826,9 +12670,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "879699001002",
-    "land": "FINAL TITLE",
-    "lat": "3.889191000000000",
-    "lng": "101.074426000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.889191",
+    "lng": "101.074426"
   },
   {
     "smallholder": "SUFKIL IFRAH BIN BASUMI",
@@ -11840,9 +12685,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "547574301000",
-    "land": "FINAL TITLE",
-    "lat": "3.786369000000000",
-    "lng": "101.065477000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.786369",
+    "lng": "101.065477"
   },
   {
     "smallholder": "KHAIRUL AKROM BIN BASUMI",
@@ -11854,9 +12700,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "850518001002",
-    "land": "FINAL TITLE",
-    "lat": "3.786369000000000",
-    "lng": "101.065477000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.786369",
+    "lng": "101.065477"
   },
   {
     "smallholder": "MOHAMAD JARKASI BIN MAKON",
@@ -11868,9 +12715,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "228073501000",
-    "land": "FINAL TITLE",
-    "lat": "3.784197000000000",
-    "lng": "101.065673000000004"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.784197",
+    "lng": "101.065673"
   },
   {
     "smallholder": "MASKOR BIN ABDULLAH",
@@ -11882,9 +12730,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "222871701000",
-    "land": "FINAL TITLE",
-    "lat": "3.784990000000000",
-    "lng": "101.066074999999998"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.78499",
+    "lng": "101.066075"
   },
   {
     "smallholder": "NORAZZAH BINTI MUHD JEMANGIN",
@@ -11896,9 +12745,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "886554001002",
-    "land": "FINAL TITLE",
-    "lat": "3.786500000000000",
-    "lng": "101.063147000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.7865",
+    "lng": "101.063147"
   },
   {
     "smallholder": "MUSTAPA OTHMAN B ASMAWI",
@@ -11910,9 +12760,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "763543001002",
-    "land": "FINAL TITLE",
-    "lat": "3.766530000000000",
-    "lng": "101.110551000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.76653",
+    "lng": "101.110551"
   },
   {
     "smallholder": "RAMLAN BIN ABDUL RAHMAN",
@@ -11924,9 +12775,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "838801001002",
-    "land": "FINAL TITLE",
-    "lat": "3.767956000000000",
-    "lng": "101.107438999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.767956",
+    "lng": "101.107439"
   },
   {
     "smallholder": "KAMRI BIN MOKSIN",
@@ -11938,9 +12790,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "844406001002",
-    "land": "FINAL TITLE",
-    "lat": "3.804153000000000",
-    "lng": "100.979665999999995"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.804153",
+    "lng": "100.979666"
   },
   {
     "smallholder": "WHO KOK KOWE",
@@ -11952,9 +12805,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "825689001002",
-    "land": "FINAL TITLE",
-    "lat": "3.798419000000000",
-    "lng": "100.970952999999994"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.798419",
+    "lng": "100.970953"
   },
   {
     "smallholder": "WHO KOK KOWE",
@@ -11966,9 +12820,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "825689001002",
-    "land": "FINAL TITLE",
-    "lat": "3.799139000000000",
-    "lng": "100.971309000000005"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.799139",
+    "lng": "100.971309"
   },
   {
     "smallholder": "DENGKIL PALM OIL MILL SDN BHD",
@@ -11980,9 +12835,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "803149001002",
-    "land": "FINAL TITLE",
-    "lat": "3.800618000000000",
-    "lng": "100.972344000000007"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.800618",
+    "lng": "100.972344"
   },
   {
     "smallholder": "DENGKIL PALM OIL MILL SDN BHD",
@@ -11994,9 +12850,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "803149001002",
-    "land": "FINAL TITLE",
-    "lat": "3.800290000000000",
-    "lng": "100.972723999999999"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.80029",
+    "lng": "100.972724"
   },
   {
     "smallholder": "KAMARUDIN BIN CHE DIN",
@@ -12008,9 +12865,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "835558001002",
-    "land": "FINAL TITLE",
-    "lat": "3.781967000000000",
-    "lng": "100.970427999999998"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.781967",
+    "lng": "100.970428"
   },
   {
     "smallholder": "ABDUL RAHMAN BIN SHAHMINAN",
@@ -12022,9 +12880,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "870260001002",
-    "land": "FINAL TITLE",
-    "lat": "3.867081000000000",
-    "lng": "100.906419000000000"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.867081",
+    "lng": "100.906419"
   },
   {
     "smallholder": "MOHD AMIN BIN KHUSNI",
@@ -12036,9 +12895,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "850254001002",
-    "land": "FINAL TITLE",
-    "lat": "3.794375000000000",
-    "lng": "101.037138999999996"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.794375",
+    "lng": "101.037139"
   },
   {
     "smallholder": "ROSNAH BINTI KALAM",
@@ -12050,9 +12910,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "789178001002",
-    "land": "FINAL TITLE",
-    "lat": "3.794525000000000",
-    "lng": "101.039327999999998"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.794525",
+    "lng": "101.039328"
   },
   {
     "smallholder": "MOHD RAIS BIN JALAL",
@@ -12064,9 +12925,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "834994001002",
-    "land": "FINAL TITLE",
-    "lat": "3.790619000000000",
-    "lng": "101.035466999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.790619",
+    "lng": "101.035467"
   },
   {
     "smallholder": "ABDOR RAOFF BIN MARZUKI",
@@ -12078,9 +12940,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "769103001002",
-    "land": "FINAL TITLE",
-    "lat": "3.790676000000000",
-    "lng": "101.036187999999996"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.790676",
+    "lng": "101.036188"
   },
   {
     "smallholder": "HUSAIN BIN DULMUKRI",
@@ -12092,9 +12955,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "224350301000",
-    "land": "FINAL TITLE",
-    "lat": "3.878415000000000",
-    "lng": "100.919298999999995"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.878415",
+    "lng": "100.919299"
   },
   {
     "smallholder": "KHUIRUDIN BIN TASRIO",
@@ -12106,9 +12970,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "789600001002",
-    "land": "FINAL TITLE",
-    "lat": "3.877553000000000",
-    "lng": "100.919360999999995"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.877553",
+    "lng": "100.919361"
   },
   {
     "smallholder": "HAJI ZULKIFLI DAN KAUM KELUARGA SDN BHD",
@@ -12120,9 +12985,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "789732001002",
-    "land": "FINAL TITLE",
-    "lat": "3.882918000000000",
-    "lng": "100.935820000000007"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.882918",
+    "lng": "100.93582"
   },
   {
     "smallholder": "TEO HENG SING",
@@ -12134,9 +13000,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "500128801000",
-    "land": "FINAL TITLE",
-    "lat": "3.881675000000000",
-    "lng": "100.937289000000007"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.881675",
+    "lng": "100.937289"
   },
   {
     "smallholder": "AMENUDDIN BIN ABDUL AZIZ",
@@ -12148,9 +13015,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "757783001002",
-    "land": "FINAL TITLE",
-    "lat": "3.887870000000000",
-    "lng": "100.936913000000004"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.88787",
+    "lng": "100.936913"
   },
   {
     "smallholder": "PADLI BIN ABDUL RAHMAN",
@@ -12162,9 +13030,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "544303501000",
-    "land": "FINAL TITLE",
-    "lat": "3.774723000000000",
-    "lng": "101.121549999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.774723",
+    "lng": "101.12155"
   },
   {
     "smallholder": "JERIAH BINTI IBAR",
@@ -12176,9 +13045,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "791573001002",
-    "land": "FINAL TITLE",
-    "lat": "3.775178000000000",
-    "lng": "101.126174000000006"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.775178",
+    "lng": "101.126174"
   },
   {
     "smallholder": "MOHAMAD SUHAILIN BIN HAMDAN",
@@ -12190,9 +13060,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "595781101000",
-    "land": "FINAL TITLE",
-    "lat": "3.773389000000000",
-    "lng": "101.122767999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.773389",
+    "lng": "101.122768"
   },
   {
     "smallholder": "ADNI BIN SAID",
@@ -12204,9 +13075,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "223270601000",
-    "land": "FINAL TITLE",
-    "lat": "3.772845000000000",
-    "lng": "101.122563000000000"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.772845",
+    "lng": "101.122563"
   },
   {
     "smallholder": "MOHAMAD SUMERI BIN HUSSIN",
@@ -12218,9 +13090,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO21",
     "license_no": "878248001002",
-    "land": "FINAL TITLE",
-    "lat": "3.772283000000000",
-    "lng": "101.120384999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.772283",
+    "lng": "101.120385"
   },
   {
     "smallholder": "SUBRAMANYAM A/L A. SABABATHY",
@@ -12232,9 +13105,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "593743701000",
-    "land": "FINAL TITLE",
-    "lat": "3.770259000000000",
-    "lng": "101.061745999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.770259",
+    "lng": "101.061746"
   },
   {
     "smallholder": "SUBRAMANYAM A/L A. SABABATHY",
@@ -12246,9 +13120,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "593743701000",
-    "land": "FINAL TITLE",
-    "lat": "3.769609000000000",
-    "lng": "101.061642000000006"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.769609",
+    "lng": "101.061642"
   },
   {
     "smallholder": "SUBRAMANYAM A/L A. SABABATHY",
@@ -12260,9 +13135,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "593743701000",
-    "land": "FINAL TITLE",
-    "lat": "3.768850000000000",
-    "lng": "101.061555999999996"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.76885",
+    "lng": "101.061556"
   },
   {
     "smallholder": "SUBRAMANYAM A/L A. SABABATHY",
@@ -12274,9 +13150,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "593743701000",
-    "land": "FINAL TITLE",
-    "lat": "3.768085000000000",
-    "lng": "101.061334000000002"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.768085",
+    "lng": "101.061334"
   },
   {
     "smallholder": "SUBRAMANYAM A/L A. SABABATHY",
@@ -12288,9 +13165,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "593743701000",
-    "land": "FINAL TITLE",
-    "lat": "3.767204000000000",
-    "lng": "101.061150999999995"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.767204",
+    "lng": "101.061151"
   },
   {
     "smallholder": "SUBRAMANYAM A/L A. SABABATHY",
@@ -12302,9 +13180,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "593743701000",
-    "land": "FINAL TITLE",
-    "lat": "3.766046000000000",
-    "lng": "101.061044999999993"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.766046",
+    "lng": "101.061045"
   },
   {
     "smallholder": "SUBRAMANYAM A/L A. SABABATHY",
@@ -12316,9 +13195,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "593743701000",
-    "land": "FINAL TITLE",
-    "lat": "3.764734000000000",
-    "lng": "101.060846999999995"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.764734",
+    "lng": "101.060847"
   },
   {
     "smallholder": "ASMA RANI BINTI ASMONI",
@@ -12330,9 +13210,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "869706001002",
-    "land": "FINAL TITLE",
-    "lat": "3.888078000000000",
-    "lng": "100.930668999999995"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.888078",
+    "lng": "100.930669"
   },
   {
     "smallholder": "MOHD NORMAN BIN ISMAIL",
@@ -12344,9 +13225,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "586010801000",
-    "land": "FINAL TITLE",
-    "lat": "3.837586000000000",
-    "lng": "100.992897999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.837586",
+    "lng": "100.992898"
   },
   {
     "smallholder": "MAISARO BINTI MOHD MOHSIN",
@@ -12358,9 +13240,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "721898001002",
-    "land": "FINAL TITLE",
-    "lat": "3.829047000000000",
-    "lng": "100.989262999999994"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.829047",
+    "lng": "100.989263"
   },
   {
     "smallholder": "AKBARY BIN PARDI @ SAMADI",
@@ -12372,9 +13255,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "818622001002",
-    "land": "FINAL TITLE",
-    "lat": "3.829047000000000",
-    "lng": "100.989262999999994"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.829047",
+    "lng": "100.989263"
   },
   {
     "smallholder": "NORAHASNI BINTI SULAIMAN",
@@ -12386,9 +13270,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "804274001002",
-    "land": "FINAL TITLE",
-    "lat": "3.834403000000000",
-    "lng": "100.996140999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.834403",
+    "lng": "100.996141"
   },
   {
     "smallholder": "RUZAILYANI BINTI MOHD SAZUKI",
@@ -12400,9 +13285,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "752396001002",
-    "land": "FINAL TITLE",
-    "lat": "3.837881000000000",
-    "lng": "100.994969999999995"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.837881",
+    "lng": "100.99497"
   },
   {
     "smallholder": "MOHD OTHMAN BIN FAKIR",
@@ -12414,9 +13300,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "572755601000",
-    "land": "FINAL TITLE",
-    "lat": "3.837881000000000",
-    "lng": "100.994969999999995"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.837881",
+    "lng": "100.99497"
   },
   {
     "smallholder": "MOHAMAD JAMIL BIN TAJUDDIN",
@@ -12428,9 +13315,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "579299401000",
-    "land": "FINAL TITLE",
-    "lat": "3.835217000000000",
-    "lng": "100.996333000000007"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.835217",
+    "lng": "100.996333"
   },
   {
     "smallholder": "MOHAMAD TARMIZI BIN DAHURI",
@@ -12442,9 +13330,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "790941001002",
-    "land": "FINAL TITLE",
-    "lat": "3.834011000000000",
-    "lng": "100.990307999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.834011",
+    "lng": "100.990308"
   },
   {
     "smallholder": "SUHAIMI BIN BAHARIN",
@@ -12456,9 +13345,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "844485001002",
-    "land": "FINAL TITLE",
-    "lat": "3.789813000000000",
-    "lng": "100.983823000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.789813",
+    "lng": "100.983823"
   },
   {
     "smallholder": "WHO KOK KOWE",
@@ -12470,9 +13360,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "825689001002",
-    "land": "FINAL TITLE",
-    "lat": "3.788604000000000",
-    "lng": "100.983677000000000"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.788604",
+    "lng": "100.983677"
   },
   {
     "smallholder": "ISMAIL BIN SOMADI",
@@ -12484,9 +13375,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "676987001002",
-    "land": "FINAL TITLE",
-    "lat": "3.805114000000000",
-    "lng": "100.991405999999998"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.805114",
+    "lng": "100.991406"
   },
   {
     "smallholder": "MANIKAM A/L SINNAPPEN",
@@ -12498,9 +13390,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "515897701000",
-    "land": "FINAL TITLE",
-    "lat": "3.808520000000000",
-    "lng": "100.991929999999996"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.80852",
+    "lng": "100.99193"
   },
   {
     "smallholder": "MOHD JOHARI B MOHD SULAIMAN",
@@ -12512,9 +13405,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "813425001002",
-    "land": "FINAL TITLE",
-    "lat": "3.808153000000000",
-    "lng": "100.993922999999995"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.808153",
+    "lng": "100.993923"
   },
   {
     "smallholder": "HAMIDAH BINTI ABDUL MANAN",
@@ -12526,9 +13420,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "590580201000",
-    "land": "FINAL TITLE",
-    "lat": "3.769830000000000",
-    "lng": "101.119714999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.76983",
+    "lng": "101.119715"
   },
   {
     "smallholder": "MISNON BIN SADIR",
@@ -12540,9 +13435,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "599354001000",
-    "land": "FINAL TITLE",
-    "lat": "3.769089000000000",
-    "lng": "101.121160000000003"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.769089",
+    "lng": "101.12116"
   },
   {
     "smallholder": "AZNI BINTI SAMAD",
@@ -12554,9 +13450,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "474428201000",
-    "land": "FINAL TITLE",
-    "lat": "3.768717000000000",
-    "lng": "101.121865000000000"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.768717",
+    "lng": "101.121865"
   },
   {
     "smallholder": "NURUL AIN BINTI MAT ARHAM@ELHAM",
@@ -12568,9 +13465,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "836524001002",
-    "land": "FINAL TITLE",
-    "lat": "3.767571000000000",
-    "lng": "101.124043999999998"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.767571",
+    "lng": "101.124044"
   },
   {
     "smallholder": "HAMZAH BIN SAMAD",
@@ -12582,9 +13480,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "836146001002",
-    "land": "FINAL TITLE",
-    "lat": "3.767190000000000",
-    "lng": "101.124769000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.76719",
+    "lng": "101.124769"
   },
   {
     "smallholder": "CHEONG SIN YIN",
@@ -12596,9 +13495,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "788352001002",
-    "land": "FINAL TITLE",
-    "lat": "3.810912000000000",
-    "lng": "101.177359999999993"
+    "land": "Coastal",
+    "soil_descr": "ORGANIC CLAY AND MUCK",
+    "lat": "3.810912",
+    "lng": "101.17736"
   },
   {
     "smallholder": "NAI'MATUSSHAFIA'H BINTI ASMUI",
@@ -12610,9 +13510,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "769312001002",
-    "land": "FINAL TITLE",
-    "lat": "3.790263000000000",
-    "lng": "101.074589000000003"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.790263",
+    "lng": "101.074589"
   },
   {
     "smallholder": "ZULHAZMI ABDUL HAMID",
@@ -12624,9 +13525,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "854822001002",
-    "land": "FINAL TITLE",
-    "lat": "3.790648000000000",
-    "lng": "101.065855999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.790648",
+    "lng": "101.065856"
   },
   {
     "smallholder": "NURUL AIN BINTI MUHD JEMANGIN",
@@ -12638,9 +13540,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO61",
     "license_no": "491201101000",
-    "land": "FINAL TITLE",
-    "lat": "3.788148000000000",
-    "lng": "101.077816999999996"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.788148",
+    "lng": "101.077817"
   },
   {
     "smallholder": "MUHD JEMANGIN BIN USOP",
@@ -12652,9 +13555,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "745971001002",
-    "land": "FINAL TITLE",
-    "lat": "3.792252000000000",
-    "lng": "101.066664000000003"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.792252",
+    "lng": "101.066664"
   },
   {
     "smallholder": "MUHAMMAD FADILAH BIN MUHD JEMANGIN",
@@ -12666,9 +13570,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "744640001002",
-    "land": "FINAL TITLE",
-    "lat": "3.792252000000000",
-    "lng": "101.066664000000003"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.792252",
+    "lng": "101.066664"
   },
   {
     "smallholder": "AHMAD BIN TUKACHIL",
@@ -12680,9 +13585,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "452141101000",
-    "land": "FINAL TITLE",
-    "lat": "3.785475000000000",
-    "lng": "101.031642000000005"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.785475",
+    "lng": "101.031642"
   },
   {
     "smallholder": "ADBUL SAMAT BIN MAT NOR",
@@ -12694,9 +13600,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "834905001002",
-    "land": "FINAL TITLE",
-    "lat": "3.788789000000000",
-    "lng": "101.034955999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.788789",
+    "lng": "101.034956"
   },
   {
     "smallholder": "JAMILAH BT YA'AKUB",
@@ -12708,9 +13615,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "222205101000",
-    "land": "FINAL TITLE",
-    "lat": "3.788823000000000",
-    "lng": "101.035507999999993"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.788823",
+    "lng": "101.035508"
   },
   {
     "smallholder": "SABANI BIN TULOS",
@@ -12722,9 +13630,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "221900901000",
-    "land": "FINAL TITLE",
-    "lat": "3.788925000000000",
-    "lng": "101.037135000000006"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.788925",
+    "lng": "101.037135"
   },
   {
     "smallholder": "NORIDAH BINTI MOHIDIN",
@@ -12736,9 +13645,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "754602001002",
-    "land": "FINAL TITLE",
-    "lat": "3.787404000000000",
-    "lng": "101.037570000000002"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.787404",
+    "lng": "101.03757"
   },
   {
     "smallholder": "LETCHUMY PIRABA A/P SIMMATHIRI",
@@ -12750,9 +13660,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "224699501000",
-    "land": "FINAL TITLE",
-    "lat": "3.816591000000000",
-    "lng": "101.002516000000000"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.816591",
+    "lng": "101.002516"
   },
   {
     "smallholder": "MOHAMAD TARMIZI BIN DAHURI",
@@ -12764,9 +13675,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "790941001002",
-    "land": "FINAL TITLE",
-    "lat": "3.815159000000000",
-    "lng": "101.005247999999995"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.815159",
+    "lng": "101.005248"
   },
   {
     "smallholder": "DENGKIL PALM OIL MILL SDN BHD",
@@ -12778,9 +13690,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "803149001002",
-    "land": "FINAL TITLE",
-    "lat": "3.799825000000000",
-    "lng": "100.972876999999997"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.799825",
+    "lng": "100.972877"
   },
   {
     "smallholder": "CHEONG SEK CHYE",
@@ -12792,9 +13705,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "486870401000",
-    "land": "FINAL TITLE",
-    "lat": "3.815835000000000",
-    "lng": "100.980361000000002"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.815835",
+    "lng": "100.980361"
   },
   {
     "smallholder": "KAMARULZAMAN BIN ABD WAHAB",
@@ -12806,9 +13720,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "419384701000",
-    "land": "FINAL TITLE",
-    "lat": "3.813606000000000",
-    "lng": "100.992457999999999"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.813606",
+    "lng": "100.992458"
   },
   {
     "smallholder": "MOHD ZAKARIA BIN HJ SALAM",
@@ -12820,9 +13735,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "778133001002",
-    "land": "FINAL TITLE",
-    "lat": "3.828823000000000",
-    "lng": "101.004266999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.828823",
+    "lng": "101.004267"
   },
   {
     "smallholder": "ZULFAHRIN BIN ABAS",
@@ -12834,9 +13750,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "551482001000",
-    "land": "FINAL TITLE",
-    "lat": "3.772370000000000",
-    "lng": "101.107845999999995"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.77237",
+    "lng": "101.107846"
   },
   {
     "smallholder": "ABDUL HAMID BIN ABAS",
@@ -12848,9 +13765,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "825385001002",
-    "land": "FINAL TITLE",
-    "lat": "3.772035000000000",
-    "lng": "101.108581000000001"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.772035",
+    "lng": "101.108581"
   },
   {
     "smallholder": "MOHD KOSNI BIN HAMDI",
@@ -12862,9 +13780,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "837269001002",
-    "land": "FINAL TITLE",
-    "lat": "3.771692000000000",
-    "lng": "101.109314999999995"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.771692",
+    "lng": "101.109315"
   },
   {
     "smallholder": "SITI AMINAH BINTI SENIN",
@@ -12876,9 +13795,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "838800001002",
-    "land": "FINAL TITLE",
-    "lat": "3.770998000000000",
-    "lng": "101.110793000000001"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.770998",
+    "lng": "101.110793"
   },
   {
     "smallholder": "PUNIA MURTI A/L PERIASAMY",
@@ -12890,9 +13810,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "745970001002",
-    "land": "FINAL TITLE",
-    "lat": "3.770651000000000",
-    "lng": "101.111520999999996"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.770651",
+    "lng": "101.111521"
   },
   {
     "smallholder": "SITI SALMAH BINTI KELING",
@@ -12904,9 +13825,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "825326001002",
-    "land": "FINAL TITLE",
-    "lat": "3.770310000000000",
-    "lng": "101.112250000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.77031",
+    "lng": "101.11225"
   },
   {
     "smallholder": "PUNNIANATHAN A/L SINNIAH",
@@ -12918,9 +13840,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "744752001002",
-    "land": "FINAL TITLE",
-    "lat": "3.769602000000000",
-    "lng": "101.113714000000002"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.769602",
+    "lng": "101.113714"
   },
   {
     "smallholder": "MOHD KOSNI BIN HAMDI",
@@ -12932,9 +13855,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "837269001002",
-    "land": "FINAL TITLE",
-    "lat": "3.769602000000000",
-    "lng": "101.113714000000002"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.769602",
+    "lng": "101.113714"
   },
   {
     "smallholder": "VEMALASAKARAN PERIASAMY",
@@ -12946,9 +13870,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "415979701000",
-    "land": "FINAL TITLE",
-    "lat": "3.768905000000000",
-    "lng": "101.115165000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.768905",
+    "lng": "101.115165"
   },
   {
     "smallholder": "CHIA SING LIANG",
@@ -12960,9 +13885,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO41",
     "license_no": "863491001002",
-    "land": "FINAL TITLE",
-    "lat": "3.820050000000000",
-    "lng": "100.980402999999995"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.82005",
+    "lng": "100.980403"
   },
   {
     "smallholder": "LIM KIAN HOO @ LIM KEAN WAH",
@@ -12974,9 +13900,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "861342001002",
-    "land": "FINAL TITLE",
-    "lat": "3.884591000000000",
-    "lng": "100.958066000000002"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.884591",
+    "lng": "100.958066"
   },
   {
     "smallholder": "KESAVAN A/L SUBRAMANIAM",
@@ -12988,9 +13915,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "556493201000",
-    "land": "FINAL TITLE",
-    "lat": "3.882744000000000",
-    "lng": "100.961467999999996"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.882744",
+    "lng": "100.961468"
   },
   {
     "smallholder": "GUNASEKRI A/P SELVARAJA",
@@ -13002,9 +13930,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "835510001002",
-    "land": "FINAL TITLE",
-    "lat": "3.817226000000000",
-    "lng": "100.981594999999999"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.817226",
+    "lng": "100.981595"
   },
   {
     "smallholder": "SITI EISHAH BINTI SETU",
@@ -13016,9 +13945,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "835611001002",
-    "land": "FINAL TITLE",
-    "lat": "3.742680000000000",
-    "lng": "101.119229000000004"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.74268",
+    "lng": "101.119229"
   },
   {
     "smallholder": "AZNI BINTI SAMAD",
@@ -13030,9 +13960,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "474428201000",
-    "land": "FINAL TITLE",
-    "lat": "3.740005000000000",
-    "lng": "101.121118999999993"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.740005",
+    "lng": "101.121119"
   },
   {
     "smallholder": "SHAMSUL NAHAR BIN MOHAMMAD RUSLI",
@@ -13044,9 +13975,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "819243001002",
-    "land": "FINAL TITLE",
-    "lat": "3.743122000000000",
-    "lng": "101.120260999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.743122",
+    "lng": "101.120261"
   },
   {
     "smallholder": "SHAIFUL BIN MOHAMMAD RUSLI",
@@ -13058,9 +13990,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "819244001002",
-    "land": "FINAL TITLE",
-    "lat": "3.743122000000000",
-    "lng": "101.120260999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.743122",
+    "lng": "101.120261"
   },
   {
     "smallholder": "OMBIAH BINTI JURAIMI",
@@ -13072,9 +14005,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "784650001002",
-    "land": "FINAL TITLE",
-    "lat": "3.828462000000000",
-    "lng": "101.006967000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.828462",
+    "lng": "101.006967"
   },
   {
     "smallholder": "MOHD ISHAK BIN MUSTAM",
@@ -13086,9 +14020,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "509844301000",
-    "land": "FINAL TITLE",
-    "lat": "3.826983000000000",
-    "lng": "101.002471999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.826983",
+    "lng": "101.002472"
   },
   {
     "smallholder": "AHMAD ZAKI BIN MOHD NOR",
@@ -13100,9 +14035,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "844400001002",
-    "land": "FINAL TITLE",
-    "lat": "3.829915000000000",
-    "lng": "101.006050000000002"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.829915",
+    "lng": "101.00605"
   },
   {
     "smallholder": "KUWA BIN CHU",
@@ -13114,9 +14050,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "839985001002",
-    "land": "FINAL TITLE",
-    "lat": "3.825552000000000",
-    "lng": "101.006078000000002"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.825552",
+    "lng": "101.006078"
   },
   {
     "smallholder": "MUHD MUKRI B YAKOP",
@@ -13128,9 +14065,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "226787901000",
-    "land": "FINAL TITLE",
-    "lat": "3.815203000000000",
-    "lng": "101.012137999999993"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.815203",
+    "lng": "101.012138"
   },
   {
     "smallholder": "MOHAMAD SAYUTI BIN MOHAMAD",
@@ -13142,9 +14080,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "751848001002",
-    "land": "FINAL TITLE",
-    "lat": "3.815205000000000",
-    "lng": "101.013045000000005"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.815205",
+    "lng": "101.013045"
   },
   {
     "smallholder": "JURIAH BINTI JOHARI",
@@ -13156,9 +14095,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "818624001002",
-    "land": "FINAL TITLE",
-    "lat": "3.813749000000000",
-    "lng": "101.010335999999995"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.813749",
+    "lng": "101.010336"
   },
   {
     "smallholder": "TUMIJAN BIN KARIM",
@@ -13170,9 +14110,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "744475001002",
-    "land": "FINAL TITLE",
-    "lat": "3.813751000000000",
-    "lng": "101.011240000000001"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.813751",
+    "lng": "101.01124"
   },
   {
     "smallholder": "KARUPALAHIMUTURAJA A/L K. RAMASAMY",
@@ -13184,9 +14125,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "321644001000",
-    "land": "FINAL TITLE",
-    "lat": "3.813749000000000",
-    "lng": "101.013050000000007"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.813749",
+    "lng": "101.01305"
   },
   {
     "smallholder": "SARASA A/P KRISHNAN",
@@ -13198,9 +14140,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "824244001002",
-    "land": "FINAL TITLE",
-    "lat": "3.813749000000000",
-    "lng": "101.013050000000007"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.813749",
+    "lng": "101.01305"
   },
   {
     "smallholder": "IBRAHIM BIN MOHAMED ROS",
@@ -13212,9 +14155,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO40",
     "license_no": "565531801000",
-    "land": "FINAL TITLE",
-    "lat": "3.813756000000000",
-    "lng": "101.013955999999993"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.813756",
+    "lng": "101.013956"
   },
   {
     "smallholder": "PRAKASROA A/L SINNIAH",
@@ -13226,9 +14170,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "598749301000",
-    "land": "FINAL TITLE",
-    "lat": "3.819673000000000",
-    "lng": "101.012106000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.819673",
+    "lng": "101.012106"
   },
   {
     "smallholder": "WHO KOK KOWE",
@@ -13240,9 +14185,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "825689001002",
-    "land": "FINAL TITLE",
-    "lat": "3.810003000000000",
-    "lng": "100.988416000000001"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.810003",
+    "lng": "100.988416"
   },
   {
     "smallholder": "CHEONG SEK CHYE",
@@ -13254,9 +14200,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "486870401000",
-    "land": "FINAL TITLE",
-    "lat": "3.807912000000000",
-    "lng": "100.988009000000005"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.807912",
+    "lng": "100.988009"
   },
   {
     "smallholder": "MOHAMMAD BADRI BIN MAT LIHAN",
@@ -13268,9 +14215,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "442683301000",
-    "land": "FINAL TITLE",
-    "lat": "3.811610000000000",
-    "lng": "100.992500000000007"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.81161",
+    "lng": "100.9925"
   },
   {
     "smallholder": "CHAI BEW KWAI",
@@ -13282,9 +14230,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "819431001002",
-    "land": "FINAL TITLE",
-    "lat": "3.866571000000000",
-    "lng": "101.085784000000004"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.866571",
+    "lng": "101.085784"
   },
   {
     "smallholder": "CHAI BEW KWAI",
@@ -13296,9 +14245,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "819431001002",
-    "land": "FINAL TITLE",
-    "lat": "3.867878000000000",
-    "lng": "101.087457000000001"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.867878",
+    "lng": "101.087457"
   },
   {
     "smallholder": "CHAI YUEN FOOK",
@@ -13310,9 +14260,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "819512001002",
-    "land": "FINAL TITLE",
-    "lat": "3.867553000000000",
-    "lng": "101.088252999999995"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.867553",
+    "lng": "101.088253"
   },
   {
     "smallholder": "CHAI YUEN FOOK",
@@ -13324,9 +14275,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "819512001002",
-    "land": "FINAL TITLE",
-    "lat": "3.867229000000000",
-    "lng": "101.089046999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.867229",
+    "lng": "101.089047"
   },
   {
     "smallholder": "PHUAH SUE CHEN",
@@ -13338,9 +14290,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "747687001002",
-    "land": "FINAL TITLE",
-    "lat": "3.792674000000000",
-    "lng": "100.966193000000004"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.792674",
+    "lng": "100.966193"
   },
   {
     "smallholder": "ATAN BIN SAMPOL",
@@ -13352,9 +14305,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "218250401000",
-    "land": "FINAL TITLE",
-    "lat": "3.788444000000000",
-    "lng": "100.968327000000002"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.788444",
+    "lng": "100.968327"
   },
   {
     "smallholder": "CHIN CHUA MENG PROPERTY SDN BHD",
@@ -13366,9 +14320,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "220661601000",
-    "land": "FINAL TITLE",
-    "lat": "3.840261000000000",
-    "lng": "100.947057000000001"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.840261",
+    "lng": "100.947057"
   },
   {
     "smallholder": "ROS FARA IZREEN BINTI MOHD SAPAWI",
@@ -13380,9 +14335,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "596269501000",
-    "land": "FINAL TITLE",
-    "lat": "3.840074000000000",
-    "lng": "100.950854000000007"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.840074",
+    "lng": "100.950854"
   },
   {
     "smallholder": "BEH BAK LONG",
@@ -13394,9 +14350,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "505901401000",
-    "land": "FINAL TITLE",
-    "lat": "3.842033000000000",
-    "lng": "100.942811000000006"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.842033",
+    "lng": "100.942811"
   },
   {
     "smallholder": "BEH BAK LONG",
@@ -13408,9 +14365,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "505901401000",
-    "land": "FINAL TITLE",
-    "lat": "3.841851000000000",
-    "lng": "100.943539000000001"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.841851",
+    "lng": "100.943539"
   },
   {
     "smallholder": "BEH BAK LONG",
@@ -13422,9 +14380,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "505901401000",
-    "land": "FINAL TITLE",
-    "lat": "3.841877000000000",
-    "lng": "100.944297000000006"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.841877",
+    "lng": "100.944297"
   },
   {
     "smallholder": "FUNDAMENTAL PERFORMANCE SDN. BHD",
@@ -13436,9 +14395,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "500129601000",
-    "land": "FINAL TITLE",
-    "lat": "3.840304000000000",
-    "lng": "100.942580000000007"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.840304",
+    "lng": "100.94258"
   },
   {
     "smallholder": "FUNDAMENTAL PERFORMANCE SDN. BHD",
@@ -13450,9 +14410,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "500129601000",
-    "land": "FINAL TITLE",
-    "lat": "3.840383000000000",
-    "lng": "100.943242999999995"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.840383",
+    "lng": "100.943243"
   },
   {
     "smallholder": "YOO CHOU HENG",
@@ -13464,9 +14425,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "748348001002",
-    "land": "FINAL TITLE",
-    "lat": "3.841887000000000",
-    "lng": "100.946006999999994"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.841887",
+    "lng": "100.946007"
   },
   {
     "smallholder": "YOO CHOU HENG",
@@ -13478,9 +14440,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "748348001002",
-    "land": "FINAL TITLE",
-    "lat": "3.841305000000000",
-    "lng": "100.945595999999995"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.841305",
+    "lng": "100.945596"
   },
   {
     "smallholder": "YOO CHOU HENG",
@@ -13492,9 +14455,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "748348001002",
-    "land": "FINAL TITLE",
-    "lat": "3.840732000000000",
-    "lng": "100.945175000000006"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.840732",
+    "lng": "100.945175"
   },
   {
     "smallholder": "TAN AH NGOO",
@@ -13506,9 +14470,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "499799701000",
-    "land": "FINAL TITLE",
-    "lat": "3.840131000000000",
-    "lng": "100.944773999999995"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.840131",
+    "lng": "100.944774"
   },
   {
     "smallholder": "LEE TECK GEE",
@@ -13520,9 +14485,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "591678201000",
-    "land": "FINAL TITLE",
-    "lat": "3.787854000000000",
-    "lng": "100.981161000000000"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.787854",
+    "lng": "100.981161"
   },
   {
     "smallholder": "BAJURI BIN MANSOR",
@@ -13534,9 +14500,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "844409001002",
-    "land": "FINAL TITLE",
-    "lat": "3.802303000000000",
-    "lng": "100.982477000000003"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.802303",
+    "lng": "100.982477"
   },
   {
     "smallholder": "ABD AZIZ BIN ABAS",
@@ -13548,9 +14515,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "515880201000",
-    "land": "FINAL TITLE",
-    "lat": "3.800209000000000",
-    "lng": "100.981834000000006"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.800209",
+    "lng": "100.981834"
   },
   {
     "smallholder": "NORDIN BIN AHMAD",
@@ -13562,9 +14530,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "820240001002",
-    "land": "FINAL TITLE",
-    "lat": "3.798158000000000",
-    "lng": "100.983673999999993"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.798158",
+    "lng": "100.983674"
   },
   {
     "smallholder": "TEH TEK AN",
@@ -13576,9 +14545,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424590101000",
-    "land": "FINAL TITLE",
-    "lat": "3.881996000000000",
-    "lng": "101.087423999999999"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.881996",
+    "lng": "101.087424"
   },
   {
     "smallholder": "TEH TEK SOON",
@@ -13590,9 +14560,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424595201000",
-    "land": "FINAL TITLE",
-    "lat": "3.881657000000000",
-    "lng": "101.088246999999996"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.881657",
+    "lng": "101.088247"
   },
   {
     "smallholder": "TEH TEK SOON",
@@ -13604,9 +14575,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "424595201000",
-    "land": "FINAL TITLE",
-    "lat": "3.881319000000000",
-    "lng": "101.089068999999995"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.881319",
+    "lng": "101.089069"
   },
   {
     "smallholder": "SITI NORSAADAH BINTI USIN",
@@ -13618,9 +14590,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "763538001002",
-    "land": "FINAL TITLE",
-    "lat": "3.895103000000000",
-    "lng": "100.942030000000003"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.895103",
+    "lng": "100.94203"
   },
   {
     "smallholder": "HABSAH BINTI TAH",
@@ -13632,9 +14605,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "503275201000",
-    "land": "FINAL TITLE",
-    "lat": "3.904441000000000",
-    "lng": "100.950788000000003"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.904441",
+    "lng": "100.950788"
   },
   {
     "smallholder": "SARAVANA KUMAR A/L KALIMUTHU",
@@ -13646,9 +14620,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "445913801000",
-    "land": "FINAL TITLE",
-    "lat": "3.904614000000000",
-    "lng": "100.950382000000005"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.904614",
+    "lng": "100.950382"
   },
   {
     "smallholder": "LOW PAK NGAI",
@@ -13660,9 +14635,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "744444001002",
-    "land": "FINAL TITLE",
-    "lat": "3.880086000000000",
-    "lng": "101.072492999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.880086",
+    "lng": "101.072493"
   },
   {
     "smallholder": "GENESAN A/L RAMALINGAM",
@@ -13674,9 +14650,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "784365001002",
-    "land": "FINAL TITLE",
-    "lat": "3.881428000000000",
-    "lng": "101.069239999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.881428",
+    "lng": "101.06924"
   },
   {
     "smallholder": "VEGAYAN A/L VARATHARAJOO",
@@ -13688,9 +14665,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "515469601000",
-    "land": "FINAL TITLE",
-    "lat": "3.884110000000000",
-    "lng": "101.072547999999998"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.88411",
+    "lng": "101.072548"
   },
   {
     "smallholder": "MOHD IZRUL BIN MOHD NOR",
@@ -13702,9 +14680,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "784399001002",
-    "land": "FINAL TITLE",
-    "lat": "3.812203000000000",
-    "lng": "101.013054999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.812203",
+    "lng": "101.013055"
   },
   {
     "smallholder": "MOHD MAAROF BIN NAJAMUDIN",
@@ -13716,9 +14695,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "886140001002",
-    "land": "FINAL TITLE",
-    "lat": "3.812224000000000",
-    "lng": "101.015771000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.812224",
+    "lng": "101.015771"
   },
   {
     "smallholder": "ISMAIL BIN MARJUNID",
@@ -13730,9 +14710,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "849712001002",
-    "land": "FINAL TITLE",
-    "lat": "3.810748000000000",
-    "lng": "101.013067000000007"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.810748",
+    "lng": "101.013067"
   },
   {
     "smallholder": "MOHD BAHARI BIN HJ M KHADIRY",
@@ -13744,9 +14725,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "528795501000",
-    "land": "FINAL TITLE",
-    "lat": "3.810776000000000",
-    "lng": "101.016689999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.810776",
+    "lng": "101.01669"
   },
   {
     "smallholder": "LIM CHEW IMM",
@@ -13758,9 +14740,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "222731101000",
-    "land": "FINAL TITLE",
-    "lat": "3.827043000000000",
-    "lng": "101.012061000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.827043",
+    "lng": "101.012061"
   },
   {
     "smallholder": "NORWAHYUDDIN BIN KAMARUDDIN",
@@ -13772,9 +14755,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "759030001002",
-    "land": "FINAL TITLE",
-    "lat": "3.825585000000000",
-    "lng": "101.012074999999996"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.825585",
+    "lng": "101.012075"
   },
   {
     "smallholder": "NG AH PHEOW",
@@ -13786,9 +14770,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "505900601000",
-    "land": "FINAL TITLE",
-    "lat": "3.826964000000000",
-    "lng": "101.000294999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.826964",
+    "lng": "101.000295"
   },
   {
     "smallholder": "HALIM BIN MOHD NOOR",
@@ -13800,9 +14785,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "825323001002",
-    "land": "FINAL TITLE",
-    "lat": "3.826975000000000",
-    "lng": "101.001200999999995"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.826975",
+    "lng": "101.001201"
   },
   {
     "smallholder": "NOR TAHARAH BINTI SABANGI",
@@ -13814,9 +14800,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "817261001002",
-    "land": "FINAL TITLE",
-    "lat": "3.825498000000000",
-    "lng": "100.999405999999993"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.825498",
+    "lng": "100.999406"
   },
   {
     "smallholder": "LOW KENG KIM",
@@ -13828,9 +14815,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "496363401000",
-    "land": "FINAL TITLE",
-    "lat": "3.831481000000000",
-    "lng": "101.007835000000000"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.831481",
+    "lng": "101.007835"
   },
   {
     "smallholder": "ABDUL HALIM BIN ASHARI",
@@ -13842,9 +14830,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "509280101000",
-    "land": "FINAL TITLE",
-    "lat": "3.831482000000000",
-    "lng": "101.008739000000006"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.831482",
+    "lng": "101.008739"
   },
   {
     "smallholder": "SUHAIMI BIN MOHD AHIR",
@@ -13856,9 +14845,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "581082801000",
-    "land": "FINAL TITLE",
-    "lat": "3.829901000000000",
-    "lng": "101.003348000000003"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.829901",
+    "lng": "101.003348"
   },
   {
     "smallholder": "SUHANA BINTI MOHD AHIR",
@@ -13870,9 +14860,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "530028501000",
-    "land": "FINAL TITLE",
-    "lat": "3.829910000000000",
-    "lng": "101.005150000000000"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.82991",
+    "lng": "101.00515"
   },
   {
     "smallholder": "SHAFIQ IRWAN BIN MOHD AHIR",
@@ -13884,9 +14875,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "582130701000",
-    "land": "FINAL TITLE",
-    "lat": "3.829920000000000",
-    "lng": "101.006949000000006"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.82992",
+    "lng": "101.006949"
   },
   {
     "smallholder": "LIM SON WEE",
@@ -13898,9 +14890,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "217142101000",
-    "land": "FINAL TITLE",
-    "lat": "3.829925000000000",
-    "lng": "101.007848999999993"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.829925",
+    "lng": "101.007849"
   },
   {
     "smallholder": "LIM TIAN HOO",
@@ -13912,9 +14905,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "488737701000",
-    "land": "FINAL TITLE",
-    "lat": "3.829925000000000",
-    "lng": "101.007848999999993"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.829925",
+    "lng": "101.007849"
   },
   {
     "smallholder": "KAMARUZAMAN BIN AHMAD BOHARI",
@@ -13926,9 +14920,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "489405501000",
-    "land": "FINAL TITLE",
-    "lat": "3.828457000000000",
-    "lng": "101.006068999999997"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.828457",
+    "lng": "101.006069"
   },
   {
     "smallholder": "JALIL BIN ARSHAD",
@@ -13940,9 +14935,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "825752001002",
-    "land": "FINAL TITLE",
-    "lat": "3.812202000000000",
-    "lng": "101.010344000000003"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.812202",
+    "lng": "101.010344"
   },
   {
     "smallholder": "BUANG BIN SATIMIN",
@@ -13954,9 +14950,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "747629001002",
-    "land": "FINAL TITLE",
-    "lat": "3.829850000000000",
-    "lng": "100.998470999999995"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.82985",
+    "lng": "100.998471"
   },
   {
     "smallholder": "BUANG BIN SATIMIN",
@@ -13968,9 +14965,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "747629001002",
-    "land": "FINAL TITLE",
-    "lat": "3.828423000000000",
-    "lng": "101.000287000000000"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.828423",
+    "lng": "101.000287"
   },
   {
     "smallholder": "AHMAD BIN HASHIM",
@@ -13982,9 +14980,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "749777001002",
-    "land": "FINAL TITLE",
-    "lat": "3.782921000000000",
-    "lng": "100.972701000000001"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.782921",
+    "lng": "100.972701"
   },
   {
     "smallholder": "MOHAMAD BIN HARUN",
@@ -13996,9 +14995,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "801374001002",
-    "land": "FINAL TITLE",
-    "lat": "3.781069000000000",
-    "lng": "100.971177999999995"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.781069",
+    "lng": "100.971178"
   },
   {
     "smallholder": "ROHAIDAH BINTI MASRIF",
@@ -14010,9 +15010,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "214917501000",
-    "land": "FINAL TITLE",
-    "lat": "3.813872000000000",
-    "lng": "100.990523999999994"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.813872",
+    "lng": "100.990524"
   },
   {
     "smallholder": "BAHAROM BIN SAID",
@@ -14024,9 +15025,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "218309801000",
-    "land": "FINAL TITLE",
-    "lat": "3.811918000000000",
-    "lng": "100.990718000000001"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.811918",
+    "lng": "100.990718"
   },
   {
     "smallholder": "JAMA'AIYAH BINTI KOROMOH",
@@ -14038,9 +15040,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "767638001002",
-    "land": "FINAL TITLE",
-    "lat": "3.812420000000000",
-    "lng": "100.992676000000003"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.81242",
+    "lng": "100.992676"
   },
   {
     "smallholder": "MOHD AZMEER BIN SHAMSUDDIN",
@@ -14052,9 +15055,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "742113001002",
-    "land": "FINAL TITLE",
-    "lat": "3.771505000000000",
-    "lng": "100.971045000000004"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.771505",
+    "lng": "100.971045"
   },
   {
     "smallholder": "RAHMAD BIN NIAMAD",
@@ -14066,9 +15070,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "461811201000",
-    "land": "FINAL TITLE",
-    "lat": "3.772857000000000",
-    "lng": "100.969472999999994"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.772857",
+    "lng": "100.969473"
   },
   {
     "smallholder": "RAHMAD BIN NIAMAD",
@@ -14080,9 +15085,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "461811201000",
-    "land": "FINAL TITLE",
-    "lat": "3.774037000000000",
-    "lng": "100.970338999999996"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.774037",
+    "lng": "100.970339"
   },
   {
     "smallholder": "KEE HUN KOW",
@@ -14094,9 +15100,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "816951001002",
-    "land": "FINAL TITLE",
-    "lat": "3.773260000000000",
-    "lng": "100.967837000000003"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.77326",
+    "lng": "100.967837"
   },
   {
     "smallholder": "KEE HUN KOW",
@@ -14108,9 +15115,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "816951001002",
-    "land": "FINAL TITLE",
-    "lat": "3.774097000000000",
-    "lng": "100.968642000000003"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.774097",
+    "lng": "100.968642"
   },
   {
     "smallholder": "LEE TECK GEE",
@@ -14122,9 +15130,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "591678201000",
-    "land": "FINAL TITLE",
-    "lat": "3.786885000000000",
-    "lng": "100.982633000000007"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.786885",
+    "lng": "100.982633"
   },
   {
     "smallholder": "LOW POH HUAT",
@@ -14136,9 +15145,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "796065001002",
-    "land": "FINAL TITLE",
-    "lat": "3.784880000000000",
-    "lng": "100.982562000000001"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.78488",
+    "lng": "100.982562"
   },
   {
     "smallholder": "CHEONG SEK CHYE",
@@ -14150,9 +15160,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "486870401000",
-    "land": "FINAL TITLE",
-    "lat": "3.805598000000000",
-    "lng": "100.989035000000001"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.805598",
+    "lng": "100.989035"
   },
   {
     "smallholder": "CHEE BOON CHONG",
@@ -14164,9 +15175,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "803959001002",
-    "land": "FINAL TITLE",
-    "lat": "3.782936000000000",
-    "lng": "100.976044000000002"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.782936",
+    "lng": "100.976044"
   },
   {
     "smallholder": "ANGKAMMA A/P RAJANAN",
@@ -14178,9 +15190,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO69",
     "license_no": "880992001002",
-    "land": "FINAL TITLE",
-    "lat": "3.879719000000000",
-    "lng": "101.068298999999996"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.879719",
+    "lng": "101.068299"
   },
   {
     "smallholder": "KARPUDEWIR A/L SEVANANDY",
@@ -14192,9 +15205,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "589421501000",
-    "land": "FINAL TITLE",
-    "lat": "3.881565000000000",
-    "lng": "101.059261000000006"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.881565",
+    "lng": "101.059261"
   },
   {
     "smallholder": "LIM CHUAN AUN",
@@ -14206,9 +15220,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "819680001002",
-    "land": "FINAL TITLE",
-    "lat": "3.882653000000000",
-    "lng": "101.080783999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.882653",
+    "lng": "101.080784"
   },
   {
     "smallholder": "SUHAIMI BIN SAMIRAN",
@@ -14220,9 +15235,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO27",
     "license_no": "884357001002",
-    "land": "FINAL TITLE",
-    "lat": "3.866052000000000",
-    "lng": "100.839545000000001"
+    "land": "Coastal",
+    "soil_descr": "KRANJI",
+    "lat": "3.866052",
+    "lng": "100.839545"
   },
   {
     "smallholder": "BAKRI B MASR",
@@ -14234,9 +15250,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "224954401000",
-    "land": "FINAL TITLE",
-    "lat": "3.787180000000000",
-    "lng": "101.061870999999996"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.78718",
+    "lng": "101.061871"
   },
   {
     "smallholder": "KHAIROL AZUAN BIN ALIP",
@@ -14248,9 +15265,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "595015801000",
-    "land": "FINAL TITLE",
-    "lat": "3.782892000000000",
-    "lng": "101.066224000000005"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.782892",
+    "lng": "101.066224"
   },
   {
     "smallholder": "HUSSIN BIN YACCOB",
@@ -14262,9 +15280,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "219259301000",
-    "land": "FINAL TITLE",
-    "lat": "3.823504000000000",
-    "lng": "100.977290999999994"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.823504",
+    "lng": "100.977291"
   },
   {
     "smallholder": "NOR'AQIDAH BINTI KAMRI",
@@ -14276,9 +15295,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "844403001002",
-    "land": "FINAL TITLE",
-    "lat": "3.804617000000000",
-    "lng": "100.979553999999993"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.804617",
+    "lng": "100.979554"
   },
   {
     "smallholder": "APSAH @ HAFSAH BINTI MOHAMAD",
@@ -14290,9 +15310,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "586454501000",
-    "land": "FINAL TITLE",
-    "lat": "3.797205000000000",
-    "lng": "100.967832000000001"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.797205",
+    "lng": "100.967832"
   },
   {
     "smallholder": "CHEE BOON CHONG",
@@ -14304,9 +15325,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "803959001002",
-    "land": "FINAL TITLE",
-    "lat": "3.779671000000000",
-    "lng": "100.979558999999995"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.779671",
+    "lng": "100.979559"
   },
   {
     "smallholder": "MOHAMAD TAMBEH BIN OTHMAN",
@@ -14318,9 +15340,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "570509901000",
-    "land": "FINAL TITLE",
-    "lat": "3.881731000000000",
-    "lng": "100.881527000000006"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.881731",
+    "lng": "100.881527"
   },
   {
     "smallholder": "SITI MASIRAH BINTI SELAMAT",
@@ -14332,9 +15355,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "521803101000",
-    "land": "FINAL TITLE",
-    "lat": "3.879494000000000",
-    "lng": "100.882112000000006"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.879494",
+    "lng": "100.882112"
   },
   {
     "smallholder": "TAN AIK HONG",
@@ -14346,9 +15370,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "461938101000",
-    "land": "FINAL TITLE",
-    "lat": "3.889076000000000",
-    "lng": "100.841497000000004"
+    "land": "Coastal",
+    "soil_descr": "SELANGOR-KANGKONG",
+    "lat": "3.889076",
+    "lng": "100.841497"
   },
   {
     "smallholder": "TUMIJAN BIN KARIM",
@@ -14360,9 +15385,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "744475001002",
-    "land": "FINAL TITLE",
-    "lat": "3.788122000000000",
-    "lng": "101.061980000000005"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.788122",
+    "lng": "101.06198"
   },
   {
     "smallholder": "KAMARIAH BINTI HAJI ABD TALIB",
@@ -14374,9 +15400,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO32",
     "license_no": "886484001002",
-    "land": "FINAL TITLE",
-    "lat": "3.754490000000000",
-    "lng": "101.090373000000000"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.75449",
+    "lng": "101.090373"
   },
   {
     "smallholder": "NORHASIMAH BINTI MISUAN @ MISWAT",
@@ -14388,9 +15415,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "837528001002",
-    "land": "FINAL TITLE",
-    "lat": "3.777086000000000",
-    "lng": "101.095078000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.777086",
+    "lng": "101.095078"
   },
   {
     "smallholder": "RAMLAH BINTI SUKARDI",
@@ -14402,9 +15430,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "835013001002",
-    "land": "FINAL TITLE",
-    "lat": "3.776124000000000",
-    "lng": "101.100054000000000"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.776124",
+    "lng": "101.100054"
   },
   {
     "smallholder": "MARINI BINTI JAMALUDDIN",
@@ -14416,9 +15445,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "857397001002",
-    "land": "FINAL TITLE",
-    "lat": "3.774680000000000",
-    "lng": "101.102987999999996"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.77468",
+    "lng": "101.102988"
   },
   {
     "smallholder": "TAN TECK HOE",
@@ -14430,9 +15460,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "747513001002",
-    "land": "FINAL TITLE",
-    "lat": "3.761765000000000",
-    "lng": "101.117059999999995"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.761765",
+    "lng": "101.11706"
   },
   {
     "smallholder": "MOHD ANUAR BIN YUSOF",
@@ -14444,9 +15475,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "869635001002",
-    "land": "FINAL TITLE",
-    "lat": "3.761300000000000",
-    "lng": "101.114992999999998"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.7613",
+    "lng": "101.114993"
   },
   {
     "smallholder": "AMRAN BIN KASIRAN",
@@ -14458,9 +15490,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "837201001002",
-    "land": "FINAL TITLE",
-    "lat": "3.757267000000000",
-    "lng": "101.103953000000004"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.757267",
+    "lng": "101.103953"
   },
   {
     "smallholder": "MD ISHAK BIN SABRAN",
@@ -14472,9 +15505,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "835609001002",
-    "land": "FINAL TITLE",
-    "lat": "3.757349000000000",
-    "lng": "101.105028000000004"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.757349",
+    "lng": "101.105028"
   },
   {
     "smallholder": "ABD HALIM BIN SALLEHUDDIN",
@@ -14486,9 +15520,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "830872001002",
-    "land": "FINAL TITLE",
-    "lat": "3.755331000000000",
-    "lng": "101.103992000000005"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.755331",
+    "lng": "101.103992"
   },
   {
     "smallholder": "SITI AMINAH BINTI ABU",
@@ -14500,9 +15535,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "588672701000",
-    "land": "FINAL TITLE",
-    "lat": "3.754574000000000",
-    "lng": "101.105663000000007"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.754574",
+    "lng": "101.105663"
   },
   {
     "smallholder": "MOHD YATIM BIN HAMZAH",
@@ -14514,9 +15550,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "511205501000",
-    "land": "FINAL TITLE",
-    "lat": "3.752888000000000",
-    "lng": "101.108136999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.752888",
+    "lng": "101.108137"
   },
   {
     "smallholder": "MUHAMAD AZHARI BIN HJ MARZUKI",
@@ -14528,9 +15565,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "835606001002",
-    "land": "FINAL TITLE",
-    "lat": "3.765748000000000",
-    "lng": "101.102841999999995"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.765748",
+    "lng": "101.102842"
   },
   {
     "smallholder": "MASLOS BIN KUSNI",
@@ -14542,9 +15580,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "835608001002",
-    "land": "FINAL TITLE",
-    "lat": "3.770273000000000",
-    "lng": "101.098742999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.770273",
+    "lng": "101.098743"
   },
   {
     "smallholder": "MUHAMAD AZHARI BIN HJ MARZUKI",
@@ -14556,9 +15595,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "835606001002",
-    "land": "FINAL TITLE",
-    "lat": "3.769444000000000",
-    "lng": "101.100455999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.769444",
+    "lng": "101.100456"
   },
   {
     "smallholder": "SAPARWAN BIN IBRAHIM",
@@ -14570,9 +15610,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "836661001002",
-    "land": "FINAL TITLE",
-    "lat": "3.767652000000000",
-    "lng": "101.097606999999996"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.767652",
+    "lng": "101.097607"
   },
   {
     "smallholder": "NORLEZAH BINTI SARMUJI",
@@ -14584,9 +15625,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "574336501000",
-    "land": "FINAL TITLE",
-    "lat": "3.787216000000000",
-    "lng": "101.082603000000006"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.787216",
+    "lng": "101.082603"
   },
   {
     "smallholder": "SANYEH BINTI HALIDI",
@@ -14598,9 +15640,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "407572101000",
-    "land": "FINAL TITLE",
-    "lat": "3.786714000000000",
-    "lng": "101.083590999999998"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.786714",
+    "lng": "101.083591"
   },
   {
     "smallholder": "KARSIMIN BIN HASHIM",
@@ -14612,9 +15655,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO38",
     "license_no": "594168001000",
-    "land": "FINAL TITLE",
-    "lat": "3.785096000000000",
-    "lng": "101.082770999999994"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.785096",
+    "lng": "101.082771"
   },
   {
     "smallholder": "SARIJO BIN SULAIMAN",
@@ -14626,9 +15670,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "594169801000",
-    "land": "FINAL TITLE",
-    "lat": "3.784122000000000",
-    "lng": "101.084699999999998"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.784122",
+    "lng": "101.0847"
   },
   {
     "smallholder": "MOHD DARUNAI BIN BAHAR",
@@ -14640,9 +15685,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "519455801000",
-    "land": "FINAL TITLE",
-    "lat": "3.781570000000000",
-    "lng": "101.070841000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.78157",
+    "lng": "101.070841"
   },
   {
     "smallholder": "SAMSUDIN BIN MAT ALI",
@@ -14654,9 +15700,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "456492601000",
-    "land": "FINAL TITLE",
-    "lat": "3.779114000000000",
-    "lng": "101.075675000000004"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.779114",
+    "lng": "101.075675"
   },
   {
     "smallholder": "FAIZAH BINTI SANUSI",
@@ -14668,9 +15715,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "833881001002",
-    "land": "FINAL TITLE",
-    "lat": "3.779422000000000",
-    "lng": "101.081102000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.779422",
+    "lng": "101.081102"
   },
   {
     "smallholder": "IDAZIANA BINTI SANUSI",
@@ -14682,9 +15730,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "833882001002",
-    "land": "FINAL TITLE",
-    "lat": "3.779422000000000",
-    "lng": "101.081102000000001"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.779422",
+    "lng": "101.081102"
   },
   {
     "smallholder": "ZULPEKRI BIN PARNI",
@@ -14696,9 +15745,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "869656001002",
-    "land": "FINAL TITLE",
-    "lat": "3.733038000000000",
-    "lng": "101.079351000000003"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.733038",
+    "lng": "101.079351"
   },
   {
     "smallholder": "SOMMAIRY BIN SUPAR",
@@ -14710,9 +15760,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "869671001002",
-    "land": "FINAL TITLE",
-    "lat": "3.754383000000000",
-    "lng": "101.077584000000002"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.754383",
+    "lng": "101.077584"
   },
   {
     "smallholder": "ABDUL WAHID BIN TUKIJO",
@@ -14724,9 +15775,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "869680001002",
-    "land": "FINAL TITLE",
-    "lat": "3.730979000000000",
-    "lng": "101.076386999999997"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.730979",
+    "lng": "101.076387"
   },
   {
     "smallholder": "ONG YONG GUAN",
@@ -14738,9 +15790,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "756746001002",
-    "land": "FINAL TITLE",
-    "lat": "3.767909000000000",
-    "lng": "101.066274000000007"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.767909",
+    "lng": "101.066274"
   },
   {
     "smallholder": "SUBRAMANYAM A/L A. SABABATHY",
@@ -14752,9 +15805,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "593743701000",
-    "land": "FINAL TITLE",
-    "lat": "3.763245000000000",
-    "lng": "101.060580999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.763245",
+    "lng": "101.060581"
   },
   {
     "smallholder": "SUBRAMANYAM A/L A. SABABATHY",
@@ -14766,9 +15820,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "593743701000",
-    "land": "FINAL TITLE",
-    "lat": "3.761622000000000",
-    "lng": "101.060231999999999"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.761622",
+    "lng": "101.060232"
   },
   {
     "smallholder": "SUBRAMANYAM A/L A. SABABATHY",
@@ -14780,9 +15835,10 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "593743701000",
-    "land": "FINAL TITLE",
-    "lat": "3.759884000000000",
-    "lng": "101.059894000000000"
+    "land": "Coastal",
+    "soil_descr": "BRIAH-ORGANIC CLAY AND MUCK",
+    "lat": "3.759884",
+    "lng": "101.059894"
   },
   {
     "smallholder": "JOHAN BIN ABD MANAN",
@@ -14794,8 +15850,9 @@ const POLYGON_ISH_REAL_RECORDS = [
     "mspo": "MSPO Certified",
     "mspo_certi": "50451331 MSPO2",
     "license_no": "228588501000",
-    "land": "FINAL TITLE",
-    "lat": "3.785777000000000",
-    "lng": "101.103714999999994"
+    "land": "Peat",
+    "soil_descr": "PEAT",
+    "lat": "3.785777",
+    "lng": "101.103715"
   }
 ];

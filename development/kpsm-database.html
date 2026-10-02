@@ -298,7 +298,7 @@
                     <div class="kpsm-stat-card">
                         <div class="kpsm-stat-icon" style="background: #fce7f3; color: #be185d;">🏞️</div>
                         <div>
-                            <div class="kpsm-stat-val">Inland Mineral</div>
+                            <div class="kpsm-stat-val" id="stat-primary-land">Coastal</div>
                             <div class="kpsm-stat-lbl">Primary Land Type</div>
                         </div>
                     </div>
@@ -446,9 +446,26 @@
             let certifiedCount = allKpsmRecords.filter(r => (r.mspo || '').toLowerCase().includes('certified')).length;
             let mspoRate = allKpsmRecords.length > 0 ? ((certifiedCount / allKpsmRecords.length) * 100).toFixed(1) : 0;
 
+            // Compute primary land type from SOIL ISH > SOIL_TYPE
+            let landCounts = {};
+            allKpsmRecords.forEach(r => {
+                let l = (r.land || 'Coastal').trim();
+                landCounts[l] = (landCounts[l] || 0) + 1;
+            });
+            let primaryLand = 'Coastal';
+            let maxC = 0;
+            for (let l in landCounts) {
+                if (landCounts[l] > maxC) {
+                    maxC = landCounts[l];
+                    primaryLand = l;
+                }
+            }
+
             document.getElementById('stat-total-rec').innerText = allKpsmRecords.length;
             document.getElementById('stat-total-area').innerText = totalArea.toFixed(1) + ' ha';
             document.getElementById('stat-mspo-rate').innerText = mspoRate + '%';
+            let landEl = document.getElementById('stat-primary-land');
+            if (landEl) landEl.innerText = primaryLand;
         }
 
         function renderKpsmTable(data) {
