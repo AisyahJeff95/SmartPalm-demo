@@ -4,5 +4,10 @@ demo5-qt-python/dist/
 demo5-qt-python/build/
 others/
 
+# Large uncompressed 10m CSV grids (>100MB)
+v1_training_data_10m.csv
+*/v1_training_data_10m.csv
+
 *.tif
 *.tiff
+
