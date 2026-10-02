@@ -363,22 +363,22 @@
     <script>
         // Default ISH SPOC Database Records (Fetches POLYGON ISH GeoJSON if available, fallback to SPOC master dataset)
         const SAMPLE_ISH_RECORDS = [
-            { smallholder: "Ahmad Bin Sulaiman", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 101", planted_ar: "3.50", mspo: "MSPO Certified", land: "Inland Mineral" },
-            { smallholder: "Siti Fatimah Binti Ismail", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 102", planted_ar: "4.20", mspo: "MSPO Certified", land: "Inland Mineral" },
-            { smallholder: "Tan Ah Kow", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 103", planted_ar: "2.80", mspo: "MSPO Certified", land: "Riverine Alluvial" },
-            { smallholder: "Ramasamy A/L Subramaniam", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 104", planted_ar: "5.10", mspo: "MSPO Certified", land: "Inland Mineral" },
-            { smallholder: "Mohd Hafiz Bin Rosli", state: "Sabah", district: "Tawau", spoc: "SPOC A8 Tawau", lot: "LOT 105", planted_ar: "3.90", mspo: "MSPO Certified", land: "Inland Mineral" },
-            { smallholder: "Wong Chee Keong", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 106", planted_ar: "4.75", mspo: "MSPO Certified", land: "Inland Mineral" },
-            { smallholder: "Zainab Binti Hassan", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 107", planted_ar: "3.20", mspo: "In-Progress", land: "Organic Peat" },
-            { smallholder: "Chong Wei Sheng", state: "Pahang", district: "Jerantut", spoc: "SPOC P2 Jengka", lot: "LOT 201", planted_ar: "6.30", mspo: "MSPO Certified", land: "Inland Mineral" },
-            { smallholder: "Kamal Bin Ibrahim", state: "Pahang", district: "Jerantut", spoc: "SPOC P2 Jengka", lot: "LOT 202", planted_ar: "5.50", mspo: "MSPO Certified", land: "Inland Mineral" },
-            { smallholder: "Nurul Aini Binti Yusof", state: "Pahang", district: "Jerantut", spoc: "SPOC P2 Jengka", lot: "LOT 203", planted_ar: "4.10", mspo: "MSPO Certified", land: "Inland Mineral" },
-            { smallholder: "Muthusamy A/L Vengadasalam", state: "Johor", district: "Kluang", spoc: "SPOC J4 Kluang", lot: "LOT 301", planted_ar: "4.80", mspo: "MSPO Certified", land: "Organic Peat" },
-            { smallholder: "Abdul Rahman Bin Hamid", state: "Johor", district: "Kluang", spoc: "SPOC J4 Kluang", lot: "LOT 302", planted_ar: "3.70", mspo: "MSPO Certified", land: "Inland Mineral" },
-            { smallholder: "Lim Guan Eng", state: "Selangor", district: "Kuala Langat", spoc: "SPOC S1 Banting", lot: "LOT 401", planted_ar: "5.00", mspo: "MSPO Certified", land: "Organic Peat" },
-            { smallholder: "Aziz Bin Mustaffa", state: "Sabah", district: "Sandakan", spoc: "SPOC A5 Sandakan", lot: "LOT 501", planted_ar: "3.60", mspo: "MSPO Certified", land: "Inland Mineral" },
-            { smallholder: "Lee Siew Leng", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 108", planted_ar: "4.40", mspo: "MSPO Certified", land: "Riverine Alluvial" },
-            { smallholder: "Kassim Bin Abdullah", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 109", planted_ar: "2.90", mspo: "In-Progress", land: "Inland Mineral" }
+            { smallholder: "Ahmad Bin Sulaiman", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 101", planted_ar: "3.50", mspo: "MSPO Certified", license_no: "MSPO-50415331-101", land: "Inland Mineral" },
+            { smallholder: "Siti Fatimah Binti Ismail", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 102", planted_ar: "4.20", mspo: "MSPO Certified", license_no: "MSPO-50415331-102", land: "Inland Mineral" },
+            { smallholder: "Tan Ah Kow", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 103", planted_ar: "2.80", mspo: "MSPO Certified", license_no: "MSPO-50415331-103", land: "Riverine Alluvial" },
+            { smallholder: "Ramasamy A/L Subramaniam", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 104", planted_ar: "5.10", mspo: "MSPO Certified", license_no: "MSPO-50415331-104", land: "Inland Mineral" },
+            { smallholder: "Mohd Hafiz Bin Rosli", state: "Sabah", district: "Tawau", spoc: "SPOC A8 Tawau", lot: "LOT 105", planted_ar: "3.90", mspo: "MSPO Certified", license_no: "MSPO-50415331-105", land: "Inland Mineral" },
+            { smallholder: "Wong Chee Keong", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 106", planted_ar: "4.75", mspo: "MSPO Certified", license_no: "MSPO-50415331-106", land: "Inland Mineral" },
+            { smallholder: "Zainab Binti Hassan", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 107", planted_ar: "3.20", mspo: "In-Progress", license_no: "MSPO-50415331-107", land: "Organic Peat" },
+            { smallholder: "Chong Wei Sheng", state: "Pahang", district: "Jerantut", spoc: "SPOC P2 Jengka", lot: "LOT 201", planted_ar: "6.30", mspo: "MSPO Certified", license_no: "MSPO-50415331-201", land: "Inland Mineral" },
+            { smallholder: "Kamal Bin Ibrahim", state: "Pahang", district: "Jerantut", spoc: "SPOC P2 Jengka", lot: "LOT 202", planted_ar: "5.50", mspo: "MSPO Certified", license_no: "MSPO-50415331-202", land: "Inland Mineral" },
+            { smallholder: "Nurul Aini Binti Yusof", state: "Pahang", district: "Jerantut", spoc: "SPOC P2 Jengka", lot: "LOT 203", planted_ar: "4.10", mspo: "MSPO Certified", license_no: "MSPO-50415331-203", land: "Inland Mineral" },
+            { smallholder: "Muthusamy A/L Vengadasalam", state: "Johor", district: "Kluang", spoc: "SPOC J4 Kluang", lot: "LOT 301", planted_ar: "4.80", mspo: "MSPO Certified", license_no: "MSPO-50415331-301", land: "Organic Peat" },
+            { smallholder: "Abdul Rahman Bin Hamid", state: "Johor", district: "Kluang", spoc: "SPOC J4 Kluang", lot: "LOT 302", planted_ar: "3.70", mspo: "MSPO Certified", license_no: "MSPO-50415331-302", land: "Inland Mineral" },
+            { smallholder: "Lim Guan Eng", state: "Selangor", district: "Kuala Langat", spoc: "SPOC S1 Banting", lot: "LOT 401", planted_ar: "5.00", mspo: "MSPO Certified", license_no: "MSPO-50415331-401", land: "Organic Peat" },
+            { smallholder: "Aziz Bin Mustaffa", state: "Sabah", district: "Sandakan", spoc: "SPOC A5 Sandakan", lot: "LOT 501", planted_ar: "3.60", mspo: "MSPO Certified", license_no: "MSPO-50415331-501", land: "Inland Mineral" },
+            { smallholder: "Lee Siew Leng", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 108", planted_ar: "4.40", mspo: "MSPO Certified", license_no: "MSPO-50415331-108", land: "Riverine Alluvial" },
+            { smallholder: "Kassim Bin Abdullah", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 109", planted_ar: "2.90", mspo: "In-Progress", license_no: "MSPO-50415331-109", land: "Inland Mineral" }
         ];
 
         let allKpsmRecords = [];
@@ -398,6 +398,7 @@
                         lot: p.Lot_No || p.lot_no || p.LOT || p.Lot || `LOT ${101 + i}`,
                         planted_ar: p.planted_ar || p.Planted_Area || p.Area || (3.0 + (i % 5) * 0.7).toFixed(2),
                         mspo: p.MSPO_cert || p.mspo_cert || p.MSPO || (i % 8 === 6 ? "In-Progress" : "MSPO Certified"),
+                        license_no: p.LICENSE_NO || p.license_no || p.MSPO_CERTI || p.mspo_certi || `MSPO-${50415331 + i}`,
                         land: p.Land_type || p.land_type || p.LandType || (i % 4 === 2 ? "Organic Peat" : (i % 4 === 3 ? "Riverine Alluvial" : "Inland Mineral"))
                     };
                 });
@@ -425,7 +426,7 @@
         function renderKpsmTable(data) {
             const tbody = document.getElementById('kpsm-db-tbody');
             if (!data || data.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding: 24px; color: #94a3b8;">No matching smallholder database records found.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding: 24px; color: #94a3b8;">No matching smallholder database records found.</td></tr>';
                 return;
             }
 
@@ -443,6 +444,7 @@
                         <td><span style="font-family:monospace; font-weight:600; background:#f1f5f9; padding:2px 6px; border-radius:4px;">${r.lot}</span></td>
                         <td style="font-weight:600; color:#059669;">${r.planted_ar} ha</td>
                         <td><span class="badge-mspo ${badgeClass}">${badgeText}</span></td>
+                        <td><span style="font-family:monospace; font-size:12px; font-weight:600; color:#475569; background:#f8fafc; padding:2px 8px; border-radius:4px; border:1px solid #e2e8f0;">${r.license_no || 'N/A'}</span></td>
                         <td>${r.land}</td>
                     </tr>
                 `;
@@ -461,7 +463,8 @@
                     (r.state && r.state.toLowerCase().includes(query)) ||
                     (r.district && r.district.toLowerCase().includes(query)) ||
                     (r.spoc && r.spoc.toLowerCase().includes(query)) ||
-                    (r.lot && r.lot.toLowerCase().includes(query));
+                    (r.lot && r.lot.toLowerCase().includes(query)) ||
+                    (r.license_no && r.license_no.toLowerCase().includes(query));
 
                 const matchesState = !stateF || r.state === stateF;
                 const matchesMspo = !mspoF || r.mspo === mspoF;
@@ -475,7 +478,7 @@
 
         function exportKpsmCsv() {
             if (!allKpsmRecords || allKpsmRecords.length === 0) return;
-            let headers = ["#", "Smallholder", "State", "District", "SPOC Name", "Lot No.", "Planted Area (ha)", "MSPO Cert", "Land Type"];
+            let headers = ["#", "Smallholder", "State", "District", "SPOC Name", "Lot No.", "Planted Area (ha)", "MSPO Cert", "MSPO License No.", "Land Type"];
             let rows = allKpsmRecords.map((r, i) => [
                 i + 1,
                 `"${r.smallholder}"`,
@@ -485,6 +488,7 @@
                 `"${r.lot}"`,
                 r.planted_ar,
                 `"${r.mspo}"`,
+                `"${r.license_no || ''}"`,
                 `"${r.land}"`
             ]);
 
