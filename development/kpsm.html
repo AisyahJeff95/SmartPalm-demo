@@ -3510,6 +3510,33 @@ function toggleSatDataMode(mode) {
         function loadShapeBoundaries(type) {
             let blocksData = REAL_MAPS_DATA[type];
             if (!blocksData) return;
+
+            // Enrich LAND_TYPE with SOIL_TYPE from SOIL ISH (POLYGON_ISH_REAL_RECORDS)
+            if ((type === 'polygon_ish' || type === 'geolocation_ish') && blocksData.features) {
+                let recMap = {};
+                if (typeof POLYGON_ISH_REAL_RECORDS !== 'undefined') {
+                    POLYGON_ISH_REAL_RECORDS.forEach(r => {
+                        let sh = (r.smallholder || '').trim().toUpperCase();
+                        let lot = (r.lot || '').trim().toUpperCase();
+                        let lic = (r.license_no || '').trim().toUpperCase();
+                        let st = (r.land || 'COASTAL').toUpperCase();
+                        if (sh && lot) recMap[sh + '_' + lot] = st;
+                        if (lic) recMap[lic] = st;
+                        if (sh) recMap[sh] = st;
+                    });
+                }
+                blocksData.features.forEach(f => {
+                    if (!f.properties) f.properties = {};
+                    let p = f.properties;
+                    let sh = (p.SMALLHOLDE || p.smallholder || p.name || '').trim().toUpperCase();
+                    let lot = (p.LOT_NO || p.lot || p.LOT || '').trim().toUpperCase();
+                    let lic = (p.LICENSE_NO || p.license_no || p.MSPO_CERTI || '').trim().toUpperCase();
+                    let matchedSoil = recMap[sh + '_' + lot] || recMap[lic] || recMap[sh] || 'COASTAL';
+                    p.LAND_TYPE = matchedSoil;
+                    p.land = matchedSoil;
+                    p.land_type = matchedSoil;
+                });
+            }
             
             const mapCenterLookup = {
                 lahad_datu:      lahadDatuCoords,
