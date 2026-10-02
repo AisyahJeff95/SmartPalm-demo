@@ -1990,6 +1990,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://unpkg.com/proj4@latest/dist/proj4.js"></script>
     <script src="https://unpkg.com/shpjs@latest/dist/shp.js"></script>
+    <script src="js/ppptar_raster_overlays.js"></script>
 <script>
 
 
@@ -3309,8 +3310,14 @@ function toggleSatDataMode(mode) {
             };
 
             for (let key of ["N", "P", "K", "Mg"]) {
+                let r = null;
                 if (typeof RASTER_GRID_DATA !== 'undefined' && RASTER_GRID_DATA[key]) {
-                    let r = RASTER_GRID_DATA[key];
+                    r = RASTER_GRID_DATA[key];
+                } else if (typeof RASTER_GRID_DATA_PPPTAR !== 'undefined' && RASTER_GRID_DATA_PPPTAR[key]) {
+                    r = RASTER_GRID_DATA_PPPTAR[key];
+                }
+
+                if (r) {
                     let wgs_left = r.bounds.left;
                     let wgs_bottom = r.bounds.bottom;
                     let wgs_right = r.bounds.right;
@@ -3322,7 +3329,7 @@ function toggleSatDataMode(mode) {
                         
                         if (row >= 0 && row < r.height && col >= 0 && col < r.width) {
                             let val = r.data[row][col];
-                            if (val !== -9999) {
+                            if (val !== -9999 && val > 0) {
                                 result[key.toLowerCase()] = val;
                             }
                         }
@@ -4112,6 +4119,7 @@ function toggleNutrientLayerComp(layerValue) {
     
     const currentMapType = document.getElementById('map-select-comp') ? document.getElementById('map-select-comp').value : 'lahad_datu_combined';
     const isLahadDatu = currentMapType.includes('lahad_datu') || currentMapType.includes('mpob_36_trial');
+    const isPPPTAR = currentMapType.includes('ppptar');
 
     if (layerValue === "OFF") {
         if (compBoundaryLayer) {
@@ -4127,6 +4135,9 @@ function toggleNutrientLayerComp(layerValue) {
 
         if (isLahadDatu && typeof RASTER_OVERLAYS !== 'undefined' && RASTER_OVERLAYS[layerValue]) {
             let oData = RASTER_OVERLAYS[layerValue];
+            compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 1.0, zIndex: 400 }).addTo(mapComp);
+        } else if (isPPPTAR && typeof RASTER_OVERLAYS_PPPTAR !== 'undefined' && RASTER_OVERLAYS_PPPTAR[layerValue]) {
+            let oData = RASTER_OVERLAYS_PPPTAR[layerValue];
             compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 1.0, zIndex: 400 }).addTo(mapComp);
         } else if (compBoundaryLayer) {
             compRasterOverlay = createContinuousNutrientRaster(compBoundaryLayer, layerValue, mapComp);
@@ -4146,6 +4157,7 @@ function toggleNutrientLayerStd(layerValue) {
     
     const currentMapType = document.getElementById('map-select-std') ? document.getElementById('map-select-std').value : 'lahad_datu_combined';
     const isLahadDatu = currentMapType.includes('lahad_datu') || currentMapType.includes('mpob_36_trial');
+    const isPPPTAR = currentMapType.includes('ppptar');
 
     if (layerValue === "OFF") {
         if (stdBoundaryLayer) {
@@ -4161,6 +4173,9 @@ function toggleNutrientLayerStd(layerValue) {
 
         if (isLahadDatu && typeof RASTER_OVERLAYS !== 'undefined' && RASTER_OVERLAYS[layerValue]) {
             let oData = RASTER_OVERLAYS[layerValue];
+            stdRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 1.0, zIndex: 400 }).addTo(mapStd);
+        } else if (isPPPTAR && typeof RASTER_OVERLAYS_PPPTAR !== 'undefined' && RASTER_OVERLAYS_PPPTAR[layerValue]) {
+            let oData = RASTER_OVERLAYS_PPPTAR[layerValue];
             stdRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 1.0, zIndex: 400 }).addTo(mapStd);
         } else if (stdBoundaryLayer) {
             stdRasterOverlay = createContinuousNutrientRaster(stdBoundaryLayer, layerValue, mapStd);

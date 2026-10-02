@@ -49,7 +49,12 @@
                 }
                 
                 // Add the authentic GeoTIFF raster overlay
-                let overlays = window.RASTER_OVERLAYS || window._RASTER_OVERLAYS || (typeof RASTER_OVERLAYS !== 'undefined' ? RASTER_OVERLAYS : null);
+                let currentMapVal = document.getElementById('map-select-comp') ? document.getElementById('map-select-comp').value : '';
+                let isPPPTAR = currentMapVal.includes('ppptar');
+                let ppptarOverlays = window.RASTER_OVERLAYS_PPPTAR || (typeof RASTER_OVERLAYS_PPPTAR !== 'undefined' ? RASTER_OVERLAYS_PPPTAR : null);
+                let ldOverlays = window.RASTER_OVERLAYS || window._RASTER_OVERLAYS || (typeof RASTER_OVERLAYS !== 'undefined' ? RASTER_OVERLAYS : null);
+                let overlays = (isPPPTAR && ppptarOverlays) ? ppptarOverlays : ldOverlays;
+
                 if (overlays && overlays[layerValue]) {
                     let oData = overlays[layerValue];
                     if (targetMap && typeof L !== 'undefined') {
@@ -99,7 +104,12 @@
                 }
                 
                 // Add the authentic GeoTIFF raster overlay
-                let overlays = window.RASTER_OVERLAYS || window._RASTER_OVERLAYS || (typeof RASTER_OVERLAYS !== 'undefined' ? RASTER_OVERLAYS : null);
+                let currentMapVal = document.getElementById('map-select-std') ? document.getElementById('map-select-std').value : '';
+                let isPPPTAR = currentMapVal.includes('ppptar');
+                let ppptarOverlays = window.RASTER_OVERLAYS_PPPTAR || (typeof RASTER_OVERLAYS_PPPTAR !== 'undefined' ? RASTER_OVERLAYS_PPPTAR : null);
+                let ldOverlays = window.RASTER_OVERLAYS || window._RASTER_OVERLAYS || (typeof RASTER_OVERLAYS !== 'undefined' ? RASTER_OVERLAYS : null);
+                let overlays = (isPPPTAR && ppptarOverlays) ? ppptarOverlays : ldOverlays;
+
                 if (overlays && overlays[layerValue]) {
                     let oData = overlays[layerValue];
                     if (targetMap && typeof L !== 'undefined') {
