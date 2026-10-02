@@ -80,7 +80,28 @@ def get_color_mg(val):
     if val <= 0.28: return [30, 110, 230, 220]
     return [145, 90, 45, 220]
 
-COLOR_FUNCS = {'N': get_color_n, 'P': get_color_p, 'K': get_color_k, 'Mg': get_color_mg}
+def get_color_ca(val):
+    if val <= 0: return [0, 0, 0, 0]
+    if val <= 0.40: return [227, 26, 28, 220]    # Red (Deficient)
+    if val <= 0.50: return [245, 163, 64, 220]   # Orange (Low)
+    if val <= 0.60: return [255, 240, 60, 220]   # Yellow (Slight)
+    if val <= 0.75: return [85, 215, 65, 220]    # Green (Optimum)
+    if val <= 0.90: return [30, 110, 230, 220]   # Blue (High)
+    return [145, 90, 45, 220]                    # Brown (Excess)
+
+def get_color_b(val):
+    if val <= 0: return [0, 0, 0, 0]
+    if val <= 10.0: return [227, 26, 28, 220]    # Red (Deficient)
+    if val <= 15.0: return [245, 163, 64, 220]   # Orange (Low)
+    if val <= 20.0: return [255, 240, 60, 220]   # Yellow (Slight)
+    if val <= 30.0: return [85, 215, 65, 220]    # Green (Optimum)
+    if val <= 40.0: return [30, 110, 230, 220]   # Blue (High)
+    return [145, 90, 45, 220]                    # Brown (Excess)
+
+COLOR_FUNCS = {
+    'N': get_color_n, 'P': get_color_p, 'K': get_color_k,
+    'Mg': get_color_mg, 'Ca': get_color_ca, 'B': get_color_b
+}
 
 def resolve_path(rel_path):
     base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -111,7 +132,6 @@ def main():
     df_train = pd.read_csv(train_csv_path)
     print(f"  ✓ Loaded {len(df_train)} training plot samples.\n")
 
-    # Clean features & targets
     X = df_train[FEATURE_COLS].apply(pd.to_numeric, errors='coerce').fillna(0)
     
     models = {}
@@ -124,14 +144,11 @@ def main():
     for target in TARGET_COLS:
         y = df_train[target].astype(float)
         
-        # Train-Test Split (80/20)
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=42)
         
-        # Fit Random Forest Regressor
         rf = RandomForestRegressor(n_estimators=150, max_depth=12, random_state=42, n_jobs=-1)
         rf.fit(X_train, y_train)
         
-        # Predict & Evaluate
         y_pred = rf.predict(X_test)
         r2 = r2_score(y_test, y_pred)
         rmse = np.sqrt(mean_squared_error(y_test, y_pred))
@@ -139,12 +156,10 @@ def main():
         
         models[target] = rf
         
-        # Save model joblib artifact
         model_out = resolve_path(f"rf_model_{target}.pkl")
         with open(model_out, "wb") as f:
             pickle.dump(rf, f)
         
-        # Feature importances
         importances = pd.Series(rf.feature_importances_, index=FEATURE_COLS).sort_values(ascending=False)
         top3_feats = ", ".join(importances.index[:3].tolist())
         
@@ -175,20 +190,17 @@ def main():
         
         X_grid = df_grid[FEATURE_COLS].apply(pd.to_numeric, errors='coerce').fillna(0)
 
-        # Make predictions for all 10m pixels
-        for target in ['N', 'P', 'K', 'Mg', 'Ca', 'B']:
+        for target in TARGET_COLS:
             if target in models:
                 preds = models[target].predict(X_grid)
                 df_grid[target] = np.round(preds, 3)
 
-        # Mask predictions strictly inside PPPTAR shapefile boundary
         print("  ✓ Masking predictions with shapefile boundary...")
         with shapefile.Reader(shp_path) as sf:
             geoms = [shape(sr.shape.__geo_interface__).buffer(0) for sr in sf.shapeRecords()]
         poly_union = unary_union(geoms)
         prep_poly = prep(poly_union)
 
-        # Save predictions compressed CSV.gz
         pred_out_csv = resolve_path("predicted_10m_nutrients.csv.gz")
         df_grid.to_csv(pred_out_csv, index=False, compression='gzip')
         print(f"  ✓ Saved 10m predictions to: {pred_out_csv}")
@@ -202,70 +214,62 @@ def main():
         overlays_dict = {}
         grid_dict = {}
 
-        for nut in ['N', 'P', 'K', 'Mg']:
+        # Use Merge_Citra_Unsur_N.tif as reference template for spatial projection & shape
+        ref_tif = os.path.join(dev_dir, "Merge_Citra_Unsur_N.tif")
+        with rasterio.open(ref_tif) as src:
+            h, w = src.height, src.width
+            left, bottom, right, top = src.bounds.left, src.bounds.bottom, src.bounds.right, src.bounds.top
+            ref_profile = src.profile.copy()
+
+        lngs = df_grid['Longitude'].values
+        lats = df_grid['Lattitude'].values
+        cols = np.floor(((lngs - left) / (right - left)) * w).astype(int)
+        rows = np.floor(((top - lats) / (top - bottom)) * h).astype(int)
+        valid_mask = (cols >= 0) & (cols < w) & (rows >= 0) & (rows < h)
+
+        for nut in TARGET_COLS:
             tif_path = os.path.join(dev_dir, f"Merge_Citra_Unsur_{nut}.tif")
-            if not os.path.exists(tif_path):
-                continue
+            raster_grid = np.full((h, w), -9999, dtype=np.float32)
+            rgba_img = np.zeros((h, w, 4), dtype=np.uint8)
 
-            with rasterio.open(tif_path) as src:
-                h, w = src.height, src.width
-                left, bottom, right, top = src.bounds.left, src.bounds.bottom, src.bounds.right, src.bounds.top
-                profile = src.profile
+            c_valid, r_valid, lng_v, lat_v, vals_v = cols[valid_mask], rows[valid_mask], lngs[valid_mask], lats[valid_mask], df_grid[nut].values[valid_mask]
+            color_fn = COLOR_FUNCS[nut]
 
-                # Build 2D grid from predicted 10m values
-                raster_grid = np.full((h, w), -9999, dtype=np.float32)
-                rgba_img = np.zeros((h, w, 4), dtype=np.uint8)
+            for r, c, lng, lat, v in zip(r_valid, c_valid, lng_v, lat_v, vals_v):
+                if prep_poly.contains(Point(lng, lat)) and v > 0:
+                    raster_grid[r, c] = v
+                    rgba_img[r, c] = color_fn(v)
 
-                # Map df_grid (lng, lat) to raster matrix (r, c)
-                lngs = df_grid['Longitude'].values
-                lats = df_grid['Lattitude'].values
-                vals = df_grid[nut].values
+            ref_profile.update(nodata=-9999, dtype=rasterio.float32)
+            with rasterio.open(tif_path, 'w', **ref_profile) as dst:
+                dst.write(raster_grid, 1)
 
-                cols = np.floor(((lngs - left) / (right - left)) * w).astype(int)
-                rows = np.floor(((top - lats) / (top - bottom)) * h).astype(int)
+            img = Image.fromarray(rgba_img)
+            img_resized = img.resize((w * 4, h * 4), Image.Resampling.NEAREST)
+            
+            buf = io.BytesIO()
+            img_resized.save(buf, format="PNG")
+            b64_str = base64.b64encode(buf.getvalue()).decode('utf-8')
+            
+            overlays_dict[nut] = {
+                "dataUrl": f"data:image/png;base64,{b64_str}",
+                "bounds": [[bottom, left], [top, right]]
+            }
 
-                valid_mask = (cols >= 0) & (cols < w) & (rows >= 0) & (rows < h)
-                cols, rows, lngs, lats, vals = cols[valid_mask], rows[valid_mask], lngs[valid_mask], lats[valid_mask], vals[valid_mask]
+            sub = raster_grid[::2, ::2]
+            sh, sw = sub.shape
+            grid_dict[nut] = {
+                "bounds": {"left": left, "bottom": bottom, "right": right, "top": top},
+                "width": sw, "height": sh,
+                "data": np.where(np.isnan(sub), -9999, np.round(sub, 3)).tolist()
+            }
 
-                color_fn = COLOR_FUNCS[nut]
-                for r, c, lng, lat, v in zip(rows, cols, lngs, lats, vals):
-                    if prep_poly.contains(Point(lng, lat)) and v > 0:
-                        raster_grid[r, c] = v
-                        rgba_img[r, c] = color_fn(v)
-
-                # Save updated GeoTIFF
-                profile.update(nodata=-9999, dtype=rasterio.float32)
-                with rasterio.open(tif_path, 'w', **profile) as dst:
-                    dst.write(raster_grid, 1)
-
-                # Create PNG base64 data URL
-                img = Image.fromarray(rgba_img)
-                img_resized = img.resize((w * 4, h * 4), Image.Resampling.NEAREST)
-                
-                buf = io.BytesIO()
-                img_resized.save(buf, format="PNG")
-                b64_str = base64.b64encode(buf.getvalue()).decode('utf-8')
-                
-                overlays_dict[nut] = {
-                    "dataUrl": f"data:image/png;base64,{b64_str}",
-                    "bounds": [[bottom, left], [top, right]]
-                }
-
-                sub = raster_grid[::2, ::2]
-                sh, sw = sub.shape
-                grid_dict[nut] = {
-                    "bounds": {"left": left, "bottom": bottom, "right": right, "top": top},
-                    "width": sw, "height": sh,
-                    "data": np.where(np.isnan(sub), -9999, np.round(sub, 3)).tolist()
-                }
-
-        # Write JS overlay file
         js_content = f"const RASTER_OVERLAYS_PPPTAR = {json.dumps(overlays_dict)};\nconst RASTER_GRID_DATA_PPPTAR = {json.dumps(grid_dict)};\nif (typeof window !== 'undefined') {{\n    window.RASTER_OVERLAYS_PPPTAR = RASTER_OVERLAYS_PPPTAR;\n    window.RASTER_GRID_DATA_PPPTAR = RASTER_GRID_DATA_PPPTAR;\n}}\n"
         js_path = os.path.join(dev_dir, "js/ppptar_raster_overlays.js")
         with open(js_path, "w") as f:
             f.write(js_content)
         
-        print(f"  ✓ Updated GeoTIFF rasters and generated {js_path}")
+        print(f"  ✓ Updated GeoTIFF rasters (N, P, K, Mg, Ca, B) and generated {js_path}")
 
     t_end = time.time()
     print("\n==========================================================================")

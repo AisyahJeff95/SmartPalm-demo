@@ -22,7 +22,7 @@
             let targetMap = window.mapComp || (typeof mapComp !== 'undefined' ? mapComp : null);
 
             // Hide all comprehensive legends
-            ['n-comp-legend', 'p-comp-legend', 'k-comp-legend', 'mg-comp-legend'].forEach(id => {
+            ['n-comp-legend', 'p-comp-legend', 'k-comp-legend', 'mg-comp-legend', 'ca-comp-legend', 'b-comp-legend'].forEach(id => {
                 let box = document.getElementById(id);
                 if (box) box.style.display = 'none';
             });
@@ -77,7 +77,7 @@
             let targetMap = window.mapStd || (typeof mapStd !== 'undefined' ? mapStd : null);
 
             // Hide all standard legends
-            ['n-std-legend', 'p-std-legend', 'k-std-legend', 'mg-std-legend'].forEach(id => {
+            ['n-std-legend', 'p-std-legend', 'k-std-legend', 'mg-std-legend', 'ca-std-legend', 'b-std-legend'].forEach(id => {
                 let box = document.getElementById(id);
                 if (box) box.style.display = 'none';
             });
@@ -2650,3 +2650,43 @@ window.initReadaMapDashboard = initReadaMapDashboard;
         }
         window.deleteCurrentMap = deleteCurrentMap;
 
+
+
+        // Toggle LSU Overlay Checkbox Handler
+        function toggleLsuOverlay(isChecked) {
+            const subBox = document.getElementById('lsu-suboptions-box');
+            if (subBox) subBox.style.display = isChecked ? 'block' : 'none';
+
+            if (isChecked) {
+                // Default to N nutrient layer when LSU is turned ON
+                const nRadios = document.querySelectorAll('input[name="comp_layer"][value="N"], input[name="std_layer"][value="N"]');
+                nRadios.forEach(r => r.checked = true);
+                if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp('N');
+                if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd('N');
+            } else {
+                // Turn OFF LSU overlay
+                const offRadios = document.querySelectorAll('input[name="comp_layer"][value="OFF"], input[name="std_layer"][value="OFF"]');
+                offRadios.forEach(r => r.checked = true);
+                
+                const predChk = document.getElementById('comp-show-nutrient-detection-chk');
+                if (predChk) predChk.checked = false;
+                window._USE_RF_PREDICTIONS = false;
+
+                if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp('OFF');
+                if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd('OFF');
+            }
+        }
+        window.toggleLsuOverlay = toggleLsuOverlay;
+
+        // Toggle Nutrient Detection Model Prediction Handler
+        function toggleNutrientDetectionPrediction(isChecked) {
+            window._USE_RF_PREDICTIONS = isChecked;
+            console.log("Random Forest Model Predictions:", isChecked ? "ENABLED (rf_model_*.pkl)" : "DISABLED");
+            
+            // Re-trigger current active layer overlay
+            const activeRadio = document.querySelector('input[name="comp_layer"]:checked');
+            const activeVal = activeRadio ? activeRadio.value : 'N';
+            if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp(activeVal);
+            if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd(activeVal);
+        }
+        window.toggleNutrientDetectionPrediction = toggleNutrientDetectionPrediction;

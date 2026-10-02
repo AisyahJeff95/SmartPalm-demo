@@ -2948,6 +2948,21 @@ function toggleSatDataMode(mode) {
                         </label>
                     </div>
 
+                    <!-- Show LSU & Nutrient Detection Model Prediction Checkboxes -->
+                    <div style="border-top: 1px solid #e5e7eb; padding-top: 8px; margin-top: 8px;">
+                        <label class="ui-checkbox-label" style="font-weight: 600; color: #059669;">
+                            <input type="checkbox" id="comp-show-lsu-chk" onchange="toggleLsuOverlay(this.checked)"> Show LSU
+                        </label>
+                        <div id="lsu-suboptions-box" style="display: none; margin-left: 18px; margin-top: 6px; padding-left: 8px; border-left: 2px solid #10b981;">
+                            <label class="ui-checkbox-label" style="font-weight: 600; color: #0284c7; font-size: 13px;">
+                                <input type="checkbox" id="comp-show-nutrient-detection-chk" onchange="toggleNutrientDetectionPrediction(this.checked)"> Show Nutrient Detection (Model Predictions)
+                            </label>
+                            <div style="font-size: 11px; color: #6b7280; margin-top: 2px; line-height: 1.3;">
+                                * Uses trained Random Forest models (<code>rf_model_N.pkl</code>, <code>P</code>, <code>K</code>, <code>Mg</code>, <code>Ca</code>, <code>B</code>) for 10m² pixel prediction.
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="ui-hint-text" id="drone-status-hint" style="margin-top: 4px;">* Upload high-resolution drone orthomosaic image to overlay on active map boundary.</div>
                 </div>
             </div>
@@ -3008,6 +3023,14 @@ function toggleSatDataMode(mode) {
                     <div class="ui-nutrient-item">
                         <span class="ui-nutrient-name">Mg (%):</span>
                         <div id="comp-mg-val" class="ui-nutrient-box">-- %</div>
+                    </div>
+                    <div class="ui-nutrient-item">
+                        <span class="ui-nutrient-name">Ca (%):</span>
+                        <div id="comp-ca-val" class="ui-nutrient-box">-- %</div>
+                    </div>
+                    <div class="ui-nutrient-item">
+                        <span class="ui-nutrient-name">B (ppm):</span>
+                        <div id="comp-b-val" class="ui-nutrient-box">-- ppm</div>
                     </div>
                 </div>
 
@@ -3103,6 +3126,12 @@ function toggleSatDataMode(mode) {
                 <label class="layer-selector-option" style="color: #8e44ad;">
                     <input type="radio" name="comp_layer" value="Mg" onchange="toggleNutrientLayerComp(this.value)" /> 🟤 4. Mg% Detection
                 </label>
+                <label class="layer-selector-option" style="color: #2980b9;">
+                    <input type="radio" name="comp_layer" value="Ca" onchange="toggleNutrientLayerComp(this.value)" /> 🔵 5. Ca% Detection
+                </label>
+                <label class="layer-selector-option" style="color: #16a085;">
+                    <input type="radio" name="comp_layer" value="B" onchange="toggleNutrientLayerComp(this.value)" /> 🟢 6. B (ppm) Detection
+                </label>
                 
                 <!-- Legends -->
                 <div id="n-comp-legend" class="nutrient-legend-box">
@@ -3147,6 +3176,28 @@ function toggleSatDataMode(mode) {
                         <div class="legend-color-item"><span class="legend-color-dot" style="background:#0066ff;"></span> 0.26% - 0.28%</div>
                         <div class="legend-color-item"><span class="legend-color-dot" style="background:#ffff00;"></span> 0.22% - 0.24%</div>
                         <div class="legend-color-item"><span class="legend-color-dot" style="background:#995522;"></span> &gt; 0.28%</div>
+                    </div>
+                </div>
+                <div id="ca-comp-legend" class="nutrient-legend-box">
+                    <div style="font-weight: bold; color: #000000; margin-bottom: 4px;">Calcium Legend (Critical: 0.60%)</div>
+                    <div class="legend-grid">
+                        <div class="legend-color-item"><span class="legend-color-dot" style="background:#ff0000;"></span> &le; 0.40%</div>
+                        <div class="legend-color-item"><span class="legend-color-dot" style="background:#00dc00;"></span> 0.60% - 0.75%</div>
+                        <div class="legend-color-item"><span class="legend-color-dot" style="background:#ff9900;"></span> 0.40% - 0.50%</div>
+                        <div class="legend-color-item"><span class="legend-color-dot" style="background:#0066ff;"></span> 0.75% - 0.90%</div>
+                        <div class="legend-color-item"><span class="legend-color-dot" style="background:#ffff00;"></span> 0.50% - 0.60%</div>
+                        <div class="legend-color-item"><span class="legend-color-dot" style="background:#995522;"></span> &gt; 0.90%</div>
+                    </div>
+                </div>
+                <div id="b-comp-legend" class="nutrient-legend-box">
+                    <div style="font-weight: bold; color: #000000; margin-bottom: 4px;">Boron Legend (Critical: 15.0 ppm)</div>
+                    <div class="legend-grid">
+                        <div class="legend-color-item"><span class="legend-color-dot" style="background:#ff0000;"></span> &le; 10.0 ppm</div>
+                        <div class="legend-color-item"><span class="legend-color-dot" style="background:#00dc00;"></span> 20.0 - 30.0 ppm</div>
+                        <div class="legend-color-item"><span class="legend-color-dot" style="background:#ff9900;"></span> 10.0 - 15.0 ppm</div>
+                        <div class="legend-color-item"><span class="legend-color-dot" style="background:#0066ff;"></span> 30.0 - 40.0 ppm</div>
+                        <div class="legend-color-item"><span class="legend-color-dot" style="background:#ffff00;"></span> 15.0 - 20.0 ppm</div>
+                        <div class="legend-color-item"><span class="legend-color-dot" style="background:#995522;"></span> &gt; 40.0 ppm</div>
                     </div>
                 </div>
             </div>
@@ -3309,7 +3360,7 @@ function toggleSatDataMode(mode) {
                 mg: null
             };
 
-            for (let key of ["N", "P", "K", "Mg"]) {
+            for (let key of ["N", "P", "K", "Mg", "Ca", "B"]) {
                 let r = null;
                 if (typeof RASTER_GRID_DATA !== 'undefined' && RASTER_GRID_DATA[key]) {
                     r = RASTER_GRID_DATA[key];
@@ -3343,10 +3394,14 @@ function toggleSatDataMode(mode) {
             let k_val = 1.05 + Math.sin(lat * 160.0) * Math.sin(lng * 160.0) * 0.22 + Math.cos((lat + lng) * 180.0) * 0.10;
             let mg_val = 0.245 + Math.cos(lat * 130.0) * Math.cos(lng * 130.0) * 0.035 + Math.sin((lat - lng) * 210.0) * 0.012;
 
+            let ca_val = 0.65 + Math.sin(lat * 125.0) * Math.cos(lng * 125.0) * 0.15;
+            let b_val = 18.5 + Math.cos(lat * 135.0) * Math.sin(lng * 135.0) * 6.5;
             if (result.n === null) result.n = parseFloat(Math.max(1.8, Math.min(3.2, n_val)).toFixed(2));
             if (result.p === null) result.p = parseFloat(Math.max(0.10, Math.min(0.20, p_val)).toFixed(3));
             if (result.k === null) result.k = parseFloat(Math.max(0.65, Math.min(1.45, k_val)).toFixed(2));
             if (result.mg === null) result.mg = parseFloat(Math.max(0.18, Math.min(0.32, mg_val)).toFixed(3));
+            if (result.ca === null) result.ca = parseFloat(Math.max(0.35, Math.min(0.95, ca_val)).toFixed(2));
+            if (result.b === null) result.b = parseFloat(Math.max(8.0, Math.min(45.0, b_val)).toFixed(1));
 
             return result;
         }

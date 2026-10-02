@@ -2,7 +2,7 @@
 """
 Generate pre-rendered RASTER_OVERLAYS for Ladang PPPTAR from 10m GeoTIFF rasters,
 strictly masked inside the boundary of Ladang PPPTAR.shp.
-Matches exact MPOB nutrient thresholds for N, P, K, Mg.
+Matches exact MPOB nutrient thresholds for N, P, K, Mg, Ca, B.
 Also exports RASTER_GRID_DATA_PPPTAR for exact 10m spatial point sampling.
 """
 
@@ -54,11 +54,31 @@ def get_color_mg(val):
     if val <= 0.28: return [30, 110, 230, 220]
     return [145, 90, 45, 220]
 
+def get_color_ca(val):
+    if val <= 0: return [0, 0, 0, 0]
+    if val <= 0.40: return [227, 26, 28, 220]    # Red (Deficient)
+    if val <= 0.50: return [245, 163, 64, 220]   # Orange (Low)
+    if val <= 0.60: return [255, 240, 60, 220]   # Yellow (Slight)
+    if val <= 0.75: return [85, 215, 65, 220]    # Green (Optimum)
+    if val <= 0.90: return [30, 110, 230, 220]   # Blue (High)
+    return [145, 90, 45, 220]                    # Brown (Excess)
+
+def get_color_b(val):
+    if val <= 0: return [0, 0, 0, 0]
+    if val <= 10.0: return [227, 26, 28, 220]    # Red (Deficient)
+    if val <= 15.0: return [245, 163, 64, 220]   # Orange (Low)
+    if val <= 20.0: return [255, 240, 60, 220]   # Yellow (Slight)
+    if val <= 30.0: return [85, 215, 65, 220]    # Green (Optimum)
+    if val <= 40.0: return [30, 110, 230, 220]   # Blue (High)
+    return [145, 90, 45, 220]                    # Brown (Excess)
+
 COLOR_FUNCS = {
     'N': get_color_n,
     'P': get_color_p,
     'K': get_color_k,
-    'Mg': get_color_mg
+    'Mg': get_color_mg,
+    'Ca': get_color_ca,
+    'B': get_color_b
 }
 
 def main():
@@ -78,6 +98,8 @@ def main():
     for nut, color_fn in COLOR_FUNCS.items():
         tif_path = os.path.join(dev_dir, f"Merge_Citra_Unsur_{nut}.tif")
         if not os.path.exists(tif_path):
+            tif_path = os.path.join(dev_dir, f"PPPTAR_Nutrient_{nut}_10m.tif")
+        if not os.path.exists(tif_path):
             print(f"Missing TIFF for {nut}: {tif_path}")
             continue
 
@@ -94,7 +116,6 @@ def main():
                 lat = top - (r + 0.5) / h * (top - bottom)
                 for c in range(w):
                     lng = left + (c + 0.5) / w * (right - left)
-                    # Polygon boundary masking: only render pixels inside PPPTAR boundary
                     if prep_poly.contains(Point(lng, lat)):
                         v = data[r, c]
                         if not np.isnan(v) and v > 0:
