@@ -2565,7 +2565,7 @@ function buildRGBAGeoTIFFArrayBuffer(width, height, west, south, east, north, rg
 function downloadNutrientTifRasters() {
     let activeBoundary = compBoundaryLayer || stdBoundaryLayer;
     const mapSelect = document.getElementById('map-select-comp') || document.getElementById('map-select-std');
-    const mapType = mapSelect ? mapSelect.value : 'soil_series';
+    const mapType = mapSelect ? mapSelect.value : 'polygon_ish';
     const isLahadDatu = mapType.includes('lahad_datu') || mapType.includes('mpob_36_trial');
 
     if (isLahadDatu) {
@@ -2870,7 +2870,8 @@ function toggleSatDataMode(mode) {
                 <div class="ui-field-row" style="margin-bottom: 12px;">
                     <label class="ui-input-label">Select Map:</label>
                     <select class="ui-select-input" id="map-select-comp" onchange="onMapSelectChanged(this.value)">
-                        <option value="soil_series" selected>SOIL ISH</option>
+                        <option value="polygon_ish" selected>POLYGON ISH</option>
+                        <option value="soil_series">SOIL ISH</option>
                         <option value="geolocation_ish">GEOLOCATION ISH</option>
                     </select>
                     <button id="delete-map-btn-comp" class="ui-delete-btn" style="display:none;" onclick="deleteCurrentMap()" title="Delete map">🗑️</button>
@@ -3404,7 +3405,7 @@ function toggleSatDataMode(mode) {
 
                     console.log('MPOB shapefile loaded:', geojson.features.length, 'features');
                     // Initial state: No map selected (Showing whole Malaysia map)
-                    onMapSelectChanged('soil_series');
+                    onMapSelectChanged('polygon_ish');
                     // If the user is already on the comprehensive page, fit the map now.
                     setTimeout(fitCompMap, 50);
 
@@ -4073,7 +4074,7 @@ function toggleNutrientLayerComp(layerValue) {
         compRasterOverlay = null;
     }
     
-    const currentMapType = document.getElementById('map-select-comp') ? document.getElementById('map-select-comp').value : 'soil_series';
+    const currentMapType = document.getElementById('map-select-comp') ? document.getElementById('map-select-comp').value : 'polygon_ish';
     const isLahadDatu = currentMapType.includes('lahad_datu') || currentMapType.includes('mpob_36_trial');
 
     if (layerValue === "OFF") {
@@ -4107,7 +4108,7 @@ function toggleNutrientLayerStd(layerValue) {
         stdRasterOverlay = null;
     }
     
-    const currentMapType = document.getElementById('map-select-std') ? document.getElementById('map-select-std').value : 'soil_series';
+    const currentMapType = document.getElementById('map-select-std') ? document.getElementById('map-select-std').value : 'polygon_ish';
     const isLahadDatu = currentMapType.includes('lahad_datu') || currentMapType.includes('mpob_36_trial');
 
     if (layerValue === "OFF") {
@@ -4467,7 +4468,7 @@ function toggleNutrientLayerStd(layerValue) {
 
                 let now = new Date();
                 let dateStr = now.toLocaleDateString('en-GB') + ', ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true }).toLowerCase();
-                let mapVal = document.getElementById('map-select-std') ? document.getElementById('map-select-std').value : 'soil_series';
+                let mapVal = document.getElementById('map-select-std') ? document.getElementById('map-select-std').value : 'polygon_ish';
                 let estateName = mapVal === 'seraya' ? 'Seraya with block boundary' : 'Lahad Datu with block boundary';
 
                 let htmlContent = `
