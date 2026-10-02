@@ -3078,10 +3078,14 @@ function toggleSatDataMode(mode) {
             <div id="map-comprehensive-element" class="map-element"></div>
             
             <!-- Top-Right Map Search Box Widget -->
-            <div class="map-search-container" style="position: absolute; top: 16px; right: 16px; z-index: 1000; width: 340px; max-width: calc(100% - 32px);">
-                <div class="map-search-card" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid #cbd5e1; border-radius: 12px; padding: 6px 8px 6px 14px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.18), 0 4px 6px -2px rgba(0, 0, 0, 0.08); display: flex; align-items: center; gap: 8px;">
-                    <span style="font-size: 15px; color: #64748b; flex-shrink: 0;">🔍</span>
-                    <input type="text" id="map-search-input" placeholder="Search smallholder, lot no, state, SPOC..." style="flex: 1; border: none; background: transparent; font-size: 13px; font-family: 'Inter', sans-serif; color: #0f172a; outline: none; padding: 6px 0;" oninput="onMapSearchInput(this.value)" onkeydown="if(event.key==='Enter') performMapSearch(this.value);" />
+            <div class="map-search-container" style="position: absolute; top: 16px; right: 16px; z-index: 1000; width: 440px; max-width: calc(100% - 32px);">
+                <div class="map-search-card" style="background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid #cbd5e1; border-radius: 12px; padding: 6px 8px 6px 10px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.18), 0 4px 6px -2px rgba(0, 0, 0, 0.08); display: flex; align-items: center; gap: 6px;">
+                    <span style="font-size: 14px; color: #64748b; flex-shrink: 0;">🔍</span>
+                    <select id="map-search-category" style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; padding: 6px 8px; font-size: 12px; font-weight: 600; font-family: 'Inter', sans-serif; color: #334155; outline: none; cursor: pointer; flex-shrink: 0;" onchange="onCategoryChanged(this.value)">
+                        <option value="smallholder" selected>Smallholder Name</option>
+                        <option value="license">License Number</option>
+                    </select>
+                    <input type="text" id="map-search-input" placeholder="Enter smallholder name..." style="flex: 1; border: none; background: transparent; font-size: 13px; font-family: 'Inter', sans-serif; color: #0f172a; outline: none; padding: 6px 0; min-width: 120px;" oninput="onMapSearchInput(this.value)" onkeydown="if(event.key==='Enter') performMapSearch(this.value);" />
                     <button type="button" id="map-search-clear-btn" style="display: none; background: none; border: none; color: #94a3b8; font-size: 14px; cursor: pointer; padding: 4px;" onclick="clearMapSearch()">✕</button>
                     <button type="button" class="map-search-btn" onclick="performMapSearch(document.getElementById('map-search-input').value)" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: #ffffff; border: none; border-radius: 8px; padding: 6px 14px; font-size: 12px; font-weight: 600; cursor: pointer; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3); transition: transform 0.15s; flex-shrink: 0;">Search</button>
                 </div>
@@ -3804,54 +3808,75 @@ function toggleSatDataMode(mode) {
         // Handle Click Event on block boundaries
         
         // =========================================================================
-        // =========================================================================
-        // TOP-RIGHT MAP DATABASE SEARCH ENGINE (ROBUST MULTI-PROPERTY SEARCH)
+// =========================================================================
+        // TOP-RIGHT MAP DATABASE SEARCH ENGINE (CATEGORY DROPDOWN: SMALLHOLDER / LICENSE)
         // =========================================================================
         const SAMPLE_ISH_RECORDS = [
-            { smallholder: "Ahmad Bin Sulaiman", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 101", planted_ar: "3.50", mspo: "MSPO Certified", land: "Inland Mineral" },
-            { smallholder: "Siti Fatimah Binti Ismail", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 102", planted_ar: "4.20", mspo: "MSPO Certified", land: "Inland Mineral" },
-            { smallholder: "Tan Ah Kow", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 103", planted_ar: "2.80", mspo: "MSPO Certified", land: "Riverine Alluvial" },
-            { smallholder: "Ramasamy A/L Subramaniam", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 104", planted_ar: "5.10", mspo: "MSPO Certified", land: "Inland Mineral" },
-            { smallholder: "Mohd Hafiz Bin Rosli", state: "Sabah", district: "Tawau", spoc: "SPOC A8 Tawau", lot: "LOT 105", planted_ar: "3.90", mspo: "MSPO Certified", land: "Inland Mineral" },
-            { smallholder: "Wong Chee Keong", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 106", planted_ar: "4.75", mspo: "MSPO Certified", land: "Inland Mineral" },
-            { smallholder: "Zainab Binti Hassan", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 107", planted_ar: "3.20", mspo: "In-Progress", land: "Organic Peat" },
-            { smallholder: "Chong Wei Sheng", state: "Pahang", district: "Jerantut", spoc: "SPOC P2 Jengka", lot: "LOT 201", planted_ar: "6.30", mspo: "MSPO Certified", land: "Inland Mineral" },
-            { smallholder: "Kamal Bin Ibrahim", state: "Pahang", district: "Jerantut", spoc: "SPOC P2 Jengka", lot: "LOT 202", planted_ar: "5.50", mspo: "MSPO Certified", land: "Inland Mineral" },
-            { smallholder: "Nurul Aini Binti Yusof", state: "Pahang", district: "Jerantut", spoc: "SPOC P2 Jengka", lot: "LOT 203", planted_ar: "4.10", mspo: "MSPO Certified", land: "Inland Mineral" },
-            { smallholder: "Muthusamy A/L Vengadasalam", state: "Johor", district: "Kluang", spoc: "SPOC J4 Kluang", lot: "LOT 301", planted_ar: "4.80", mspo: "MSPO Certified", land: "Organic Peat" },
-            { smallholder: "Abdul Rahman Bin Hamid", state: "Johor", district: "Kluang", spoc: "SPOC J4 Kluang", lot: "LOT 302", planted_ar: "3.70", mspo: "MSPO Certified", land: "Inland Mineral" },
-            { smallholder: "Lim Guan Eng", state: "Selangor", district: "Kuala Langat", spoc: "SPOC S1 Banting", lot: "LOT 401", planted_ar: "5.00", mspo: "MSPO Certified", land: "Organic Peat" },
-            { smallholder: "Aziz Bin Mustaffa", state: "Sabah", district: "Sandakan", spoc: "SPOC A5 Sandakan", lot: "LOT 501", planted_ar: "3.60", mspo: "MSPO Certified", land: "Inland Mineral" },
-            { smallholder: "Lee Siew Leng", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 108", planted_ar: "4.40", mspo: "MSPO Certified", land: "Riverine Alluvial" },
-            { smallholder: "Kassim Bin Abdullah", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 109", planted_ar: "2.90", mspo: "In-Progress", land: "Inland Mineral" }
+            { smallholder: "Ahmad Bin Sulaiman", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 101", planted_ar: "3.50", mspo: "MSPO Certified", license_no: "MSPO-50415331-101", land: "Inland Mineral" },
+            { smallholder: "Siti Fatimah Binti Ismail", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 102", planted_ar: "4.20", mspo: "MSPO Certified", license_no: "MSPO-50415331-102", land: "Inland Mineral" },
+            { smallholder: "Tan Ah Kow", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 103", planted_ar: "2.80", mspo: "MSPO Certified", license_no: "MSPO-50415331-103", land: "Riverine Alluvial" },
+            { smallholder: "Ramasamy A/L Subramaniam", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 104", planted_ar: "5.10", mspo: "MSPO Certified", license_no: "MSPO-50415331-104", land: "Inland Mineral" },
+            { smallholder: "Mohd Hafiz Bin Rosli", state: "Sabah", district: "Tawau", spoc: "SPOC A8 Tawau", lot: "LOT 105", planted_ar: "3.90", mspo: "MSPO Certified", license_no: "MSPO-50415331-105", land: "Inland Mineral" },
+            { smallholder: "Wong Chee Keong", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 106", planted_ar: "4.75", mspo: "MSPO Certified", license_no: "MSPO-50415331-106", land: "Inland Mineral" },
+            { smallholder: "Zainab Binti Hassan", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 107", planted_ar: "3.20", mspo: "In-Progress", license_no: "MSPO-50415331-107", land: "Organic Peat" },
+            { smallholder: "Chong Wei Sheng", state: "Pahang", district: "Jerantut", spoc: "SPOC P2 Jengka", lot: "LOT 201", planted_ar: "6.30", mspo: "MSPO Certified", license_no: "MSPO-50415331-201", land: "Inland Mineral" },
+            { smallholder: "Kamal Bin Ibrahim", state: "Pahang", district: "Jerantut", spoc: "SPOC P2 Jengka", lot: "LOT 202", planted_ar: "5.50", mspo: "MSPO Certified", license_no: "MSPO-50415331-202", land: "Inland Mineral" },
+            { smallholder: "Nurul Aini Binti Yusof", state: "Pahang", district: "Jerantut", spoc: "SPOC P2 Jengka", lot: "LOT 203", planted_ar: "4.10", mspo: "MSPO Certified", license_no: "MSPO-50415331-203", land: "Inland Mineral" },
+            { smallholder: "Muthusamy A/L Vengadasalam", state: "Johor", district: "Kluang", spoc: "SPOC J4 Kluang", lot: "LOT 301", planted_ar: "4.80", mspo: "MSPO Certified", license_no: "MSPO-50415331-301", land: "Organic Peat" },
+            { smallholder: "Abdul Rahman Bin Hamid", state: "Johor", district: "Kluang", spoc: "SPOC J4 Kluang", lot: "LOT 302", planted_ar: "3.70", mspo: "MSPO Certified", license_no: "MSPO-50415331-302", land: "Inland Mineral" },
+            { smallholder: "Lim Guan Eng", state: "Selangor", district: "Kuala Langat", spoc: "SPOC S1 Banting", lot: "LOT 401", planted_ar: "5.00", mspo: "MSPO Certified", license_no: "MSPO-50415331-401", land: "Organic Peat" },
+            { smallholder: "Aziz Bin Mustaffa", state: "Sabah", district: "Sandakan", spoc: "SPOC A5 Sandakan", lot: "LOT 501", planted_ar: "3.60", mspo: "MSPO Certified", license_no: "MSPO-50415331-501", land: "Inland Mineral" },
+            { smallholder: "Lee Siew Leng", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 108", planted_ar: "4.40", mspo: "MSPO Certified", license_no: "MSPO-50415331-108", land: "Riverine Alluvial" },
+            { smallholder: "Kassim Bin Abdullah", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 109", planted_ar: "2.90", mspo: "In-Progress", license_no: "MSPO-50415331-109", land: "Inland Mineral" }
         ];
 
         let currentSearchMatches = [];
 
-        function normalizeSearchText(str) {
-            if (!str) return '';
-            return String(str).toLowerCase().replace(/[^a-z0-9]/g, '');
+        function onCategoryChanged(val) {
+            let input = document.getElementById('map-search-input');
+            if (input) {
+                if (val === 'license') {
+                    input.placeholder = "Enter license number (e.g. MSPO-50415331-101)...";
+                } else {
+                    input.placeholder = "Enter smallholder name...";
+                }
+                if (input.value.trim()) {
+                    onMapSearchInput(input.value);
+                }
+            }
         }
 
-        function matchesQuery(props, query) {
+        function matchesCategoryQuery(props, query, category) {
             if (!query) return false;
             let qRaw = query.toLowerCase().trim();
             let qClean = qRaw.replace(/[^a-z0-9]/g, '');
             let qTokens = qRaw.split(/\s+/).filter(t => t.length > 0);
-            let meaningfulTokens = qTokens.filter(t => !['lot', 'block', 'no', 'number', 'spoc'].includes(t));
+            let meaningfulTokens = qTokens.filter(t => !['lot', 'block', 'no', 'number', 'spoc', 'mspo', 'cert', 'license'].includes(t));
             if (meaningfulTokens.length === 0) meaningfulTokens = qTokens;
 
-            let allValues = [];
-            for (let k in props) {
-                if (props[k] !== undefined && props[k] !== null) {
-                    allValues.push(String(props[k]));
+            let targetValues = [];
+
+            if (category === 'smallholder') {
+                ['SMALLHOLDER', 'smallholder', 'Smallholder', 'name', 'NAME'].forEach(k => {
+                    if (props[k]) targetValues.push(String(props[k]));
+                });
+            } else if (category === 'license') {
+                ['LICENSE_NO', 'license_no', 'MSPO_CERTI', 'mspo_certi', 'mspo', 'LOT_NO', 'lot', 'lot_no'].forEach(k => {
+                    if (props[k]) targetValues.push(String(props[k]));
+                });
+            } else {
+                for (let k in props) {
+                    if (props[k] !== undefined && props[k] !== null) {
+                        targetValues.push(String(props[k]));
+                    }
                 }
             }
-            let combinedRaw = allValues.join(' ').toLowerCase();
+
+            let combinedRaw = targetValues.join(' ').toLowerCase();
             let combinedClean = combinedRaw.replace(/[^a-z0-9]/g, '');
 
             if (combinedRaw.includes(qRaw)) return true;
-            if (qClean.length > 0 && combinedClean.includes(qClean)) return true;
+            if (qClean.length > 0 && (combinedClean.includes(qClean) || qClean.includes(combinedClean))) return true;
 
             let tokensMatched = meaningfulTokens.every(t => combinedRaw.includes(t) || combinedClean.includes(t.replace(/[^a-z0-9]/g, '')));
             if (tokensMatched) return true;
@@ -3885,6 +3910,9 @@ function toggleSatDataMode(mode) {
             if (!query) return;
             query = query.trim();
 
+            let categoryEl = document.getElementById('map-search-category');
+            let category = categoryEl ? categoryEl.value : 'smallholder';
+
             let activeLayer = compBoundaryLayer || stdBoundaryLayer;
             let activeMap = compBoundaryLayer ? mapComp : mapStd;
             let activePage = compBoundaryLayer ? 'comp' : 'std';
@@ -3892,13 +3920,13 @@ function toggleSatDataMode(mode) {
             currentSearchMatches = [];
             let seenKeys = new Set();
 
-            // 1. Search rendered map layers (compBoundaryLayer / stdBoundaryLayer)
+            // 1. Search rendered map layers
             if (activeLayer) {
                 activeLayer.eachLayer(function(layer) {
                     if (!layer.feature || !layer.feature.properties) return;
                     let props = layer.feature.properties;
 
-                    if (matchesQuery(props, query)) {
+                    if (matchesCategoryQuery(props, query, category)) {
                         let key = (props.name || '') + '_' + (props.LOT_NO || props.OBJECTID || Math.random());
                         if (!seenKeys.has(key)) {
                             seenKeys.add(key);
@@ -3913,12 +3941,12 @@ function toggleSatDataMode(mode) {
                 });
             }
 
-            // 2. Search unrendered polygon_ish features in REAL_MAPS_DATA['polygon_ish']
+            // 2. Search unrendered polygon_ish features
             if (window.REAL_MAPS_DATA && window.REAL_MAPS_DATA['polygon_ish'] && window.REAL_MAPS_DATA['polygon_ish'].features) {
                 window.REAL_MAPS_DATA['polygon_ish'].features.forEach(function(feat) {
                     if (!feat.properties) return;
                     let props = feat.properties;
-                    if (matchesQuery(props, query)) {
+                    if (matchesCategoryQuery(props, query, category)) {
                         let key = (props.name || '') + '_' + (props.LOT_NO || props.OBJECTID || Math.random());
                         if (!seenKeys.has(key)) {
                             seenKeys.add(key);
@@ -3932,7 +3960,7 @@ function toggleSatDataMode(mode) {
                 });
             }
 
-            // 3. Search SAMPLE_ISH_RECORDS database records (from kpsm-database)
+            // 3. Search SAMPLE_ISH_RECORDS database records
             SAMPLE_ISH_RECORDS.forEach(function(rec, idx) {
                 let recProps = {
                     SMALLHOLDER: rec.smallholder,
@@ -3942,11 +3970,12 @@ function toggleSatDataMode(mode) {
                     LOT_NO: rec.lot,
                     PLANTED_AR: rec.planted_ar,
                     MSPO_CERTI: rec.mspo,
+                    LICENSE_NO: rec.license_no,
                     LAND_TYPE: rec.land,
                     name: rec.smallholder + ' (' + rec.lot + ')'
                 };
 
-                if (matchesQuery(recProps, query)) {
+                if (matchesCategoryQuery(recProps, query, category)) {
                     let key = rec.smallholder + '_' + rec.lot;
                     if (!seenKeys.has(key)) {
                         seenKeys.add(key);
@@ -3966,8 +3995,11 @@ function toggleSatDataMode(mode) {
             let resultsContainer = document.getElementById('map-search-results');
             if (!resultsContainer) return;
 
+            let categoryEl = document.getElementById('map-search-category');
+            let catLabel = (categoryEl && categoryEl.value === 'license') ? 'License Number' : 'Smallholder Name';
+
             if (matches.length === 0) {
-                resultsContainer.innerHTML = `<div style="padding: 12px 14px; font-size: 12px; color: #64748b; text-align: center;">No matching database records found for "<b>${query}</b>"</div>`;
+                resultsContainer.innerHTML = `<div style="padding: 12px 14px; font-size: 12px; color: #64748b; text-align: center;">No matching ${catLabel} records found for "<b>${query}</b>"</div>`;
                 resultsContainer.style.display = 'block';
                 return;
             }
@@ -3983,18 +4015,16 @@ function toggleSatDataMode(mode) {
                 let p = item.props;
                 let title = p.SMALLHOLDER || p.smallholder || p.name || `Record #${idx + 1}`;
                 let lot = p.LOT_NO || p.lot || p.Lot_No || 'N/A';
+                let license = p.LICENSE_NO || p.license_no || p.MSPO_CERTI || p.mspo || 'N/A';
                 let state = p.STATE || p.state || '';
                 let district = p.DISTRICT || p.district || '';
                 let spoc = p.SPOC_NAME || p.spoc || '';
-                let land = p.LAND_TYPE || p.land || '';
-                let mspo = p.MSPO_CERTI || p.mspo || '';
 
                 let subText = [];
+                if (license && license !== 'N/A') subText.push(`License: ${license}`);
                 if (lot && lot !== 'N/A') subText.push(`Lot: ${lot}`);
                 if (district || state) subText.push(`${district}${district && state ? ', ' : ''}${state}`);
                 if (spoc) subText.push(`SPOC: ${spoc}`);
-                if (mspo) subText.push(`MSPO: ${mspo}`);
-                if (land) subText.push(`Land: ${land}`);
 
                 html += `
                     <div class="map-search-item" style="padding: 10px 14px; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background 0.15s;" 
@@ -4022,7 +4052,6 @@ function toggleSatDataMode(mode) {
 
             if (!activeMap) return;
 
-            // Hide results dropdown
             let resultsContainer = document.getElementById('map-search-results');
             if (resultsContainer) resultsContainer.style.display = 'none';
 
@@ -4046,10 +4075,8 @@ function toggleSatDataMode(mode) {
                 }
             }
 
-            // Fallback coordinates lookup for database records or features without latlng
             if (!latlng) {
                 let district = (props.DISTRICT || props.district || '').toLowerCase();
-                let state = (props.STATE || props.state || '').toLowerCase();
                 let spoc = (props.SPOC_NAME || props.spoc || '').toLowerCase();
 
                 if (district.includes('lahad datu') || spoc.includes('lahad datu')) {
@@ -4067,17 +4094,16 @@ function toggleSatDataMode(mode) {
                 }
             }
 
-            // Zoom map to bounds or center position
             if (bounds && bounds.isValid()) {
                 activeMap.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
             } else if (latlng) {
                 activeMap.setView(latlng, 15);
             }
 
-            // Construct property table HTML for popup card
             let tipRows = [];
             const displayKeys = [
                 { key: 'SMALLHOLDER', label: 'SMALLHOLDER' },
+                { key: 'LICENSE_NO', label: 'MSPO LICENSE NO.' },
                 { key: 'STATE', label: 'STATE' },
                 { key: 'DISTRICT', label: 'DISTRICT' },
                 { key: 'SPOC_NAME', label: 'SPOC_NAME' },
@@ -4097,7 +4123,6 @@ function toggleSatDataMode(mode) {
             let nameTitle = props.SMALLHOLDER || props.smallholder || props.name || 'Smallholder Info';
             const tipHtml = `<div style="font-family:sans-serif;font-size:12px;max-width:300px"><b style="font-size:13px;color:#1e293b;display:block;margin-bottom:4px">${nameTitle}</b>${tipRows.length > 0 ? `<table style="margin-top:4px;border-collapse:collapse;width:100%">${tipRows.join('')}</table>` : ''}</div>`;
 
-            // Open permanent detailed popup card over feature
             handleBlockClick({ properties: props }, latlng, activePage, tipHtml);
         }
 
@@ -4106,7 +4131,6 @@ function toggleSatDataMode(mode) {
             searchMapDatabase(query.trim(), true);
         }
 
-        // Hide search results dropdown when clicking anywhere outside
         document.addEventListener('click', function(e) {
             let container = document.querySelector('.map-search-container');
             let resultsContainer = document.getElementById('map-search-results');
