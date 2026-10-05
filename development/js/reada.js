@@ -2704,3 +2704,51 @@ window.initReadaMapDashboard = initReadaMapDashboard;
             if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd(activeVal);
         }
         window.toggleNutrientDetectionPrediction = toggleNutrientDetectionPrediction;
+
+        function runRfrPredictionFlow() {
+            const statusMsg = document.getElementById('prediction-status-msg');
+            const btn = document.getElementById('btn-run-prediction');
+            
+            if (statusMsg) {
+                statusMsg.style.display = 'block';
+                statusMsg.style.color = '#0284c7';
+                statusMsg.style.background = '#e0f2fe';
+                statusMsg.style.borderColor = '#bae6fd';
+                statusMsg.textContent = 'Scanning Estate using Sentinel & AI Models....';
+            }
+            if (btn) {
+                btn.disabled = true;
+                btn.style.opacity = '0.7';
+                btn.textContent = '⏳ Scanning...';
+            }
+
+            setTimeout(function() {
+                window._USE_RF_PREDICTIONS = true;
+
+                const radioN = document.querySelector('input[name="comp_layer"][value="N"]');
+                const activeRadio = document.querySelector('input[name="comp_layer"]:checked');
+                
+                let activeVal = 'N';
+                if (activeRadio && activeRadio.value !== 'OFF') {
+                    activeVal = activeRadio.value;
+                } else if (radioN) {
+                    radioN.checked = true;
+                }
+
+                if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp(activeVal);
+                if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd(activeVal);
+
+                if (statusMsg) {
+                    statusMsg.style.color = '#059669';
+                    statusMsg.style.background = '#ecfdf5';
+                    statusMsg.style.borderColor = '#a7f3d0';
+                    statusMsg.textContent = '✓ AI Prediction Complete. 10m Heatmap Active.';
+                }
+                if (btn) {
+                    btn.disabled = false;
+                    btn.style.opacity = '1.0';
+                    btn.textContent = '⚡ Run Prediction';
+                }
+            }, 1200);
+        }
+        window.runRfrPredictionFlow = runRfrPredictionFlow;
