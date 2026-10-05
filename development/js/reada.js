@@ -2712,14 +2712,13 @@ window.initReadaMapDashboard = initReadaMapDashboard;
             if (statusMsg) {
                 statusMsg.style.display = 'block';
                 statusMsg.style.color = '#0284c7';
-                statusMsg.style.background = '#e0f2fe';
-                statusMsg.style.borderColor = '#bae6fd';
+                statusMsg.style.fontStyle = 'italic';
                 statusMsg.textContent = 'Scanning Estate using Sentinel & AI Models....';
             }
             if (btn) {
                 btn.disabled = true;
                 btn.style.opacity = '0.7';
-                btn.textContent = '⏳ Scanning...';
+                btn.textContent = 'Scanning...';
             }
 
             setTimeout(function() {
@@ -2740,14 +2739,13 @@ window.initReadaMapDashboard = initReadaMapDashboard;
 
                 if (statusMsg) {
                     statusMsg.style.color = '#059669';
-                    statusMsg.style.background = '#ecfdf5';
-                    statusMsg.style.borderColor = '#a7f3d0';
+                    statusMsg.style.fontStyle = 'normal';
                     statusMsg.textContent = '✓ AI Prediction Complete. 10m Heatmap Active.';
                 }
                 if (btn) {
                     btn.disabled = false;
                     btn.style.opacity = '1.0';
-                    btn.textContent = '⚡ Run Prediction';
+                    btn.textContent = 'Run Prediction';
                 }
             }, 1200);
         }
