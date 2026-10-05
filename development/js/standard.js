@@ -50,15 +50,29 @@ function calculateStandardCorrectiveDosage() {
         // Switch dropdown map change
         
         function openEdsInlandDialog() {
-            document.getElementById('modal-eds-inland').classList.add('active');
+            let modal = document.getElementById('modal-eds-inland');
+            if (modal) modal.classList.add('active');
+            let chkInland = document.getElementById('chk-eds-inland');
+            let chkAlluvial = document.getElementById('chk-eds-alluvial');
+            if (chkInland) chkInland.checked = true;
+            if (chkAlluvial) chkAlluvial.checked = false;
         }
 
         function openEdsAlluvialDialog() {
-            document.getElementById('modal-eds-alluvial').classList.add('active');
+            let modal = document.getElementById('modal-eds-alluvial');
+            if (modal) modal.classList.add('active');
+            let chkInland = document.getElementById('chk-eds-inland');
+            let chkAlluvial = document.getElementById('chk-eds-alluvial');
+            if (chkAlluvial) chkAlluvial.checked = true;
+            if (chkInland) chkInland.checked = false;
         }
 
         function closeEdsDialogs() {
             document.querySelectorAll('.modal-overlay').forEach(el => el.classList.remove('active'));
+            let chkInland = document.getElementById('chk-eds-inland');
+            let chkAlluvial = document.getElementById('chk-eds-alluvial');
+            if (chkInland) chkInland.checked = false;
+            if (chkAlluvial) chkAlluvial.checked = false;
         }
 
         // Open Full Map dialog popup

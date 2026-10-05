@@ -1242,7 +1242,7 @@
             width: 100%;
             height: 100%;
             background-color: rgba(0,0,0,0.5);
-            z-index: 2000;
+            z-index: 99999;
             align-items: center;
             justify-content: center;
             overflow-y: auto;
@@ -1250,7 +1250,8 @@
         }
 
         .modal-overlay.active {
-            display: flex;
+            display: flex !important;
+            z-index: 99999 !important;
         }
 
         .modal-content {
@@ -2993,12 +2994,12 @@ function toggleSatDataMode(mode) {
             <!-- Card 5: Soil Data -->
             <div class="ui-card flex-row-between" style="align-items: center;">
                 <div class="ui-card-label">Soil Data</div>
-                <div class="ui-inline-checkboxes">
-                    <label class="ui-checkbox-label">
-                        <input type="checkbox" onchange="if(this.checked)openEdsInlandDialog();"> Inland
+                <div style="display: flex; gap: 12px; font-size: 13px; margin-top: 4px;">
+                    <label style="cursor:pointer; display:flex; align-items:center; gap:4px;">
+                        <input type="checkbox" id="chk-eds-inland"> Inland
                     </label>
-                    <label class="ui-checkbox-label">
-                        <input type="checkbox" onchange="if(this.checked)openEdsAlluvialDialog();"> Alluvial / Coastal
+                    <label style="cursor:pointer; display:flex; align-items:center; gap:4px;">
+                        <input type="checkbox" id="chk-eds-alluvial"> Alluvial / Coastal
                     </label>
                 </div>
             </div>
@@ -4295,6 +4296,52 @@ function toggleNutrientLayerStd(layerValue) {
         };
 
         let tempSelectedCell = { n: 1.0, k: 3.0, yield: 0, crr: 0 };
+
+        function openEdsInlandDialog() {
+            let modal = document.getElementById('modal-eds-inland');
+            if (modal) modal.classList.add('active');
+            let chkInland = document.getElementById('chk-eds-inland');
+            let chkAlluvial = document.getElementById('chk-eds-alluvial');
+            if (chkInland) chkInland.checked = true;
+            if (chkAlluvial) chkAlluvial.checked = false;
+        }
+
+        function openEdsAlluvialDialog() {
+            let modal = document.getElementById('modal-eds-alluvial');
+            if (modal) modal.classList.add('active');
+            let chkInland = document.getElementById('chk-eds-inland');
+            let chkAlluvial = document.getElementById('chk-eds-alluvial');
+            if (chkAlluvial) chkAlluvial.checked = true;
+            if (chkInland) chkInland.checked = false;
+        }
+
+        function closeEdsDialogs() {
+            document.querySelectorAll('.modal-overlay').forEach(el => el.classList.remove('active'));
+            let chkInland = document.getElementById('chk-eds-inland');
+            let chkAlluvial = document.getElementById('chk-eds-alluvial');
+            if (chkInland) chkInland.checked = false;
+            if (chkAlluvial) chkAlluvial.checked = false;
+        }
+
+        window.openEdsInlandDialog = openEdsInlandDialog;
+        window.openEdsAlluvialDialog = openEdsAlluvialDialog;
+        window.closeEdsDialogs = closeEdsDialogs;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const chkInland = document.getElementById('chk-eds-inland');
+            if (chkInland) {
+                chkInland.addEventListener('change', function() {
+                    if (this.checked) { openEdsInlandDialog(); } else { closeEdsDialogs(); }
+                });
+            }
+
+            const chkAlluvial = document.getElementById('chk-eds-alluvial');
+            if (chkAlluvial) {
+                chkAlluvial.addEventListener('change', function() {
+                    if (this.checked) { openEdsAlluvialDialog(); } else { closeEdsDialogs(); }
+                });
+            }
+        });
 
         function calculateEDSInland() {
             // Read inputs
