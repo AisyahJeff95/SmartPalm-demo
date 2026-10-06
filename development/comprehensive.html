@@ -4426,6 +4426,9 @@ function runRfrPredictionFlow() {
     })
     .then(res => res.json())
     .then(data => {
+        if (data && data.error) {
+            throw new Error(data.error);
+        }
         window._USE_RF_PREDICTIONS = true;
         if (data && data.folder_name) {
             window._LAST_PREDICTION_FOLDER = data.folder_name;
@@ -4457,12 +4460,8 @@ function runRfrPredictionFlow() {
         }
     })
     .catch(err => {
-        console.warn('Prediction server offline/fallback:', err);
-        window._USE_RF_PREDICTIONS = true;
-        setNutrientLayerSelectionEnabled(true, '✓ AI Prediction Complete. 10m Heatmap Active.', true);
-        if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp('N');
-        if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd('N');
-        if (typeof toggleNutrientLayerKpsm === 'function') toggleNutrientLayerKpsm('N');
+        console.error('Prediction Server Error:', err);
+        setNutrientLayerSelectionEnabled(true, `! Error: ${err.message || 'Server Offline'}. Check prediction_server.py`, false);
         if (btn) {
             btn.disabled = false;
             btn.style.opacity = '1.0';

@@ -22,7 +22,7 @@ PROJECT_ROOT = os.path.dirname(BASE_DIR)
 # Priority: development/4. Training_v3, then fallback to root 4. Training_v3
 DEV_TRAINING_V3 = os.path.join(BASE_DIR, "4. Training_v3")
 ROOT_TRAINING_V3 = os.path.join(PROJECT_ROOT, "4. Training_v3")
-TRAINING_V3_DIR = DEV_TRAINING_V3 if os.path.exists(DEV_TRAINING_V3) else ROOT_TRAINING_V3
+TRAINING_V3_DIR = ROOT_TRAINING_V3 if os.path.exists(ROOT_TRAINING_V3) else DEV_TRAINING_V3
 
 PREDICTIONS_DIR = os.path.join(BASE_DIR, "predictions")
 BOUNDARIES_DIR = os.path.join(BASE_DIR, "boundaries")
