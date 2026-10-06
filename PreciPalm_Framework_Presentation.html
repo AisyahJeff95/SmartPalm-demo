@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PreciPalm - Smart & Precision Agriculture Framework</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        :root {
+            --primary-bg: #0b132b;
+            --card-bg: #1c2541;
+            --accent-teal: #00e676;
+            --accent-blue: #00b0ff;
+            --accent-red: #ff5252;
+            --accent-purple: #7c4dff;
+            --text-main: #ffffff;
+            --text-sub: #b0bec5;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #060913;
+            color: var(--text-main);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .actions-bar {
+            max-width: 1100px;
+            margin: 0 auto 20px auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-download {
+            background: linear-gradient(135deg, #00e676, #00b0ff);
+            color: #0b132b;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 230, 118, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-download:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 230, 118, 0.5);
+        }
+
+        .pdf-container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .page-card {
+            background: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            page-break-after: always;
+        }
+
+        .header-strip {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+        }
+
+        .header-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(90deg, #00e676, #00b0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-badge {
+            background: rgba(0, 230, 118, 0.15);
+            color: #00e676;
+            border: 1px solid #00e676;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* Slide 1 Overview Grid */
+        .overview-grid {
+            display: grid;
+            grid-template-columns: 1fr 40px 1.2fr 40px 1.2fr;
+            align-items: center;
+            gap: 12px;
+            margin: 30px 0;
+        }
+
+        .node-box {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .node-box-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: #00b0ff;
+        }
+
+        .arrow-icon {
+            font-size: 24px;
+            color: #00e676;
+            text-align: center;
+        }
+
+        /* Slide 2 Modeling Columns */
+        .columns-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 20px;
+        }
+
+        .column-card {
+            background: #1e293b;
+            border-radius: 14px;
+            padding: 24px;
+            border-top: 4px solid var(--accent-red);
+        }
+
+        .column-card.green {
+            border-top-color: var(--accent-teal);
+        }
+
+        .math-box {
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 13px;
+            color: #4dd0e1;
+            margin: 12px 0;
+        }
+
+        /* Flowchart Table */
+        .flowchart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .flow-step {
+            background: #1e293b;
+            border-left: 4px solid #00b0ff;
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+        }
+
+        .flow-step-title {
+            font-weight: 700;
+            font-size: 14px;
+            color: #38bdf8;
+            margin-bottom: 6px;
+        }
+
+        .flow-step-desc {
+            font-size: 12px;
+            color: #94a3b8;
+            line-height: 1.5;
+        }
+
+        ul.metrics-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul.metrics-list li {
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            font-size: 13px;
+        }
+
+        ul.metrics-list li strong {
+            color: #00e676;
+        }
+
+        @media print {
+            .actions-bar { display: none; }
+            body { background: white; color: black; padding: 0; }
+            .page-card { background: white; color: black; border: 1px solid #ccc; box-shadow: none; }
+            .header-title { color: #0d233a; -webkit-text-fill-color: initial; }
+            .node-box, .column-card, .flow-step { background: #f8fafc; color: #1e293b; border: 1px solid #cbd5e1; }
+            .flow-step-desc { color: #475569; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="actions-bar">
+        <div style="font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 20px; color: #00e676;">
+            PreciPalm Framework Presentation & Export
+        </div>
+        <button class="btn-download" onclick="exportPDF()">📥 Download PDF Document</button>
+    </div>
+
+    <div class="pdf-container" id="pdf-content">
+
+        <!-- PAGE 1: OVERVIEW FRAMEWORK -->
+        <div class="page-card">
+            <div class="header-strip">
+                <div>
+                    <div class="header-title">PreciPalm© System Framework</div>
+                    <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">
+                        Satellite-Based Nutrient Detection & Fertilizer Recommendation System for Oil Palm
+                    </div>
+                </div>
+                <div class="header-badge">Smart & Precision Agriculture</div>
+            </div>
+
+            <div style="font-size: 12px; color: #38bdf8; font-weight: 600; margin-bottom: 16px;">
+                Collaborative Research: IPB University & Pupuk Kalimantan Timur (PKT)
+            </div>
+
+            <div class="overview-grid">
+                <div class="node-box">
+                    <div class="node-box-title">Input Data</div>
+                    <div style="font-size: 12px; line-height: 1.8; color: #cbd5e1;">
+                        • Digital Oil Palm Land Map<br>
+                        • Sentinel-2A & Sentinel-1A Imagery<br>
+                        • Fertilizer Types<br>
+                        • Fertilization History (Optional)
+                    </div>
+                </div>
+
+                <div class="arrow-icon">➔</div>
+
+                <div class="node-box" style="text-align: center; border-color: #00e676;">
+                    <div style="font-size: 28px;">🌴</div>
+                    <div class="node-box-title" style="color: #00e676; font-size: 18px;">PreciPalm</div>
+                    <div style="font-size: 11px; color: #94a3b8;">
+                        Precision Agriculture Platform for Oil Palm
+                    </div>
+                </div>
+
+                <div class="arrow-icon">➔</div>
+
+                <div class="node-box">
+                    <div class="node-box-title" style="color: #a855f7;">System Outputs</div>
+                    <div style="font-size: 12px; line-height: 1.8; color: #cbd5e1;">
+                        • <strong>Macronutrient Values:</strong> N, P, K & Mg distribution maps<br>
+                        • <strong>Fertilizer Recommendation:</strong> Per unit area or single oil palm stand
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: rgba(0, 230, 118, 0.05); border: 1px solid rgba(0, 230, 118, 0.2); border-radius: 12px; padding: 16px; margin-top: 24px;">
+                <div style="font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 14px; color: #00e676; margin-bottom: 8px;">
+                    Key Achievements & Industry Validations
+                </div>
+                <ul class="metrics-list" style="margin: 0;">
+                    <li><strong>Registration:</strong> Received Creation Registration Letter from Ministry of Law and Human Rights of Indonesia</li>
+                    <li><strong>Award Certification:</strong> 115 Karya Inovasi Indonesia Paling Perspektif 2023</li>
+                    <li><strong>Technology Readiness Level (TRL):</strong> TRL 9 (Highest Rank)</li>
+                    <li><strong>Industrial Accuracy:</strong> N (95.7%), P (94.46%), K (86.20%), Mg (83.19%)</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- PAGE 2: COMPUTATIONAL MODELING -->
+        <div class="page-card">
+            <div class="header-strip">
+                <div>
+                    <div class="header-title">Computational Modeling</div>
+                    <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">
+                        Dual Imagery Data Acquisition Pipeline (Sentinel-1A & Sentinel-2A)
+                    </div>
+                </div>
+                <div class="header-badge" style="border-color: #ff5252; color: #ff5252; background: rgba(255,82,82,0.15);">IPB University</div>
+            </div>
+
+            <div class="columns-2">
+                <div class="column-card">
+                    <div style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 18px; color: #ff5252; margin-bottom: 8px;">
+                        Sentinel-1A (Radar SAR)
+                    </div>
+                    <div style="font-size: 12px; color: #94a3b8; margin-bottom: 12px;">
+                        Equipped with 2 SAR Sensors (All-Weather Cloud Penetrating)
+                    </div>
+                    <div style="font-size: 13px; color: #cbd5e1; margin-bottom: 10px;">
+                        Extracts 9 main & derivative variables of imagery data (Z₁, Z₂, ..., Z₉)
+                    </div>
+
+                    <div class="math-box">
+                        RFR Algorithm Fitting:<br>
+                        N ≈ F_N(Z₁, Z₂, ..., Z₉)<br>
+                        P ≈ F_P(Z₁, Z₂, ..., Z₉)<br>
+                        K ≈ F_K(Z₁, Z₂, ..., Z₉)
+                    </div>
+
+                    <div style="font-weight: 700; color: #00e676; font-size: 13px; margin-top: 12px;">
+                        Output: Macronutrient values (N, P, K)
+                    </div>
+                </div>
+
+                <div class="column-card green">
+                    <div style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 18px; color: #00e676; margin-bottom: 8px;">
+                        Sentinel-2A (Optical)
+                    </div>
+                    <div style="font-size: 12px; color: #94a3b8; margin-bottom: 12px;">
+                        Equipped with 12 Multispectral Sensors (10m Resolution)
+                    </div>
+                    <div style="font-size: 13px; color: #cbd5e1; margin-bottom: 10px;">
+                        Extracts 12 main variables of imagery data (X₁, X₂, ..., X₁₂)
+                    </div>
+
+                    <div class="math-box" style="color: #69f0ae;">
+                        RFR Algorithm Fitting:<br>
+                        N ≈ F_N(X₁, X₂, ..., X₁₂)<br>
+                        P ≈ F_P(X₁, X₂, ..., X₁₂)<br>
+                        K ≈ F_K(X₁, X₂, ..., X₁₂)
+                    </div>
+
+                    <div style="font-weight: 700; color: #00e676; font-size: 13px; margin-top: 12px;">
+                        Output: Macronutrient values (N, P, K)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE 3: INTELLIGENT COMPUTING & CLOUD MASKING -->
+        <div class="page-card">
+            <div class="header-strip">
+                <div>
+                    <div class="header-title">Intelligent & Precision Computing Process</div>
+                    <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">
+                        Cloud-Masking Data Transfer & High Performance Computing (HPC) Architecture
+                    </div>
+                </div>
+                <div class="header-badge" style="border-color: #00b0ff; color: #00b0ff; background: rgba(0,176,255,0.15);">HPC Integration</div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+                <div>
+                    <div style="font-weight: 700; font-size: 15px; color: #38bdf8; margin-bottom: 12px;">
+                        Cloud-Free Nutrient Transfer Mechanism
+                    </div>
+                    <div class="flow-step">
+                        <div class="flow-step-title">1. Parallel Model Machine Learning</div>
+                        <div class="flow-step-desc">
+                            Simultaneous model execution for Sentinel-1A (Radar) and Sentinel-2A (Multispectral Optical) image data streams.
+                        </div>
+                    </div>
+
+                    <div class="flow-step">
+                        <div class="flow-step-title">2. Cloud Masking & Data Transfer</div>
+                        <div class="flow-step-desc">
+                            Transfers Sentinel-1A radar-based nutrient status to Sentinel-2A optical areas obscured by cloud cover.
+                        </div>
+                    </div>
+
+                    <div class="flow-step" style="border-left-color: #00e676;">
+                        <div class="flow-step-title" style="color: #00e676;">3. Cloud-Free Hara Status Map & Output</div>
+                        <div class="flow-step-desc">
+                            Generates complete <strong>Nutrient Status Map (N, P, K, Mg)</strong> and <strong>Recommended Dosage Map</strong>.
+                        </div>
+                    </div>
+                </div>
+
+                <div style="background: #1e293b; border-radius: 12px; padding: 20px; border: 1px solid rgba(255,255,255,0.1);">
+                    <div style="font-family: 'Outfit', sans-serif; font-weight: 700; font-size: 15px; color: #a855f7; margin-bottom: 14px;">
+                        Penerapan HPC (High Performance Computing)
+                    </div>
+                    <div style="background: rgba(168, 85, 247, 0.15); border: 1px solid #a855f7; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                        <div style="font-weight: 700; font-size: 13px; color: #d8b4fe;">Parallel Processing (Threading)</div>
+                        <div style="font-size: 11px; color: #cbd5e1; margin-top: 4px;">Used for rapid feature calculation & cloud mask processing.</div>
+                    </div>
+                    <div style="background: rgba(0, 230, 118, 0.15); border: 1px solid #00e676; border-radius: 8px; padding: 12px;">
+                        <div style="font-weight: 700; font-size: 13px; color: #69f0ae;">Sequential Processing</div>
+                        <div style="font-size: 11px; color: #cbd5e1; margin-top: 4px;">Used for final matrix integration & dosage map output.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAGE 4: END-TO-END MACHINE LEARNING FLOWCHART -->
+        <div class="page-card">
+            <div class="header-strip">
+                <div>
+                    <div class="header-title">Modeling Methodology Flowchart</div>
+                    <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">
+                        End-to-End Machine Learning, Spatial Residual Modeling & Uncertainty Diagnostics
+                    </div>
+                </div>
+                <div class="header-badge">Flowchart Pipeline</div>
+            </div>
+
+            <div class="flowchart-grid">
+                <div>
+                    <div class="flow-step">
+                        <div class="flow-step-title">1. DATA INPUT</div>
+                        <div class="flow-step-desc">
+                            • Hasil observasi hara mikro<br>
+                            • Sentinel-2 spektral band<br>
+                            • Koordinat geografis
+                        </div>
+                    </div>
+
+                    <div class="flow-step">
+                        <div class="flow-step-title">2. DATA PRE-PROCESSING</div>
+                        <div class="flow-step-desc">
+                            • Harmonisasi band (resolusi 10 meter)<br>
+                            • Inspeksi distribusi/sebaran nilai data sampel<br>
+                            • Penanganan nilai invalid<br>
+                            • Outlier screening
+                        </div>
+                    </div>
+
+                    <div class="flow-step">
+                        <div class="flow-step-title">3. FEATURE ENGINEERING & REDUNDANCY</div>
+                        <div class="flow-step-desc">
+                            • Indeks vegetasi & transformasi non-linier<br>
+                            • Analisis multikolinieriti<br>
+                            • Seleksi fitur dengan korelasi tinggi
+                        </div>
+                    </div>
+
+                    <div class="flow-step">
+                        <div class="flow-step-title">4. SPATIAL BLOCK PARTITIONING & CV</div>
+                        <div class="flow-step-desc">
+                            • Generasi blok/grid dari koordinat sampel<br>
+                            • Memberikan ID pada blok spasial<br>
+                            • Spatial K-Fold Cross Validation (mencegah leakage)
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flow-step" style="border-left-color: #a855f7;">
+                        <div class="flow-step-title" style="color: #c084fc;">5. BASE LEARNER TRAINING</div>
+                        <div class="flow-step-desc">
+                            Training model ensemble:<br>
+                            • XGBoost, LightGBM, CatBoost, Random Forest, dll.
+                        </div>
+                    </div>
+
+                    <div class="flow-step" style="border-left-color: #a855f7;">
+                        <div class="flow-step-title" style="color: #c084fc;">6. STACKED ENSEMBLE LEARNING</div>
+                        <div class="flow-step-desc">
+                            Meta-learner integration:<br>
+                            • BayesianRidge, RidgeCV, atau regresi linier teratur lainnya.
+                        </div>
+                    </div>
+
+                    <div class="flow-step" style="border-left-color: #a855f7;">
+                        <div class="flow-step-title" style="color: #c084fc;">7. SPATIAL RESIDUAL MODELING</div>
+                        <div class="flow-step-desc">
+                            Training model residual spasial:<br>
+                            • Gaussian Process Regression / Ordinary Kriging
+                        </div>
+                    </div>
+
+                    <div class="flow-step" style="border-left-color: #00e676;">
+                        <div class="flow-step-title" style="color: #00e676;">8. FINAL PREDICTION & MODEL DIAGNOSTICS</div>
+                        <div class="flow-step-desc">
+                            <strong>Prediksi = Prediksi Model Ensemble + Prediksi Residu Spasial</strong><br>
+                            • Uji autokorelasi spasial: Moran's I spatial residual test<br>
+                            • Evaluasi metric: R², RMSE, RPD, RPIQ<br>
+                            • Serialisasi model akhir (.pkl / .onnx)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function exportPDF() {
+            const element = document.getElementById('pdf-content');
+            const opt = {
+                margin:       [0.3, 0.3, 0.3, 0.3],
+                filename:     'PreciPalm_Precision_Agriculture_Framework.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, backgroundColor: '#060913' },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{
+  "estate_name": "Ladang PPPTAR",
+  "acquisition_date": "06-Oct-2026",
+  "shapefile_source": "3. Training_v2/Ladang PPPTAR.shp",
+  "timestamp": "2026-10-06_144202",
+  "total_blocks": 42,
+  "total_pixels": 560511,
+  "execution_time_seconds": 52.17,
+  "files_generated": [
+    "predicted_10m_nutrients.csv",
+    "predicted_10m_nutrients.csv.gz",
+    "N_nutrient_10m.tif",
+    "P_nutrient_10m.tif",
+    "K_nutrient_10m.tif",
+    "Mg_nutrient_10m.tif",
+    "Ca_nutrient_10m.tif",
+    "B_nutrient_10m.tif",
+    "predicted_nutrients_by_block.csv"
+  ]
+}

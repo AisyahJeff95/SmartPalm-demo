@@ -1,0 +1,17 @@
+{
+  "shapefile_source": "3. Training_v2/Seraya with Block Boundary.shp",
+  "sentinel_grid_source": "/Users/drsitiaisyahjaafar/SmartPalm-demo/development/v1_training_data_10m.csv.gz",
+  "timestamp": "2026-10-06_140936",
+  "total_blocks": 57,
+  "execution_time_seconds": 64.72,
+  "files_generated": [
+    "predicted_10m_nutrients.csv.gz",
+    "N_nutrient_10m.tif",
+    "P_nutrient_10m.tif",
+    "K_nutrient_10m.tif",
+    "Mg_nutrient_10m.tif",
+    "Ca_nutrient_10m.tif",
+    "B_nutrient_10m.tif",
+    "predicted_nutrients_by_block.csv"
+  ]
+}
