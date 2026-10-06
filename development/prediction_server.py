@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 """
 SmartPalm Local GeoTIFF Prediction & PDF Storage Server
-Listens on http://127.0.0.1:5001 to generate GeoTIFF (.tif) rasters and save PDF reports.
+Listens on http://127.0.0.1:5001 to generate GeoTIFF (.tif) rasters, PNG web overlays, and save PDF reports.
 """
 
 import os
 import sys
+import io
 import json
 import time
 import base64
@@ -14,6 +15,7 @@ from datetime import datetime
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import numpy as np
 import pandas as pd
+from PIL import Image
 import rasterio
 from rasterio.transform import from_bounds
 from rasterio.crs import CRS
@@ -33,7 +35,6 @@ FEATURE_COLS = [
 ]
 TARGETS = ['N', 'P', 'K', 'Mg', 'Ca', 'B']
 
-# Feature distribution means and stds from v1_training_data.csv
 FEATURE_MEANS = np.array([
     0.173239, 0.277707, 0.515147, 0.523684, 0.490132, 0.496825,
     0.392217, 0.176386, 0.127407, 0.149264, 0.133401, 0.131197,
@@ -58,6 +59,50 @@ for t in TARGETS:
             print(f"  ✓ Loaded rf_model_{t}.pkl")
         except Exception as e:
             print(f"  ! Warning: Failed to load {model_path}: {e}")
+
+def get_mpob_color(val, target):
+    if target == 'N':
+        if val <= 2.10: return (227, 26, 28, 220)
+        if val <= 2.30: return (245, 163, 64, 220)
+        if val <= 2.50: return (255, 240, 60, 220)
+        if val <= 2.70: return (85, 215, 65, 220)
+        if val <= 2.90: return (30, 110, 230, 220)
+        return (145, 90, 45, 220)
+    elif target == 'P':
+        if val <= 0.120: return (227, 26, 28, 220)
+        if val <= 0.135: return (245, 163, 64, 220)
+        if val <= 0.150: return (255, 240, 60, 220)
+        if val <= 0.165: return (85, 215, 65, 220)
+        if val <= 0.180: return (30, 110, 230, 220)
+        return (145, 90, 45, 220)
+    elif target == 'K':
+        if val <= 0.70: return (227, 26, 28, 220)
+        if val <= 0.85: return (245, 163, 64, 220)
+        if val <= 1.00: return (255, 240, 60, 220)
+        if val <= 1.15: return (85, 215, 65, 220)
+        if val <= 1.30: return (30, 110, 230, 220)
+        return (145, 90, 45, 220)
+    elif target == 'Mg':
+        if val <= 0.180: return (227, 26, 28, 220)
+        if val <= 0.210: return (245, 163, 64, 220)
+        if val <= 0.240: return (255, 240, 60, 220)
+        if val <= 0.270: return (85, 215, 65, 220)
+        if val <= 0.300: return (30, 110, 230, 220)
+        return (145, 90, 45, 220)
+    elif target == 'Ca':
+        if val <= 0.40: return (227, 26, 28, 220)
+        if val <= 0.55: return (245, 163, 64, 220)
+        if val <= 0.70: return (255, 240, 60, 220)
+        if val <= 0.85: return (85, 215, 65, 220)
+        if val <= 1.00: return (30, 110, 230, 220)
+        return (145, 90, 45, 220)
+    else: # B
+        if val <= 10.0: return (227, 26, 28, 220)
+        if val <= 15.0: return (245, 163, 64, 220)
+        if val <= 20.0: return (255, 240, 60, 220)
+        if val <= 30.0: return (85, 215, 65, 220)
+        if val <= 40.0: return (30, 110, 230, 220)
+        return (145, 90, 45, 220)
 
 class PredictionRequestHandler(BaseHTTPRequestHandler):
     def _send_json(self, status_code, data):
@@ -107,26 +152,22 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
         except Exception:
             south, west, north, east = 4.15, 117.80, 4.25, 117.90
 
-        # Timestamp folder creation
         now_str = datetime.now().strftime("%Y-%m-%d_%H%M%S")
         folder_name = f"{estate_name}_{now_str}"
         target_dir = os.path.join(PREDICTIONS_DIR, folder_name)
         os.makedirs(target_dir, exist_ok=True)
 
-        # Grid resolution (100x100 spatial grid for smooth 10m GeoTIFF)
-        cols, rows = 100, 100
+        cols, rows = 120, 120
 
         lons = np.linspace(west, east, cols)
         lats = np.linspace(north, south, rows)
         lon_grid, lat_grid = np.meshgrid(lons, lats)
 
-        # 2D spatial variation field based on geography
         norm_lat = (lat_grid - south) / (north - south + 1e-6)
         norm_lon = (lon_grid - west) / (east - west + 1e-6)
         spatial = np.sin(norm_lat * np.pi * 3.0) * np.cos(norm_lon * np.pi * 3.0) + np.sin((norm_lat + norm_lon) * np.pi * 2.0) * 0.4
         spatial_flat = spatial.flatten()
 
-        # Build feature DataFrame matching training schema
         grid_flat_len = rows * cols
         X_array = np.zeros((grid_flat_len, len(FEATURE_COLS)))
         for i in range(len(FEATURE_COLS)):
@@ -134,9 +175,9 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
 
         X_df = pd.DataFrame(X_array, columns=FEATURE_COLS)
 
-        # Run predictions using loaded trained RF models
         predictions = {}
         generated_files = []
+        overlays_dict = {}
 
         transform = from_bounds(west, south, east, north, cols, rows)
         crs = CRS.from_epsg(4326)
@@ -174,6 +215,24 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
 
             generated_files.append(filename)
 
+            # Generate PNG overlay for Leaflet web map
+            rgba_img = np.zeros((rows, cols, 4), dtype=np.uint8)
+            for r in range(rows):
+                for c in range(cols):
+                    v = raster_data[r, c]
+                    rgba_img[r, c] = get_mpob_color(v, target)
+
+            img = Image.fromarray(rgba_img)
+            img_resized = img.resize((cols * 4, rows * 4), Image.Resampling.NEAREST)
+            buf = io.BytesIO()
+            img_resized.save(buf, format="PNG")
+            b64_str = base64.b64encode(buf.getvalue()).decode('utf-8')
+
+            overlays_dict[target] = {
+                "dataUrl": f"data:image/png;base64,{b64_str}",
+                "bounds": [[south, west], [north, east]]
+            }
+
         meta = {
             "estate_name": estate_raw,
             "timestamp": now_str,
@@ -193,11 +252,12 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
 
         response_payload = {
             "status": "success",
-            "message": "Rich GeoTIFF rasters generated successfully using trained Random Forest models",
+            "message": "GeoTIFF rasters and web map overlays generated successfully using trained RF models",
             "folder_name": folder_name,
             "folder_path": target_dir,
             "files": generated_files,
-            "nutrient_summary": predictions
+            "nutrient_summary": predictions,
+            "overlays": overlays_dict
         }
         self._send_json(200, response_payload)
 

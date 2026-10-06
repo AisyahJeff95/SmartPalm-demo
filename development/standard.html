@@ -4168,7 +4168,10 @@ function toggleNutrientLayerComp(layerValue) {
             compBoundaryLayer.setStyle({ color: "#ff7800", fillColor: (currentMapType === "polygon_ish" ? "#ff7800" : "none"), fillOpacity: (currentMapType === "polygon_ish" ? 0.15 : 0.0) });
         }
 
-        if (isLahadDatu && typeof RASTER_OVERLAYS !== 'undefined' && RASTER_OVERLAYS[layerValue]) {
+        if (window.DYNAMIC_PREDICTION_RASTERS && window.DYNAMIC_PREDICTION_RASTERS[layerValue]) {
+            let oData = window.DYNAMIC_PREDICTION_RASTERS[layerValue];
+            compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 1.0, zIndex: 400 }).addTo(mapComp);
+        } else if (isLahadDatu && typeof RASTER_OVERLAYS !== 'undefined' && RASTER_OVERLAYS[layerValue]) {
             let oData = RASTER_OVERLAYS[layerValue];
             compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 1.0, zIndex: 400 }).addTo(mapComp);
         } else if (isPPPTAR && typeof RASTER_OVERLAYS_PPPTAR !== 'undefined' && RASTER_OVERLAYS_PPPTAR[layerValue]) {
@@ -4206,7 +4209,10 @@ function toggleNutrientLayerStd(layerValue) {
             stdBoundaryLayer.setStyle({ color: "#10b981", fillColor: (currentMapType === "polygon_ish" ? "#10b981" : "none"), fillOpacity: (currentMapType === "polygon_ish" ? 0.15 : 0.0) });
         }
 
-        if (isLahadDatu && typeof RASTER_OVERLAYS !== 'undefined' && RASTER_OVERLAYS[layerValue]) {
+        if (window.DYNAMIC_PREDICTION_RASTERS && window.DYNAMIC_PREDICTION_RASTERS[layerValue]) {
+            let oData = window.DYNAMIC_PREDICTION_RASTERS[layerValue];
+            compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 1.0, zIndex: 400 }).addTo(mapComp);
+        } else if (isLahadDatu && typeof RASTER_OVERLAYS !== 'undefined' && RASTER_OVERLAYS[layerValue]) {
             let oData = RASTER_OVERLAYS[layerValue];
             stdRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 1.0, zIndex: 400 }).addTo(mapStd);
         } else if (isPPPTAR && typeof RASTER_OVERLAYS_PPPTAR !== 'undefined' && RASTER_OVERLAYS_PPPTAR[layerValue]) {
@@ -4346,6 +4352,7 @@ function toggleNutrientLayerStd(layerValue) {
                 window._USE_RF_PREDICTIONS = true;
                 if (data && data.folder_name) {
                     window._LAST_PREDICTION_FOLDER = data.folder_name;
+                if (data && data.overlays) { window.DYNAMIC_PREDICTION_RASTERS = data.overlays; }
                 }
 
                 const radioN = document.querySelector('input[name="comp_layer"][value="N"]');
