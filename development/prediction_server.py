@@ -84,6 +84,7 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS, GET")
         self.send_header("Access-Control-Allow-Headers", "*")
+        self.send_header("Access-Control-Allow-Private-Network", "true")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
@@ -93,7 +94,9 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS, GET")
         self.send_header("Access-Control-Allow-Headers", "*")
+        self.send_header("Access-Control-Allow-Private-Network", "true")
         self.send_header("Access-Control-Max-Age", "86400")
+        self.send_header("Content-Length", "0")
         self.end_headers()
 
     def do_POST(self):

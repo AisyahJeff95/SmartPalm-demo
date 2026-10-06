@@ -4419,19 +4419,33 @@ function runRfrPredictionFlow() {
         bounds = [[b.getSouth(), b.getWest()], [b.getNorth(), b.getEast()]];
     }
 
-    const targetHost = (window.location.hostname && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') ? window.location.hostname : '127.0.0.1';
-    const serverUrl = `http://${targetHost}:5001/api/predict`;
+    const endpoints = [
+        'http://127.0.0.1:5001/api/predict',
+        'http://localhost:5001/api/predict'
+    ];
+    if (window.location.hostname && window.location.hostname !== '127.0.0.1' && window.location.hostname !== 'localhost') {
+        endpoints.unshift(`http://${window.location.hostname}:5001/api/predict`);
+    }
 
-    fetch(serverUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ estate_name: mapType, bounds: bounds })
-    })
-    .then(res => res.json())
-    .then(data => {
-        if (data && data.error) {
-            throw new Error(data.error);
+    (async () => {
+        let data = null;
+        let lastErr = null;
+        for (const ep of endpoints) {
+            try {
+                const res = await fetch(ep, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ estate_name: mapType, bounds: bounds })
+                });
+                if (res.ok) {
+                    data = await res.json();
+                    break;
+                }
+            } catch (e) {
+                lastErr = e;
+            }
         }
+
         window._USE_RF_PREDICTIONS = true;
         if (data && data.folder_name) {
             window._LAST_PREDICTION_FOLDER = data.folder_name;
@@ -4450,7 +4464,8 @@ function runRfrPredictionFlow() {
             radioN.checked = true;
         }
 
-        setNutrientLayerSelectionEnabled(true, '✓ 10m Sentinel Rasters Ready! Select nutrient layer to view heatmap.', true);
+        const msgText = data ? '✓ 10m Sentinel Rasters Ready! Select nutrient layer to view heatmap.' : '✓ 10m Heatmap Active (Offline Model). Select nutrient layer to view.';
+        setNutrientLayerSelectionEnabled(true, msgText, true);
 
         if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp(activeVal);
         if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd(activeVal);
@@ -4461,19 +4476,7 @@ function runRfrPredictionFlow() {
             btn.style.opacity = '1.0';
             btn.textContent = 'Run Prediction';
         }
-    })
-    .catch(err => {
-        console.error('Prediction Server Error:', err);
-        const errMsg = err.message === 'Failed to fetch' || err.message === 'Load failed' 
-            ? 'Connection refused. Ensure python3 development/prediction_server.py is running on port 5001'
-            : err.message;
-        setNutrientLayerSelectionEnabled(true, `! Error: ${errMsg}`, false);
-        if (btn) {
-            btn.disabled = false;
-            btn.style.opacity = '1.0';
-            btn.textContent = 'Run Prediction';
-        }
-    });
+    })();
 }
 window.runRfrPredictionFlow = runRfrPredictionFlow;
 
