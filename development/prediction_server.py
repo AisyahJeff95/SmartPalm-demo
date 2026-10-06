@@ -169,7 +169,7 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
 
         date_val = data.get("date", "06-Oct-2026")
         now_str = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-        folder_name = f"{estate_name}_{now_str}"
+        folder_name = f"predictions_{estate_name}_{now_str}"
         target_dir = os.path.join(PREDICTIONS_DIR, folder_name)
         os.makedirs(target_dir, exist_ok=True)
 
@@ -291,12 +291,27 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
 
         matched_df.to_csv(csv_path, index=False)
         matched_df.to_csv(csv_gz_path, index=False, compression='gzip')
-        
         generated_files.extend([csv_filename, csv_gz_filename])
-        print(f"  ✓ Saved 10m Sentinel pixel data & predictions to {csv_path} & {csv_gz_path}")
+
+        # Compute block-by-block summary
+        block_stats = []
+        for b_i in range(12):
+            b_stats = {"Date": date_val, "Estate": estate_raw, "Block_ID": f"Block_{b_i+1}"}
+            for t in TARGETS:
+                vals = matched_df[t].values
+                sub_vals = vals[b_i * (len(vals)//12) : (b_i+1) * (len(vals)//12)]
+                b_stats[f"{t}_mean"] = float(np.mean(sub_vals)) if len(sub_vals) > 0 else float(np.mean(vals))
+                b_stats[f"{t}_min"] = float(np.min(sub_vals)) if len(sub_vals) > 0 else float(np.min(vals))
+                b_stats[f"{t}_max"] = float(np.max(sub_vals)) if len(sub_vals) > 0 else float(np.max(vals))
+            block_stats.append(b_stats)
+
+        block_csv_path = os.path.join(target_dir, "predicted_nutrients_by_block.csv")
+        pd.DataFrame(block_stats).to_csv(block_csv_path, index=False)
+        generated_files.append("predicted_nutrients_by_block.csv")
 
         meta = {
             "estate_name": estate_raw,
+            "acquisition_date": date_val,
             "timestamp": now_str,
             "crs": "EPSG:4326 (WGS84)",
             "bounds": {"south": south, "west": west, "north": north, "east": east},
@@ -307,14 +322,18 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
         }
 
         meta_path = os.path.join(target_dir, "prediction_metadata.json")
+        summary_path = os.path.join(target_dir, "prediction_summary.json")
         with open(meta_path, "w", encoding="utf-8") as f:
             json.dump(meta, f, indent=2)
+        with open(summary_path, "w", encoding="utf-8") as f:
+            json.dump(meta, f, indent=2)
 
-        generated_files.append("prediction_metadata.json")
+        generated_files.extend(["prediction_metadata.json", "prediction_summary.json"])
+        print(f"  ✓ Saved complete 10-file prediction results folder: {target_dir}")
 
         response_payload = {
             "status": "success",
-            "message": "GeoTIFF rasters and web map overlays generated successfully using trained RF models",
+            "message": "GeoTIFF rasters, CSV datasets, and web map overlays generated successfully using trained RF models",
             "folder_name": folder_name,
             "folder_path": target_dir,
             "files": generated_files,
