@@ -4419,7 +4419,10 @@ function runRfrPredictionFlow() {
         bounds = [[b.getSouth(), b.getWest()], [b.getNorth(), b.getEast()]];
     }
 
-    fetch('http://127.0.0.1:5001/api/predict', {
+    const targetHost = (window.location.hostname && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') ? window.location.hostname : '127.0.0.1';
+    const serverUrl = `http://${targetHost}:5001/api/predict`;
+
+    fetch(serverUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ estate_name: mapType, bounds: bounds })
@@ -4461,7 +4464,10 @@ function runRfrPredictionFlow() {
     })
     .catch(err => {
         console.error('Prediction Server Error:', err);
-        setNutrientLayerSelectionEnabled(true, `! Error: ${err.message || 'Server Offline'}. Check prediction_server.py`, false);
+        const errMsg = err.message === 'Failed to fetch' || err.message === 'Load failed' 
+            ? 'Connection refused. Ensure python3 development/prediction_server.py is running on port 5001'
+            : err.message;
+        setNutrientLayerSelectionEnabled(true, `! Error: ${errMsg}`, false);
         if (btn) {
             btn.disabled = false;
             btn.style.opacity = '1.0';

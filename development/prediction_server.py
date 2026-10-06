@@ -14,7 +14,7 @@ import json
 import time
 import base64
 from datetime import datetime
-from http.server import HTTPServer, BaseHTTPRequestHandler
+from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(BASE_DIR)
@@ -81,7 +81,7 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "application/json")
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS, GET")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Access-Control-Allow-Headers", "*")
         self.send_header("Content-Length", str(len(body)))
         self.end_headers()
         self.wfile.write(body)
@@ -90,7 +90,8 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Access-Control-Allow-Origin", "*")
         self.send_header("Access-Control-Allow-Methods", "POST, OPTIONS, GET")
-        self.send_header("Access-Control-Allow-Headers", "Content-Type")
+        self.send_header("Access-Control-Allow-Headers", "*")
+        self.send_header("Access-Control-Max-Age", "86400")
         self.end_headers()
 
     def do_POST(self):
@@ -167,8 +168,8 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
 
 def run_server(port=5001):
     server_address = ('', port)
-    httpd = HTTPServer(server_address, PredictionRequestHandler)
-    print(f"🚀 SmartPalm Prediction Server running on http://127.0.0.1:{port}")
+    httpd = ThreadingHTTPServer(server_address, PredictionRequestHandler)
+    print(f"🚀 SmartPalm Multi-Threaded Prediction Server running on http://127.0.0.1:{port}")
     print(f"📁 Saving real prediction folders to {PREDICTIONS_DIR}")
     try:
         httpd.serve_forever()
