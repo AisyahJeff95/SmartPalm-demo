@@ -19,10 +19,12 @@ from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(BASE_DIR)
 
-# Priority: development/4. Training_v3, then fallback to root 4. Training_v3
-DEV_TRAINING_V3 = os.path.join(BASE_DIR, "4. Training_v3")
-ROOT_TRAINING_V3 = os.path.join(PROJECT_ROOT, "4. Training_v3")
-TRAINING_V3_DIR = ROOT_TRAINING_V3 if os.path.exists(ROOT_TRAINING_V3) else DEV_TRAINING_V3
+# Priority: training_v3, then 4. Training_v3
+TRAINING_V3_DIR = os.path.join(PROJECT_ROOT, "training_v3")
+if not os.path.exists(TRAINING_V3_DIR):
+    TRAINING_V3_DIR = os.path.join(PROJECT_ROOT, "4. Training_v3")
+if not os.path.exists(TRAINING_V3_DIR):
+    TRAINING_V3_DIR = os.path.join(BASE_DIR, "training_v3")
 
 PREDICTIONS_DIR = os.path.join(BASE_DIR, "predictions")
 BOUNDARIES_DIR = os.path.join(BASE_DIR, "boundaries")
@@ -40,12 +42,12 @@ if os.path.isfile(PREDICT_SCRIPT_PATH):
         predict_mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(predict_mod)
         run_predictions = predict_mod.run_predictions
-        print("✓ Successfully loaded 4. Training_v3 prediction engine (with separate fetch_sentinel_data.py & RFR models)")
+        print(f"✓ Successfully loaded training_v3 prediction engine from {PREDICT_SCRIPT_PATH}")
     except Exception as e:
-        print(f"! Warning: Failed to load predict_nutrients module from 4. Training_v3: {e}")
+        print(f"! Warning: Failed to load predict_nutrients module from training_v3: {e}")
 
 def find_shapefile_for_estate(estate_raw):
-    """Finds matching .shp file across 4. Training_v3, development/boundaries, or development."""
+    """Finds matching .shp file across training_v3, development/boundaries, or development."""
     clean_name = estate_raw.strip()
     
     candidates = [

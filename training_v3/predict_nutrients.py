@@ -284,7 +284,7 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_overr
 
         raster_results[nut] = raster_grid
 
-        # Save GeoTIFF in output directory & 4. Training_v3 root
+        # Save GeoTIFF in output directory & training_v3 root
         out_tif_name = f"{nut}_nutrient_10m.tif"
         out_tif_path = os.path.join(out_dir, out_tif_name)
         root_tif_path = os.path.join(SCRIPT_DIR, out_tif_name)
