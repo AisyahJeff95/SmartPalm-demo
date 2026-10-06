@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """
-predict_nutrients.py (3. Training_v2)
+predict_nutrients.py (4. Training_v3)
 ---------------------------------------
-Runs Random Forest model predictions (rf_model_*.pkl) across real 10m Sentinel-1 & Sentinel-2 
-satellite data clipped to target shapefile boundary (Seraya, PPPTAR, Jengka 25, etc.).
+Runs Random Forest model predictions (rf_model_*.pkl) across cloud-free 10m Sentinel-1 & Sentinel-2 
+satellite data fetched specifically for ANY target shapefile boundary (Seraya, PPPTAR, Jengka 25, etc.).
 
-Standardized Export Format:
-Date || Estate || Longitude || Latitude || N || P || K || Mg || Ca || B || Band12 ...
+Integrates fetch_sentinel_data.py for automatic 2-stage cloud removal (STAC query cloud % < 60 & SCL pixel masking).
 """
 
 import os
@@ -31,7 +30,14 @@ from shapely.ops import unary_union
 from shapely.prepared import prep
 import pyproj
 
+# Import cloud-free fetcher
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, SCRIPT_DIR)
+try:
+    from fetch_sentinel_data import fetch_sentinel_for_shapefile
+except Exception as e:
+    fetch_sentinel_for_shapefile = None
+
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 DEV_DIR = os.path.join(PROJECT_ROOT, "development")
 
@@ -44,18 +50,6 @@ FEATURE_COLS = [
     'Sigma0_VV', 'Sigma0_VH', 'Gamma0_VV', 'Gamma0_VH', 'Beta0_VV', 'Beta0_VH'
 ]
 TARGET_COLS = ['N', 'P', 'K', 'Mg', 'Ca', 'B']
-
-FEATURE_MEANS = np.array([
-    0.173239, 0.277707, 0.515147, 0.523684, 0.490132, 0.496825,
-    0.392217, 0.176386, 0.127407, 0.149264, 0.133401, 0.131197,
-    0.189635, 0.035784, 0.242311, 0.045724, 0.304627, 0.057483
-])
-
-FEATURE_STDS = np.array([
-    0.021174, 0.032637, 0.043458, 0.049988, 0.049945, 0.049482,
-    0.044139, 0.018879, 0.006508, 0.010355, 0.004053, 0.003001,
-    0.096295, 0.015498, 0.123043, 0.019804, 0.154686, 0.024896
-])
 
 # MPOB Color threshold functions
 def get_color_n(val):
@@ -199,21 +193,34 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_overr
         print("❌ Error: No trained model files (.pkl) found!")
         return None
 
-    # Load 10m grid data if present and overlapping
+    # Load pre-fetched Sentinel CSV if available, or call fetch_sentinel_for_shapefile
+    fetched_csv = os.path.join(SCRIPT_DIR, f"fetched_sentinel_{estate_name.replace(' ', '_')}.csv")
     df_grid = None
-    if os.path.exists(GRID_CSV_PATH):
-        try:
-            with gzip.open(GRID_CSV_PATH, 'rt') as f:
-                raw_grid = pd.read_csv(f)
-            sub = raw_grid[(raw_grid['Longitude'] >= min_lng - 0.01) & (raw_grid['Longitude'] <= max_lng + 0.01) &
-                           (raw_grid['Lattitude'] >= min_lat - 0.01) & (raw_grid['Lattitude'] <= max_lat + 0.01)]
-            if len(sub) > 50:
-                df_grid = sub.copy()
-                print(f"  ✓ Found {len(df_grid):,} matching pre-sampled Sentinel grid points for {estate_name}")
-        except Exception as e:
-            print(f"  ! Warning loading pre-sampled grid: {e}")
 
-    # Generate regular 10m mesh grid inside shapefile polygon if pre-sampled grid does not overlap
+    if os.path.isfile(fetched_csv):
+        print(f"  ✓ Using cloud-free fetched Sentinel dataset: {fetched_csv}")
+        df_grid = pd.read_csv(fetched_csv)
+    elif fetch_sentinel_for_shapefile is not None:
+        try:
+            print(f"  ✓ Fetching cloud-free Sentinel-1 & Sentinel-2 data for {estate_name}...")
+            df_grid = fetch_sentinel_for_shapefile(shp_path, target_date=acquisition_date)
+        except Exception as e:
+            print(f"  ! Warning during Sentinel fetch: {e}")
+
+    # Fallback to pre-sampled grid if fetch unvailable
+    if df_grid is None or len(df_grid) == 0:
+        if os.path.exists(GRID_CSV_PATH):
+            try:
+                with gzip.open(GRID_CSV_PATH, 'rt') as f:
+                    raw_grid = pd.read_csv(f)
+                sub = raw_grid[(raw_grid['Longitude'] >= min_lng - 0.01) & (raw_grid['Longitude'] <= max_lng + 0.01) &
+                               (raw_grid['Lattitude'] >= min_lat - 0.01) & (raw_grid['Lattitude'] <= max_lat + 0.01)]
+                if len(sub) > 50:
+                    df_grid = sub.copy()
+                    print(f"  ✓ Found {len(df_grid):,} pre-sampled Sentinel grid points")
+            except Exception as e:
+                pass
+
     if df_grid is None or len(df_grid) == 0:
         print(f"  ✓ Generating 10m spatial mesh grid for {estate_name} polygon boundary...")
         cols, rows = 150, 150
@@ -239,7 +246,7 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_overr
         df_grid['Longitude'] = lon_inside
         df_grid['Lattitude'] = lat_inside
 
-    # Assign Date & Estate columns
+    # Ensure Date & Estate columns
     df_grid['Date'] = acquisition_date
     df_grid['Estate'] = estate_name
 
@@ -252,8 +259,11 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_overr
             df_grid[target] = np.round(preds, 3)
 
     # Standardize Column Ordering:
-    ordered_cols = ['Date', 'Estate', 'Longitude', 'Lattitude'] + TARGET_COLS + FEATURE_COLS
-    df_grid = df_grid[ordered_cols].rename(columns={'Lattitude': 'Latitude'})
+    if 'Lattitude' in df_grid.columns:
+        df_grid = df_grid.rename(columns={'Lattitude': 'Latitude'})
+
+    ordered_cols = ['Date', 'Estate', 'Longitude', 'Latitude'] + TARGET_COLS + [c for c in FEATURE_COLS if c in df_grid.columns]
+    df_grid = df_grid[ordered_cols]
 
     # Export CSV and CSV.GZ
     pred_csv_name = "predicted_10m_nutrients.csv"
@@ -296,12 +306,28 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_overr
 
         raster_results[nut] = raster_grid
 
-        # Save GeoTIFF in output directory
+        # Save GeoTIFF in output directory & 4. Training_v3 root
         out_tif_name = f"{nut}_nutrient_10m.tif"
         out_tif_path = os.path.join(out_dir, out_tif_name)
+        root_tif_path = os.path.join(SCRIPT_DIR, out_tif_name)
         
         with rasterio.open(
             out_tif_path,
+            'w',
+            driver='GTiff',
+            height=rows,
+            width=cols,
+            count=1,
+            dtype=rasterio.float32,
+            crs=crs,
+            transform=transform,
+            nodata=-9999.0
+        ) as dst:
+            dst.write(raster_grid, 1)
+
+        # Copy to root folder
+        with rasterio.open(
+            root_tif_path,
             'w',
             driver='GTiff',
             height=rows,
@@ -338,7 +364,6 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_overr
 
         b_stats = {"Date": acquisition_date, "Estate": estate_name, "Block_ID": b_name}
         
-        # Mask grid values inside this block polygon
         block_prep = prep(poly)
         block_mask = [block_prep.contains(Point(x, y)) for x, y in zip(lngs, lats)]
         
