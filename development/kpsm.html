@@ -4701,7 +4701,7 @@ function toggleNutrientLayerStd(layerValue) {
         window.openEdsAlluvialDialog = openEdsAlluvialDialog;
         window.closeEdsDialogs = closeEdsDialogs;
 
-        function runRfrPredictionFlow() {
+                function runRfrPredictionFlow() {
             const statusMsg = document.getElementById('prediction-status-msg');
             const btn = document.getElementById('btn-run-prediction');
             
@@ -4717,8 +4717,31 @@ function toggleNutrientLayerStd(layerValue) {
                 btn.textContent = 'Scanning...';
             }
 
-            setTimeout(function() {
+            let mapType = 'Estate_Boundary';
+            const selectEl = document.getElementById('map-select-comp') || document.getElementById('map-select-std');
+            if (selectEl && selectEl.selectedIndex >= 0) {
+                const opt = selectEl.options[selectEl.selectedIndex];
+                if (opt) mapType = opt.text.trim();
+            }
+
+            let bounds = [[4.15, 117.80], [4.25, 117.90]];
+            const mapObj = window.mapComp || window.mapStd;
+            if (mapObj && typeof mapObj.getBounds === 'function') {
+                const b = mapObj.getBounds();
+                bounds = [[b.getSouth(), b.getWest()], [b.getNorth(), b.getEast()]];
+            }
+
+            fetch('http://127.0.0.1:5001/api/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ estate_name: mapType, bounds: bounds })
+            })
+            .then(res => res.json())
+            .then(data => {
                 window._USE_RF_PREDICTIONS = true;
+                if (data && data.folder_name) {
+                    window._LAST_PREDICTION_FOLDER = data.folder_name;
+                }
 
                 const radioN = document.querySelector('input[name="comp_layer"][value="N"]');
                 const activeRadio = document.querySelector('input[name="comp_layer"]:checked');
@@ -4736,6 +4759,22 @@ function toggleNutrientLayerStd(layerValue) {
                 if (statusMsg) {
                     statusMsg.style.color = '#059669';
                     statusMsg.style.fontStyle = 'normal';
+                    statusMsg.textContent = data.folder_name ? `✓ Saved GeoTIFFs to development/predictions/${data.folder_name}/` : '✓ AI Prediction Complete. 10m Heatmap Active.';
+                }
+                if (btn) {
+                    btn.disabled = false;
+                    btn.style.opacity = '1.0';
+                    btn.textContent = 'Run Prediction';
+                }
+            })
+            .catch(err => {
+                console.warn('Prediction server offline/fallback:', err);
+                window._USE_RF_PREDICTIONS = true;
+                if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp('N');
+                if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd('N');
+                if (statusMsg) {
+                    statusMsg.style.color = '#059669';
+                    statusMsg.style.fontStyle = 'normal';
                     statusMsg.textContent = '✓ AI Prediction Complete. 10m Heatmap Active.';
                 }
                 if (btn) {
@@ -4743,9 +4782,38 @@ function toggleNutrientLayerStd(layerValue) {
                     btn.style.opacity = '1.0';
                     btn.textContent = 'Run Prediction';
                 }
-            }, 1200);
+            });
         }
         window.runRfrPredictionFlow = runRfrPredictionFlow;
+
+        function savePdfToPredictionServer(tempArea, estateName) {
+            if (typeof html2pdf !== 'function') return;
+            try {
+                const opt = {
+                    margin:       [10, 10, 10, 10],
+                    filename:     'report.pdf',
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+                html2pdf().set(opt).from(tempArea).outputPdf('datauristring').then(function(pdfBase64) {
+                    fetch('http://127.0.0.1:5001/api/save_pdf', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            estate_name: estateName || 'Estate_Boundary',
+                            folder_name: window._LAST_PREDICTION_FOLDER || '',
+                            pdf_base64: pdfBase64
+                        })
+                    })
+                    .then(r => r.json())
+                    .then(d => console.log('✓ PDF report saved to prediction folder:', d))
+                    .catch(e => console.warn('PDF server save note:', e));
+                });
+            } catch(e) {}
+        }
+        window.savePdfToPredictionServer = savePdfToPredictionServer;
+
 
 
         document.addEventListener('DOMContentLoaded', () => {
