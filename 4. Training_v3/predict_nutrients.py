@@ -2,10 +2,14 @@
 """
 predict_nutrients.py (4. Training_v3)
 ---------------------------------------
-Runs Random Forest model predictions (rf_model_*.pkl) across cloud-free 10m Sentinel-1 & Sentinel-2 
-satellite data fetched specifically for ANY target shapefile boundary (Seraya, PPPTAR, Jengka 25, etc.).
+Executes Random Forest nutrient predictions (rf_model_*.pkl) for ANY shapefile boundary.
 
-Integrates fetch_sentinel_data.py for automatic 2-stage cloud removal (STAC query cloud % < 60 & SCL pixel masking).
+Architecture:
+- Separate File 1: fetch_sentinel_data.py (Handles cloud-free STAC satellite data fetching & 2-stage SCL cloud masking)
+- Separate File 2: predict_nutrients.py (Calls fetch_sentinel_for_shapefile from fetch_sentinel_data.py, runs model inference, exports GeoTIFF rasters)
+
+Standardized Output Export:
+Date || Estate || Longitude || Latitude || N || P || K || Mg || Ca || B || Band12 ...
 """
 
 import os
@@ -30,19 +34,15 @@ from shapely.ops import unary_union
 from shapely.prepared import prep
 import pyproj
 
-# Import cloud-free fetcher
+# Import function from SEPARATE Python script: fetch_sentinel_data.py
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, SCRIPT_DIR)
-try:
-    from fetch_sentinel_data import fetch_sentinel_for_shapefile
-except Exception as e:
-    fetch_sentinel_for_shapefile = None
+from fetch_sentinel_data import fetch_sentinel_for_shapefile
 
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 DEV_DIR = os.path.join(PROJECT_ROOT, "development")
 
 DEFAULT_SHAPEFILE = os.path.join(SCRIPT_DIR, "Seraya with Block Boundary.shp")
-GRID_CSV_PATH = os.path.join(DEV_DIR, "v1_training_data_10m.csv.gz")
 
 FEATURE_COLS = [
     'Band12', 'Band11', 'Band9', 'Band8A', 'Band8', 'Band7',
@@ -193,36 +193,16 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_overr
         print("❌ Error: No trained model files (.pkl) found!")
         return None
 
-    # Load pre-fetched Sentinel CSV if available, or call fetch_sentinel_for_shapefile
-    fetched_csv = os.path.join(SCRIPT_DIR, f"fetched_sentinel_{estate_name.replace(' ', '_')}.csv")
-    df_grid = None
-
-    if os.path.isfile(fetched_csv):
-        print(f"  ✓ Using cloud-free fetched Sentinel dataset: {fetched_csv}")
-        df_grid = pd.read_csv(fetched_csv)
-    elif fetch_sentinel_for_shapefile is not None:
-        try:
-            print(f"  ✓ Fetching cloud-free Sentinel-1 & Sentinel-2 data for {estate_name}...")
-            df_grid = fetch_sentinel_for_shapefile(shp_path, target_date=acquisition_date)
-        except Exception as e:
-            print(f"  ! Warning during Sentinel fetch: {e}")
-
-    # Fallback to pre-sampled grid if fetch unvailable
-    if df_grid is None or len(df_grid) == 0:
-        if os.path.exists(GRID_CSV_PATH):
-            try:
-                with gzip.open(GRID_CSV_PATH, 'rt') as f:
-                    raw_grid = pd.read_csv(f)
-                sub = raw_grid[(raw_grid['Longitude'] >= min_lng - 0.01) & (raw_grid['Longitude'] <= max_lng + 0.01) &
-                               (raw_grid['Lattitude'] >= min_lat - 0.01) & (raw_grid['Lattitude'] <= max_lat + 0.01)]
-                if len(sub) > 50:
-                    df_grid = sub.copy()
-                    print(f"  ✓ Found {len(df_grid):,} pre-sampled Sentinel grid points")
-            except Exception as e:
-                pass
+    # STEP 1: Call function from SEPARATE fetch_sentinel_data.py script
+    print(f"\nSTEP 1: Calling fetch_sentinel_for_shapefile() from fetch_sentinel_data.py...")
+    try:
+        df_grid = fetch_sentinel_for_shapefile(shp_path, target_date=acquisition_date)
+    except Exception as e:
+        print(f"  ! Warning: Cloud-free Sentinel fetch error: {e}")
+        df_grid = None
 
     if df_grid is None or len(df_grid) == 0:
-        print(f"  ✓ Generating 10m spatial mesh grid for {estate_name} polygon boundary...")
+        print(f"  ! Fallback: Generating 10m spatial mesh grid for {estate_name}...")
         cols, rows = 150, 150
         lons = np.linspace(min_lng, max_lng, cols)
         lats = np.linspace(max_lat, min_lat, rows)
@@ -245,12 +225,10 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_overr
         df_grid = pd.DataFrame(X_array, columns=FEATURE_COLS)
         df_grid['Longitude'] = lon_inside
         df_grid['Lattitude'] = lat_inside
+        df_grid['Date'] = acquisition_date
+        df_grid['Estate'] = estate_name
 
-    # Ensure Date & Estate columns
-    df_grid['Date'] = acquisition_date
-    df_grid['Estate'] = estate_name
-
-    # Execute predictions
+    # STEP 2: Execute predictions using RF models
     print("\nSTEP 2: Executing Random Forest predictions...")
     X_grid = df_grid[FEATURE_COLS].apply(pd.to_numeric, errors='coerce').fillna(0)
     for target in TARGET_COLS:
