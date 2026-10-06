@@ -24,7 +24,7 @@ from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 import shapefile
 import rasterio
 from PIL import Image
-from shapely.geometry import shape, Point
+from shapely.geometry import shape, Point, Polygon, MultiPolygon
 from shapely.ops import unary_union
 from shapely.prepared import prep
 
@@ -33,7 +33,7 @@ from shapely.prepared import prep
 # ==============================================================================
 TRAIN_DATASET_PATH = "v1_training_data.csv"
 GRID_DATASET_PATH = "../development/v1_training_data_10m.csv.gz"
-BOUNDARY_SHAPEFILE_PATH = "../development/boundaries/Ladang PPPTAR"
+BOUNDARY_SHAPEFILE_PATH = sys.argv[1] if len(sys.argv) > 1 else "Seraya with Block Boundary.shp"
 
 FEATURE_COLS = [
     'Band12', 'Band11', 'Band9', 'Band8A', 'Band8', 'Band7',
@@ -118,7 +118,7 @@ def main():
     print("==========================================================================")
     print(f"📁 Training Dataset Path : {train_csv_path}")
     print(f"📁 10m Grid Dataset Path : {grid_csv_path}")
-    print(f"📁 Estate Boundary Path  : {shp_path}.shp")
+    print(f"📁 Estate Boundary Path  : {shp_path}")
     print("==========================================================================\n")
 
     if not os.path.exists(train_csv_path):
@@ -196,8 +196,26 @@ def main():
                 df_grid[target] = np.round(preds, 3)
 
         print("  ✓ Masking predictions with shapefile boundary...")
+        import pyproj
         with shapefile.Reader(shp_path) as sf:
-            geoms = [shape(sr.shape.__geo_interface__).buffer(0) for sr in sf.shapeRecords()]
+            bbox = sf.bbox
+            is_projected = abs(bbox[0]) > 180 or abs(bbox[1]) > 90
+            transformer = None
+            if is_projected:
+                transformer = pyproj.Transformer.from_crs('EPSG:29873', 'EPSG:4326', always_xy=True)
+
+            geoms = []
+            for s in sf.shapes():
+                pts = s.points
+                if transformer:
+                    wgs_pts = [transformer.transform(x, y) for x, y in pts]
+                else:
+                    wgs_pts = pts
+                if len(wgs_pts) >= 3:
+                    p = Polygon(wgs_pts).buffer(0)
+                    if p.is_valid and not p.is_empty:
+                        geoms.append(p)
+
         poly_union = unary_union(geoms)
         prep_poly = prep(poly_union)
 
