@@ -1,0 +1,22 @@
+{
+  "shapefile_source": "/Users/drsitiaisyahjaafar/SmartPalm-demo/3. Training_v2/Ladang PPPTAR.shp",
+  "timestamp": "2026-10-06_125053",
+  "crs": "EPSG:4326 (WGS84)",
+  "bounding_box": {
+    "min_lon": 102.51300659400005,
+    "max_lon": 102.58829201600008,
+    "min_lat": 3.8652209100001187,
+    "max_lat": 3.9216534740000384
+  },
+  "total_blocks": 27,
+  "execution_time_seconds": 1.14,
+  "files_generated": [
+    "N_nutrient_10m.tif",
+    "P_nutrient_10m.tif",
+    "K_nutrient_10m.tif",
+    "Mg_nutrient_10m.tif",
+    "Ca_nutrient_10m.tif",
+    "B_nutrient_10m.tif",
+    "predicted_nutrients_by_block.csv"
+  ]
+}

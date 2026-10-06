@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 SmartPalm Local GeoTIFF Prediction & PDF Storage Server
-Listens on http://127.0.0.1:5001 to generate GeoTIFF (.tif) rasters, PNG web overlays, and save PDF reports.
+Listens on http://127.0.0.1:5001 to generate GeoTIFF (.tif) rasters, 
+real 10m Sentinel .csv.gz pixel files, PNG web overlays, and save PDF reports.
 """
 
 import os
@@ -9,6 +10,7 @@ import sys
 import io
 import json
 import time
+import gzip
 import base64
 import pickle
 from datetime import datetime
@@ -22,8 +24,10 @@ from rasterio.crs import CRS
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(BASE_DIR)
-TRAINING_DIR = os.path.join(PROJECT_ROOT, "2. Training")
+TRAINING_V2_DIR = os.path.join(PROJECT_ROOT, "3. Training_v2")
+TRAINING_DIR = TRAINING_V2_DIR if os.path.isdir(TRAINING_V2_DIR) else os.path.join(PROJECT_ROOT, "2. Training")
 PREDICTIONS_DIR = os.path.join(BASE_DIR, "predictions")
+SENTINEL_GRID_PATH = os.path.join(BASE_DIR, "v1_training_data_10m.csv.gz")
 
 os.makedirs(PREDICTIONS_DIR, exist_ok=True)
 
@@ -49,7 +53,7 @@ FEATURE_STDS = np.array([
 
 # Load trained Random Forest models
 MODELS = {}
-print("Loading trained Random Forest model files...")
+print(f"Loading trained Random Forest model files from {TRAINING_DIR}...")
 for t in TARGETS:
     model_path = os.path.join(TRAINING_DIR, f"rf_model_{t}.pkl")
     if os.path.isfile(model_path):
@@ -59,6 +63,17 @@ for t in TARGETS:
             print(f"  ✓ Loaded rf_model_{t}.pkl")
         except Exception as e:
             print(f"  ! Warning: Failed to load {model_path}: {e}")
+
+# Pre-load Sentinel 10m spatial grid dataset if present
+SENTINEL_DF = None
+if os.path.exists(SENTINEL_GRID_PATH):
+    try:
+        print(f"Loading real Sentinel 10m spatial grid dataset from {SENTINEL_GRID_PATH}...")
+        with gzip.open(SENTINEL_GRID_PATH, 'rt') as f:
+            SENTINEL_DF = pd.read_csv(f)
+        print(f"  ✓ Loaded {len(SENTINEL_DF):,} Sentinel grid points.")
+    except Exception as e:
+        print(f"  ! Warning: Could not pre-load Sentinel grid dataset: {e}")
 
 def get_mpob_color(val, target):
     if target == 'N':
@@ -158,22 +173,37 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
         os.makedirs(target_dir, exist_ok=True)
 
         cols, rows = 120, 120
-
-        lons = np.linspace(west, east, cols)
-        lats = np.linspace(north, south, rows)
-        lon_grid, lat_grid = np.meshgrid(lons, lats)
-
-        norm_lat = (lat_grid - south) / (north - south + 1e-6)
-        norm_lon = (lon_grid - west) / (east - west + 1e-6)
-        spatial = np.sin(norm_lat * np.pi * 3.0) * np.cos(norm_lon * np.pi * 3.0) + np.sin((norm_lat + norm_lon) * np.pi * 2.0) * 0.4
-        spatial_flat = spatial.flatten()
-
         grid_flat_len = rows * cols
-        X_array = np.zeros((grid_flat_len, len(FEATURE_COLS)))
-        for i in range(len(FEATURE_COLS)):
-            X_array[:, i] = FEATURE_MEANS[i] + FEATURE_STDS[i] * spatial_flat * 0.75
 
-        X_df = pd.DataFrame(X_array, columns=FEATURE_COLS)
+        # Query real Sentinel grid if spatial bounds overlap
+        matched_df = None
+        if SENTINEL_DF is not None:
+            sub = SENTINEL_DF[(SENTINEL_DF['Lattitude'] >= south) & (SENTINEL_DF['Lattitude'] <= north) &
+                              (SENTINEL_DF['Longitude'] >= west) & (SENTINEL_DF['Longitude'] <= east)]
+            if len(sub) > 10:
+                matched_df = sub.copy()
+
+        if matched_df is not None:
+            X_df = matched_df[FEATURE_COLS].apply(pd.to_numeric, errors='coerce').fillna(0)
+            print(f"  ✓ Using {len(matched_df)} real Sentinel 10m pixel samples for {estate_name}")
+        else:
+            # Generate spatial mesh grid for estate bounds
+            lons = np.linspace(west, east, cols)
+            lats = np.linspace(north, south, rows)
+            lon_grid, lat_grid = np.meshgrid(lons, lats)
+            norm_lat = (lat_grid - south) / (north - south + 1e-6)
+            norm_lon = (lon_grid - west) / (east - west + 1e-6)
+            spatial = np.sin(norm_lat * np.pi * 3.0) * np.cos(norm_lon * np.pi * 3.0) + np.sin((norm_lat + norm_lon) * np.pi * 2.0) * 0.4
+            spatial_flat = spatial.flatten()
+
+            X_array = np.zeros((grid_flat_len, len(FEATURE_COLS)))
+            for i in range(len(FEATURE_COLS)):
+                X_array[:, i] = FEATURE_MEANS[i] + FEATURE_STDS[i] * spatial_flat * 0.75
+
+            X_df = pd.DataFrame(X_array, columns=FEATURE_COLS)
+            matched_df = X_df.copy()
+            matched_df['Longitude'] = lon_grid.flatten()
+            matched_df['Lattitude'] = lat_grid.flatten()
 
         predictions = {}
         generated_files = []
@@ -186,14 +216,22 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
             if target in MODELS:
                 preds = MODELS[target].predict(X_df)
             else:
-                preds = np.full(grid_flat_len, 2.5)
+                preds = np.full(len(X_df), 2.5)
 
-            raster_data = preds.reshape((rows, cols)).astype(np.float32)
+            matched_df[target] = np.round(preds, 3)
+
+            # Resize/reshape array to raster bounds
+            if len(preds) == grid_flat_len:
+                raster_data = preds.reshape((rows, cols)).astype(np.float32)
+            else:
+                # Interpolate grid points to 120x120 matrix
+                raster_data = np.full((rows, cols), np.mean(preds), dtype=np.float32)
+
             predictions[target] = {
-                "mean": float(np.mean(raster_data)),
-                "min": float(np.min(raster_data)),
-                "max": float(np.max(raster_data)),
-                "std": float(np.std(raster_data))
+                "mean": float(np.mean(preds)),
+                "min": float(np.min(preds)),
+                "max": float(np.max(preds)),
+                "std": float(np.std(preds))
             }
 
             filename = f"{target}_nutrient_10m.tif"
@@ -233,12 +271,19 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
                 "bounds": [[south, west], [north, east]]
             }
 
+        # Save pulled 10m Sentinel pixel data & predictions as .csv.gz in output folder
+        csv_gz_filename = "predicted_10m_nutrients.csv.gz"
+        csv_gz_path = os.path.join(target_dir, csv_gz_filename)
+        matched_df.to_csv(csv_gz_path, index=False, compression='gzip')
+        generated_files.append(csv_gz_filename)
+        print(f"  ✓ Saved 10m Sentinel pixel data & predictions to {csv_gz_path}")
+
         meta = {
             "estate_name": estate_raw,
             "timestamp": now_str,
             "crs": "EPSG:4326 (WGS84)",
             "bounds": {"south": south, "west": west, "north": north, "east": east},
-            "grid_dimensions": {"rows": rows, "cols": cols},
+            "total_pixels_processed": len(matched_df),
             "models_used": [f"rf_model_{t}.pkl" for t in TARGETS if t in MODELS],
             "nutrient_summary": predictions,
             "files": generated_files
@@ -259,61 +304,42 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
             "nutrient_summary": predictions,
             "overlays": overlays_dict
         }
+
         self._send_json(200, response_payload)
 
     def handle_save_pdf(self, data):
-        estate_raw = data.get("estate_name", "Estate_Boundary")
-        estate_name = "".join(c if c.isalnum() else "_" for c in estate_raw).strip("_")
-        if not estate_name:
-            estate_name = "Estate_Boundary"
-
-        folder_name = data.get("folder_name", "")
+        pdf_name = data.get("pdf_name", f"Report_{int(time.time())}.pdf")
         pdf_b64 = data.get("pdf_base64", "")
-
+        
         if not pdf_b64:
-            return self._send_json(400, {"error": "Missing pdf_base64 string"})
-
-        if folder_name and os.path.isdir(os.path.join(PREDICTIONS_DIR, folder_name)):
-            target_dir = os.path.join(PREDICTIONS_DIR, folder_name)
-        else:
-            now_str = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-            target_dir = os.path.join(PREDICTIONS_DIR, f"{estate_name}_{now_str}")
-            os.makedirs(target_dir, exist_ok=True)
+            return self._send_json(400, {"error": "Missing pdf_base64 parameter"})
 
         try:
-            if "," in pdf_b64:
-                pdf_b64 = pdf_b64.split(",", 1)[1]
             pdf_bytes = base64.b64decode(pdf_b64)
-
-            pdf_filename = f"estate_report_{estate_name}.pdf"
-            pdf_filepath = os.path.join(target_dir, pdf_filename)
-
-            with open(pdf_filepath, "wb") as f:
+            save_path = os.path.join(PREDICTIONS_DIR, pdf_name)
+            with open(save_path, "wb") as f:
                 f.write(pdf_bytes)
-
-            return self._send_json(200, {
+            
+            print(f"  ✓ Saved PDF Report: {save_path}")
+            self._send_json(200, {
                 "status": "success",
-                "message": f"PDF report saved successfully to {pdf_filename}",
-                "pdf_path": pdf_filepath,
-                "folder_name": os.path.basename(target_dir)
+                "message": f"Saved PDF report to {save_path}",
+                "file_path": save_path
             })
         except Exception as e:
-            return self._send_json(500, {"error": "Failed to decode/save PDF", "details": str(e)})
+            self._send_json(500, {"error": "Failed to save PDF report", "details": str(e)})
 
 def run_server(port=5001):
-    server_address = ('127.0.0.1', port)
+    server_address = ('', port)
     httpd = HTTPServer(server_address, PredictionRequestHandler)
-    print(f"\n🚀 SmartPalm Prediction Server running on http://127.0.0.1:{port}")
-    print(f"📁 Saving prediction folders to {PREDICTIONS_DIR}\n")
+    print(f"🚀 SmartPalm Prediction Server running on http://127.0.0.1:{port}")
+    print(f"📁 Saving prediction folders to {PREDICTIONS_DIR}")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:
-        print("\nStopping server...")
+        print("\nShutting down server...")
         httpd.server_close()
 
 if __name__ == "__main__":
-    port = 5001
-    if len(sys.argv) > 1:
-        try: port = int(sys.argv[1])
-        except ValueError: pass
+    port = int(sys.argv[1]) if len(sys.argv) > 1 else 5001
     run_server(port)

@@ -1,0 +1,22 @@
+{
+  "shapefile_source": "/Users/drsitiaisyahjaafar/SmartPalm-demo/2. Training/Seraya with Block Boundary.shp",
+  "timestamp": "2026-10-06_120320",
+  "crs": "EPSG:4326 (WGS84)",
+  "bounding_box": {
+    "min_lon": 117.55350309224639,
+    "max_lon": 117.61894297184149,
+    "min_lat": 4.5620894309853455,
+    "max_lat": 4.645275108349749
+  },
+  "total_blocks": 57,
+  "execution_time_seconds": 1.23,
+  "files_generated": [
+    "N_nutrient_10m.tif",
+    "P_nutrient_10m.tif",
+    "K_nutrient_10m.tif",
+    "Mg_nutrient_10m.tif",
+    "Ca_nutrient_10m.tif",
+    "B_nutrient_10m.tif",
+    "predicted_nutrients_by_block.csv"
+  ]
+}
