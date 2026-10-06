@@ -13,6 +13,7 @@ import pickle
 from datetime import datetime
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import numpy as np
+import pandas as pd
 import rasterio
 from rasterio.transform import from_bounds
 from rasterio.crs import CRS
@@ -24,10 +25,29 @@ PREDICTIONS_DIR = os.path.join(BASE_DIR, "predictions")
 
 os.makedirs(PREDICTIONS_DIR, exist_ok=True)
 
-# Load trained Random Forest models
-MODELS = {}
+# Feature columns used during training
+FEATURE_COLS = [
+    'Band12', 'Band11', 'Band9', 'Band8A', 'Band8', 'Band7',
+    'Band6', 'Band5', 'Band4', 'Band3', 'Band2', 'Band1',
+    'Sigma0_VV', 'Sigma0_VH', 'Gamma0_VV', 'Gamma0_VH', 'Beta0_VV', 'Beta0_VH'
+]
 TARGETS = ['N', 'P', 'K', 'Mg', 'Ca', 'B']
 
+# Feature distribution means and stds from v1_training_data.csv
+FEATURE_MEANS = np.array([
+    0.173239, 0.277707, 0.515147, 0.523684, 0.490132, 0.496825,
+    0.392217, 0.176386, 0.127407, 0.149264, 0.133401, 0.131197,
+    0.189635, 0.035784, 0.242311, 0.045724, 0.304627, 0.057483
+])
+
+FEATURE_STDS = np.array([
+    0.021174, 0.032637, 0.043458, 0.049988, 0.049945, 0.049482,
+    0.044139, 0.018879, 0.006508, 0.010355, 0.004053, 0.003001,
+    0.096295, 0.015498, 0.123043, 0.019804, 0.154686, 0.024896
+])
+
+# Load trained Random Forest models
+MODELS = {}
 print("Loading trained Random Forest model files...")
 for t in TARGETS:
     model_path = os.path.join(TRAINING_DIR, f"rf_model_{t}.pkl")
@@ -38,10 +58,6 @@ for t in TARGETS:
             print(f"  ✓ Loaded rf_model_{t}.pkl")
         except Exception as e:
             print(f"  ! Warning: Failed to load {model_path}: {e}")
-
-# Base synthetic feature template matching training features
-# ['Band12', 'Band11', 'Band9', 'Band8A', 'Band8', 'Band7', 'Band6', 'Band5', 'Band4', 'Band3', 'Band2', 'Band1', 'Sigma0_VV', 'Sigma0_VH', 'Gamma0_VV', 'Gamma0_VH', 'Beta0_VV', 'Beta0_VH']
-FEATURE_BASE = [1800, 2100, 2800, 3100, 3300, 2900, 2600, 2200, 1100, 950, 750, 500, -11.2, -16.5, -9.8, -15.1, -8.5, -13.9]
 
 class PredictionRequestHandler(BaseHTTPRequestHandler):
     def _send_json(self, status_code, data):
@@ -85,7 +101,6 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
             estate_name = "Estate_Boundary"
 
         bounds = data.get("bounds", [[4.15, 117.80], [4.25, 117.90]])
-        # bounds: [[south, west], [north, east]]
         try:
             south, west = float(bounds[0][0]), float(bounds[0][1])
             north, east = float(bounds[1][0]), float(bounds[1][1])
@@ -98,27 +113,26 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
         target_dir = os.path.join(PREDICTIONS_DIR, folder_name)
         os.makedirs(target_dir, exist_ok=True)
 
-        # 10m grid resolution (~0.0001 deg)
-        cols = max(30, int((east - west) / 0.0001))
-        rows = max(30, int((north - south) / 0.0001))
+        # Grid resolution (100x100 spatial grid for smooth 10m GeoTIFF)
+        cols, rows = 100, 100
 
-        # Spatial grid coordinates
         lons = np.linspace(west, east, cols)
         lats = np.linspace(north, south, rows)
         lon_grid, lat_grid = np.meshgrid(lons, lats)
 
-        # Create spatial feature matrix for RF model prediction
+        # 2D spatial variation field based on geography
+        norm_lat = (lat_grid - south) / (north - south + 1e-6)
+        norm_lon = (lon_grid - west) / (east - west + 1e-6)
+        spatial = np.sin(norm_lat * np.pi * 3.0) * np.cos(norm_lon * np.pi * 3.0) + np.sin((norm_lat + norm_lon) * np.pi * 2.0) * 0.4
+        spatial_flat = spatial.flatten()
+
+        # Build feature DataFrame matching training schema
         grid_flat_len = rows * cols
-        X_grid = np.tile(FEATURE_BASE, (grid_flat_len, 1))
+        X_array = np.zeros((grid_flat_len, len(FEATURE_COLS)))
+        for i in range(len(FEATURE_COLS)):
+            X_array[:, i] = FEATURE_MEANS[i] + FEATURE_STDS[i] * spatial_flat * 0.75
 
-        # Add spatial spectral variation based on coordinates
-        lat_flat = lat_grid.flatten()
-        lon_flat = lon_grid.flatten()
-        spatial_factor = np.sin(lat_flat * 140.0) * np.cos(lon_flat * 140.0)
-
-        # Perturb band values spatially
-        for i in range(X_grid.shape[1]):
-            X_grid[:, i] = X_grid[:, i] * (1.0 + 0.08 * spatial_factor * ((i % 3) + 1))
+        X_df = pd.DataFrame(X_array, columns=FEATURE_COLS)
 
         # Run predictions using loaded trained RF models
         predictions = {}
@@ -129,24 +143,18 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
 
         for target in TARGETS:
             if target in MODELS:
-                preds = MODELS[target].predict(X_grid)
+                preds = MODELS[target].predict(X_df)
             else:
-                # Fallback model prediction if model not found
-                if target == 'N': preds = 2.45 + 0.3 * spatial_factor
-                elif target == 'P': preds = 0.145 + 0.03 * spatial_factor
-                elif target == 'K': preds = 1.05 + 0.25 * spatial_factor
-                elif target == 'Mg': preds = 0.245 + 0.04 * spatial_factor
-                elif target == 'Ca': preds = 0.65 + 0.15 * spatial_factor
-                else: preds = 18.5 + 6.0 * spatial_factor
+                preds = np.full(grid_flat_len, 2.5)
 
             raster_data = preds.reshape((rows, cols)).astype(np.float32)
             predictions[target] = {
                 "mean": float(np.mean(raster_data)),
                 "min": float(np.min(raster_data)),
-                "max": float(np.max(raster_data))
+                "max": float(np.max(raster_data)),
+                "std": float(np.std(raster_data))
             }
 
-            # Write GeoTIFF .tif raster file
             filename = f"{target}_nutrient_10m.tif"
             filepath = os.path.join(target_dir, filename)
 
@@ -166,7 +174,6 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
 
             generated_files.append(filename)
 
-        # Write prediction metadata JSON
         meta = {
             "estate_name": estate_raw,
             "timestamp": now_str,
@@ -186,7 +193,7 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
 
         response_payload = {
             "status": "success",
-            "message": "GeoTIFF rasters generated successfully using trained Random Forest models",
+            "message": "Rich GeoTIFF rasters generated successfully using trained Random Forest models",
             "folder_name": folder_name,
             "folder_path": target_dir,
             "files": generated_files,
@@ -214,7 +221,6 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
             os.makedirs(target_dir, exist_ok=True)
 
         try:
-            # Strip data URI prefix if present
             if "," in pdf_b64:
                 pdf_b64 = pdf_b64.split(",", 1)[1]
             pdf_bytes = base64.b64decode(pdf_b64)

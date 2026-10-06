@@ -1,49 +1,66 @@
-# Implementation Plan - "Run Prediction" Button in Satellite AI & Map Layer Overlay
+# Implementation Plan - GeoTIFF (.tif) Rasters & PDF Report Storage on "Run Prediction" & "Generate Report"
 
-Add a **"⚡ Run Prediction"** button positioned directly at the top of the **"Nutrient Layer Selection"** box on the map view in **Comprehensive Fert** (`comprehensive.html`), **Standard Fert** (`standard.html`), and **KPSM** (`kpsm.html`) dashboards, removing the separate "Show LSU" option.
+Automatically create a dedicated folder in `development/predictions/<EstateName>_<YYYY-MM-DD_HH-MM-SS>/` every time a user clicks **Run Prediction**, storing georeferenced 10m GeoTIFF (`.tif`) rasters for all nutrient layers (`N`, `P`, `K`, `Mg`, `Ca`, `B`). In addition, whenever **Generate Report** is clicked, automatically save the generated PDF report (`.pdf`) inside the corresponding active prediction folder.
 
 ## User Review Required
 
 > [!IMPORTANT]
-> - **Simplified Interface & Layout**: Removed "Show LSU". The prediction workflow is launched directly from the **⚡ Run Prediction** button located at the top of the **Nutrient Layer Selection** floating box on the map.
-> - **Execution Flow**:
->   1. User selects an estate map from the list (`map-select-comp` / `map-select-std`).
->   2. User selects Real-Time Satellite Acquisition or a specific Satellite Date.
->   3. User clicks **⚡ Run Prediction** (positioned at the top of the floating **Nutrient Layer Selection** box).
-> - **Model Execution**: Runs the trained Random Forest models (`rf_model_N.pkl`, `P.pkl`, `K.pkl`, `Mg.pkl`, `Ca.pkl`, `B.pkl`), renders the 10m pixel nutrient heatmap overlay, and populates all nutrient values (`N%`, `P%`, `K%`, `Mg%`, `Ca%`, `B ppm`).
+> - **Folder Naming & Location**:
+>   - Path: `/Users/drsitiaisyahjaafar/SmartPalm-demo/development/predictions/<Estate_Name>_<YYYY-MM-DD_HH-MM-SS>/`
+>   - Example: `development/predictions/Ladang_PPPTAR_2026-10-06_163000/` or `development/predictions/Seraya_Block_2026-10-06_163000/`
+> - **Generated GeoTIFF & PDF Files per Folder**:
+>   - `N_nutrient_10m.tif` (GeoTIFF storing pixel Nitrogen % values + EPSG:4326 coordinates)
+>   - `P_nutrient_10m.tif` (GeoTIFF storing pixel Phosphorus % values + coordinates)
+>   - `K_nutrient_10m.tif` (GeoTIFF storing pixel Potassium % values + coordinates)
+>   - `Mg_nutrient_10m.tif` (GeoTIFF storing pixel Magnesium % values + coordinates)
+>   - `Ca_nutrient_10m.tif` (GeoTIFF storing pixel Calcium % values + coordinates)
+>   - `B_nutrient_10m.tif` (GeoTIFF storing pixel Boron ppm values + coordinates)
+>   - `prediction_metadata.json` (Summary metadata with timestamp, coordinate bounds, CRS, and pixel statistics)
+>   - **`estate_report_<EstateName>.pdf`** (Generated PDF report saved directly into the active prediction folder when **Generate Report** is clicked)
+> - **Local Prediction & PDF Server (`prediction_server.py`)**:
+>   - Endpoint `http://127.0.0.1:5001/api/predict`: Handles GeoTIFF generation.
+>   - Endpoint `http://127.0.0.1:5001/api/save_pdf`: Receives generated PDF report bytes and saves `.pdf` inside the active prediction folder.
 
 ---
 
 ## Proposed Changes
 
-### Dashboard User Interface & Layout
+### 1. Prediction Backend Server
+
+#### [NEW] [prediction_server.py](file:///Users/drsitiaisyahjaafar/SmartPalm-demo/development/prediction_server.py)
+- Built with Python `http.server` / `Flask` and `rasterio`.
+- `POST /api/predict`: Computes 10m spatial grid and writes 6 GeoTIFF `.tif` rasters + `prediction_metadata.json` into `development/predictions/<EstateName>_<Timestamp>/`.
+- `POST /api/save_pdf`: Receives PDF base64 / blob data from the frontend when **Generate Report** is clicked and saves `estate_report_<EstateName>.pdf` into the matching active prediction folder.
+
+---
+
+### 2. Dashboard Interface & Prediction Flow
 
 #### [MODIFY] [comprehensive.html](file:///Users/drsitiaisyahjaafar/SmartPalm-demo/development/comprehensive.html)
 #### [MODIFY] [standard.html](file:///Users/drsitiaisyahjaafar/SmartPalm-demo/development/standard.html)
 #### [MODIFY] [kpsm.html](file:///Users/drsitiaisyahjaafar/SmartPalm-demo/development/kpsm.html)
 
-1. **Remove "Show LSU" Checkbox**:
-   - Remove the `Show LSU` checkbox and sub-option container from the sidebar panel.
+- **`runRfrPredictionFlow()` Update**:
+  - Triggers `POST /api/predict` to generate GeoTIFF rasters and creates the active folder timestamp.
+  - Updates inline note: *"✓ GeoTIFF rasters saved to development/predictions/<Folder_Name>/"*.
+- **Report Generation Hook (`downloadPdfReport`)**:
+  - In addition to standard browser PDF download (`html2pdf().save()`), extracts PDF base64 data and sends POST request to `/api/save_pdf`.
+  - Saves `.pdf` file inside `development/predictions/<EstateName>_<Timestamp>/estate_report_<EstateName>.pdf`.
 
-2. **Add "⚡ Run Prediction" Button Top of "Nutrient Layer Selection" Box**:
-   - Place the **⚡ Run Prediction** button (`#btn-run-prediction`) inside `.leaflet-nutrient-selector` right above the `Nutrient Layer Selection` title header.
-   - Styled with a modern gradient button (`linear-gradient(135deg, #10b981, #059669)` or `#0284c7`), full width, rounded corners, and glowing hover/active effects.
-   - Include inline execution status feedback (`#prediction-status-msg`) directly below the button.
+---
 
-3. **JavaScript Prediction Handler (`runRfrPredictionFlow`)**:
-   - Add `runRfrPredictionFlow()` function in [`development/js/reada.js`](file:///Users/drsitiaisyahjaafar/SmartPalm-demo/development/js/reada.js).
-   - Validates that an estate boundary is selected.
-   - Displays real-time status banner (*"Scanning Estate using Sentinel & AI Models...."*).
-   - Activates model predictions for the selected boundary grid using trained models (`rf_model_N.pkl`, `P.pkl`, `K.pkl`, `Mg.pkl`, `Ca.pkl`, `B.pkl`).
-   - Automatically selects the primary nutrient overlay layer (e.g., `N% Detection`) and populates nutrient readout values.
+### 3. Compilation & Deployment
+
+#### [MODIFY] [compiled.html](file:///Users/drsitiaisyahjaafar/SmartPalm-demo/development/compiled.html)
+- Recompile dashboard shell via `python3 development/compile_all.py`.
 
 ---
 
 ## Verification Plan
 
-### Manual Verification
-- Open the compiled dashboard in browser (`compiled.html`).
-- Select "Ladang PPPTAR" from the map selection dropdown.
-- Check "Real-Time Satellite Acquisition" or select a date.
-- Click **⚡ Run Prediction** at the top of the floating **Nutrient Layer Selection** box.
-- Verify that status message appears (*"Scanning Estate using Sentinel & AI Models...."*), the 10m nutrient heatmap renders on the map, and nutrient values (`N%`, `P%`, `K%`, `Mg%`, `Ca%`, `B ppm`) populate cleanly.
+### Automated & Manual Verification
+1. Launch prediction server: `python3 development/prediction_server.py`.
+2. Open `compiled.html` in browser.
+3. Select an estate map (e.g. "Ladang PPPTAR" or "Seraya with block boundary").
+4. Click **Run Prediction** -> verify folder `development/predictions/Ladang_PPPTAR_<Timestamp>/` is created with 6 `.tif` files and `prediction_metadata.json`.
+5. Click **Generate Report** -> verify `estate_report_Ladang_PPPTAR.pdf` is saved inside the exact same prediction folder.

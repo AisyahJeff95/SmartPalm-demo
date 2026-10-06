@@ -12,4 +12,5 @@ predicted_10m_nutrients.csv
 
 *.tif
 *.tiff
+development/predictions/
 
