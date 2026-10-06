@@ -3382,20 +3382,7 @@ function toggleSatDataMode(mode) {
                 }
             }
 
-            // Smooth 2D spatial variation algorithm depending on BOTH lat and lng for natural terrain distribution
-            let n_val = 2.45 + Math.sin(lat * 140.0) * Math.cos(lng * 140.0) * 0.28 + Math.sin((lat + lng) * 220.0) * 0.12;
-            let p_val = 0.145 + Math.cos(lat * 150.0) * Math.sin(lng * 150.0) * 0.025 + Math.cos((lat - lng) * 200.0) * 0.010;
-            let k_val = 1.05 + Math.sin(lat * 160.0) * Math.sin(lng * 160.0) * 0.22 + Math.cos((lat + lng) * 180.0) * 0.10;
-            let mg_val = 0.245 + Math.cos(lat * 130.0) * Math.cos(lng * 130.0) * 0.035 + Math.sin((lat - lng) * 210.0) * 0.012;
 
-            let ca_val = 0.65 + Math.sin(lat * 125.0) * Math.cos(lng * 125.0) * 0.15;
-            let b_val = 18.5 + Math.cos(lat * 135.0) * Math.sin(lng * 135.0) * 6.5;
-            if (result.n === null) result.n = parseFloat(Math.max(1.8, Math.min(3.2, n_val)).toFixed(2));
-            if (result.p === null) result.p = parseFloat(Math.max(0.10, Math.min(0.20, p_val)).toFixed(3));
-            if (result.k === null) result.k = parseFloat(Math.max(0.65, Math.min(1.45, k_val)).toFixed(2));
-            if (result.mg === null) result.mg = parseFloat(Math.max(0.18, Math.min(0.32, mg_val)).toFixed(3));
-            if (result.ca === null) result.ca = parseFloat(Math.max(0.35, Math.min(0.95, ca_val)).toFixed(2));
-            if (result.b === null) result.b = parseFloat(Math.max(8.0, Math.min(45.0, b_val)).toFixed(1));
 
             return result;
         }
