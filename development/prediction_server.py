@@ -18,7 +18,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(BASE_DIR)
-TRAINING_V2_DIR = os.path.join(PROJECT_ROOT, "3. Training_v2")
+TRAINING_V3_DIR = os.path.join(PROJECT_ROOT, "4. Training_v3")
 PREDICTIONS_DIR = os.path.join(BASE_DIR, "predictions")
 BOUNDARIES_DIR = os.path.join(BASE_DIR, "boundaries")
 
@@ -26,25 +26,25 @@ os.makedirs(PREDICTIONS_DIR, exist_ok=True)
 
 import importlib.util
 
-PREDICT_SCRIPT_PATH = os.path.join(TRAINING_V2_DIR, "predict_nutrients.py")
+PREDICT_SCRIPT_PATH = os.path.join(TRAINING_V3_DIR, "predict_nutrients.py")
 run_predictions = None
 
 if os.path.isfile(PREDICT_SCRIPT_PATH):
     try:
-        spec = importlib.util.spec_from_file_location("predict_nutrients_module", PREDICT_SCRIPT_PATH)
+        spec = importlib.util.spec_from_file_location("predict_nutrients_v3_module", PREDICT_SCRIPT_PATH)
         predict_mod = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(predict_mod)
         run_predictions = predict_mod.run_predictions
-        print("✓ Successfully loaded real prediction engine from 3. Training_v2/predict_nutrients.py")
+        print("✓ Successfully loaded 4. Training_v3 prediction engine (with separate fetch_sentinel_data.py & RFR models)")
     except Exception as e:
-        print(f"! Warning: Failed to load predict_nutrients module: {e}")
+        print(f"! Warning: Failed to load predict_nutrients module from 4. Training_v3: {e}")
 
 def find_shapefile_for_estate(estate_raw):
-    """Finds matching .shp file across 3. Training_v2, development/boundaries, or development."""
+    """Finds matching .shp file across 4. Training_v3, development/boundaries, or development."""
     clean_name = estate_raw.strip()
     
     candidates = [
-        os.path.join(TRAINING_V2_DIR, f"{clean_name}.shp"),
+        os.path.join(TRAINING_V3_DIR, f"{clean_name}.shp"),
         os.path.join(BOUNDARIES_DIR, f"{clean_name}.shp"),
         os.path.join(BASE_DIR, f"{clean_name}.shp"),
     ]
@@ -54,7 +54,7 @@ def find_shapefile_for_estate(estate_raw):
         if os.path.isfile(c):
             return c
 
-    for search_dir in [TRAINING_V2_DIR, BOUNDARIES_DIR, BASE_DIR]:
+    for search_dir in [TRAINING_V3_DIR, BOUNDARIES_DIR, BASE_DIR]:
         if os.path.exists(search_dir):
             for fname in os.listdir(search_dir):
                 if fname.lower().endswith('.shp'):
@@ -62,10 +62,10 @@ def find_shapefile_for_estate(estate_raw):
                     if clean_name.lower() in fstem or fstem in clean_name.lower():
                         return os.path.join(search_dir, fname)
 
-    # Fallback to DEFAULT PPPTAR shapefile
-    fallback_ppptar = os.path.join(TRAINING_V2_DIR, "Ladang PPPTAR.shp")
-    if os.path.isfile(fallback_ppptar):
-        return fallback_ppptar
+    # Fallback to DEFAULT shapefile
+    fallback_shp = os.path.join(TRAINING_V3_DIR, "Seraya with Block Boundary.shp")
+    if os.path.isfile(fallback_shp):
+        return fallback_shp
     
     return None
 
@@ -121,7 +121,7 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
         if run_predictions is None:
             return self._send_json(500, {"error": "Prediction engine not loaded"})
 
-        # Run real prediction pipeline from 3. Training_v2/predict_nutrients.py
+        # Run real prediction pipeline from 4. Training_v3/predict_nutrients.py
         result = run_predictions(shp_path=shp_path, acquisition_date=date_val, out_dir_override=PREDICTIONS_DIR)
 
         if not result:
