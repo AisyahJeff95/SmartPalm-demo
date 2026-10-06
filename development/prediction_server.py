@@ -167,6 +167,7 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
         except Exception:
             south, west, north, east = 4.15, 117.80, 4.25, 117.90
 
+        date_val = data.get("date", "06-Oct-2026")
         now_str = datetime.now().strftime("%Y-%m-%d_%H%M%S")
         folder_name = f"{estate_name}_{now_str}"
         target_dir = os.path.join(PREDICTIONS_DIR, folder_name)
@@ -185,7 +186,7 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
 
         if matched_df is not None:
             X_df = matched_df[FEATURE_COLS].apply(pd.to_numeric, errors='coerce').fillna(0)
-            print(f"  ✓ Using {len(matched_df)} real Sentinel 10m pixel samples for {estate_name}")
+            print(f"  ✓ Using {len(matched_df)} real Sentinel 10m pixel samples for {estate_raw}")
         else:
             # Generate spatial mesh grid for estate bounds
             lons = np.linspace(west, east, cols)
@@ -204,6 +205,9 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
             matched_df = X_df.copy()
             matched_df['Longitude'] = lon_grid.flatten()
             matched_df['Lattitude'] = lat_grid.flatten()
+
+        matched_df['Date'] = date_val
+        matched_df['Estate'] = estate_raw
 
         predictions = {}
         generated_files = []
@@ -271,12 +275,25 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
                 "bounds": [[south, west], [north, east]]
             }
 
-        # Save pulled 10m Sentinel pixel data & predictions as .csv.gz in output folder
+        # Re-order columns: Date || Estate || Longitude || Latitude || N || P || K || Mg || Ca || B || Band12 ...
+        if 'Lattitude' in matched_df.columns:
+            matched_df = matched_df.rename(columns={'Lattitude': 'Latitude'})
+
+        ordered_cols = ['Date', 'Estate', 'Longitude', 'Latitude'] + TARGETS + [c for c in FEATURE_COLS if c in matched_df.columns]
+        matched_df = matched_df[ordered_cols]
+
+        # Save pulled 10m Sentinel pixel data & predictions as .csv and .csv.gz in output folder
+        csv_filename = "predicted_10m_nutrients.csv"
         csv_gz_filename = "predicted_10m_nutrients.csv.gz"
+        
+        csv_path = os.path.join(target_dir, csv_filename)
         csv_gz_path = os.path.join(target_dir, csv_gz_filename)
+
+        matched_df.to_csv(csv_path, index=False)
         matched_df.to_csv(csv_gz_path, index=False, compression='gzip')
-        generated_files.append(csv_gz_filename)
-        print(f"  ✓ Saved 10m Sentinel pixel data & predictions to {csv_gz_path}")
+        
+        generated_files.extend([csv_filename, csv_gz_filename])
+        print(f"  ✓ Saved 10m Sentinel pixel data & predictions to {csv_path} & {csv_gz_path}")
 
         meta = {
             "estate_name": estate_raw,
