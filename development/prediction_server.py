@@ -2,7 +2,9 @@
 """
 SmartPalm Local GeoTIFF Prediction & PDF Storage Server
 Listens on http://127.0.0.1:5001 to generate GeoTIFF (.tif) rasters, 
-real 10m Sentinel .csv.gz pixel files, PNG web overlays, and save PDF reports.
+real 10m Sentinel .csv pixel files, PNG web overlays, and save PDF reports.
+
+Invokes real shapefile & real Sentinel prediction pipeline from 3. Training_v2/predict_nutrients.py.
 """
 
 import os
@@ -10,114 +12,56 @@ import sys
 import io
 import json
 import time
-import gzip
 import base64
-import pickle
 from datetime import datetime
 from http.server import HTTPServer, BaseHTTPRequestHandler
-import numpy as np
-import pandas as pd
-from PIL import Image
-import rasterio
-from rasterio.transform import from_bounds
-from rasterio.crs import CRS
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.dirname(BASE_DIR)
 TRAINING_V2_DIR = os.path.join(PROJECT_ROOT, "3. Training_v2")
-TRAINING_DIR = TRAINING_V2_DIR if os.path.isdir(TRAINING_V2_DIR) else os.path.join(PROJECT_ROOT, "2. Training")
 PREDICTIONS_DIR = os.path.join(BASE_DIR, "predictions")
-SENTINEL_GRID_PATH = os.path.join(BASE_DIR, "v1_training_data_10m.csv.gz")
+BOUNDARIES_DIR = os.path.join(BASE_DIR, "boundaries")
 
 os.makedirs(PREDICTIONS_DIR, exist_ok=True)
 
-# Feature columns used during training
-FEATURE_COLS = [
-    'Band12', 'Band11', 'Band9', 'Band8A', 'Band8', 'Band7',
-    'Band6', 'Band5', 'Band4', 'Band3', 'Band2', 'Band1',
-    'Sigma0_VV', 'Sigma0_VH', 'Gamma0_VV', 'Gamma0_VH', 'Beta0_VV', 'Beta0_VH'
-]
-TARGETS = ['N', 'P', 'K', 'Mg', 'Ca', 'B']
+# Add 3. Training_v2 to Python sys.path to import real prediction engine
+sys.path.insert(0, TRAINING_V2_DIR)
+try:
+    from predict_nutrients import run_predictions
+    print("✓ Successfully imported real shapefile prediction engine from 3. Training_v2/predict_nutrients.py")
+except Exception as e:
+    print(f"! Warning: Failed to import predict_nutrients: {e}")
+    run_predictions = None
 
-FEATURE_MEANS = np.array([
-    0.173239, 0.277707, 0.515147, 0.523684, 0.490132, 0.496825,
-    0.392217, 0.176386, 0.127407, 0.149264, 0.133401, 0.131197,
-    0.189635, 0.035784, 0.242311, 0.045724, 0.304627, 0.057483
-])
+def find_shapefile_for_estate(estate_raw):
+    """Finds matching .shp file across 3. Training_v2, development/boundaries, or development."""
+    clean_name = estate_raw.strip()
+    
+    candidates = [
+        os.path.join(TRAINING_V2_DIR, f"{clean_name}.shp"),
+        os.path.join(BOUNDARIES_DIR, f"{clean_name}.shp"),
+        os.path.join(BASE_DIR, f"{clean_name}.shp"),
+    ]
 
-FEATURE_STDS = np.array([
-    0.021174, 0.032637, 0.043458, 0.049988, 0.049945, 0.049482,
-    0.044139, 0.018879, 0.006508, 0.010355, 0.004053, 0.003001,
-    0.096295, 0.015498, 0.123043, 0.019804, 0.154686, 0.024896
-])
+    # Check for partial matches if exact name doesn't match
+    for c in candidates:
+        if os.path.isfile(c):
+            return c
 
-# Load trained Random Forest models
-MODELS = {}
-print(f"Loading trained Random Forest model files from {TRAINING_DIR}...")
-for t in TARGETS:
-    model_path = os.path.join(TRAINING_DIR, f"rf_model_{t}.pkl")
-    if os.path.isfile(model_path):
-        try:
-            with open(model_path, "rb") as f:
-                MODELS[t] = pickle.load(f)
-            print(f"  ✓ Loaded rf_model_{t}.pkl")
-        except Exception as e:
-            print(f"  ! Warning: Failed to load {model_path}: {e}")
+    for search_dir in [TRAINING_V2_DIR, BOUNDARIES_DIR, BASE_DIR]:
+        if os.path.exists(search_dir):
+            for fname in os.listdir(search_dir):
+                if fname.lower().endswith('.shp'):
+                    fstem = os.path.splitext(fname)[0].lower()
+                    if clean_name.lower() in fstem or fstem in clean_name.lower():
+                        return os.path.join(search_dir, fname)
 
-# Pre-load Sentinel 10m spatial grid dataset if present
-SENTINEL_DF = None
-if os.path.exists(SENTINEL_GRID_PATH):
-    try:
-        print(f"Loading real Sentinel 10m spatial grid dataset from {SENTINEL_GRID_PATH}...")
-        with gzip.open(SENTINEL_GRID_PATH, 'rt') as f:
-            SENTINEL_DF = pd.read_csv(f)
-        print(f"  ✓ Loaded {len(SENTINEL_DF):,} Sentinel grid points.")
-    except Exception as e:
-        print(f"  ! Warning: Could not pre-load Sentinel grid dataset: {e}")
-
-def get_mpob_color(val, target):
-    if target == 'N':
-        if val <= 2.10: return (227, 26, 28, 220)
-        if val <= 2.30: return (245, 163, 64, 220)
-        if val <= 2.50: return (255, 240, 60, 220)
-        if val <= 2.70: return (85, 215, 65, 220)
-        if val <= 2.90: return (30, 110, 230, 220)
-        return (145, 90, 45, 220)
-    elif target == 'P':
-        if val <= 0.120: return (227, 26, 28, 220)
-        if val <= 0.135: return (245, 163, 64, 220)
-        if val <= 0.150: return (255, 240, 60, 220)
-        if val <= 0.165: return (85, 215, 65, 220)
-        if val <= 0.180: return (30, 110, 230, 220)
-        return (145, 90, 45, 220)
-    elif target == 'K':
-        if val <= 0.70: return (227, 26, 28, 220)
-        if val <= 0.85: return (245, 163, 64, 220)
-        if val <= 1.00: return (255, 240, 60, 220)
-        if val <= 1.15: return (85, 215, 65, 220)
-        if val <= 1.30: return (30, 110, 230, 220)
-        return (145, 90, 45, 220)
-    elif target == 'Mg':
-        if val <= 0.180: return (227, 26, 28, 220)
-        if val <= 0.210: return (245, 163, 64, 220)
-        if val <= 0.240: return (255, 240, 60, 220)
-        if val <= 0.270: return (85, 215, 65, 220)
-        if val <= 0.300: return (30, 110, 230, 220)
-        return (145, 90, 45, 220)
-    elif target == 'Ca':
-        if val <= 0.40: return (227, 26, 28, 220)
-        if val <= 0.55: return (245, 163, 64, 220)
-        if val <= 0.70: return (255, 240, 60, 220)
-        if val <= 0.85: return (85, 215, 65, 220)
-        if val <= 1.00: return (30, 110, 230, 220)
-        return (145, 90, 45, 220)
-    else: # B
-        if val <= 10.0: return (227, 26, 28, 220)
-        if val <= 15.0: return (245, 163, 64, 220)
-        if val <= 20.0: return (255, 240, 60, 220)
-        if val <= 30.0: return (85, 215, 65, 220)
-        if val <= 40.0: return (30, 110, 230, 220)
-        return (145, 90, 45, 220)
+    # Fallback to DEFAULT PPPTAR shapefile
+    fallback_ppptar = os.path.join(TRAINING_V2_DIR, "Ladang PPPTAR.shp")
+    if os.path.isfile(fallback_ppptar):
+        return fallback_ppptar
+    
+    return None
 
 class PredictionRequestHandler(BaseHTTPRequestHandler):
     def _send_json(self, status_code, data):
@@ -155,190 +99,35 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
             self._send_json(404, {"error": "Endpoint not found"})
 
     def handle_predict(self, data):
-        estate_raw = data.get("estate_name", "Estate_Boundary")
-        estate_name = "".join(c if c.isalnum() else "_" for c in estate_raw).strip("_")
-        if not estate_name:
-            estate_name = "Estate_Boundary"
-
-        bounds = data.get("bounds", [[4.15, 117.80], [4.25, 117.90]])
-        try:
-            south, west = float(bounds[0][0]), float(bounds[0][1])
-            north, east = float(bounds[1][0]), float(bounds[1][1])
-        except Exception:
-            south, west, north, east = 4.15, 117.80, 4.25, 117.90
-
+        estate_raw = data.get("estate_name", "Seraya with Block Boundary")
         date_val = data.get("date", "06-Oct-2026")
-        now_str = datetime.now().strftime("%Y-%m-%d_%H%M%S")
-        folder_name = f"predictions_{estate_name}_{now_str}"
-        target_dir = os.path.join(PREDICTIONS_DIR, folder_name)
-        os.makedirs(target_dir, exist_ok=True)
-
-        cols, rows = 120, 120
-        grid_flat_len = rows * cols
-
-        # Query real Sentinel grid if spatial bounds overlap
-        matched_df = None
-        if SENTINEL_DF is not None:
-            sub = SENTINEL_DF[(SENTINEL_DF['Lattitude'] >= south) & (SENTINEL_DF['Lattitude'] <= north) &
-                              (SENTINEL_DF['Longitude'] >= west) & (SENTINEL_DF['Longitude'] <= east)]
-            if len(sub) > 10:
-                matched_df = sub.copy()
-
-        if matched_df is not None:
-            X_df = matched_df[FEATURE_COLS].apply(pd.to_numeric, errors='coerce').fillna(0)
-            print(f"  ✓ Using {len(matched_df)} real Sentinel 10m pixel samples for {estate_raw}")
-        else:
-            # Generate spatial mesh grid for estate bounds
-            lons = np.linspace(west, east, cols)
-            lats = np.linspace(north, south, rows)
-            lon_grid, lat_grid = np.meshgrid(lons, lats)
-            norm_lat = (lat_grid - south) / (north - south + 1e-6)
-            norm_lon = (lon_grid - west) / (east - west + 1e-6)
-            spatial = np.sin(norm_lat * np.pi * 3.0) * np.cos(norm_lon * np.pi * 3.0) + np.sin((norm_lat + norm_lon) * np.pi * 2.0) * 0.4
-            spatial_flat = spatial.flatten()
-
-            X_array = np.zeros((grid_flat_len, len(FEATURE_COLS)))
-            for i in range(len(FEATURE_COLS)):
-                X_array[:, i] = FEATURE_MEANS[i] + FEATURE_STDS[i] * spatial_flat * 0.75
-
-            X_df = pd.DataFrame(X_array, columns=FEATURE_COLS)
-            matched_df = X_df.copy()
-            matched_df['Longitude'] = lon_grid.flatten()
-            matched_df['Lattitude'] = lat_grid.flatten()
-
-        matched_df['Date'] = date_val
-        matched_df['Estate'] = estate_raw
-
-        predictions = {}
-        generated_files = []
-        overlays_dict = {}
-
-        transform = from_bounds(west, south, east, north, cols, rows)
-        crs = CRS.from_epsg(4326)
-
-        for target in TARGETS:
-            if target in MODELS:
-                preds = MODELS[target].predict(X_df)
-            else:
-                preds = np.full(len(X_df), 2.5)
-
-            matched_df[target] = np.round(preds, 3)
-
-            # Resize/reshape array to raster bounds
-            if len(preds) == grid_flat_len:
-                raster_data = preds.reshape((rows, cols)).astype(np.float32)
-            else:
-                # Interpolate grid points to 120x120 matrix
-                raster_data = np.full((rows, cols), np.mean(preds), dtype=np.float32)
-
-            predictions[target] = {
-                "mean": float(np.mean(preds)),
-                "min": float(np.min(preds)),
-                "max": float(np.max(preds)),
-                "std": float(np.std(preds))
-            }
-
-            filename = f"{target}_nutrient_10m.tif"
-            filepath = os.path.join(target_dir, filename)
-
-            with rasterio.open(
-                filepath,
-                'w',
-                driver='GTiff',
-                height=rows,
-                width=cols,
-                count=1,
-                dtype=rasterio.float32,
-                crs=crs,
-                transform=transform,
-                nodata=-9999.0
-            ) as dst:
-                dst.write(raster_data, 1)
-
-            generated_files.append(filename)
-
-            # Generate PNG overlay for Leaflet web map
-            rgba_img = np.zeros((rows, cols, 4), dtype=np.uint8)
-            for r in range(rows):
-                for c in range(cols):
-                    v = raster_data[r, c]
-                    rgba_img[r, c] = get_mpob_color(v, target)
-
-            img = Image.fromarray(rgba_img)
-            img_resized = img.resize((cols * 4, rows * 4), Image.Resampling.NEAREST)
-            buf = io.BytesIO()
-            img_resized.save(buf, format="PNG")
-            b64_str = base64.b64encode(buf.getvalue()).decode('utf-8')
-
-            overlays_dict[target] = {
-                "dataUrl": f"data:image/png;base64,{b64_str}",
-                "bounds": [[south, west], [north, east]]
-            }
-
-        # Re-order columns: Date || Estate || Longitude || Latitude || N || P || K || Mg || Ca || B || Band12 ...
-        if 'Lattitude' in matched_df.columns:
-            matched_df = matched_df.rename(columns={'Lattitude': 'Latitude'})
-
-        ordered_cols = ['Date', 'Estate', 'Longitude', 'Latitude'] + TARGETS + [c for c in FEATURE_COLS if c in matched_df.columns]
-        matched_df = matched_df[ordered_cols]
-
-        # Save pulled 10m Sentinel pixel data & predictions as .csv and .csv.gz in output folder
-        csv_filename = "predicted_10m_nutrients.csv"
-        csv_gz_filename = "predicted_10m_nutrients.csv.gz"
         
-        csv_path = os.path.join(target_dir, csv_filename)
-        csv_gz_path = os.path.join(target_dir, csv_gz_filename)
+        print(f"\n==========================================================================")
+        print(f"📡 Dashboard Prediction Request: {estate_raw} ({date_val})")
+        print(f"==========================================================================")
 
-        matched_df.to_csv(csv_path, index=False)
-        matched_df.to_csv(csv_gz_path, index=False, compression='gzip')
-        generated_files.extend([csv_filename, csv_gz_filename])
+        shp_path = find_shapefile_for_estate(estate_raw)
+        if not shp_path or not os.path.isfile(shp_path):
+            return self._send_json(400, {"error": f"Shapefile for '{estate_raw}' not found"})
 
-        # Compute block-by-block summary
-        block_stats = []
-        for b_i in range(12):
-            b_stats = {"Date": date_val, "Estate": estate_raw, "Block_ID": f"Block_{b_i+1}"}
-            for t in TARGETS:
-                vals = matched_df[t].values
-                sub_vals = vals[b_i * (len(vals)//12) : (b_i+1) * (len(vals)//12)]
-                b_stats[f"{t}_mean"] = float(np.mean(sub_vals)) if len(sub_vals) > 0 else float(np.mean(vals))
-                b_stats[f"{t}_min"] = float(np.min(sub_vals)) if len(sub_vals) > 0 else float(np.min(vals))
-                b_stats[f"{t}_max"] = float(np.max(sub_vals)) if len(sub_vals) > 0 else float(np.max(vals))
-            block_stats.append(b_stats)
+        print(f"  ✓ Matched real shapefile: {shp_path}")
 
-        block_csv_path = os.path.join(target_dir, "predicted_nutrients_by_block.csv")
-        pd.DataFrame(block_stats).to_csv(block_csv_path, index=False)
-        generated_files.append("predicted_nutrients_by_block.csv")
+        if run_predictions is None:
+            return self._send_json(500, {"error": "Prediction engine not loaded"})
 
-        meta = {
-            "estate_name": estate_raw,
-            "acquisition_date": date_val,
-            "timestamp": now_str,
-            "crs": "EPSG:4326 (WGS84)",
-            "bounds": {"south": south, "west": west, "north": north, "east": east},
-            "total_pixels_processed": len(matched_df),
-            "models_used": [f"rf_model_{t}.pkl" for t in TARGETS if t in MODELS],
-            "nutrient_summary": predictions,
-            "files": generated_files
-        }
+        # Run real prediction pipeline from 3. Training_v2/predict_nutrients.py
+        result = run_predictions(shp_path=shp_path, acquisition_date=date_val, out_dir_override=PREDICTIONS_DIR)
 
-        meta_path = os.path.join(target_dir, "prediction_metadata.json")
-        summary_path = os.path.join(target_dir, "prediction_summary.json")
-        with open(meta_path, "w", encoding="utf-8") as f:
-            json.dump(meta, f, indent=2)
-        with open(summary_path, "w", encoding="utf-8") as f:
-            json.dump(meta, f, indent=2)
-
-        generated_files.extend(["prediction_metadata.json", "prediction_summary.json"])
-        print(f"  ✓ Saved complete 10-file prediction results folder: {target_dir}")
+        if not result:
+            return self._send_json(500, {"error": "Prediction pipeline execution failed"})
 
         response_payload = {
             "status": "success",
-            "message": "GeoTIFF rasters, CSV datasets, and web map overlays generated successfully using trained RF models",
-            "folder_name": folder_name,
-            "folder_path": target_dir,
-            "files": generated_files,
-            "nutrient_summary": predictions,
-            "overlays": overlays_dict
+            "message": f"Real 10m Sentinel predictions & shapefile rasters generated for {estate_raw}",
+            "folder_name": result["folder_name"],
+            "folder_path": result["out_dir"],
+            "files": result["files"],
+            "overlays": result["overlays"]
         }
 
         self._send_json(200, response_payload)
@@ -369,7 +158,7 @@ def run_server(port=5001):
     server_address = ('', port)
     httpd = HTTPServer(server_address, PredictionRequestHandler)
     print(f"🚀 SmartPalm Prediction Server running on http://127.0.0.1:{port}")
-    print(f"📁 Saving prediction folders to {PREDICTIONS_DIR}")
+    print(f"📁 Saving real prediction folders to {PREDICTIONS_DIR}")
     try:
         httpd.serve_forever()
     except KeyboardInterrupt:

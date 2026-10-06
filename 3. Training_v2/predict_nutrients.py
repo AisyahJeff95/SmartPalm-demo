@@ -130,7 +130,7 @@ def load_trained_models(models_dir):
             print(f"  ! Warning: {m_path} not found")
     return models
 
-def run_predictions(shp_path=None, acquisition_date="06-Oct-2026"):
+def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_override=None):
     if shp_path is None:
         shp_path = DEFAULT_SHAPEFILE
 
@@ -143,7 +143,11 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026"):
     estate_name = shp_basename
     timestamp = datetime.now().strftime("%Y-%m-%d_%H%M%S")
     folder_name = f"predictions_{shp_basename.replace(' ', '_')}_{timestamp}"
-    out_dir = os.path.join(SCRIPT_DIR, folder_name)
+    
+    if out_dir_override:
+        out_dir = os.path.join(out_dir_override, folder_name)
+    else:
+        out_dir = os.path.join(SCRIPT_DIR, folder_name)
     os.makedirs(out_dir, exist_ok=True)
 
     print("==========================================================================")
@@ -209,9 +213,9 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026"):
         except Exception as e:
             print(f"  ! Warning loading pre-sampled grid: {e}")
 
-    # Generate regular 10m mesh grid if pre-sampled grid does not overlap
+    # Generate regular 10m mesh grid inside shapefile polygon if pre-sampled grid does not overlap
     if df_grid is None or len(df_grid) == 0:
-        print(f"  ✓ Generating 10m spatial mesh grid for {estate_name} boundary...")
+        print(f"  ✓ Generating 10m spatial mesh grid for {estate_name} polygon boundary...")
         cols, rows = 150, 150
         lons = np.linspace(min_lng, max_lng, cols)
         lats = np.linspace(max_lat, min_lat, rows)
@@ -248,7 +252,6 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026"):
             df_grid[target] = np.round(preds, 3)
 
     # Standardize Column Ordering:
-    # Date || Estate || Longitude || Latitude || N || P || K || Mg || Ca || B || Band12...
     ordered_cols = ['Date', 'Estate', 'Longitude', 'Lattitude'] + TARGET_COLS + FEATURE_COLS
     df_grid = df_grid[ordered_cols].rename(columns={'Lattitude': 'Latitude'})
 
@@ -326,7 +329,7 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026"):
             "bounds": [[min_lat, min_lng], [max_lat, max_lng]]
         }
 
-    # Compute block summary
+    # Compute block summary across actual shapefile block polygons
     block_stats = []
     for idx, poly, rec in wgs_polygons:
         b_name = f"Block_{idx+1}"
@@ -334,17 +337,22 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026"):
             b_name = str(rec[0])
 
         b_stats = {"Date": acquisition_date, "Estate": estate_name, "Block_ID": b_name}
+        
+        # Mask grid values inside this block polygon
+        block_prep = prep(poly)
+        block_mask = [block_prep.contains(Point(x, y)) for x, y in zip(lngs, lats)]
+        
         for target in TARGET_COLS:
-            arr = raster_results[target]
-            valid_vals = arr[arr > 0]
-            if len(valid_vals) > 0:
-                b_stats[f"{target}_mean"] = float(np.mean(valid_vals))
-                b_stats[f"{target}_min"] = float(np.min(valid_vals))
-                b_stats[f"{target}_max"] = float(np.max(valid_vals))
+            vals = df_grid[target].values
+            sub_vals = vals[block_mask]
+            if len(sub_vals) > 0:
+                b_stats[f"{target}_mean"] = float(np.mean(sub_vals))
+                b_stats[f"{target}_min"] = float(np.min(sub_vals))
+                b_stats[f"{target}_max"] = float(np.max(sub_vals))
             else:
-                b_stats[f"{target}_mean"] = 0.0
-                b_stats[f"{target}_min"] = 0.0
-                b_stats[f"{target}_max"] = 0.0
+                b_stats[f"{target}_mean"] = float(np.mean(vals))
+                b_stats[f"{target}_min"] = float(np.min(vals))
+                b_stats[f"{target}_max"] = float(np.max(vals))
 
         block_stats.append(b_stats)
 
@@ -364,17 +372,26 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026"):
         "execution_time_seconds": round(time.time() - start_time, 2),
         "files_generated": generated_files
     }
-    meta_path = os.path.join(out_dir, "prediction_summary.json")
+    meta_path = os.path.join(out_dir, "prediction_metadata.json")
+    summary_path = os.path.join(out_dir, "prediction_summary.json")
     with open(meta_path, "w", encoding="utf-8") as f:
         json.dump(meta, f, indent=2)
+    with open(summary_path, "w", encoding="utf-8") as f:
+        json.dump(meta, f, indent=2)
 
-    generated_files.append("prediction_summary.json")
+    generated_files.extend(["prediction_metadata.json", "prediction_summary.json"])
 
     print("\n==========================================================================")
     print(f"✅ REAL SENTINEL 10M PREDICTION COMPLETED IN {time.time() - start_time:.2f}s!")
     print(f"📁 Output Directory: {out_dir}")
     print("==========================================================================")
-    return out_dir
+    return {
+        "folder_name": folder_name,
+        "out_dir": out_dir,
+        "files": generated_files,
+        "overlays": overlays_dict,
+        "bounds": [[min_lat, min_lng], [max_lat, max_lng]]
+    }
 
 if __name__ == "__main__":
     target_shp = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_SHAPEFILE
