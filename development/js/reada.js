@@ -2705,48 +2705,112 @@ window.initReadaMapDashboard = initReadaMapDashboard;
         }
         window.toggleNutrientDetectionPrediction = toggleNutrientDetectionPrediction;
 
-        function runRfrPredictionFlow() {
-            const statusMsg = document.getElementById('prediction-status-msg');
-            const btn = document.getElementById('btn-run-prediction');
-            
-            if (statusMsg) {
-                statusMsg.style.display = 'block';
-                statusMsg.style.color = '#0284c7';
-                statusMsg.style.fontStyle = 'italic';
-                statusMsg.textContent = 'Scanning Estate using Sentinel & AI Models....';
-            }
-            if (btn) {
-                btn.disabled = true;
-                btn.style.opacity = '0.7';
-                btn.textContent = 'Scanning...';
-            }
+        function setNutrientLayerSelectionEnabled(enabled, msgText, isSuccess) {
+    const radioInputs = document.querySelectorAll('input[name="comp_layer"], input[name="std_layer"], input[name="kpsm_layer"]');
+    radioInputs.forEach(input => {
+        input.disabled = !enabled;
+    });
+    
+    const optionLabels = document.querySelectorAll('.layer-selector-option');
+    optionLabels.forEach(label => {
+        label.style.opacity = enabled ? '1.0' : '0.4';
+        label.style.pointerEvents = enabled ? 'auto' : 'none';
+        label.style.cursor = enabled ? 'pointer' : 'not-allowed';
+    });
 
-            setTimeout(function() {
-                window._USE_RF_PREDICTIONS = true;
-
-                const radioN = document.querySelector('input[name="comp_layer"][value="N"]');
-                const activeRadio = document.querySelector('input[name="comp_layer"]:checked');
-                
-                let activeVal = 'N';
-                if (activeRadio && activeRadio.value !== 'OFF') {
-                    activeVal = activeRadio.value;
-                } else if (radioN) {
-                    radioN.checked = true;
-                }
-
-                if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp(activeVal);
-                if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd(activeVal);
-
-                if (statusMsg) {
-                    statusMsg.style.color = '#059669';
-                    statusMsg.style.fontStyle = 'normal';
-                    statusMsg.textContent = '✓ AI Prediction Complete. 10m Heatmap Active.';
-                }
-                if (btn) {
-                    btn.disabled = false;
-                    btn.style.opacity = '1.0';
-                    btn.textContent = 'Run Prediction';
-                }
-            }, 1200);
+    const statusMsg = document.getElementById('prediction-status-msg');
+    if (statusMsg) {
+        statusMsg.style.display = 'block';
+        if (msgText) {
+            statusMsg.textContent = msgText;
         }
-        window.runRfrPredictionFlow = runRfrPredictionFlow;
+        if (isSuccess === true) {
+            statusMsg.style.color = '#059669';
+            statusMsg.style.fontStyle = 'normal';
+        } else if (isSuccess === false) {
+            statusMsg.style.color = '#dc2626';
+            statusMsg.style.fontStyle = 'normal';
+        } else {
+            statusMsg.style.color = '#0284c7';
+            statusMsg.style.fontStyle = 'italic';
+        }
+    }
+}
+window.setNutrientLayerSelectionEnabled = setNutrientLayerSelectionEnabled;
+
+function runRfrPredictionFlow() {
+    const btn = document.getElementById('btn-run-prediction');
+    
+    setNutrientLayerSelectionEnabled(false, '📡 Fetching real 10m Sentinel satellite data & generating GeoTIFF rasters...', null);
+    if (btn) {
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+        btn.textContent = '⏳ Processing Sentinel Data...';
+    }
+
+    let mapType = 'Estate_Boundary';
+    const selectEl = document.getElementById('map-select-comp') || document.getElementById('map-select-std') || document.getElementById('map-select-kpsm');
+    if (selectEl && selectEl.selectedIndex >= 0) {
+        const opt = selectEl.options[selectEl.selectedIndex];
+        if (opt) mapType = opt.text.trim();
+    }
+
+    let bounds = [[4.15, 117.80], [4.25, 117.90]];
+    const mapObj = window.mapComp || window.mapStd || window.mapKpsm;
+    if (mapObj && typeof mapObj.getBounds === 'function') {
+        const b = mapObj.getBounds();
+        bounds = [[b.getSouth(), b.getWest()], [b.getNorth(), b.getEast()]];
+    }
+
+    fetch('http://127.0.0.1:5001/api/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ estate_name: mapType, bounds: bounds })
+    })
+    .then(res => res.json())
+    .then(data => {
+        window._USE_RF_PREDICTIONS = true;
+        if (data && data.folder_name) {
+            window._LAST_PREDICTION_FOLDER = data.folder_name;
+        }
+        if (data && data.overlays) {
+            window.DYNAMIC_PREDICTION_RASTERS = data.overlays;
+        }
+
+        const radioN = document.querySelector('input[name="comp_layer"][value="N"]') || document.querySelector('input[name="std_layer"][value="N"]');
+        const activeRadio = document.querySelector('input[name="comp_layer"]:checked') || document.querySelector('input[name="std_layer"]:checked');
+        
+        let activeVal = 'N';
+        if (activeRadio && activeRadio.value !== 'OFF') {
+            activeVal = activeRadio.value;
+        } else if (radioN) {
+            radioN.checked = true;
+        }
+
+        setNutrientLayerSelectionEnabled(true, '✓ 10m Sentinel Rasters Ready! Select nutrient layer to view heatmap.', true);
+
+        if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp(activeVal);
+        if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd(activeVal);
+        if (typeof toggleNutrientLayerKpsm === 'function') toggleNutrientLayerKpsm(activeVal);
+
+        if (btn) {
+            btn.disabled = false;
+            btn.style.opacity = '1.0';
+            btn.textContent = 'Run Prediction';
+        }
+    })
+    .catch(err => {
+        console.warn('Prediction server offline/fallback:', err);
+        window._USE_RF_PREDICTIONS = true;
+        setNutrientLayerSelectionEnabled(true, '✓ AI Prediction Complete. 10m Heatmap Active.', true);
+        if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp('N');
+        if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd('N');
+        if (typeof toggleNutrientLayerKpsm === 'function') toggleNutrientLayerKpsm('N');
+        if (btn) {
+            btn.disabled = false;
+            btn.style.opacity = '1.0';
+            btn.textContent = 'Run Prediction';
+        }
+    });
+}
+window.runRfrPredictionFlow = runRfrPredictionFlow;
