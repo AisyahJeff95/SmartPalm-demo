@@ -24,14 +24,20 @@ BOUNDARIES_DIR = os.path.join(BASE_DIR, "boundaries")
 
 os.makedirs(PREDICTIONS_DIR, exist_ok=True)
 
-# Add 3. Training_v2 to Python sys.path to import real prediction engine
-sys.path.insert(0, TRAINING_V2_DIR)
-try:
-    from predict_nutrients import run_predictions
-    print("✓ Successfully imported real shapefile prediction engine from 3. Training_v2/predict_nutrients.py")
-except Exception as e:
-    print(f"! Warning: Failed to import predict_nutrients: {e}")
-    run_predictions = None
+import importlib.util
+
+PREDICT_SCRIPT_PATH = os.path.join(TRAINING_V2_DIR, "predict_nutrients.py")
+run_predictions = None
+
+if os.path.isfile(PREDICT_SCRIPT_PATH):
+    try:
+        spec = importlib.util.spec_from_file_location("predict_nutrients_module", PREDICT_SCRIPT_PATH)
+        predict_mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(predict_mod)
+        run_predictions = predict_mod.run_predictions
+        print("✓ Successfully loaded real prediction engine from 3. Training_v2/predict_nutrients.py")
+    except Exception as e:
+        print(f"! Warning: Failed to load predict_nutrients module: {e}")
 
 def find_shapefile_for_estate(estate_raw):
     """Finds matching .shp file across 3. Training_v2, development/boundaries, or development."""
