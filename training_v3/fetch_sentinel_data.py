@@ -76,6 +76,21 @@ FEATURE_STDS = np.array([
     0.096295, 0.015498, 0.123043, 0.019804, 0.154686, 0.024896
 ])
 
+def parse_date(date_str: str) -> datetime:
+    """Parse date string into datetime object supporting various formats ('YYYY-MM-DD', 'DD-Mon-YYYY', etc.)."""
+    if not date_str or str(date_str).strip().lower() in ['today', 'now']:
+        return datetime.now()
+    formats = [
+        "%Y-%m-%d", "%d-%b-%Y", "%d-%B-%Y", "%Y/%m/%d", "%d/%m/%Y", "%m/%d/%Y",
+        "%d-%m-%Y", "%Y%m%d", "%d-%b-%y"
+    ]
+    for fmt in formats:
+        try:
+            return datetime.strptime(str(date_str).strip(), fmt)
+        except Exception:
+            pass
+    return datetime.now()
+
 def get_sas_token(collection: str) -> str:
     """Fetch SAS token for authenticating Planetary Computer COG assets."""
     url = f"{SAS_TOKEN_URL}/{collection}"
@@ -129,12 +144,15 @@ def fetch_sentinel_for_shapefile(
     if not os.path.isfile(shp_path):
         raise FileNotFoundError(f"Shapefile not found at {shp_path}")
 
+    sample_dt = parse_date(target_date)
+    formatted_target_date = sample_dt.strftime("%Y-%m-%d")
+
     estate_name = os.path.splitext(os.path.basename(shp_path))[0]
     print("==========================================================================")
     print(f"🛰️  CLOUD-FREE SENTINEL DATA FETCHER: {estate_name}")
     print("==========================================================================")
     print(f"📁 Target Shapefile: {shp_path}")
-    print(f"📅 Target Date     : {target_date} (±{days_margin} days window)")
+    print(f"📅 Target Date     : {formatted_target_date} (±{days_margin} days window)")
 
     # Check for pre-fetched Sentinel CSV in script directory
     script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -145,8 +163,8 @@ def fetch_sentinel_for_shapefile(
             df_cache = pd.read_csv(cached_csv)
             if len(df_cache) > 0 and 'Longitude' in df_cache.columns:
                 print(f"✅ Loaded {len(df_cache):,} cached Sentinel records instantly.")
-                if target_date:
-                    df_cache['Date'] = target_date
+                if formatted_target_date:
+                    df_cache['Date'] = formatted_target_date
                 return df_cache
         except Exception as cache_err:
             print(f"  ! Could not load cached CSV ({cache_err}). Fetching live...")
@@ -200,19 +218,18 @@ def fetch_sentinel_for_shapefile(
     spatial = np.sin(norm_lat * np.pi * 3.0) * np.cos(norm_lon * np.pi * 3.0) + np.sin((norm_lat + norm_lon) * np.pi * 2.0) * 0.4
 
     df_out = pd.DataFrame({
-        'Date': target_date,
+        'Date': formatted_target_date,
         'Estate': estate_name,
         'Longitude': np.round(lons, 7),
         'Latitude': np.round(lats, 7)
     })
 
     # 3. Query Planetary Computer STAC for Sentinel-2 with SCL Cloud Masking
-    sample_dt = datetime.strptime(target_date, "%Y-%m-%d") if "-" in target_date and len(target_date) == 10 else datetime(2026, 10, 6)
     start_str = (sample_dt - timedelta(days=days_margin)).strftime("%Y-%m-%d")
     end_str = (sample_dt + timedelta(days=days_margin)).strftime("%Y-%m-%d")
     bbox_query = [min_lng, min_lat, max_lng, max_lat]
 
-    print("\n--- Querying Sentinel-2 L2A Scenes (Cloud Filter: < 60%) ---")
+    print(f"\n--- Querying Sentinel-2 L2A Scenes ({start_str} to {end_str}, Cloud Filter: < 60%) ---")
     s2_payload = {
         "collections": ["sentinel-2-l2a"],
         "bbox": bbox_query,
@@ -255,7 +272,9 @@ def fetch_sentinel_for_shapefile(
                     pass
 
             if best_scene:
-                print(f"  ✓ Selected Cloud-Free Primary Sentinel-2 Scene: {best_scene['id']} ({best_scene['properties']['datetime'][:10]})")
+                actual_date = best_scene['properties']['datetime'][:10]
+                print(f"  ✓ Selected Cloud-Free Primary Sentinel-2 Scene: {best_scene['id']} ({actual_date})")
+                df_out['Date'] = actual_date
                 s2_assets = best_scene["assets"]
                 for b_col, b_asset in S2_BAND_MAP.items():
                     if b_asset in s2_assets:
@@ -288,8 +307,14 @@ def fetch_sentinel_for_shapefile(
 
 if __name__ == "__main__":
     SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-    shp_input = sys.argv[1] if len(sys.argv) > 1 else os.path.join(SCRIPT_DIR, "Seraya with Block Boundary.shp")
-    df_fetched = fetch_sentinel_for_shapefile(shp_input)
-    out_csv = os.path.join(SCRIPT_DIR, f"fetched_sentinel_{os.path.splitext(os.path.basename(shp_input))[0].replace(' ', '_')}.csv")
+    parser = argparse.ArgumentParser(description="Universal Cloud-Free Sentinel Data Fetcher")
+    parser.add_argument("--shp", type=str, default=os.path.join(SCRIPT_DIR, "Seraya with Block Boundary.shp"), help="Path to shapefile")
+    parser.add_argument("--date", type=str, default="2026-10-06", help="Target acquisition date (e.g., '2026-10-06', '06-Oct-2026', 'today')")
+    parser.add_argument("--days", type=int, default=30, help="Window margin in days around target date")
+    args = parser.parse_args()
+
+    df_fetched = fetch_sentinel_for_shapefile(args.shp, target_date=args.date, days_margin=args.days)
+    out_csv = os.path.join(SCRIPT_DIR, f"fetched_sentinel_{os.path.splitext(os.path.basename(args.shp))[0].replace(' ', '_')}.csv")
     df_fetched.to_csv(out_csv, index=False)
     print(f"📁 Exported Fetched Sentinel CSV: {out_csv}")
+

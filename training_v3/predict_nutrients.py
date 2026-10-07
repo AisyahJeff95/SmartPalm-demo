@@ -397,6 +397,11 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_overr
     }
 
 if __name__ == "__main__":
-    target_shp = sys.argv[1] if len(sys.argv) > 1 else DEFAULT_SHAPEFILE
-    date_val = sys.argv[2] if len(sys.argv) > 2 else "06-Oct-2026"
-    run_predictions(target_shp, date_val)
+    import argparse
+    parser = argparse.ArgumentParser(description="Spatial Nutrient Prediction Engine")
+    parser.add_argument("--shp", type=str, default=DEFAULT_SHAPEFILE, help="Path to target shapefile (.shp)")
+    parser.add_argument("--date", type=str, default="2026-10-06", help="Target acquisition date (e.g., '2026-10-06', '06-Oct-2026', 'today')")
+    args = parser.parse_args()
+
+    run_predictions(shp_path=args.shp, acquisition_date=args.date)
+
