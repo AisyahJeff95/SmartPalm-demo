@@ -100,13 +100,18 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         """Serves static files (HTML, CSS, JS, PNG, GeoTIFF, CSV) for HF Spaces web dashboard."""
         url_path = self.path.split('?')[0]
-        if url_path == "/" or url_path == "":
-            file_path = os.path.join(PROJECT_ROOT, "index.html")
+        
+        # Route root requests to development/index.html (or index.html)
+        if url_path in ["/", "", "/index.html"]:
+            file_path = os.path.join(BASE_DIR, "index.html")
+            if not os.path.exists(file_path):
+                file_path = os.path.join(PROJECT_ROOT, "index.html")
         else:
             relative_path = url_path.lstrip('/')
-            file_path = os.path.join(PROJECT_ROOT, relative_path)
+            # Check development/ subfolder first, then PROJECT_ROOT
+            file_path = os.path.join(BASE_DIR, relative_path)
             if not os.path.exists(file_path):
-                file_path = os.path.join(BASE_DIR, relative_path)
+                file_path = os.path.join(PROJECT_ROOT, relative_path)
 
         if os.path.isdir(file_path):
             file_path = os.path.join(file_path, "index.html")
@@ -118,6 +123,10 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
                     mime_type = 'image/tiff'
                 elif file_path.endswith('.csv'):
                     mime_type = 'text/csv'
+                elif file_path.endswith('.js'):
+                    mime_type = 'application/javascript'
+                elif file_path.endswith('.css'):
+                    mime_type = 'text/css'
                 else:
                     mime_type = 'application/octet-stream'
 
@@ -134,7 +143,7 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
             except Exception as e:
                 return self._send_json(500, {"error": f"Failed to read file: {e}"})
 
-        return self._send_json(404, {"error": "File not found"})
+        return self._send_json(404, {"error": f"File not found: {url_path}"})
 
     def do_POST(self):
         content_length = int(self.headers.get("Content-Length", 0))
