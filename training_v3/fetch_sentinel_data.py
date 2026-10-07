@@ -145,6 +145,8 @@ def fetch_sentinel_for_shapefile(
             df_cache = pd.read_csv(cached_csv)
             if len(df_cache) > 0 and 'Longitude' in df_cache.columns:
                 print(f"✅ Loaded {len(df_cache):,} cached Sentinel records instantly.")
+                if target_date:
+                    df_cache['Date'] = target_date
                 return df_cache
         except Exception as cache_err:
             print(f"  ! Could not load cached CSV ({cache_err}). Fetching live...")

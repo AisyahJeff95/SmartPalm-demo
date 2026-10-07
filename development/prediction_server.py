@@ -217,11 +217,18 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
 
     def handle_predict(self, data):
         estate_raw = data.get("estate_name", "Seraya with Block Boundary")
-        date_val = data.get("date", "06-Oct-2026")
-        
-        print(f"\n==========================================================================")
-        print(f"📡 Dashboard Prediction Request: {estate_raw} ({date_val})")
-        print(f"==========================================================================")
+        is_realtime = data.get("is_realtime", False)
+        date_val = data.get("date")
+
+        if is_realtime or not date_val:
+            date_val = datetime.now().strftime("%Y-%m-%d")
+            print(f"\n==========================================================================")
+            print(f"📡 Dashboard Prediction Request [REAL-TIME MODE]: {estate_raw} (latest as of {date_val})")
+            print(f"==========================================================================")
+        else:
+            print(f"\n==========================================================================")
+            print(f"📅 Dashboard Prediction Request [LOCKED DATE MODE]: {estate_raw} (target date: {date_val})")
+            print(f"==========================================================================")
 
         shp_path = find_shapefile_for_estate(estate_raw)
         if not shp_path or not os.path.isfile(shp_path):
