@@ -2,7 +2,8 @@
 """
 SmartPalm Local & Cloud Prediction Server (Docker & HF Spaces Compatible)
 Listens on port 7860 (or PORT env var / 5001) to serve static web files,
-run real Sentinel satellite data fetching, generate GeoTIFF rasters, and serve HTTP APIs.
+run real Sentinel satellite data fetching, generate GeoTIFF rasters, serve HTTP APIs,
+and package prediction output folders into downloadable .zip archives.
 """
 
 import os
@@ -11,6 +12,8 @@ import io
 import json
 import time
 import base64
+import zipfile
+import urllib.parse
 import mimetypes
 from datetime import datetime
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
@@ -98,9 +101,18 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
         self.end_headers()
 
     def do_GET(self):
-        """Serves static files (HTML, CSS, JS, PNG, GeoTIFF, CSV) for HF Spaces web dashboard."""
+        """Serves static files and zip downloads for HF Spaces web dashboard."""
         url_path = self.path.split('?')[0]
         
+        # Handle prediction zip archive download endpoint
+        if url_path == "/api/download_zip":
+            query_str = ""
+            if "?" in self.path:
+                query_str = self.path.split("?", 1)[1]
+            params = urllib.parse.parse_qs(query_str)
+            folder_param = params.get("folder_name", [None])[0]
+            return self.handle_download_zip(folder_param)
+
         # Route root requests to development/index.html (or index.html)
         if url_path in ["/", "", "/index.html"]:
             file_path = os.path.join(BASE_DIR, "index.html")
@@ -144,6 +156,48 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
                 return self._send_json(500, {"error": f"Failed to read file: {e}"})
 
         return self._send_json(404, {"error": f"File not found: {url_path}"})
+
+    def handle_download_zip(self, folder_name=None):
+        target_dir = None
+        if folder_name:
+            clean_folder = os.path.basename(folder_name.strip())
+            candidate = os.path.join(PREDICTIONS_DIR, clean_folder)
+            if os.path.isdir(candidate):
+                target_dir = candidate
+            else:
+                matches = [d for d in os.listdir(PREDICTIONS_DIR) if clean_folder.lower() in d.lower() and os.path.isdir(os.path.join(PREDICTIONS_DIR, d))]
+                if matches:
+                    target_dir = os.path.join(PREDICTIONS_DIR, matches[-1])
+
+        if not target_dir:
+            # Fallback to the most recent prediction folder
+            subdirs = [os.path.join(PREDICTIONS_DIR, d) for d in os.listdir(PREDICTIONS_DIR) if os.path.isdir(os.path.join(PREDICTIONS_DIR, d))]
+            if subdirs:
+                target_dir = max(subdirs, key=os.path.getmtime)
+
+        if not target_dir or not os.path.isdir(target_dir):
+            return self._send_json(404, {"error": "Prediction output directory not found"})
+
+        zip_filename = f"{os.path.basename(target_dir)}.zip"
+        mem_zip = io.BytesIO()
+
+        with zipfile.ZipFile(mem_zip, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
+            for root, dirs, files in os.walk(target_dir):
+                for file in files:
+                    abs_path = os.path.join(root, file)
+                    rel_path = os.path.relpath(abs_path, target_dir)
+                    zf.write(abs_path, arcname=rel_path)
+
+        mem_zip.seek(0)
+        zip_bytes = mem_zip.read()
+
+        self.send_response(200)
+        self.send_header("Content-Type", "application/zip")
+        self.send_header("Content-Disposition", f'attachment; filename="{zip_filename}"')
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Content-Length", str(len(zip_bytes)))
+        self.end_headers()
+        self.wfile.write(zip_bytes)
 
     def do_POST(self):
         content_length = int(self.headers.get("Content-Length", 0))

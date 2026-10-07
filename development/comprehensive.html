@@ -2565,32 +2565,22 @@ function buildRGBAGeoTIFFArrayBuffer(width, height, west, south, east, north, rg
 }
 
 function downloadNutrientTifRasters() {
-    let activeBoundary = compBoundaryLayer || stdBoundaryLayer;
-    const mapSelect = document.getElementById('map-select-comp') || document.getElementById('map-select-std');
-    const mapType = mapSelect ? mapSelect.value : 'lahad_datu_combined';
-    const isLahadDatu = mapType.includes('lahad_datu') || mapType.includes('mpob_36_trial');
-
-    if (isLahadDatu) {
-        const estatePrefix = mapType.toUpperCase().replace(/[^A-Z0-9]/g, '_');
-        const rasterFiles = [
-            { name: `${estatePrefix}_Nutrient_Detection_N.tif`, path: "Merge_Citra_Unsur_N.tif" },
-            { name: `${estatePrefix}_Nutrient_Detection_P.tif`, path: "Merge_Citra_Unsur_P.tif" },
-            { name: `${estatePrefix}_Nutrient_Detection_K.tif`, path: "Merge_Citra_Unsur_K.tif" },
-            { name: `${estatePrefix}_Nutrient_Detection_Mg.tif`, path: "Merge_Citra_Unsur_Mg.tif" }
-        ];
-
-        rasterFiles.forEach((file, index) => {
-            setTimeout(() => {
-                const link = document.createElement('a');
-                link.href = file.path;
-                link.download = file.name;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-            }, index * 250);
-        });
-        return;
+    let folder = window._LAST_PREDICTION_FOLDER || '';
+    let zipUrl = '/api/download_zip';
+    if (folder) {
+        zipUrl += '?folder_name=' + encodeURIComponent(folder);
     }
+    
+    console.log('📥 Triggering prediction output zip download:', zipUrl);
+    
+    const link = document.createElement('a');
+    link.href = zipUrl;
+    link.target = '_blank';
+    link.download = (folder ? folder : 'predictions_output') + '.zip';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
 
     if (!activeBoundary || !activeBoundary.getBounds) {
         alert("Please select a map boundary polygon first.");
