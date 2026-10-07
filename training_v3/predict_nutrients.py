@@ -267,21 +267,28 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_overr
 
     # STEP 3: GeoTIFF Rasters & Overlays
     print("\nSTEP 3: Building GeoTIFF rasters & PNG overlays...")
-    cols, rows = 180, 180
+    lons_uniq = np.sort(np.unique(df_grid['Longitude']))
+    lats_uniq = np.sort(np.unique(df_grid['Latitude']))[::-1] # Descending row order (top to bottom)
+
+    cols = len(lons_uniq)
+    rows = len(lats_uniq)
+
     transform = from_bounds(min_lng, min_lat, max_lng, max_lat, cols, rows)
     crs = CRS.from_epsg(4326)
 
-    lngs = df_grid['Longitude'].values
-    lats = df_grid['Latitude'].values
-    c_idx = np.floor(((lngs - min_lng) / (max_lng - min_lng)) * (cols - 1)).astype(int)
-    r_idx = np.floor(((max_lat - lats) / (max_lat - min_lat)) * (rows - 1)).astype(int)
+    # Exact O(1) Dictionary Mapping
+    lng_to_col = {val: i for i, val in enumerate(lons_uniq)}
+    lat_to_row = {val: i for i, val in enumerate(lats_uniq)}
+
+    c_idx = np.array([lng_to_col[lng] for lng in df_grid['Longitude'].values])
+    r_idx = np.array([lat_to_row[lat] for lat in df_grid['Latitude'].values])
 
     overlays_dict = {}
     generated_files = [pred_csv_name, pred_csv_gz_name]
     raster_results = {}
 
     for nut in TARGET_COLS:
-        raster_grid = np.full((rows, cols), -9999, dtype=np.float32)
+        raster_grid = np.full((rows, cols), np.nan, dtype=np.float32)
         rgba_img = np.zeros((rows, cols, 4), dtype=np.uint8)
         color_fn = COLOR_FUNCS[nut]
         vals = df_grid[nut].values
@@ -309,9 +316,10 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_overr
                 dtype=rasterio.float32,
                 crs=crs,
                 transform=transform,
-                nodata=-9999.0
+                nodata=np.nan
             ) as dst:
                 dst.write(raster_grid, 1)
+
 
         # 2. Save 4-band RGBA Colored GeoTIFF
         out_tif_colored1 = os.path.join(out_dir, f"{nut}_nutrient_10m_colored.tif")

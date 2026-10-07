@@ -127,21 +127,21 @@ def process_prediction_folder(target_dir: str):
     min_lng, max_lng = df['Longitude'].min(), df['Longitude'].max()
     min_lat, max_lat = df['Latitude'].min(), df['Latitude'].max()
 
-    grid_dim = int(np.round(np.sqrt(len(df))))
-    lons_uniq = np.unique(df['Longitude'])
-    lats_uniq = np.unique(df['Latitude'])
-    cols = len(lons_uniq) if len(lons_uniq) > 1 else grid_dim
-    rows = len(lats_uniq) if len(lats_uniq) > 1 else grid_dim
+    lons_uniq = np.sort(np.unique(df['Longitude']))
+    lats_uniq = np.sort(np.unique(df['Latitude']))[::-1] # Descending row order (top to bottom)
 
-    # Sort coordinates for affine mapping
-    lons_seq = np.linspace(min_lng, max_lng, cols)
-    lats_seq = np.linspace(max_lat, min_lat, rows)
+    cols = len(lons_uniq)
+    rows = len(lats_uniq)
+
     transform = from_bounds(min_lng, min_lat, max_lng, max_lat, cols, rows)
     crs = CRS.from_epsg(4326)
 
-    # Grid mapping
-    c_idx = np.clip(np.searchsorted(lons_seq, df['Longitude'].values), 0, cols - 1)
-    r_idx = np.clip(np.searchsorted(-lats_seq, -df['Latitude'].values), 0, rows - 1)
+    # Exact O(1) Dictionary Mapping
+    lng_to_col = {val: i for i, val in enumerate(lons_uniq)}
+    lat_to_row = {val: i for i, val in enumerate(lats_uniq)}
+
+    c_idx = np.array([lng_to_col[lng] for lng in df['Longitude'].values])
+    r_idx = np.array([lat_to_row[lat] for lat in df['Latitude'].values])
 
     for nut in TARGET_COLS:
         if nut not in df.columns:
@@ -149,13 +149,31 @@ def process_prediction_folder(target_dir: str):
 
         color_fn = COLOR_FUNCS[nut]
         vals = df[nut].values
+        float_grid = np.full((rows, cols), np.nan, dtype=np.float32)
         rgba_img = np.zeros((rows, cols, 4), dtype=np.uint8)
 
         for r, c, v in zip(r_idx, c_idx, vals):
             if 0 <= r < rows and 0 <= c < cols and v > 0:
+                float_grid[r, c] = v
                 rgba_img[r, c] = color_fn(v)
 
-        # File naming: N_nutrient_10m_colored.tif and N_colored_10m.tif
+        # 1. Update single-band float GeoTIFF
+        out_tif_float = os.path.join(target_dir, f"{nut}_nutrient_10m.tif")
+        with rasterio.open(
+            out_tif_float,
+            'w',
+            driver='GTiff',
+            height=rows,
+            width=cols,
+            count=1,
+            dtype=rasterio.float32,
+            crs=crs,
+            transform=transform,
+            nodata=np.nan
+        ) as dst:
+            dst.write(float_grid, 1)
+
+        # 2. Update 4-band RGBA Colored GeoTIFFs
         out_tif_colored1 = os.path.join(target_dir, f"{nut}_nutrient_10m_colored.tif")
         out_tif_colored2 = os.path.join(target_dir, f"{nut}_colored_10m.tif")
 
@@ -172,10 +190,10 @@ def process_prediction_folder(target_dir: str):
                 transform=transform,
                 photometric='RGBA'
             ) as dst:
-                # Transpose (rows, cols, 4) -> (4, rows, cols) for rasterio writing
                 dst.write(np.moveaxis(rgba_img, -1, 0))
 
-        print(f"  ✓ Exported 4-Band RGBA Colored GeoTIFFs: {nut}_nutrient_10m_colored.tif & {nut}_colored_10m.tif")
+        print(f"  ✓ Exported Float & Colored GeoTIFFs ({cols}x{rows}): {nut}_nutrient_10m.tif & {nut}_colored_10m.tif")
+
 
     print(f"✅ Successfully generated all 6 nutrient colored rasters in {target_dir}!\n")
 
