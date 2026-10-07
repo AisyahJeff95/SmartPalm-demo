@@ -51,65 +51,74 @@ FEATURE_COLS = [
 ]
 TARGET_COLS = ['N', 'P', 'K', 'Mg', 'Ca', 'B']
 
-# MPOB Color threshold functions
+# MPOB Color threshold functions (Exact RGBA Legend Matching)
+COLOR_RED    = [255, 0, 0, 255]      # #ff0000
+COLOR_ORANGE = [255, 153, 0, 255]    # #ff9900
+COLOR_YELLOW = [255, 255, 0, 255]    # #ffff00
+COLOR_GREEN  = [0, 220, 0, 255]      # #00dc00
+COLOR_BLUE   = [0, 102, 255, 255]    # #0066ff
+COLOR_BROWN  = [153, 85, 34, 255]    # #995522
+COLOR_NODATA = [0, 0, 0, 0]          # Transparent
+
 def get_color_n(val):
-    if val <= 0: return [0, 0, 0, 0]
-    if val <= 2.10: return [227, 26, 28, 220]    # Red (Deficient)
-    if val <= 2.30: return [245, 163, 64, 220]   # Orange (Moderate)
-    if val <= 2.50: return [255, 240, 60, 220]   # Yellow (Slight)
-    if val <= 2.70: return [85, 215, 65, 220]    # Green (Optimum)
-    if val <= 2.90: return [30, 110, 230, 220]   # Blue (High)
-    return [145, 90, 45, 220]                    # Brown (Excess)
+    if val <= 0: return COLOR_NODATA
+    if val <= 2.10: return COLOR_RED
+    if val <= 2.30: return COLOR_ORANGE
+    if val <= 2.50: return COLOR_YELLOW
+    if val <= 2.70: return COLOR_GREEN
+    if val <= 2.90: return COLOR_BLUE
+    return COLOR_BROWN
 
 def get_color_p(val):
-    if val <= 0: return [0, 0, 0, 0]
-    if val <= 0.120: return [227, 26, 28, 220]
-    if val <= 0.135: return [245, 163, 64, 220]
-    if val <= 0.150: return [255, 240, 60, 220]
-    if val <= 0.165: return [85, 215, 65, 220]
-    if val <= 0.180: return [30, 110, 230, 220]
-    return [145, 90, 45, 220]
+    if val <= 0: return COLOR_NODATA
+    if val <= 0.120: return COLOR_RED
+    if val <= 0.135: return COLOR_ORANGE
+    if val <= 0.150: return COLOR_YELLOW
+    if val <= 0.165: return COLOR_GREEN
+    if val <= 0.180: return COLOR_BLUE
+    return COLOR_BROWN
 
 def get_color_k(val):
-    if val <= 0: return [0, 0, 0, 0]
-    if val <= 0.70: return [227, 26, 28, 220]
-    if val <= 0.85: return [245, 163, 64, 220]
-    if val <= 1.00: return [255, 240, 60, 220]
-    if val <= 1.15: return [85, 215, 65, 220]
-    if val <= 1.30: return [30, 110, 230, 220]
-    return [145, 90, 45, 220]
+    if val <= 0: return COLOR_NODATA
+    if val <= 0.70: return COLOR_RED
+    if val <= 0.85: return COLOR_ORANGE
+    if val <= 1.00: return COLOR_YELLOW
+    if val <= 1.15: return COLOR_GREEN
+    if val <= 1.30: return COLOR_BLUE
+    return COLOR_BROWN
 
 def get_color_mg(val):
-    if val <= 0: return [0, 0, 0, 0]
-    if val <= 0.20: return [227, 26, 28, 220]
-    if val <= 0.22: return [245, 163, 64, 220]
-    if val <= 0.24: return [255, 240, 60, 220]
-    if val <= 0.26: return [85, 215, 65, 220]
-    if val <= 0.28: return [30, 110, 230, 220]
-    return [145, 90, 45, 220]
+    if val <= 0: return COLOR_NODATA
+    if val <= 0.20: return COLOR_RED
+    if val <= 0.22: return COLOR_ORANGE
+    if val <= 0.24: return COLOR_YELLOW
+    if val <= 0.26: return COLOR_GREEN
+    if val <= 0.28: return COLOR_BLUE
+    return COLOR_BROWN
 
 def get_color_ca(val):
-    if val <= 0: return [0, 0, 0, 0]
-    if val <= 0.40: return [227, 26, 28, 220]
-    if val <= 0.50: return [245, 163, 64, 220]
-    if val <= 0.60: return [255, 240, 60, 220]
-    if val <= 0.75: return [85, 215, 65, 220]
-    if val <= 0.90: return [30, 110, 230, 220]
-    return [145, 90, 45, 220]
+    if val <= 0: return COLOR_NODATA
+    if val <= 0.40: return COLOR_RED
+    if val <= 0.50: return COLOR_ORANGE
+    if val <= 0.60: return COLOR_YELLOW
+    if val <= 0.75: return COLOR_GREEN
+    if val <= 0.90: return COLOR_BLUE
+    return COLOR_BROWN
 
 def get_color_b(val):
-    if val <= 0: return [0, 0, 0, 0]
-    if val <= 10.0: return [227, 26, 28, 220]
-    if val <= 15.0: return [245, 163, 64, 220]
-    if val <= 20.0: return [255, 240, 60, 220]
-    if val <= 30.0: return [85, 215, 65, 220]
-    if val <= 40.0: return [30, 110, 230, 220]
-    return [145, 90, 45, 220]
+    if val <= 0: return COLOR_NODATA
+    if val <= 10.0: return COLOR_RED
+    if val <= 15.0: return COLOR_ORANGE
+    if val <= 20.0: return COLOR_YELLOW
+    if val <= 30.0: return COLOR_GREEN
+    if val <= 40.0: return COLOR_BLUE
+    return COLOR_BROWN
 
 COLOR_FUNCS = {
     'N': get_color_n, 'P': get_color_p, 'K': get_color_k,
     'Mg': get_color_mg, 'Ca': get_color_ca, 'B': get_color_b
 }
+
 
 def load_trained_models(models_dir):
     models = {}
@@ -284,42 +293,50 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_overr
 
         raster_results[nut] = raster_grid
 
-        # Save GeoTIFF in output directory & training_v3 root
+        # 1. Save single-band float GeoTIFF
         out_tif_name = f"{nut}_nutrient_10m.tif"
         out_tif_path = os.path.join(out_dir, out_tif_name)
         root_tif_path = os.path.join(SCRIPT_DIR, out_tif_name)
         
-        with rasterio.open(
-            out_tif_path,
-            'w',
-            driver='GTiff',
-            height=rows,
-            width=cols,
-            count=1,
-            dtype=rasterio.float32,
-            crs=crs,
-            transform=transform,
-            nodata=-9999.0
-        ) as dst:
-            dst.write(raster_grid, 1)
+        for p in [out_tif_path, root_tif_path]:
+            with rasterio.open(
+                p,
+                'w',
+                driver='GTiff',
+                height=rows,
+                width=cols,
+                count=1,
+                dtype=rasterio.float32,
+                crs=crs,
+                transform=transform,
+                nodata=-9999.0
+            ) as dst:
+                dst.write(raster_grid, 1)
 
-        # Copy to root folder
-        with rasterio.open(
-            root_tif_path,
-            'w',
-            driver='GTiff',
-            height=rows,
-            width=cols,
-            count=1,
-            dtype=rasterio.float32,
-            crs=crs,
-            transform=transform,
-            nodata=-9999.0
-        ) as dst:
-            dst.write(raster_grid, 1)
+        # 2. Save 4-band RGBA Colored GeoTIFF
+        out_tif_colored1 = os.path.join(out_dir, f"{nut}_nutrient_10m_colored.tif")
+        out_tif_colored2 = os.path.join(out_dir, f"{nut}_colored_10m.tif")
+        root_tif_colored1 = os.path.join(SCRIPT_DIR, f"{nut}_nutrient_10m_colored.tif")
+        root_tif_colored2 = os.path.join(SCRIPT_DIR, f"{nut}_colored_10m.tif")
 
-        generated_files.append(out_tif_name)
-        print(f"  ✓ Exported GeoTIFF: {out_tif_name}")
+        for p in [out_tif_colored1, out_tif_colored2, root_tif_colored1, root_tif_colored2]:
+            with rasterio.open(
+                p,
+                'w',
+                driver='GTiff',
+                height=rows,
+                width=cols,
+                count=4,
+                dtype=rasterio.uint8,
+                crs=crs,
+                transform=transform,
+                photometric='RGBA'
+            ) as dst:
+                dst.write(np.moveaxis(rgba_img, -1, 0))
+
+        generated_files.extend([out_tif_name, f"{nut}_nutrient_10m_colored.tif", f"{nut}_colored_10m.tif"])
+        print(f"  ✓ Exported Float & Colored GeoTIFFs: {out_tif_name} & {nut}_nutrient_10m_colored.tif")
+
 
         # PNG Base64 Overlay
         img = Image.fromarray(rgba_img)
