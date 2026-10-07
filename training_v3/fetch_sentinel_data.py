@@ -135,11 +135,11 @@ def fetch_sentinel_for_shapefile(
     shp_path: str,
     target_date: str = "2026-10-06",
     days_margin: int = 30,
-    grid_spacing_m: float = 10.0,
-    max_grid_points: int = 15000
+    grid_spacing_m: float = 10.0
 ) -> pd.DataFrame:
     """
-    General Sentinel-1 & Sentinel-2 Cloud-Free Data Fetcher for ANY Shapefile Boundary.
+    General Uncapped Sentinel-1 & Sentinel-2 Cloud-Free Data Fetcher for ANY Shapefile Boundary.
+    Generates 100% full coverage at true 10m spatial resolution across the entire estate map boundary.
     """
     if not os.path.isfile(shp_path):
         raise FileNotFoundError(f"Shapefile not found at {shp_path}")
@@ -149,7 +149,7 @@ def fetch_sentinel_for_shapefile(
 
     estate_name = os.path.splitext(os.path.basename(shp_path))[0]
     print("==========================================================================")
-    print(f"🛰️  CLOUD-FREE SENTINEL DATA FETCHER: {estate_name}")
+    print(f"🛰️  UNCAPPED 10M CLOUD-FREE SENTINEL DATA FETCHER: {estate_name}")
     print("==========================================================================")
     print(f"📁 Target Shapefile: {shp_path}")
     print(f"📅 Target Date     : {formatted_target_date} (±{days_margin} days window)")
@@ -161,11 +161,13 @@ def fetch_sentinel_for_shapefile(
         print(f"  ✓ Found pre-fetched cloud-free Sentinel dataset: {cached_csv}")
         try:
             df_cache = pd.read_csv(cached_csv)
-            if len(df_cache) > 0 and 'Longitude' in df_cache.columns:
+            if len(df_cache) > 20000 and 'Longitude' in df_cache.columns:
                 print(f"✅ Loaded {len(df_cache):,} cached Sentinel records instantly.")
                 if formatted_target_date:
                     df_cache['Date'] = formatted_target_date
                 return df_cache
+            else:
+                print(f"  ! Upgrading old downsampled CSV ({len(df_cache):,} rows) -> Generating full 10m estate coverage...")
         except Exception as cache_err:
             print(f"  ! Could not load cached CSV ({cache_err}). Fetching live...")
 
@@ -197,20 +199,25 @@ def fetch_sentinel_for_shapefile(
 
     print(f"  ✓ Shapefile WGS84 Bounds: Lng [{min_lng:.5f}, {max_lng:.5f}], Lat [{min_lat:.5f}, {max_lat:.5f}]")
 
-    # 2. Generate 10m Spatial Grid points strictly inside polygon boundary
-    grid_dim = int(math.sqrt(max_grid_points))
-    lons_seq = np.linspace(min_lng, max_lng, grid_dim)
-    lats_seq = np.linspace(max_lat, min_lat, grid_dim)
+    # 2. Generate Uncapped 10m Spatial Grid points across entire polygon boundary
+    avg_lat = (min_lat + max_lat) / 2.0
+    step_lat = grid_spacing_m / 110600.0
+    step_lng = grid_spacing_m / (110600.0 * math.cos(math.radians(avg_lat)))
+
+    lons_seq = np.arange(min_lng, max_lng + step_lng, step_lng)
+    lats_seq = np.arange(max_lat, min_lat - step_lat, -step_lat)
     lon_grid, lat_grid = np.meshgrid(lons_seq, lats_seq)
     lon_flat = lon_grid.flatten()
     lat_flat = lat_grid.flatten()
 
-    inside_mask = [prep_poly.contains(Point(x, y)) for x, y in zip(lon_flat, lat_flat)]
+    pts = [Point(x, y) for x, y in zip(lon_flat, lat_flat)]
+    inside_mask = [prep_poly.contains(p) for p in pts]
     lons = lon_flat[inside_mask]
     lats = lat_flat[inside_mask]
     num_points = len(lons)
 
-    print(f"  ✓ Generated {num_points:,} 10m2 spatial grid points inside polygon boundary.")
+    print(f"  ✓ Generated {num_points:,} true 10m2 spatial grid points inside full estate map boundary ({len(lons_seq)} cols x {len(lats_seq)} rows).")
+
 
     # Prepare fallback dataframe
     norm_lat = (lats - min_lat) / (max_lat - min_lat + 1e-6)

@@ -300,7 +300,7 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_overr
 
         raster_results[nut] = raster_grid
 
-        # 1. Save single-band float GeoTIFF
+        # Save single-band float GeoTIFF (for QGIS / GIS viewing)
         out_tif_name = f"{nut}_nutrient_10m.tif"
         out_tif_path = os.path.join(out_dir, out_tif_name)
         root_tif_path = os.path.join(SCRIPT_DIR, out_tif_name)
@@ -320,30 +320,9 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_overr
             ) as dst:
                 dst.write(raster_grid, 1)
 
+        generated_files.append(out_tif_name)
+        print(f"  ✓ Exported Float GeoTIFF: {out_tif_name}")
 
-        # 2. Save 4-band RGBA Colored GeoTIFF
-        out_tif_colored1 = os.path.join(out_dir, f"{nut}_nutrient_10m_colored.tif")
-        out_tif_colored2 = os.path.join(out_dir, f"{nut}_colored_10m.tif")
-        root_tif_colored1 = os.path.join(SCRIPT_DIR, f"{nut}_nutrient_10m_colored.tif")
-        root_tif_colored2 = os.path.join(SCRIPT_DIR, f"{nut}_colored_10m.tif")
-
-        for p in [out_tif_colored1, out_tif_colored2, root_tif_colored1, root_tif_colored2]:
-            with rasterio.open(
-                p,
-                'w',
-                driver='GTiff',
-                height=rows,
-                width=cols,
-                count=4,
-                dtype=rasterio.uint8,
-                crs=crs,
-                transform=transform,
-                photometric='RGBA'
-            ) as dst:
-                dst.write(np.moveaxis(rgba_img, -1, 0))
-
-        generated_files.extend([out_tif_name, f"{nut}_nutrient_10m_colored.tif", f"{nut}_colored_10m.tif"])
-        print(f"  ✓ Exported Float & Colored GeoTIFFs: {out_tif_name} & {nut}_nutrient_10m_colored.tif")
 
 
         # PNG Base64 Overlay

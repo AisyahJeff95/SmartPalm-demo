@@ -2714,11 +2714,13 @@ function toggleSatDataMode(mode) {
 
     if (!realtimeChk || !previousChk || !satDateInput) return;
 
+    realtimeChk.disabled = false;
+    previousChk.disabled = false;
+    if (previousLabel) previousLabel.style.opacity = '1.0';
+
     if (mode === 'realtime') {
         if (realtimeChk.checked) {
             previousChk.checked = false;
-            previousChk.disabled = true;
-            if (previousLabel) previousLabel.style.opacity = '0.5';
             satDateInput.disabled = true;
 
             window.SATELLITE_MODE = 'realtime';
@@ -2730,11 +2732,13 @@ function toggleSatDataMode(mode) {
                 window.CONFIRMED_SATELLITE_DATE = todayStr;
                 showSatStatusMessage(`confirmed satellite date: ${todayStr} (Real-time)`, 'confirmed');
                 updateSentinelClippingAndBadge();
-            }, 400);
+            }, 300);
         } else {
-            previousChk.disabled = false;
-            if (previousLabel) previousLabel.style.opacity = '1.0';
-            satDateInput.disabled = true;
+            previousChk.checked = true;
+            satDateInput.disabled = false;
+            satDateInput.focus();
+            window.SATELLITE_MODE = 'previous';
+            showSatStatusMessage('enter date > press Enter to lock it', 'hint');
         }
     } else if (mode === 'previous') {
         if (previousChk.checked) {
@@ -2745,10 +2749,16 @@ function toggleSatDataMode(mode) {
             window.SATELLITE_MODE = 'previous';
             showSatStatusMessage('enter date > press Enter to lock it', 'hint');
         } else {
+            realtimeChk.checked = true;
             satDateInput.disabled = true;
+            window.SATELLITE_MODE = 'realtime';
+            const todayStr = new Date().toISOString().split('T')[0];
+            satDateInput.value = todayStr;
             showSatStatusMessage('confirming satellite date...', 'confirming');
             setTimeout(() => {
-                showSatStatusMessage(`confirmed satellite date`, 'confirmed');
+                window.CONFIRMED_SATELLITE_DATE = todayStr;
+                showSatStatusMessage(`confirmed satellite date: ${todayStr} (Real-time)`, 'confirmed');
+                updateSentinelClippingAndBadge();
             }, 300);
         }
     }
