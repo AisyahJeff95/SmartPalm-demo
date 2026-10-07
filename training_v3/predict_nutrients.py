@@ -338,6 +338,9 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_overr
         }
 
     # Compute block summary across actual shapefile block polygons
+    lngs = df_grid['Longitude'].values
+    lats = df_grid['Latitude'].values
+
     block_stats = []
     for idx, poly, rec in wgs_polygons:
         b_name = f"Block_{idx+1}"
@@ -348,6 +351,7 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_overr
         
         block_prep = prep(poly)
         block_mask = [block_prep.contains(Point(x, y)) for x, y in zip(lngs, lats)]
+
         
         for target in TARGET_COLS:
             vals = df_grid[target].values

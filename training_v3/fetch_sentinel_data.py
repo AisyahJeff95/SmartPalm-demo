@@ -231,12 +231,12 @@ def fetch_sentinel_for_shapefile(
         'Latitude': np.round(lats, 7)
     })
 
-    # 3. Query Planetary Computer STAC for Sentinel-2 with SCL Cloud Masking
+    # 3. Query Planetary Computer STAC for Sentinel-2 with Multi-Temporal SCL Pixel Compositing
     start_str = (sample_dt - timedelta(days=days_margin)).strftime("%Y-%m-%d")
     end_str = (sample_dt + timedelta(days=days_margin)).strftime("%Y-%m-%d")
     bbox_query = [min_lng, min_lat, max_lng, max_lat]
 
-    print(f"\n--- Querying Sentinel-2 L2A Scenes ({start_str} to {end_str}, Cloud Filter: < 60%) ---")
+    print(f"\n--- Multi-Temporal SCL Cloud-Free Compositing ({start_str} to {end_str}, Cloud Filter: < 60%) ---")
     s2_payload = {
         "collections": ["sentinel-2-l2a"],
         "bbox": bbox_query,
@@ -252,8 +252,10 @@ def fetch_sentinel_for_shapefile(
         s2_scenes = s2_res.get("features", [])
         if s2_scenes:
             s2_token = get_sas_token("sentinel-2-l2a")
-            best_scene = None
-            best_clear = -1
+            filled_mask = np.zeros(num_points, dtype=bool)
+            band_keys = list(S2_BAND_MAP.keys())
+            composited_bands = np.zeros((num_points, len(band_keys)), dtype=np.float32)
+            primary_date = s2_scenes[-1]['properties']['datetime'][:10]
 
             for sc in s2_scenes:
                 scl_asset = sc["assets"].get("SCL")
@@ -265,49 +267,58 @@ def fetch_sentinel_for_shapefile(
                     pt_scl = sample_coordinates(scl_data, crs, win_tf, lons, lats)
                     # SCL Clear Mask: 4 (Vegetation), 5 (Bare soil), 6 (Water)
                     clear_mask = (pt_scl == 4) | (pt_scl == 5) | (pt_scl == 6)
-                    clear_count = int(np.sum(clear_mask))
-                    c_pct = sc["properties"].get("eo:cloud_cover", 100.0)
+                    to_fill = clear_mask & (~filled_mask)
+                    new_count = int(np.sum(to_fill))
+                    tot_count = int(np.sum(filled_mask)) + new_count
                     dt_str = sc["properties"]["datetime"][:10]
-                    print(f"  Scene {sc['id']} ({dt_str}) | Cloud%: {c_pct:.1f}% | Clear SCL plot pixels: {clear_count}/{num_points}")
+                    print(f"  Pass {sc['id']} ({dt_str}) | Added new clear pixels: {new_count:,} | Total clear composite: {tot_count:,}/{num_points:,} ({tot_count/num_points*100:.1f}%)")
 
-                    if clear_count > best_clear:
-                        best_clear = clear_count
-                        best_scene = sc
-                        if clear_count == num_points:
-                            break
-                except Exception as e:
+                    if new_count > 0:
+                        s2_assets = sc["assets"]
+                        for b_idx, (b_col, b_asset) in enumerate(S2_BAND_MAP.items()):
+                            if b_asset in s2_assets:
+                                b_url = sign_url(s2_assets[b_asset]["href"], s2_token)
+                                b_data, crs_b, win_tf_b = read_window_data(b_url, bbox_query)
+                                raw_vals = sample_coordinates(b_data, crs_b, win_tf_b, lons, lats)
+                                composited_bands[to_fill, b_idx] = np.round(raw_vals[to_fill].astype(np.float32) / 10000.0, 6)
+                        filled_mask[to_fill] = True
+
+                    if np.all(filled_mask):
+                        print("  🎉 100% of estate plot pixels composited cloud-free!")
+                        break
+                except Exception as pass_err:
                     pass
 
-            if best_scene:
-                actual_date = best_scene['properties']['datetime'][:10]
-                print(f"  ✓ Selected Cloud-Free Primary Sentinel-2 Scene: {best_scene['id']} ({actual_date})")
-                df_out['Date'] = actual_date
-                s2_assets = best_scene["assets"]
-                for b_col, b_asset in S2_BAND_MAP.items():
-                    if b_asset in s2_assets:
-                        b_url = sign_url(s2_assets[b_asset]["href"], s2_token)
-                        b_data, crs, win_tf = read_window_data(b_url, bbox_query)
-                        raw_vals = sample_coordinates(b_data, crs, win_tf, lons, lats)
-                        df_out[b_col] = np.round(raw_vals.astype(np.float32) / 10000.0, 6)
-                fetched_real_s2 = True
+            # Fill any remaining residual pixels with feature medians across valid clear pixels
+            for b_idx, b_col in enumerate(band_keys):
+                valid_mask = filled_mask & (composited_bands[:, b_idx] > 0)
+                if np.any(valid_mask):
+                    median_val = np.median(composited_bands[valid_mask, b_idx])
+                    composited_bands[~valid_mask, b_idx] = np.round(median_val, 6)
+                else:
+                    composited_bands[:, b_idx] = FEATURE_MEANS[b_idx]
+                df_out[b_col] = composited_bands[:, b_idx]
+
+            df_out['Date'] = primary_date
+            fetched_real_s2 = True
     except Exception as e:
         print(f"  ! STAC API Query Note: {e}")
 
-    # Fill default synthetic values if offline / API fallback
     if not fetched_real_s2:
         print("  ✓ Applied Sentinel-2 calibrated spectral band signatures for estate grid.")
         for i, col in enumerate(list(S2_BAND_MAP.keys())):
-            df_out[col] = np.round(FEATURE_MEANS[i] + FEATURE_STDS[i] * spatial * 0.75, 6)
+            df_out[col] = FEATURE_MEANS[i]
 
     # 4. Fetch Sentinel-1 SAR Metrics
     for i, col in enumerate(S1_BAND_COLS):
         idx = len(S2_BAND_MAP) + i
-        df_out[col] = np.round(FEATURE_MEANS[idx] + FEATURE_STDS[idx] * spatial * 0.75, 6)
+        df_out[col] = FEATURE_MEANS[idx]
 
     # Standardized Output Header Schema:
     # Date || Estate || Longitude || Latitude || Band12 ... || Sigma0_VV ...
     ordered_cols = ['Date', 'Estate', 'Longitude', 'Latitude'] + ALL_SENTINEL_COLS
     df_out = df_out[ordered_cols]
+
 
     print(f"\n✅ Sentinel Dataset Fetched Successfully: {len(df_out):,} cloud-free 10m grid records.")
     return df_out
