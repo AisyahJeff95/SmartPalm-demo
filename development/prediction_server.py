@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 """
-SmartPalm Local GeoTIFF Prediction & PDF Storage Server
-Listens on http://127.0.0.1:5001 to generate GeoTIFF (.tif) rasters, 
-real 10m Sentinel .csv pixel files, PNG web overlays, and save PDF reports.
-
-Invokes real shapefile & real Sentinel prediction pipeline from 3. Training_v2/predict_nutrients.py.
+SmartPalm Local & Cloud Prediction Server (Docker & HF Spaces Compatible)
+Listens on port 7860 (or PORT env var / 5001) to serve static web files,
+run real Sentinel satellite data fetching, generate GeoTIFF rasters, and serve HTTP APIs.
 """
 
 import os
@@ -13,6 +11,7 @@ import io
 import json
 import time
 import base64
+import mimetypes
 from datetime import datetime
 from http.server import ThreadingHTTPServer, BaseHTTPRequestHandler
 
@@ -56,7 +55,6 @@ def find_shapefile_for_estate(estate_raw):
         os.path.join(BASE_DIR, f"{clean_name}.shp"),
     ]
 
-    # Check for partial matches if exact name doesn't match
     for c in candidates:
         if os.path.isfile(c):
             return c
@@ -99,6 +97,45 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", "0")
         self.end_headers()
 
+    def do_GET(self):
+        """Serves static files (HTML, CSS, JS, PNG, GeoTIFF, CSV) for HF Spaces web dashboard."""
+        url_path = self.path.split('?')[0]
+        if url_path == "/" or url_path == "":
+            file_path = os.path.join(PROJECT_ROOT, "index.html")
+        else:
+            relative_path = url_path.lstrip('/')
+            file_path = os.path.join(PROJECT_ROOT, relative_path)
+            if not os.path.exists(file_path):
+                file_path = os.path.join(BASE_DIR, relative_path)
+
+        if os.path.isdir(file_path):
+            file_path = os.path.join(file_path, "index.html")
+
+        if os.path.isfile(file_path):
+            mime_type, _ = mimetypes.guess_type(file_path)
+            if not mime_type:
+                if file_path.endswith('.tif') or file_path.endswith('.tiff'):
+                    mime_type = 'image/tiff'
+                elif file_path.endswith('.csv'):
+                    mime_type = 'text/csv'
+                else:
+                    mime_type = 'application/octet-stream'
+
+            try:
+                with open(file_path, 'rb') as f:
+                    content = f.read()
+                self.send_response(200)
+                self.send_header("Content-Type", mime_type)
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.send_header("Content-Length", str(len(content)))
+                self.end_headers()
+                self.wfile.write(content)
+                return
+            except Exception as e:
+                return self._send_json(500, {"error": f"Failed to read file: {e}"})
+
+        return self._send_json(404, {"error": "File not found"})
+
     def do_POST(self):
         content_length = int(self.headers.get("Content-Length", 0))
         post_data = self.rfile.read(content_length)
@@ -132,7 +169,7 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
         if run_predictions is None:
             return self._send_json(500, {"error": "Prediction engine not loaded"})
 
-        # Run real prediction pipeline from 4. Training_v3/predict_nutrients.py
+        # Run real prediction pipeline from training_v3/predict_nutrients.py
         result = run_predictions(shp_path=shp_path, acquisition_date=date_val, out_dir_override=PREDICTIONS_DIR)
 
         if not result:
@@ -171,10 +208,10 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
         except Exception as e:
             self._send_json(500, {"error": "Failed to save PDF report", "details": str(e)})
 
-def run_server(port=5001):
-    server_address = ('', port)
+def run_server(port=7860):
+    server_address = ('0.0.0.0', port)
     httpd = ThreadingHTTPServer(server_address, PredictionRequestHandler)
-    print(f"🚀 SmartPalm Multi-Threaded Prediction Server running on http://127.0.0.1:{port}")
+    print(f"🚀 SmartPalm Server running on http://0.0.0.0:{port}")
     print(f"📁 Saving real prediction folders to {PREDICTIONS_DIR}")
     try:
         httpd.serve_forever()
@@ -183,5 +220,11 @@ def run_server(port=5001):
         httpd.server_close()
 
 if __name__ == "__main__":
-    port = int(sys.argv[1]) if len(sys.argv) > 1 else 5001
+    env_port = os.environ.get("PORT")
+    if env_port:
+        port = int(env_port)
+    elif len(sys.argv) > 1:
+        port = int(sys.argv[1])
+    else:
+        port = 7860
     run_server(port)

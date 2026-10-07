@@ -4446,30 +4446,30 @@ function runRfrPredictionFlow() {
             }
         }
 
-        window._USE_RF_PREDICTIONS = true;
-        if (data && data.folder_name) {
-            window._LAST_PREDICTION_FOLDER = data.folder_name;
-        }
-        if (data && data.overlays) {
-            window.DYNAMIC_PREDICTION_RASTERS = data.overlays;
-        }
+        if (data && (data.folder_name || data.overlays)) {
+            window._USE_RF_PREDICTIONS = true;
+            if (data.folder_name) window._LAST_PREDICTION_FOLDER = data.folder_name;
+            if (data.overlays) window.DYNAMIC_PREDICTION_RASTERS = data.overlays;
 
-        const radioN = document.querySelector('input[name="comp_layer"][value="N"]') || document.querySelector('input[name="std_layer"][value="N"]');
-        const activeRadio = document.querySelector('input[name="comp_layer"]:checked') || document.querySelector('input[name="std_layer"]:checked');
-        
-        let activeVal = 'N';
-        if (activeRadio && activeRadio.value !== 'OFF') {
-            activeVal = activeRadio.value;
-        } else if (radioN) {
-            radioN.checked = true;
+            const radioN = document.querySelector('input[name="comp_layer"][value="N"]') || document.querySelector('input[name="std_layer"][value="N"]');
+            const activeRadio = document.querySelector('input[name="comp_layer"]:checked') || document.querySelector('input[name="std_layer"]:checked');
+            
+            let activeVal = 'N';
+            if (activeRadio && activeRadio.value !== 'OFF') {
+                activeVal = activeRadio.value;
+            } else if (radioN) {
+                radioN.checked = true;
+            }
+
+            setNutrientLayerSelectionEnabled(true, '✓ 10m Sentinel Rasters Ready! Select nutrient layer to view heatmap.', true);
+
+            if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp(activeVal);
+            if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd(activeVal);
+            if (typeof toggleNutrientLayerKpsm === 'function') toggleNutrientLayerKpsm(activeVal);
+        } else {
+            const errMsg = lastErr ? (lastErr.message || 'Connection refused') : 'Server returned invalid response';
+            setNutrientLayerSelectionEnabled(true, `! Error: Prediction server unreachable (${errMsg}). Ensure prediction_server.py is running on port 5001.`, false);
         }
-
-        const msgText = data ? '✓ 10m Sentinel Rasters Ready! Select nutrient layer to view heatmap.' : '✓ 10m Heatmap Active (Offline Model). Select nutrient layer to view.';
-        setNutrientLayerSelectionEnabled(true, msgText, true);
-
-        if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp(activeVal);
-        if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd(activeVal);
-        if (typeof toggleNutrientLayerKpsm === 'function') toggleNutrientLayerKpsm(activeVal);
 
         if (btn) {
             btn.disabled = false;
