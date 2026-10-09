@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PALMNEX - KPSM Home · SPOC MPOB Malaysia</title>
+    <meta name="description" content="KPSM Home: distribution of MPOB SPOC (Sustainable Palm Oil Clusters) by zone and state across Malaysia." />
+
+    <!-- External CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet" />
+
+    <!-- Styling (Vanilla CSS) -->
+    <link rel="stylesheet" href="css/cms-layout.css" />
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/tables-forms.css" />
+    <link rel="stylesheet" href="css/styles.css" />
+
+    <style>
+        .kh-container { flex: 1; min-height: 0; overflow-y: auto; padding: 24px 32px; box-sizing: border-box; width: 100%; background: #f8fafc; }
+
+        /* Header */
+        .kh-header {
+            background: linear-gradient(135deg, #064e3b 0%, #047857 55%, #10b981 100%);
+            color: #fff; padding: 22px 30px; border-radius: 16px; margin-bottom: 22px;
+            box-shadow: 0 10px 25px -8px rgba(4, 120, 87, 0.45);
+            display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+        }
+        .kh-title { font-family: 'Outfit', sans-serif; font-size: 24px; font-weight: 700; margin: 0 0 4px; }
+        .kh-subtitle { font-size: 13.5px; color: #d1fae5; margin: 0; }
+        .kh-source { font-size: 11.5px; color: #a7f3d0; background: rgba(255,255,255,0.12); padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.2); }
+
+        /* Stats */
+        .kh-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 22px; }
+        .kh-stat { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px 18px; display: flex; align-items: center; gap: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.03); transition: transform .2s, box-shadow .2s; }
+        .kh-stat:hover { transform: translateY(-2px); box-shadow: 0 8px 18px -6px rgba(15,23,42,0.12); }
+        .kh-stat-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .kh-stat-val { font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 700; color: #0f172a; line-height: 1.2; }
+        .kh-stat-lbl { font-size: 12px; color: #64748b; font-weight: 500; }
+
+        /* Map + panel */
+        .kh-main { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 18px; margin-bottom: 22px; }
+        @media (max-width: 1200px) { .kh-main { grid-template-columns: 1fr; } }
+        .kh-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; box-shadow: 0 4px 10px -4px rgba(15,23,42,0.06); }
+        .kh-map-card { padding: 18px 18px 14px; position: relative; overflow: hidden; }
+        .kh-card-title { font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 700; color: #0f172a; margin: 0; }
+        .kh-card-sub { font-size: 12px; color: #64748b; margin: 2px 0 0; }
+        .kh-map-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 6px; }
+        .kh-reset-btn { border: 1px solid #cbd5e1; background: #fff; color: #334155; font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 8px; cursor: pointer; transition: all .2s; }
+        .kh-reset-btn:hover { background: #f1f5f9; border-color: #94a3b8; }
+
+        #kh-map { width: 100%; height: auto; display: block; background: #ffffff; }
+        .kh-state { stroke: #ffffff; stroke-width: 1.4; stroke-linejoin: round; cursor: pointer; transition: opacity .25s, filter .25s, transform .25s; }
+        .kh-state.nodata { cursor: default; }
+        .kh-state:not(.nodata):hover, .kh-state.selected { filter: brightness(1.06) drop-shadow(0 3px 6px rgba(15,23,42,0.25)); stroke: #0f172a; stroke-width: 1.6; }
+        .kh-dim .kh-state:not(.hl) { opacity: 0.22; }
+        .kh-dim .kh-label:not(.hl) { opacity: 0.25; }
+        .kh-label { cursor: pointer; transition: opacity .25s; }
+        .kh-label rect.bubble { fill: #ffffff; stroke-width: 1.5; filter: url(#kh-soft-shadow); transition: transform .2s; }
+        .kh-label:hover rect.bubble { stroke-width: 2.4; }
+        .kh-label text { font-family: 'Inter', sans-serif; pointer-events: none; }
+        .kh-label .t1 { font-size: 11px; font-weight: 700; fill: #0f172a; letter-spacing: .2px; }
+        .kh-label .t2 { font-size: 10px; font-weight: 500; fill: #475569; }
+        .kh-leader { stroke: #94a3b8; stroke-width: 1; stroke-dasharray: 2 2; fill: none; }
+        .kh-dot { stroke: #fff; stroke-width: 1.5; }
+        .kh-region-cap { font-family: 'Outfit', sans-serif; font-size: 12px; font-weight: 600; letter-spacing: 3px; fill: #cbd5e1; }
+        .kh-sea { font-family: 'Inter', sans-serif; font-size: 11px; font-style: italic; letter-spacing: 2px; fill: #cbd5e1; }
+
+        .kh-tooltip { position: absolute; pointer-events: none; background: rgba(15,23,42,0.92); color: #fff; font-size: 12px; padding: 8px 11px; border-radius: 8px; box-shadow: 0 8px 20px rgba(0,0,0,0.25); opacity: 0; transform: translateY(4px); transition: opacity .15s, transform .15s; z-index: 5; white-space: nowrap; }
+        .kh-tooltip.show { opacity: 1; transform: translateY(0); }
+        .kh-tooltip b { font-family: 'Outfit', sans-serif; font-size: 13px; }
+
+        /* Legend */
+        .kh-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; padding-top: 12px; border-top: 1px dashed #e2e8f0; }
+        .kh-chip { display: flex; align-items: center; gap: 8px; padding: 6px 10px; border: 1px solid #e2e8f0; border-radius: 999px; background: #fff; cursor: pointer; font-size: 11.5px; color: #334155; transition: all .2s; user-select: none; }
+        .kh-chip:hover { border-color: #94a3b8; transform: translateY(-1px); }
+        .kh-chip.active { border-color: #0f172a; box-shadow: 0 0 0 2px rgba(15,23,42,0.08); background: #f8fafc; }
+        .kh-chip .sw { width: 12px; height: 12px; border-radius: 4px; flex-shrink: 0; }
+        .kh-chip .nm { font-weight: 700; }
+        .kh-chip .vl { color: #64748b; }
+
+        /* Side panel */
+        .kh-panel { padding: 18px; display: flex; flex-direction: column; min-height: 0; max-height: 640px; }
+        .kh-panel-head { padding-bottom: 12px; border-bottom: 1px solid #f1f5f9; margin-bottom: 12px; }
+        .kh-panel-state { font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 700; color: #0f172a; margin: 0; }
+        .kh-panel-zones { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .kh-zone-tag { font-size: 10.5px; font-weight: 700; padding: 3px 8px; border-radius: 6px; color: #0f172a; }
+        .kh-panel-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+        .kh-kpi { background: #f8fafc; border: 1px solid #f1f5f9; border-radius: 10px; padding: 10px 12px; }
+        .kh-kpi .v { font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 700; color: #0f172a; }
+        .kh-kpi .l { font-size: 11px; color: #64748b; }
+        .kh-spoc-list { overflow-y: auto; flex: 1; min-height: 0; padding-right: 4px; }
+        .kh-spoc-row { display: grid; grid-template-columns: 44px 1fr 62px; align-items: center; gap: 8px; padding: 6px 4px; border-radius: 6px; font-size: 12px; }
+        .kh-spoc-row:hover { background: #f8fafc; }
+        .kh-spoc-row .n { font-weight: 700; color: #0f172a; }
+        .kh-spoc-row .bar { height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden; }
+        .kh-spoc-row .bar span { display: block; height: 100%; border-radius: 4px; transition: width .5s ease; }
+        .kh-spoc-row .c { text-align: right; font-variant-numeric: tabular-nums; color: #334155; font-weight: 600; }
+        .kh-hint { color: #64748b; font-size: 12.5px; line-height: 1.6; }
+        .kh-zone-sum { display: flex; flex-direction: column; gap: 8px; }
+        .kh-zone-sum-row { display: grid; grid-template-columns: 12px 1fr auto; gap: 10px; align-items: center; font-size: 12px; padding: 6px 4px; border-radius: 6px; cursor: pointer; }
+        .kh-zone-sum-row:hover { background: #f8fafc; }
+        .kh-zone-sum-row .sw { width: 12px; height: 12px; border-radius: 4px; }
+
+        /* Table */
+        .kh-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; padding: 14px 18px; border-bottom: 1px solid #f1f5f9; }
+        .kh-search { flex: 1; min-width: 240px; height: 38px; padding: 0 14px 0 36px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; outline: none; background: #f8fafc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'/%3E%3C/svg%3E") no-repeat 11px center; background-size: 16px; }
+        .kh-search:focus { border-color: #047857; background-color: #fff; }
+        .kh-select { height: 38px; padding: 0 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 13px; color: #334155; background: #f8fafc; cursor: pointer; outline: none; }
+        .kh-table-wrap { max-height: 420px; overflow-y: auto; }
+        .kh-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .kh-table th { position: sticky; top: 0; background: #f8fafc; color: #334155; font-weight: 700; padding: 11px 16px; border-bottom: 2px solid #e2e8f0; text-align: left; z-index: 1; }
+        .kh-table td { padding: 9px 16px; border-bottom: 1px solid #f1f5f9; color: #1e293b; }
+        .kh-table tbody tr:hover { background: #f8fafc; }
+        .kh-table .num { text-align: right; font-variant-numeric: tabular-nums; }
+        .kh-table tfoot td { font-weight: 700; background: #f8fafc; border-top: 2px solid #e2e8f0; position: sticky; bottom: 0; }
+        .kh-zone-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 600; }
+        .kh-zone-pill i { width: 9px; height: 9px; border-radius: 3px; display: inline-block; }
+    </style>
+</head>
+<body>
+    <div class="cms-layout">
+        <!-- Top Panel -->
+        <div class="cms-top-panel">
+            <div class="cms-sidebar-brand">
+                <img src="MPOB-3-all-black-fonts.png" alt="MPOB Logo" style="max-width: 100%; height: auto; max-height: 50px;" />
+            </div>
+            <div class="global-top-right-actions">
+                <div class="action-btn-container" id="kh-btn-manual" onclick="document.getElementById('manual-modal').style.display='flex'">
+                    <div class="action-icon-box">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
+                    </div>
+                    <span class="action-label">User Manual</span>
+                </div>
+                <div class="action-btn-container">
+                    <div class="action-icon-box">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.9 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2s.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2s.07-1.34.16-2h4.68c.09.66.16 1.32.16 2s-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.66-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2s-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z"/></svg>
+                    </div>
+                    <span class="action-label">Language</span>
+                </div>
+                <div class="action-btn-container">
+                    <div class="action-icon-box">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                    </div>
+                    <span class="action-label">Login / Sign Up</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Navigation -->
+        <aside class="cms-sidebar">
+            <nav class="cms-nav">
+                <a href="index.html" class="cms-nav-item">
+                    <img src="home-logo-final.png" class="icon" /> <span class="nav-label">Home</span>
+                </a>
+                <a href="comprehensive.html" class="cms-nav-item">
+                    <img src="comp-logo-final.png" class="icon" /> <span class="nav-label">Comprehensive Fert</span>
+                </a>
+                <a href="standard.html" class="cms-nav-item">
+                    <img src="std-logo-final.png" class="icon" /> <span class="nav-label">Standard Fert</span>
+                </a>
+                <a href="https://www.palmnex.com.my/PalmnexReaDS" target="_blank" rel="noopener noreferrer" class="cms-nav-item">
+                    <img src="reada-logo-final.png" class="icon" style="transform: scale(0.75);" /> <span class="nav-label">PalmNexReaDS</span>
+                </a>
+
+                <!-- KPSM Nav Group -->
+                <div class="cms-nav-group">
+                    <div class="cms-nav-item active" style="cursor: pointer;" onclick="if(event.target.closest('.kpsm-caret')){var el=document.getElementById('kpsm-sub-menu'); if(el) el.style.display=(el.style.display==='none'?'flex':'none');}else{location.href='kpsm-home.html';}" title="KPSM Home">
+                        <img src="kpsm-logo-final.png" class="icon" />
+                        <span class="nav-label">KPSM System</span>
+                        <span class="kpsm-caret" title="Show / hide KPSM menu" style="margin-left: auto; font-size: 10px; padding: 4px 6px;">▼</span>
+                    </div>
+                    <div class="cms-sub-nav" id="kpsm-sub-menu">
+                        <a href="kpsm-home.html" class="cms-sub-nav-item active">
+                            <span class="nav-label">Home</span>
+                        </a>
+                        <a href="kpsm.html" class="cms-sub-nav-item">
+                            <span class="nav-label">Monitoring Dashboard</span>
+                        </a>
+                        <a href="kpsm-database.html" class="cms-sub-nav-item">
+                            <span class="nav-label">Database</span>
+                        </a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="cms-main-content">
+            <div class="kh-container">
+                <!-- User Manual Modal -->
+                <div id="manual-modal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 9999999; position: fixed; inset: 0; background: rgba(0,0,0,0.5);">
+                    <div class="modal-content" style="max-width: 600px; width: 90%; background: #ffffff; border-radius: 12px; padding: 24px; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+                        <button type="button" style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; color: #64748b; cursor: pointer;" onclick="document.getElementById('manual-modal').style.display='none'">✕</button>
+                        <h3 style="margin-top: 0; font-family: 'Outfit', sans-serif; font-size: 20px; color: #1e293b;">User Manual</h3>
+                        <div style="font-family: 'Inter', sans-serif; font-size: 14px; color: #475569; line-height: 1.6; max-height: 60vh; overflow-y: auto;">
+                            <h4>KPSM Home</h4>
+                            <p>The map shows MPOB SPOC distribution by zone and state. Hover over a state to see a quick summary, click a state to list its SPOCs, and click a zone chip in the legend to highlight that zone. Use the table below the map to search for individual SPOCs.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page Header -->
+                <header class="kh-header">
+                    <div>
+                        <h1 class="kh-title">KPSM Home · SPOC MPOB Malaysia</h1>
+                        <p class="kh-subtitle">Distribution of MPOB SPOC by zone &amp; state</p>
+                    </div>
+                    <span class="kh-source">Source: SPOC MPOB.xlsx</span>
+                </header>
+
+                <!-- Stats -->
+                <section class="kh-stats" aria-label="Summary statistics">
+                    <div class="kh-stat">
+                        <div class="kh-stat-icon" style="background:#d1fae5;color:#047857;">👥</div>
+                        <div><div class="kh-stat-val" id="kh-stat-total">–</div><div class="kh-stat-lbl">Total Bilangan</div></div>
+                    </div>
+                    <div class="kh-stat">
+                        <div class="kh-stat-icon" style="background:#e0e7ff;color:#4338ca;">🏷️</div>
+                        <div><div class="kh-stat-val" id="kh-stat-spoc">–</div><div class="kh-stat-lbl">SPOCs</div></div>
+                    </div>
+                    <div class="kh-stat">
+                        <div class="kh-stat-icon" style="background:#fef3c7;color:#b45309;">🧭</div>
+                        <div><div class="kh-stat-val" id="kh-stat-zones">–</div><div class="kh-stat-lbl">Zones</div></div>
+                    </div>
+                    <div class="kh-stat">
+                        <div class="kh-stat-icon" style="background:#fce7f3;color:#be185d;">📍</div>
+                        <div><div class="kh-stat-val" id="kh-stat-states">–</div><div class="kh-stat-lbl">States</div></div>
+                    </div>
+                </section>
+
+                <!-- Map + side panel -->
+                <section class="kh-main">
+                    <div class="kh-card kh-map-card" id="kh-map-card">
+                        <div class="kh-map-head">
+                            <div>
+                                <h2 class="kh-card-title">Malaysia SPOC Map</h2>
+                                <p class="kh-card-sub">States coloured by zone · click a state or a zone to explore</p>
+                            </div>
+                            <button type="button" class="kh-reset-btn" id="kh-reset-btn">Reset view</button>
+                        </div>
+                        <svg id="kh-map" role="img" aria-label="Illustrated map of Malaysia showing SPOC totals by state"></svg>
+                        <div class="kh-tooltip" id="kh-tooltip"></div>
+                        <div class="kh-legend" id="kh-legend"></div>
+                    </div>
+
+                    <aside class="kh-card kh-panel" id="kh-panel" aria-live="polite"></aside>
+                </section>
+
+                <!-- SPOC table -->
+                <section class="kh-card" aria-label="SPOC list">
+                    <div class="kh-controls">
+                        <h2 class="kh-card-title" style="margin-right:auto;">SPOC List</h2>
+                        <input type="text" id="kh-search" class="kh-search" placeholder="Search SPOC, state or zone…" />
+                        <select id="kh-filter-zone" class="kh-select"><option value="">All Zones</option></select>
+                        <select id="kh-filter-state" class="kh-select"><option value="">All States</option></select>
+                    </div>
+                    <div class="kh-table-wrap">
+                        <table class="kh-table">
+                            <thead>
+                                <tr><th style="width:50px;">#</th><th>Zon</th><th>Negeri</th><th>Nama SPOC</th><th class="num">Bilangan SPOC</th></tr>
+                            </thead>
+                            <tbody id="kh-tbody"></tbody>
+                            <tfoot><tr><td colspan="4" id="kh-foot-lbl">Total</td><td class="num" id="kh-foot-total">–</td></tr></tfoot>
+                        </table>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/kpsm_home_data.js"></script>
+    <script>
+    (function () {
+        const D = window.KPSM_HOME_DATA;
+        const SVGNS = 'http://www.w3.org/2000/svg';
+        const fmt = n => Number(n).toLocaleString('en-US');
+        const titleCase = s => s.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+        const NODATA_FILL = '#e9edf1';
+
+        if (!D) {
+            document.getElementById('kh-map-card').insertAdjacentHTML('beforeend',
+                '<p class="kh-hint">Map data not found. Run <code>python3 development/build_kpsm_home_data.py</code>.</p>');
+            return;
+        }
+
+        // ── Aggregate ─────────────────────────────────────────────────────
+        const zoneColors = D.zoneColors;
+        const byState = {}, byZone = {};
+        D.spoc.forEach(r => {
+            const s = byState[r.state] || (byState[r.state] = { state: r.state, zones: [], spoc: [], total: 0 });
+            if (!s.zones.includes(r.zone)) s.zones.push(r.zone);
+            s.spoc.push(r); s.total += r.count;
+            const z = byZone[r.zone] || (byZone[r.zone] = { zone: r.zone, states: [], spoc: 0, total: 0 });
+            if (!z.states.includes(r.state)) z.states.push(r.state);
+            z.spoc += 1; z.total += r.count;
+        });
+        const zoneOrder = Object.keys(zoneColors).filter(z => byZone[z]).concat(Object.keys(byZone).filter(z => !zoneColors[z]));
+        const colorOf = z => zoneColors[z] || '#a3b1c2';
+        const grandTotal = D.spoc.reduce((a, r) => a + r.count, 0);
+
+        // Stats
+        document.getElementById('kh-stat-total').textContent = fmt(grandTotal);
+        document.getElementById('kh-stat-spoc').textContent = fmt(D.spoc.length);
+        document.getElementById('kh-stat-zones').textContent = zoneOrder.length;
+        document.getElementById('kh-stat-states').textContent = Object.keys(byState).length;
+
+        // ── Map ───────────────────────────────────────────────────────────
+        const svg = document.getElementById('kh-map');
+        svg.setAttribute('viewBox', D.viewBox);
+        if (!D.states || !Object.keys(D.states).length) {
+            svg.style.display = 'none';
+            document.getElementById('kh-map-card').insertAdjacentHTML('beforeend',
+                '<p class="kh-hint" id="kh-map-pending">Map outlines not loaded yet — SPOC figures below are from <b>SPOC MPOB.xlsx</b>. ' +
+                'Re-run <code>python3 development/build_kpsm_home_data.py</code> with internet access to draw the map.</p>');
+        }
+        const el = (tag, attrs, parent) => {
+            const n = document.createElementNS(SVGNS, tag);
+            for (const k in attrs) n.setAttribute(k, attrs[k]);
+            if (parent) parent.appendChild(n);
+            return n;
+        };
+
+        const defs = el('defs', {}, svg);
+        const f = el('filter', { id: 'kh-land-shadow', x: '-10%', y: '-10%', width: '120%', height: '130%' }, defs);
+        el('feDropShadow', { dx: '0', dy: '3', stdDeviation: '3.5', 'flood-color': '#0f172a', 'flood-opacity': '0.13' }, f);
+        const f2 = el('filter', { id: 'kh-soft-shadow', x: '-20%', y: '-30%', width: '140%', height: '170%' }, defs);
+        el('feDropShadow', { dx: '0', dy: '2', stdDeviation: '2', 'flood-color': '#0f172a', 'flood-opacity': '0.12' }, f2);
+
+        // Striped patterns for states split across two zones
+        const fillOf = {};
+        Object.values(byState).forEach(s => {
+            if (s.zones.length === 1) { fillOf[s.state] = colorOf(s.zones[0]); return; }
+            const id = 'kh-pat-' + s.state.replace(/\W+/g, '');
+            const p = el('pattern', { id, patternUnits: 'userSpaceOnUse', width: 14, height: 14, patternTransform: 'rotate(45)' }, defs);
+            const w = 14 / s.zones.length;
+            s.zones.forEach((z, i) => el('rect', { x: i * w, y: 0, width: w, height: 14, fill: colorOf(z) }, p));
+            fillOf[s.state] = `url(#${id})`;
+        });
+
+        const [vbx, vby, vbw, vbh] = D.viewBox.split(' ').map(Number);
+
+        // Captions
+        const states = D.states;
+        const capY = vby + vbh - 10;
+        el('text', { x: (states.PERAK ? states.PERAK.cx : vbx + 160), y: capY, 'text-anchor': 'middle', class: 'kh-region-cap' }, svg).textContent = 'SEMENANJUNG MALAYSIA';
+        el('text', { x: (states.SARAWAK && states.SABAH ? (states.SARAWAK.cx + states.SABAH.cx) / 2 : vbx + vbw - 200), y: capY, 'text-anchor': 'middle', class: 'kh-region-cap' }, svg).textContent = 'SABAH & SARAWAK';
+        if (states.PAHANG && states.SARAWAK) {
+            const sx = (states.PAHANG.cx + states.SARAWAK.cx) / 2 + 10;
+            el('text', { x: sx, y: states.PAHANG.cy + 40, 'text-anchor': 'middle', class: 'kh-sea' }, svg).textContent = 'Laut China Selatan';
+        }
+
+        const landG = el('g', { filter: 'url(#kh-land-shadow)' }, svg);
+        const statePaths = {};
+        Object.entries(states).forEach(([name, g]) => {
+            const has = !!byState[name];
+            const p = el('path', { d: g.path, class: 'kh-state' + (has ? '' : ' nodata'), fill: has ? fillOf[name] : NODATA_FILL, 'data-state': name, 'fill-rule': 'evenodd' }, landG);
+            statePaths[name] = p;
+        });
+
+        // Labels with leader lines
+        const labelG = el('g', {}, svg);
+        const labels = {};
+        Object.entries(states).forEach(([name, g]) => {
+            const s = byState[name];
+            if (!s || g.lx == null) return;
+            const grp = el('g', { class: 'kh-label', 'data-state': name }, labelG);
+            el('path', { d: `M${g.cx},${g.cy} L${g.lx},${g.ly}`, class: 'kh-leader' }, grp);
+            el('circle', { cx: g.cx, cy: g.cy, r: 3.2, fill: colorOf(s.zones[0]), class: 'kh-dot' }, grp);
+            const t1 = titleCase(name), t2 = `${s.spoc.length} SPOC · ${fmt(s.total)}`;
+            const w = Math.max(t1.length * 6.9, t2.length * 5.6) + 22, h = 34;
+            el('rect', { x: g.lx - w / 2, y: g.ly - h / 2, width: w, height: h, rx: 9, class: 'bubble', stroke: colorOf(s.zones[s.zones.length - 1]) }, grp);
+            el('rect', { x: g.lx - w / 2 + 6, y: g.ly - 9, width: 4, height: 18, rx: 2, fill: s.zones.length > 1 ? fillOf[name] : colorOf(s.zones[0]) }, grp);
+            const a = el('text', { x: g.lx - w / 2 + 15, y: g.ly - 2, class: 't1' }, grp); a.textContent = t1;
+            const b = el('text', { x: g.lx - w / 2 + 15, y: g.ly + 11, class: 't2' }, grp); b.textContent = t2;
+            labels[name] = grp;
+        });
+
+        // ── Tooltip ───────────────────────────────────────────────────────
+        const card = document.getElementById('kh-map-card');
+        const tip = document.getElementById('kh-tooltip');
+        function showTip(evt, name) {
+            const s = byState[name];
+            tip.innerHTML = s
+                ? `<b>${titleCase(name)}</b><br>${s.zones.map(titleCase).join(' · ')}<br>${s.spoc.length} SPOC · Bilangan ${fmt(s.total)}`
+                : `<b>${titleCase(name)}</b><br><span style="color:#94a3b8">No SPOC data</span>`;
+            const r = card.getBoundingClientRect();
+            let x = evt.clientX - r.left + 14, y = evt.clientY - r.top + 14;
+            if (x + 220 > r.width) x -= 240;
+            tip.style.left = x + 'px'; tip.style.top = y + 'px';
+            tip.classList.add('show');
+        }
+        const hideTip = () => tip.classList.remove('show');
+        [...Object.values(statePaths), ...Object.values(labels)].forEach(n => {
+            const name = n.getAttribute('data-state');
+            n.addEventListener('mousemove', e => showTip(e, name));
+            n.addEventListener('mouseleave', hideTip);
+            n.addEventListener('click', () => { if (byState[name]) selectState(name); });
+        });
+
+        // ── Highlight helpers ─────────────────────────────────────────────
+        function highlight(stateNames) {
+            Object.entries(statePaths).forEach(([n, p]) => p.classList.toggle('hl', stateNames.includes(n)));
+            Object.entries(labels).forEach(([n, g]) => g.classList.toggle('hl', stateNames.includes(n)));
+            svg.classList.toggle('kh-dim', stateNames.length > 0);
+        }
+        function clearSelection() {
+            highlight([]);
+            Object.values(statePaths).forEach(p => p.classList.remove('selected'));
+            document.querySelectorAll('.kh-chip').forEach(c => c.classList.remove('active'));
+        }
+
+        // ── Legend ────────────────────────────────────────────────────────
+        const legend = document.getElementById('kh-legend');
+        zoneOrder.forEach(z => {
+            const zd = byZone[z];
+            const chip = document.createElement('div');
+            chip.className = 'kh-chip'; chip.id = 'kh-chip-' + z.replace(/\W+/g, '-').toLowerCase();
+            chip.innerHTML = `<span class="sw" style="background:${colorOf(z)}"></span><span class="nm">${titleCase(z)}</span><span class="vl">${zd.spoc} SPOC · ${fmt(zd.total)}</span>`;
+            chip.addEventListener('click', () => selectZone(z));
+            legend.appendChild(chip);
+        });
+
+        // ── Side panel ────────────────────────────────────────────────────
+        const panel = document.getElementById('kh-panel');
+        function renderOverview() {
+            const max = Math.max(...zoneOrder.map(z => byZone[z].total));
+            panel.innerHTML = `
+                <div class="kh-panel-head">
+                    <h3 class="kh-panel-state">Zone Overview</h3>
+                    <p class="kh-hint" style="margin:6px 0 0;">Click a state on the map to list its SPOCs.</p>
+                </div>
+                <div class="kh-spoc-list"><div class="kh-zone-sum">
+                ${zoneOrder.map(z => {
+                    const zd = byZone[z];
+                    return `<div class="kh-zone-sum-row" data-zone="${z}">
+                        <span class="sw" style="background:${colorOf(z)}"></span>
+                        <div><div style="font-weight:700;color:#0f172a;">${titleCase(z)}</div>
+                            <div style="color:#64748b;font-size:11px;">${zd.states.map(titleCase).join(', ')} · ${zd.spoc} SPOC</div>
+                            <div class="bar" style="height:6px;background:#f1f5f9;border-radius:3px;margin-top:5px;overflow:hidden;"><span style="display:block;height:100%;width:${(zd.total / max * 100).toFixed(1)}%;background:${colorOf(z)};border-radius:3px;"></span></div>
+                        </div>
+                        <span style="font-weight:700;font-variant-numeric:tabular-nums;">${fmt(zd.total)}</span>
+                    </div>`;
+                }).join('')}
+                </div></div>`;
+            panel.querySelectorAll('.kh-zone-sum-row').forEach(r => r.addEventListener('click', () => selectZone(r.dataset.zone)));
+        }
+
+        function renderState(name) {
+            const s = byState[name];
+            const list = [...s.spoc].sort((a, b) => b.count - a.count);
+            const max = list[0] ? list[0].count : 1;
+            panel.innerHTML = `
+                <div class="kh-panel-head">
+                    <h3 class="kh-panel-state">${titleCase(name)}</h3>
+                    <div class="kh-panel-zones">${s.zones.map(z => `<span class="kh-zone-tag" style="background:${colorOf(z)}55;border:1px solid ${colorOf(z)};">${titleCase(z)}</span>`).join('')}</div>
+                    <div class="kh-panel-kpis">
+                        <div class="kh-kpi"><div class="v">${s.spoc.length}</div><div class="l">SPOCs</div></div>
+                        <div class="kh-kpi"><div class="v">${fmt(s.total)}</div><div class="l">Total Bilangan</div></div>
+                    </div>
+                </div>
+                <div class="kh-spoc-list">
+                    ${list.map(r => `<div class="kh-spoc-row" title="${titleCase(r.zone)}">
+                        <span class="n">${r.name}</span>
+                        <div class="bar"><span style="width:0%;background:${colorOf(r.zone)}" data-w="${(r.count / max * 100).toFixed(1)}"></span></div>
+                        <span class="c">${fmt(r.count)}</span></div>`).join('')}
+                </div>
+                <button type="button" class="kh-reset-btn" style="margin-top:12px;" id="kh-panel-back">← Back to zone overview</button>`;
+            requestAnimationFrame(() => panel.querySelectorAll('.bar span[data-w]').forEach(b => b.style.width = b.dataset.w + '%'));
+            document.getElementById('kh-panel-back').addEventListener('click', resetAll);
+        }
+
+        function selectState(name) {
+            clearSelection();
+            highlight([name]);
+            statePaths[name] && statePaths[name].classList.add('selected');
+            renderState(name);
+            document.getElementById('kh-filter-state').value = name;
+            document.getElementById('kh-filter-zone').value = '';
+            renderTable();
+        }
+        function selectZone(z) {
+            clearSelection();
+            highlight(byZone[z].states);
+            const chip = document.getElementById('kh-chip-' + z.replace(/\W+/g, '-').toLowerCase());
+            chip && chip.classList.add('active');
+            document.getElementById('kh-filter-zone').value = z;
+            document.getElementById('kh-filter-state').value = '';
+            renderTable();
+        }
+        function resetAll() {
+            clearSelection();
+            renderOverview();
+            document.getElementById('kh-filter-zone').value = '';
+            document.getElementById('kh-filter-state').value = '';
+            document.getElementById('kh-search').value = '';
+            renderTable();
+        }
+        document.getElementById('kh-reset-btn').addEventListener('click', resetAll);
+
+        // ── Table ─────────────────────────────────────────────────────────
+        const fz = document.getElementById('kh-filter-zone'), fs = document.getElementById('kh-filter-state');
+        zoneOrder.forEach(z => fz.insertAdjacentHTML('beforeend', `<option value="${z}">${titleCase(z)}</option>`));
+        Object.keys(byState).forEach(s => fs.insertAdjacentHTML('beforeend', `<option value="${s}">${titleCase(s)}</option>`));
+        function renderTable() {
+            const q = document.getElementById('kh-search').value.trim().toLowerCase();
+            const zv = fz.value, sv = fs.value;
+            const rows = D.spoc.filter(r => (!zv || r.zone === zv) && (!sv || r.state === sv) &&
+                (!q || (r.name + ' ' + r.state + ' ' + r.zone).toLowerCase().includes(q)));
+            document.getElementById('kh-tbody').innerHTML = rows.map((r, i) => `<tr>
+                <td>${i + 1}</td>
+                <td><span class="kh-zone-pill"><i style="background:${colorOf(r.zone)}"></i>${titleCase(r.zone)}</span></td>
+                <td>${titleCase(r.state)}</td><td><b>${r.name}</b></td><td class="num">${fmt(r.count)}</td></tr>`).join('')
+                || '<tr><td colspan="5" style="text-align:center;color:#94a3b8;padding:24px;">No matching SPOC</td></tr>';
+            document.getElementById('kh-foot-lbl').textContent = `Total (${rows.length} SPOC)`;
+            document.getElementById('kh-foot-total').textContent = fmt(rows.reduce((a, r) => a + r.count, 0));
+        }
+        document.getElementById('kh-search').addEventListener('input', renderTable);
+        fz.addEventListener('change', () => fz.value ? selectZone(fz.value) : resetAll());
+        fs.addEventListener('change', () => fs.value ? selectState(fs.value) : resetAll());
+
+        renderOverview();
+        renderTable();
+    })();
+    </script>
+</body>
+</html>
