@@ -1,11 +1,11 @@
 {
-  "estate_name": "Ladang PPPTAR",
-  "acquisition_date": "06-Oct-2026",
-  "shapefile_source": "3. Training_v2/Ladang PPPTAR.shp",
-  "timestamp": "2026-10-06_144202",
-  "total_blocks": 42,
-  "total_pixels": 560511,
-  "execution_time_seconds": 52.17,
+  "estate_name": "agathis",
+  "acquisition_date": "2022-08-01",
+  "shapefile_source": "training_v3/map/agathis.shp",
+  "timestamp": "2026-10-09_154100",
+  "total_blocks": 65,
+  "total_pixels": 371605,
+  "execution_time_seconds": 541.34,
   "files_generated": [
     "predicted_10m_nutrients.csv",
     "predicted_10m_nutrients.csv.gz",

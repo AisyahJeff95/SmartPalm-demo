@@ -11,5 +11,9 @@ padi
 
 python3 training_v3/predict_nutrients.py --shp "training_v3/sekinchan/sekinchan2.shp" --date 2026-10-09
 
-python3 training_v3/predict_nutrients.py --shp "training_v3/sekinchan/sekinchan1poly.shp" --date 2026-10-09
+python3 training_v3/predict_nutrients.py --shp "training_v3/map/agathis.shp" --date 2025-08-15
+
+python3 training_v3/predict_nutrients.py --shp "training_v3/map/agathis.shp" --date 2022-08-15
+
+python3 training_v3/predict_nutrients.py --shp "training_v3/map/agathis.shp" --date 2019-08-15
 
