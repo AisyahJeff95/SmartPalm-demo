@@ -4130,9 +4130,9 @@ function lockEnteredSatDate() {
             setTimeout(zoomToActiveMap, 60);
             setTimeout(zoomToActiveMap, 200);
             setTimeout(zoomToActiveMap, 500);
-            // Sekinchan has prebuilt rasters: re-apply the selected nutrient layer immediately
+            // Sekinchan / PPPTAR have prebuilt rasters: re-apply the selected nutrient layer immediately
             const activeLayerRadio = document.querySelector('input[name="comp_layer"]:checked');
-            if (val.includes('sekinchan') && activeLayerRadio && activeLayerRadio.value !== 'OFF') {
+            if ((val.includes('sekinchan') || val.includes('ppptar')) && activeLayerRadio && activeLayerRadio.value !== 'OFF') {
                 setTimeout(() => { if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp(activeLayerRadio.value); }, 250);
             }
         }
@@ -4268,6 +4268,11 @@ function toggleNutrientLayerComp(layerValue) {
             let oData = RASTER_OVERLAYS_SEKINCHAN[layerValue];
             window.compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.85, zIndex: 400 }).addTo(targetMap);
             if (bLayer && typeof bLayer.bringToFront === 'function') bLayer.bringToFront();
+        } else if (isPPPTAR && typeof RASTER_OVERLAYS_PPPTAR !== 'undefined' && RASTER_OVERLAYS_PPPTAR[layerValue]) {
+            // Prebuilt Ladang PPPTAR prediction (training_v2/predictions_Ladang_PPPTAR_2026-10-06_130811)
+            let oData = RASTER_OVERLAYS_PPPTAR[layerValue];
+            window.compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.85, zIndex: 400 }).addTo(targetMap);
+            if (bLayer && typeof bLayer.bringToFront === 'function') bLayer.bringToFront();
         } else if (window.DYNAMIC_PREDICTION_RASTERS && window.DYNAMIC_PREDICTION_RASTERS[layerValue]) {
             let oData = window.DYNAMIC_PREDICTION_RASTERS[layerValue];
             window.compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.85, zIndex: 400 }).addTo(targetMap);
@@ -4321,6 +4326,11 @@ function toggleNutrientLayerStd(layerValue) {
         if (isSekinchan && typeof RASTER_OVERLAYS_SEKINCHAN !== 'undefined' && RASTER_OVERLAYS_SEKINCHAN[layerValue]) {
             // Prebuilt Sekinchan 1 Poly prediction (training_v3/predictions_sekinchan1poly_2026-10-09_130535)
             let oData = RASTER_OVERLAYS_SEKINCHAN[layerValue];
+            window.stdRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.85, zIndex: 400 }).addTo(targetMap);
+            if (bLayer && typeof bLayer.bringToFront === 'function') bLayer.bringToFront();
+        } else if (isPPPTAR && typeof RASTER_OVERLAYS_PPPTAR !== 'undefined' && RASTER_OVERLAYS_PPPTAR[layerValue]) {
+            // Prebuilt Ladang PPPTAR prediction (training_v2/predictions_Ladang_PPPTAR_2026-10-06_130811)
+            let oData = RASTER_OVERLAYS_PPPTAR[layerValue];
             window.stdRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.85, zIndex: 400 }).addTo(targetMap);
             if (bLayer && typeof bLayer.bringToFront === 'function') bLayer.bringToFront();
         } else if (window.DYNAMIC_PREDICTION_RASTERS && window.DYNAMIC_PREDICTION_RASTERS[layerValue]) {

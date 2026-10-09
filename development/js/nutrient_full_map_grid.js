@@ -7,9 +7,9 @@
  *
  * Raster source priority mirrors toggleNutrientLayerComp():
  *   1. Prebuilt Sekinchan 1 Poly   (RASTER_OVERLAYS_SEKINCHAN)
- *   2. Latest "Run Prediction"     (window.DYNAMIC_PREDICTION_RASTERS)
- *   3. Lahad Datu static rasters   (RASTER_OVERLAYS)
- *   4. Ladang PPPTAR rasters       (RASTER_OVERLAYS_PPPTAR)
+ *   2. Prebuilt Ladang PPPTAR      (RASTER_OVERLAYS_PPPTAR)
+ *   3. Latest "Run Prediction"     (window.DYNAMIC_PREDICTION_RASTERS)
+ *   4. Lahad Datu static rasters   (RASTER_OVERLAYS)
  * ========================================================================== */
 (function () {
     'use strict';
@@ -138,6 +138,15 @@
                 label: 'Prebuilt 10m prediction' + (meta.acquisition_date ? ` · Sentinel-2 ${meta.acquisition_date}` : '')
             };
         }
+        if (mapKey.includes('ppptar') && typeof RASTER_OVERLAYS_PPPTAR !== 'undefined') {
+            const meta = (typeof PPPTAR_PREDICTION_META !== 'undefined') ? PPPTAR_PREDICTION_META : {};
+            const runDate = meta.acquisition_date || (meta.timestamp ? String(meta.timestamp).split('_')[0] : '');
+            return {
+                overlays: RASTER_OVERLAYS_PPPTAR,
+                grids: (typeof RASTER_GRID_DATA_PPPTAR !== 'undefined') ? RASTER_GRID_DATA_PPPTAR : null,
+                label: 'Prebuilt 10m prediction' + (runDate ? ` · ${runDate}` : '')
+            };
+        }
         if (window.DYNAMIC_PREDICTION_RASTERS && Object.keys(window.DYNAMIC_PREDICTION_RASTERS).length) {
             return { overlays: window.DYNAMIC_PREDICTION_RASTERS, grids: null, label: 'Latest Run Prediction · 10m Sentinel-2' };
         }
@@ -145,13 +154,6 @@
             return {
                 overlays: RASTER_OVERLAYS,
                 grids: (typeof RASTER_GRID_DATA !== 'undefined') ? RASTER_GRID_DATA : null,
-                label: 'Sentinel-2 derived rasters'
-            };
-        }
-        if (mapKey.includes('ppptar') && typeof RASTER_OVERLAYS_PPPTAR !== 'undefined') {
-            return {
-                overlays: RASTER_OVERLAYS_PPPTAR,
-                grids: (typeof RASTER_GRID_DATA_PPPTAR !== 'undefined') ? RASTER_GRID_DATA_PPPTAR : null,
                 label: 'Sentinel-2 derived rasters'
             };
         }
