@@ -1,0 +1,20 @@
+{
+  "estate_name": "Seraya with Block Boundary",
+  "acquisition_date": "2026-10-06",
+  "shapefile_source": "/Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/Seraya with Block Boundary.shp",
+  "timestamp": "2026-10-07_151957",
+  "total_blocks": 57,
+  "total_pixels": 357340,
+  "execution_time_seconds": 218.49,
+  "files_generated": [
+    "predicted_10m_nutrients.csv",
+    "predicted_10m_nutrients.csv.gz",
+    "N_nutrient_10m.tif",
+    "P_nutrient_10m.tif",
+    "K_nutrient_10m.tif",
+    "Mg_nutrient_10m.tif",
+    "Ca_nutrient_10m.tif",
+    "B_nutrient_10m.tif",
+    "predicted_nutrients_by_block.csv"
+  ]
+}

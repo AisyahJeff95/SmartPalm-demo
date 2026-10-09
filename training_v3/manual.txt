@@ -1,0 +1,15 @@
+
+custom date & .shp file
+
+Seraya:
+ran:
+12th may 2024
+python3 training_v3/predict_nutrients.py --shp "training_v3/map/ramin.shp" --date 2025-08-01
+
+
+padi
+
+python3 training_v3/predict_nutrients.py --shp "training_v3/sekinchan/sekinchan2.shp" --date 2026-10-09
+
+python3 training_v3/predict_nutrients.py --shp "training_v3/sekinchan/sekinchan1poly.shp" --date 2026-10-09
+

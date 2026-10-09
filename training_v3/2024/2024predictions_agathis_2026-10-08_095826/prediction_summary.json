@@ -1,0 +1,20 @@
+{
+  "estate_name": "agathis",
+  "acquisition_date": "2024-08-01",
+  "shapefile_source": "training_v3/map/agathis.shp",
+  "timestamp": "2026-10-08_095826",
+  "total_blocks": 65,
+  "total_pixels": 371605,
+  "execution_time_seconds": 227.89,
+  "files_generated": [
+    "predicted_10m_nutrients.csv",
+    "predicted_10m_nutrients.csv.gz",
+    "N_nutrient_10m.tif",
+    "P_nutrient_10m.tif",
+    "K_nutrient_10m.tif",
+    "Mg_nutrient_10m.tif",
+    "Ca_nutrient_10m.tif",
+    "B_nutrient_10m.tif",
+    "predicted_nutrients_by_block.csv"
+  ]
+}

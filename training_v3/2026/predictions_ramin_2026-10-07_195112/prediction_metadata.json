@@ -1,0 +1,20 @@
+{
+  "estate_name": "ramin",
+  "acquisition_date": "2026-10-07",
+  "shapefile_source": "training_v3/map/ramin.shp",
+  "timestamp": "2026-10-07_195112",
+  "total_blocks": 51,
+  "total_pixels": 412410,
+  "execution_time_seconds": 313.98,
+  "files_generated": [
+    "predicted_10m_nutrients.csv",
+    "predicted_10m_nutrients.csv.gz",
+    "N_nutrient_10m.tif",
+    "P_nutrient_10m.tif",
+    "K_nutrient_10m.tif",
+    "Mg_nutrient_10m.tif",
+    "Ca_nutrient_10m.tif",
+    "B_nutrient_10m.tif",
+    "predicted_nutrients_by_block.csv"
+  ]
+}

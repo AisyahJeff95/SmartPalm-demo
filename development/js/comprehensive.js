@@ -47,6 +47,7 @@ if (!window.reportData) {
 // Static map data converted from authentic shapefiles
 var lahadDatuCoords = [5.104275, 118.428205];
 var serayaCoords = [4.604938, 117.589950];
+var sekinchan1polyCoords = [3.513274, 101.107816];
 window.lahadDatuCoords = lahadDatuCoords;
 window.serayaCoords = serayaCoords;
 

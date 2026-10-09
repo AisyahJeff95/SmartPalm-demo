@@ -1,0 +1,20 @@
+{
+  "estate_name": "keruing",
+  "acquisition_date": "2025-08-01",
+  "shapefile_source": "training_v3/map/keruing.shp",
+  "timestamp": "2026-10-09_074546",
+  "total_blocks": 54,
+  "total_pixels": 380268,
+  "execution_time_seconds": 240.31,
+  "files_generated": [
+    "predicted_10m_nutrients.csv",
+    "predicted_10m_nutrients.csv.gz",
+    "N_nutrient_10m.tif",
+    "P_nutrient_10m.tif",
+    "K_nutrient_10m.tif",
+    "Mg_nutrient_10m.tif",
+    "Ca_nutrient_10m.tif",
+    "B_nutrient_10m.tif",
+    "predicted_nutrients_by_block.csv"
+  ]
+}

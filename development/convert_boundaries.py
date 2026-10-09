@@ -9,6 +9,7 @@ BOUNDARIES_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'bound
 
 # Config: (key, filename_stem, display_name, name_field)
 MAPS = [
+    ('sekinchan1poly',   'sekinchan1poly',          'Sekinchan 1 Poly',       'block'),
     ('jengka24',        'Ladang Jengka 24',         'Ladang Jengka 24',       'block'),
     ('jengka25',        'Ladang Jengka 25',         'Ladang Jengka 25',       'Peringkat'),
     ('kota_gelanggi5',  'Ladang Kota Gelanggi 5',   'Ladang Kota Gelanggi 5','Peringkat'),
