@@ -32,7 +32,7 @@
         .ngm-overlay{position:fixed;inset:0;z-index:10000001;display:none;align-items:center;justify-content:center;
             padding:24px;box-sizing:border-box;background:rgba(8,15,30,.72);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
         .ngm-overlay.ngm-open{display:flex;animation:ngmFade .18s ease-out;}
-        .ngm-dialog{width:min(1280px,100%);max-height:100%;display:flex;flex-direction:column;background:#f8fafc;border-radius:16px;
+        .ngm-dialog{width:min(1500px,100%);max-height:100%;display:flex;flex-direction:column;background:#f8fafc;border-radius:16px;
             overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.45);animation:ngmPop .22s cubic-bezier(.2,.9,.3,1.2);}
         .ngm-header{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 20px;flex-shrink:0;
             background:linear-gradient(135deg,#047857 0%,#065f46 60%,#064e3b 100%);color:#fff;}
@@ -57,11 +57,12 @@
         .ngm-unit{font-family:'Inter',sans-serif;font-size:11px;color:#64748b;margin-top:2px;}
         .ngm-stats{margin-left:auto;text-align:right;font-family:'Inter',sans-serif;font-size:11px;color:#475569;line-height:1.35;}
         .ngm-stats b{color:#0f172a;font-weight:700;}
-        .ngm-canvas-wrap{position:relative;display:flex;align-items:center;justify-content:center;padding:10px;min-height:180px;
+        .ngm-canvas-wrap{position:relative;display:flex;align-items:center;justify-content:center;padding:6px;box-sizing:border-box;
+            height:clamp(220px,32vh,440px);
             background-color:#eef2f7;background-image:linear-gradient(45deg,#e5eaf1 25%,transparent 25%),linear-gradient(-45deg,#e5eaf1 25%,transparent 25%),
             linear-gradient(45deg,transparent 75%,#e5eaf1 75%),linear-gradient(-45deg,transparent 75%,#e5eaf1 75%);
             background-size:16px 16px;background-position:0 0,0 8px,8px -8px,-8px 0;}
-        .ngm-canvas-wrap canvas{max-width:100%;max-height:300px;width:auto;height:auto;image-rendering:pixelated;image-rendering:crisp-edges;}
+        .ngm-canvas-wrap canvas{display:block;width:100%;height:100%;object-fit:contain;image-rendering:pixelated;image-rendering:crisp-edges;}
         .ngm-missing{font-family:'Inter',sans-serif;font-size:12px;color:#94a3b8;}
         .ngm-legend{display:grid;grid-template-columns:repeat(3,1fr);gap:4px 10px;padding:9px 12px 11px;border-top:1px solid #f1f5f9;}
         .ngm-legend span{display:flex;align-items:center;gap:6px;font-family:'Inter',sans-serif;font-size:10.5px;color:#334155;white-space:nowrap;}
@@ -204,15 +205,50 @@
         return labels.map((t, i) => `<span><i style="background:${CLASS_COLORS[i]}"></i>${t}</span>`).join('');
     }
 
+    // Bounding box of non-transparent pixels (so empty margins don't shrink the map)
+    function contentBox(img) {
+        const W = img.naturalWidth, H = img.naturalHeight;
+        const c = document.createElement('canvas');
+        c.width = W; c.height = H;
+        const cx = c.getContext('2d');
+        cx.drawImage(img, 0, 0);
+        let data;
+        try { data = cx.getImageData(0, 0, W, H).data; } catch (e) { return { x: 0, y: 0, w: W, h: H }; }
+        let minX = W, minY = H, maxX = -1, maxY = -1;
+        for (let y = 0; y < H; y++) {
+            const rowOff = y * W * 4;
+            for (let x = 0; x < W; x++) {
+                if (data[rowOff + x * 4 + 3] > 0) {
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                }
+            }
+        }
+        if (maxX < 0) return { x: 0, y: 0, w: W, h: H };
+        // Small padding so the boundary outline isn't clipped
+        const pad = Math.max(2, Math.round(Math.max(maxX - minX, maxY - minY) * 0.03));
+        minX = Math.max(0, minX - pad); minY = Math.max(0, minY - pad);
+        maxX = Math.min(W - 1, maxX + pad); maxY = Math.min(H - 1, maxY + pad);
+        return { x: minX, y: minY, w: maxX - minX + 1, h: maxY - minY + 1 };
+    }
+
     function drawRaster(canvas, overlay, rings) {
         const img = new Image();
         img.onload = () => {
             const W = img.naturalWidth, H = img.naturalHeight;
-            canvas.width = W;
-            canvas.height = H;
+            const box = contentBox(img);
+
+            // Integer upscale for crisp pixels; target ~900px on the long side
+            const TARGET = 900;
+            const scale = Math.max(1, Math.min(40, Math.floor(TARGET / Math.max(box.w, box.h)) || 1));
+            canvas.width = box.w * scale;
+            canvas.height = box.h * scale;
+
             const ctx = canvas.getContext('2d');
             ctx.imageSmoothingEnabled = false;
-            ctx.drawImage(img, 0, 0);
+            ctx.drawImage(img, box.x, box.y, box.w, box.h, 0, 0, canvas.width, canvas.height);
 
             const bnd = overlay.bounds; // [[south, west], [north, east]]
             if (!rings.length || !bnd || bnd.length !== 2) return;
@@ -220,15 +256,15 @@
             if (!(e > w) || !(n > s)) return;
 
             ctx.lineJoin = 'round';
-            ctx.lineWidth = Math.max(2, Math.round(Math.max(W, H) / 220));
+            ctx.lineWidth = Math.max(2, Math.round(Math.max(canvas.width, canvas.height) / 260));
             ctx.strokeStyle = '#ff7800';
             ctx.shadowColor = 'rgba(0,0,0,0.35)';
             ctx.shadowBlur = ctx.lineWidth;
             rings.forEach(ring => {
                 ctx.beginPath();
                 ring.forEach((pt, i) => {
-                    const x = (pt[0] - w) / (e - w) * W;
-                    const y = (n - pt[1]) / (n - s) * H;
+                    const x = ((pt[0] - w) / (e - w) * W - box.x) * scale;
+                    const y = ((n - pt[1]) / (n - s) * H - box.y) * scale;
                     if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
                 });
                 ctx.closePath();
