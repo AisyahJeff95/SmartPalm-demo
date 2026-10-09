@@ -93,7 +93,7 @@ def main():
             "bounds": {"left": b.left, "bottom": b.bottom, "right": b.right, "top": b.top},
             "width": w,
             "height": h,
-            "data": np.round(grid, 3).tolist(),
+            "data": [[round(float(v), 3) for v in row] for row in grid],
         }
         vals = grid[grid > 0]
         print(f"  ✓ {nut}: {w}x{h} grid, {valid_px} px in polygon, mean={vals.mean():.3f}")

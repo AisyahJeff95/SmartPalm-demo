@@ -3910,17 +3910,27 @@ function toggleSatDataMode(mode) {
                 Mg: props.mg
             };
             
+            // Format to 2 decimal places; show "--" when no value
+            const fmt2 = (v) => {
+                const num = parseFloat(v);
+                return (v === null || v === undefined || isNaN(num)) ? '--' : num.toFixed(2);
+            };
+
             // Comprehensive Panel
-            setElementText('comp-n-val', `${props.n} %`);
-            setElementText('comp-p-val', `${props.p} %`);
-            setElementText('comp-k-val', `${props.k} %`);
-            setElementText('comp-mg-val', `${props.mg} %`);
+            setElementText('comp-n-val', `${fmt2(props.n)} %`);
+            setElementText('comp-p-val', `${fmt2(props.p)} %`);
+            setElementText('comp-k-val', `${fmt2(props.k)} %`);
+            setElementText('comp-mg-val', `${fmt2(props.mg)} %`);
+            setElementText('comp-ca-val', `${fmt2(props.ca)} %`);
+            setElementText('comp-b-val', `${fmt2(props.b)} ppm`);
 
             // Standard Panel
-            setElementText('std-n-val', `${props.n} %`);
-            setElementText('std-p-val', `${props.p} %`);
-            setElementText('std-k-val', `${props.k} %`);
-            setElementText('std-mg-val', `${props.mg} %`);
+            setElementText('std-n-val', `${fmt2(props.n)} %`);
+            setElementText('std-p-val', `${fmt2(props.p)} %`);
+            setElementText('std-k-val', `${fmt2(props.k)} %`);
+            setElementText('std-mg-val', `${fmt2(props.mg)} %`);
+            setElementText('std-ca-val', `${fmt2(props.ca)} %`);
+            setElementText('std-b-val', `${fmt2(props.b)} ppm`);
             
             calculateStandardCorrectiveDosage();
         }
@@ -4019,6 +4029,8 @@ function toggleSatDataMode(mode) {
                 setElementText('comp-k-val', "-- %"); setElementText('comp-mg-val', "-- %");
                 setElementText('std-n-val', "-- %"); setElementText('std-p-val', "-- %");
                 setElementText('std-k-val', "-- %"); setElementText('std-mg-val', "-- %");
+                setElementText('comp-ca-val', "-- %"); setElementText('comp-b-val', "-- ppm");
+                setElementText('std-ca-val', "-- %"); setElementText('std-b-val', "-- ppm");
                 return;
             }
 
