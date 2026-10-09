@@ -2966,19 +2966,6 @@ function toggleSatDataMode(mode) {
                 </div>
             </div>
 
-            <!-- Card 5: Soil Data -->
-            <div class="ui-card flex-row-between" style="align-items: center;">
-                <div class="ui-card-label">Soil Data</div>
-                <div class="ui-inline-checkboxes">
-                    <label class="ui-checkbox-label">
-                        <input type="checkbox" id="chk-eds-inland"> Inland
-                    </label>
-                    <label class="ui-checkbox-label">
-                        <input type="checkbox" id="chk-eds-alluvial"> Alluvial / Coastal
-                    </label>
-                </div>
-            </div>
-
             <!-- Card 6: Nutrient Detection -->
             <div class="ui-card">
                 <div class="ui-card-label" style="margin-bottom: 12px;">Nutrient Detection</div>
@@ -5098,13 +5085,11 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                         box-sizing: border-box;
                         font-family: 'Segoe UI', 'Inter', sans-serif;
                         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-                        page-break-after: always;
                     }
                     @media print {
                         .report-page {
                             margin: 0;
                             box-shadow: none;
-                            page-break-after: always;
                         }
                     }
                 </style>
@@ -5285,25 +5270,6 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                     <div style="margin-top: 18px; border-top: 1px solid #cbd5e1; padding-top: 8px; font-size: 8px; color: #94a3b8; text-align: center; line-height: 1.3;">
                       Disclaimer: This report is generated dynamically by the MPOB PalmNex system based on Sentinel-2 satellite imagery index calculations, MEDS agronomic yield matrices, and leaf nutrient analysis.
                     </div>
-                </div>
-
-                <!-- PAGE 2: Input parameters and complete detailed grids -->
-                <div class="report-page">
-                    <div style="border-bottom: 2.5px solid #2d6a4f; padding-bottom: 8px; margin-bottom: 14px;">
-                      <h1 style="margin: 0; color: #2d6a4f; font-size: 22px; font-weight: 700; letter-spacing: -0.5px;">${soilMode} Soil Analysis Input:</h1>
-                    </div>
-
-                    <!-- Characteristics Section -->
-                    ${char_html}
-
-                    <!-- Cost variables section -->
-                    ${cost_html}
-
-                    <!-- FFB Yield Prediction Table -->
-                    ${yield_table_html}
-
-                    <!-- Revenue Gain Table -->
-                    ${revenue_table_html}
                 </div>
                 `;
             }
