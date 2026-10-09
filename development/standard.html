@@ -1991,6 +1991,7 @@
     <script src="https://unpkg.com/proj4@latest/dist/proj4.js"></script>
     <script src="https://unpkg.com/shpjs@latest/dist/shp.js"></script>
     <script src="js/ppptar_raster_overlays.js"></script>
+    <script src="js/sekinchan1poly_raster_overlays.js"></script>
 <script>
 
 
@@ -3358,10 +3359,14 @@ function toggleSatDataMode(mode) {
 
             for (let key of ["N", "P", "K", "Mg", "Ca", "B"]) {
                 let r = null;
-                if (typeof RASTER_GRID_DATA !== 'undefined' && RASTER_GRID_DATA[key]) {
-                    r = RASTER_GRID_DATA[key];
-                } else if (typeof RASTER_GRID_DATA_PPPTAR !== 'undefined' && RASTER_GRID_DATA_PPPTAR[key]) {
-                    r = RASTER_GRID_DATA_PPPTAR[key];
+                // Use whichever prebuilt grid actually covers this point
+                const gridCandidates = [
+                    (typeof RASTER_GRID_DATA_SEKINCHAN !== 'undefined') ? RASTER_GRID_DATA_SEKINCHAN[key] : null,
+                    (typeof RASTER_GRID_DATA !== 'undefined') ? RASTER_GRID_DATA[key] : null,
+                    (typeof RASTER_GRID_DATA_PPPTAR !== 'undefined') ? RASTER_GRID_DATA_PPPTAR[key] : null
+                ];
+                for (const g of gridCandidates) {
+                    if (g && g.bounds && lat >= g.bounds.bottom && lat <= g.bounds.top && lng >= g.bounds.left && lng <= g.bounds.right) { r = g; break; }
                 }
 
                 if (r) {
@@ -4048,6 +4053,11 @@ function toggleSatDataMode(mode) {
             setTimeout(zoomToActiveMap, 60);
             setTimeout(zoomToActiveMap, 200);
             setTimeout(zoomToActiveMap, 500);
+            // Sekinchan has prebuilt rasters: re-apply the selected nutrient layer immediately
+            const activeLayerRadio = document.querySelector('input[name="comp_layer"]:checked');
+            if (val.includes('sekinchan') && activeLayerRadio && activeLayerRadio.value !== 'OFF') {
+                setTimeout(() => { if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp(activeLayerRadio.value); }, 250);
+            }
         }
 
 // Continuous Point-by-Point Pixel Raster Heatmap Generator with Point-In-Polygon Canvas Masking
@@ -4160,6 +4170,7 @@ function toggleNutrientLayerComp(layerValue) {
     const currentMapType = selectEl ? selectEl.value : 'lahad_datu_combined';
     const isLahadDatu = currentMapType.includes('lahad_datu') || currentMapType.includes('mpob_36_trial');
     const isPPPTAR = currentMapType.includes('ppptar');
+    const isSekinchan = currentMapType.includes('sekinchan');
 
     let bLayer = window.compBoundaryLayer || (typeof compBoundaryLayer !== 'undefined' ? compBoundaryLayer : null);
 
@@ -4175,7 +4186,12 @@ function toggleNutrientLayerComp(layerValue) {
             bLayer.setStyle({ color: "#ff7800", fillColor: "transparent", fillOpacity: 0.0 });
         }
 
-        if (window.DYNAMIC_PREDICTION_RASTERS && window.DYNAMIC_PREDICTION_RASTERS[layerValue]) {
+        if (isSekinchan && typeof RASTER_OVERLAYS_SEKINCHAN !== 'undefined' && RASTER_OVERLAYS_SEKINCHAN[layerValue]) {
+            // Prebuilt Sekinchan 1 Poly prediction (training_v3/predictions_sekinchan1poly_2026-10-09_130535)
+            let oData = RASTER_OVERLAYS_SEKINCHAN[layerValue];
+            window.compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.85, zIndex: 400 }).addTo(targetMap);
+            if (bLayer && typeof bLayer.bringToFront === 'function') bLayer.bringToFront();
+        } else if (window.DYNAMIC_PREDICTION_RASTERS && window.DYNAMIC_PREDICTION_RASTERS[layerValue]) {
             let oData = window.DYNAMIC_PREDICTION_RASTERS[layerValue];
             window.compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.85, zIndex: 400 }).addTo(targetMap);
             if (bLayer && typeof bLayer.bringToFront === 'function') {
@@ -4205,10 +4221,11 @@ function toggleNutrientLayerStd(layerValue) {
         window.stdRasterOverlay = null;
     }
     
-    const selectEl = document.getElementById('map-select-std');
+    const selectEl = document.getElementById('map-select-std') || document.getElementById('map-select-comp');
     const currentMapType = selectEl ? selectEl.value : 'lahad_datu_combined';
     const isLahadDatu = currentMapType.includes('lahad_datu') || currentMapType.includes('mpob_36_trial');
     const isPPPTAR = currentMapType.includes('ppptar');
+    const isSekinchan = currentMapType.includes('sekinchan');
 
     let bLayer = window.stdBoundaryLayer || (typeof stdBoundaryLayer !== 'undefined' ? stdBoundaryLayer : null);
 
@@ -4224,7 +4241,12 @@ function toggleNutrientLayerStd(layerValue) {
             bLayer.setStyle({ color: "#10b981", fillColor: "transparent", fillOpacity: 0.0 });
         }
 
-        if (window.DYNAMIC_PREDICTION_RASTERS && window.DYNAMIC_PREDICTION_RASTERS[layerValue]) {
+        if (isSekinchan && typeof RASTER_OVERLAYS_SEKINCHAN !== 'undefined' && RASTER_OVERLAYS_SEKINCHAN[layerValue]) {
+            // Prebuilt Sekinchan 1 Poly prediction (training_v3/predictions_sekinchan1poly_2026-10-09_130535)
+            let oData = RASTER_OVERLAYS_SEKINCHAN[layerValue];
+            window.stdRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.85, zIndex: 400 }).addTo(targetMap);
+            if (bLayer && typeof bLayer.bringToFront === 'function') bLayer.bringToFront();
+        } else if (window.DYNAMIC_PREDICTION_RASTERS && window.DYNAMIC_PREDICTION_RASTERS[layerValue]) {
             let oData = window.DYNAMIC_PREDICTION_RASTERS[layerValue];
             window.stdRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.85, zIndex: 400 }).addTo(targetMap);
             if (bLayer && typeof bLayer.bringToFront === 'function') {

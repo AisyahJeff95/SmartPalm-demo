@@ -62,12 +62,18 @@ def find_shapefile_for_estate(estate_raw):
         if os.path.isfile(c):
             return c
 
+    def _norm(s):
+        return ''.join(ch for ch in s.lower() if ch.isalnum())
+
+    clean_norm = _norm(clean_name)
     for search_dir in [TRAINING_V3_DIR, BOUNDARIES_DIR, BASE_DIR]:
         if os.path.exists(search_dir):
             for fname in os.listdir(search_dir):
                 if fname.lower().endswith('.shp'):
                     fstem = os.path.splitext(fname)[0].lower()
-                    if clean_name.lower() in fstem or fstem in clean_name.lower():
+                    fnorm = _norm(fstem)
+                    if (clean_name.lower() in fstem or fstem in clean_name.lower()
+                            or (fnorm and (clean_norm == fnorm or clean_norm in fnorm or fnorm in clean_norm))):
                         return os.path.join(search_dir, fname)
 
     # Fallback to DEFAULT shapefile
