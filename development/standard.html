@@ -1992,6 +1992,17 @@
     <script src="https://unpkg.com/shpjs@latest/dist/shp.js"></script>
     <script src="js/ppptar_raster_overlays.js"></script>
     <script src="js/sekinchan1poly_raster_overlays.js"></script>
+    <script src="js/agathis_raster_overlays.js"></script>
+    <script src="js/belian_raster_overlays.js"></script>
+    <script src="js/binuang_raster_overlays.js"></script>
+    <script src="js/gaharu_raster_overlays.js"></script>
+    <script src="js/kapur_raster_overlays.js"></script>
+    <script src="js/keruing_raster_overlays.js"></script>
+    <script src="js/menggaris_raster_overlays.js"></script>
+    <script src="js/merbau_raster_overlays.js"></script>
+    <script src="js/ramin_raster_overlays.js"></script>
+    <script src="js/selanganbatu_raster_overlays.js"></script>
+    <script src="js/seraya_raster_overlays.js"></script>
     <script src="js/nutrient_full_map_grid.js"></script>
 <script>
 
@@ -2891,6 +2902,16 @@ function toggleSatDataMode(mode) {
                         <option value="" selected>-- Select Map Boundary --</option>
                         <option value="lahad_datu_combined">Lahad Datu - Boundary + 36 Trial Plots</option>
                         <option value="seraya">Seraya with block boundary</option>
+                        <option value="agathis">Agathis</option>
+                        <option value="belian">Belian</option>
+                        <option value="binuang">Binuang</option>
+                        <option value="gaharu">Gaharu</option>
+                        <option value="kapur">Kapur</option>
+                        <option value="keruing">Keruing</option>
+                        <option value="menggaris">Menggaris</option>
+                        <option value="merbau">Merbau</option>
+                        <option value="ramin">Ramin</option>
+                        <option value="selanganbatu">Selangan Batu</option>
                         <option value="sekinchan1poly">Sekinchan 1 Poly</option>
                         <option value="jengka24">Ladang Jengka 24</option>
                         <option value="jengka25">Ladang Jengka 25</option>
@@ -3331,7 +3352,9 @@ function toggleSatDataMode(mode) {
                 n: null,
                 p: null,
                 k: null,
-                mg: null
+                mg: null,
+                ca: null,
+                b: null
             };
 
             for (let key of ["N", "P", "K", "Mg", "Ca", "B"]) {
@@ -3340,7 +3363,18 @@ function toggleSatDataMode(mode) {
                 const gridCandidates = [
                     (typeof RASTER_GRID_DATA_SEKINCHAN !== 'undefined') ? RASTER_GRID_DATA_SEKINCHAN[key] : null,
                     (typeof RASTER_GRID_DATA !== 'undefined') ? RASTER_GRID_DATA[key] : null,
-                    (typeof RASTER_GRID_DATA_PPPTAR !== 'undefined') ? RASTER_GRID_DATA_PPPTAR[key] : null
+                    (typeof RASTER_GRID_DATA_PPPTAR !== 'undefined') ? RASTER_GRID_DATA_PPPTAR[key] : null,
+                    (typeof RASTER_GRID_DATA_AGATHIS !== 'undefined') ? RASTER_GRID_DATA_AGATHIS[key] : null,
+                    (typeof RASTER_GRID_DATA_BELIAN !== 'undefined') ? RASTER_GRID_DATA_BELIAN[key] : null,
+                    (typeof RASTER_GRID_DATA_BINUANG !== 'undefined') ? RASTER_GRID_DATA_BINUANG[key] : null,
+                    (typeof RASTER_GRID_DATA_GAHARU !== 'undefined') ? RASTER_GRID_DATA_GAHARU[key] : null,
+                    (typeof RASTER_GRID_DATA_KAPUR !== 'undefined') ? RASTER_GRID_DATA_KAPUR[key] : null,
+                    (typeof RASTER_GRID_DATA_KERUING !== 'undefined') ? RASTER_GRID_DATA_KERUING[key] : null,
+                    (typeof RASTER_GRID_DATA_MENGGARIS !== 'undefined') ? RASTER_GRID_DATA_MENGGARIS[key] : null,
+                    (typeof RASTER_GRID_DATA_MERBAU !== 'undefined') ? RASTER_GRID_DATA_MERBAU[key] : null,
+                    (typeof RASTER_GRID_DATA_RAMIN !== 'undefined') ? RASTER_GRID_DATA_RAMIN[key] : null,
+                    (typeof RASTER_GRID_DATA_SELANGANBATU !== 'undefined') ? RASTER_GRID_DATA_SELANGANBATU[key] : null,
+                    (typeof RASTER_GRID_DATA_SERAYA !== 'undefined') ? RASTER_GRID_DATA_SERAYA[key] : null
                 ];
                 for (const g of gridCandidates) {
                     if (g && g.bounds && lat >= g.bounds.bottom && lat <= g.bounds.top && lng >= g.bounds.left && lng <= g.bounds.right) { r = g; break; }
@@ -3523,22 +3557,51 @@ function toggleSatDataMode(mode) {
             ]
 };
 
+        const BENTA_ESTATE_KEYS = [
+            'agathis', 'belian', 'binuang', 'gaharu', 'kapur',
+            'keruing', 'menggaris', 'merbau', 'ramin', 'selanganbatu', 'seraya'
+        ];
+        const bentaTooltipFields = ["No_Block", "Area_Ha", "N_mean", "P_mean", "K_mean", "Mg_mean", "Ca_mean", "B_mean"];
+        for (const k of BENTA_ESTATE_KEYS) {
+            if (!BOUNDARY_TOOLTIP_FIELDS[k]) BOUNDARY_TOOLTIP_FIELDS[k] = bentaTooltipFields;
+            const sfx = k.toUpperCase();
+            if (typeof window !== 'undefined' && window[sfx + '_MAP_DATA']) {
+                REAL_MAPS_DATA[k] = window[sfx + '_MAP_DATA'];
+            }
+        }
+
         function loadShapeBoundaries(type) {
+            for (const k of BENTA_ESTATE_KEYS) {
+                const sfx = k.toUpperCase();
+                if (typeof window !== 'undefined' && window[sfx + '_MAP_DATA'] && (!REAL_MAPS_DATA[k] || k === 'seraya')) {
+                    REAL_MAPS_DATA[k] = window[sfx + '_MAP_DATA'];
+                }
+            }
             let blocksData = REAL_MAPS_DATA[type];
             if (!blocksData) return;
             
             const mapCenterLookup = {
-                lahad_datu:      lahadDatuCoords,
+                lahad_datu:          lahadDatuCoords,
                 lahad_datu_combined: lahadDatuCoords,
-                mpob_36_trial:   lahadDatuCoords,
-                seraya:          serayaCoords,
-                jengka24:        [3.775, 102.565],
-                jengka25:        [3.770, 102.560],
-                kota_gelanggi5:  [3.840, 102.500],
-                ppptar:          [3.800, 102.520],
-                geolocation_ish: [3.875, 101.090],
-                polygon_ish:     [3.780, 101.060],
-                soil_series:     [3.820, 101.080],
+                mpob_36_trial:       lahadDatuCoords,
+                seraya:              [4.6041, 117.5854],
+                agathis:             [4.7290, 117.5206],
+                belian:              [4.6558, 117.4987],
+                binuang:             [4.7068, 117.4710],
+                gaharu:              [4.6056, 117.5274],
+                kapur:               [4.7556, 117.4674],
+                keruing:             [4.5778, 117.6377],
+                menggaris:           [4.6756, 117.6277],
+                merbau:              [4.6290, 117.6207],
+                ramin:               [4.7157, 117.4078],
+                selanganbatu:        [4.6524, 117.4566],
+                jengka24:            [3.775, 102.565],
+                jengka25:            [3.770, 102.560],
+                kota_gelanggi5:      [3.840, 102.500],
+                ppptar:              [3.800, 102.520],
+                geolocation_ish:     [3.875, 101.090],
+                polygon_ish:         [3.780, 101.060],
+                soil_series:         [3.820, 101.080],
             };
             let center = mapCenterLookup[type] || lahadDatuCoords;
             let mapName = blocksData.mapName || type;
@@ -3829,6 +3892,15 @@ function toggleSatDataMode(mode) {
             selectedLng = latlng.lng;
             
             let sampled = sampleRastersOrFallback(latlng.lat, latlng.lng);
+            if ((sampled.n === null || sampled.n === undefined) && feature && feature.properties) {
+                const p = feature.properties;
+                if (p.N_mean !== undefined) sampled.n = p.N_mean; else if (p.n !== undefined) sampled.n = p.n;
+                if (p.P_mean !== undefined) sampled.p = p.P_mean; else if (p.p !== undefined) sampled.p = p.p;
+                if (p.K_mean !== undefined) sampled.k = p.K_mean; else if (p.k !== undefined) sampled.k = p.k;
+                if (p.Mg_mean !== undefined) sampled.mg = p.Mg_mean; else if (p.mg !== undefined) sampled.mg = p.mg;
+                if (p.Ca_mean !== undefined) sampled.ca = p.Ca_mean; else if (p.ca !== undefined) sampled.ca = p.ca;
+                if (p.B_mean !== undefined) sampled.b = p.B_mean; else if (p.b !== undefined) sampled.b = p.b;
+            }
             updateNutrientValues(sampled);
             
             // Update Coordinate Labels
@@ -4042,10 +4114,14 @@ function toggleSatDataMode(mode) {
             setTimeout(zoomToActiveMap, 60);
             setTimeout(zoomToActiveMap, 200);
             setTimeout(zoomToActiveMap, 500);
-            // Sekinchan / PPPTAR have prebuilt rasters: re-apply the selected nutrient layer immediately
-            const activeLayerRadio = document.querySelector('input[name="comp_layer"]:checked');
-            if ((val.includes('sekinchan') || val.includes('ppptar')) && activeLayerRadio && activeLayerRadio.value !== 'OFF') {
-                setTimeout(() => { if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp(activeLayerRadio.value); }, 250);
+            // Sekinchan / PPPTAR / Benta estates have prebuilt rasters: re-apply the selected nutrient layer immediately
+            const activeLayerRadio = document.querySelector('input[name="comp_layer"]:checked') || document.querySelector('input[name="std_layer"]:checked');
+            const hasPrebuiltRaster = val.includes('sekinchan') || val.includes('ppptar') || BENTA_ESTATE_KEYS.some(k => val.includes(k));
+            if (hasPrebuiltRaster && activeLayerRadio && activeLayerRadio.value !== 'OFF') {
+                setTimeout(() => {
+                    if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp(activeLayerRadio.value);
+                    if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd(activeLayerRadio.value);
+                }, 250);
             }
         }
 
@@ -4144,6 +4220,34 @@ function createContinuousNutrientRaster(boundaryLayer, layerValue, map) {
     return overlay;
 }
 
+// Helper to resolve prebuilt raster overlays for any estate (Benta, Sekinchan, PPPTAR, Lahad Datu)
+function getActiveEstateRasterOverlays(mapType) {
+    if (!mapType) return null;
+    const cleanType = mapType.toLowerCase();
+    const overlaysLookup = {
+        'agathis': (typeof RASTER_OVERLAYS_AGATHIS !== 'undefined') ? RASTER_OVERLAYS_AGATHIS : null,
+        'belian': (typeof RASTER_OVERLAYS_BELIAN !== 'undefined') ? RASTER_OVERLAYS_BELIAN : null,
+        'binuang': (typeof RASTER_OVERLAYS_BINUANG !== 'undefined') ? RASTER_OVERLAYS_BINUANG : null,
+        'gaharu': (typeof RASTER_OVERLAYS_GAHARU !== 'undefined') ? RASTER_OVERLAYS_GAHARU : null,
+        'kapur': (typeof RASTER_OVERLAYS_KAPUR !== 'undefined') ? RASTER_OVERLAYS_KAPUR : null,
+        'keruing': (typeof RASTER_OVERLAYS_KERUING !== 'undefined') ? RASTER_OVERLAYS_KERUING : null,
+        'menggaris': (typeof RASTER_OVERLAYS_MENGGARIS !== 'undefined') ? RASTER_OVERLAYS_MENGGARIS : null,
+        'merbau': (typeof RASTER_OVERLAYS_MERBAU !== 'undefined') ? RASTER_OVERLAYS_MERBAU : null,
+        'ramin': (typeof RASTER_OVERLAYS_RAMIN !== 'undefined') ? RASTER_OVERLAYS_RAMIN : null,
+        'selanganbatu': (typeof RASTER_OVERLAYS_SELANGANBATU !== 'undefined') ? RASTER_OVERLAYS_SELANGANBATU : null,
+        'seraya': (typeof RASTER_OVERLAYS_SERAYA !== 'undefined') ? RASTER_OVERLAYS_SERAYA : null,
+        'sekinchan': (typeof RASTER_OVERLAYS_SEKINCHAN !== 'undefined') ? RASTER_OVERLAYS_SEKINCHAN : null,
+        'ppptar': (typeof RASTER_OVERLAYS_PPPTAR !== 'undefined') ? RASTER_OVERLAYS_PPPTAR : null
+    };
+    for (const [k, v] of Object.entries(overlaysLookup)) {
+        if (cleanType.includes(k) && v) return v;
+    }
+    if (cleanType.includes('lahad_datu') || cleanType.includes('mpob_36_trial')) {
+        return (typeof RASTER_OVERLAYS !== 'undefined') ? RASTER_OVERLAYS : null;
+    }
+    return null;
+}
+
 // Toggle Nutrient Layer Heatmap Overlay on Comprehensive Map
 function toggleNutrientLayerComp(layerValue) {
     let targetMap = window.mapComp || (typeof mapComp !== 'undefined' ? mapComp : null);
@@ -4157,9 +4261,6 @@ function toggleNutrientLayerComp(layerValue) {
     
     const selectEl = document.getElementById('map-select-comp');
     const currentMapType = selectEl ? selectEl.value : 'lahad_datu_combined';
-    const isLahadDatu = currentMapType.includes('lahad_datu') || currentMapType.includes('mpob_36_trial');
-    const isPPPTAR = currentMapType.includes('ppptar');
-    const isSekinchan = currentMapType.includes('sekinchan');
 
     let bLayer = window.compBoundaryLayer || (typeof compBoundaryLayer !== 'undefined' ? compBoundaryLayer : null);
 
@@ -4175,14 +4276,9 @@ function toggleNutrientLayerComp(layerValue) {
             bLayer.setStyle({ color: "#ff7800", fillColor: "transparent", fillOpacity: 0.0 });
         }
 
-        if (isSekinchan && typeof RASTER_OVERLAYS_SEKINCHAN !== 'undefined' && RASTER_OVERLAYS_SEKINCHAN[layerValue]) {
-            // Prebuilt Sekinchan 1 Poly prediction (training_v3/predictions_sekinchan1poly_2026-10-09_130535)
-            let oData = RASTER_OVERLAYS_SEKINCHAN[layerValue];
-            window.compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.85, zIndex: 400 }).addTo(targetMap);
-            if (bLayer && typeof bLayer.bringToFront === 'function') bLayer.bringToFront();
-        } else if (isPPPTAR && typeof RASTER_OVERLAYS_PPPTAR !== 'undefined' && RASTER_OVERLAYS_PPPTAR[layerValue]) {
-            // Prebuilt Ladang PPPTAR prediction (training_v2/predictions_Ladang_PPPTAR_2026-10-06_130811)
-            let oData = RASTER_OVERLAYS_PPPTAR[layerValue];
+        const prebuiltOverlays = getActiveEstateRasterOverlays(currentMapType);
+        if (prebuiltOverlays && prebuiltOverlays[layerValue]) {
+            let oData = prebuiltOverlays[layerValue];
             window.compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.85, zIndex: 400 }).addTo(targetMap);
             if (bLayer && typeof bLayer.bringToFront === 'function') bLayer.bringToFront();
         } else if (window.DYNAMIC_PREDICTION_RASTERS && window.DYNAMIC_PREDICTION_RASTERS[layerValue]) {
@@ -4191,12 +4287,6 @@ function toggleNutrientLayerComp(layerValue) {
             if (bLayer && typeof bLayer.bringToFront === 'function') {
                 bLayer.bringToFront();
             }
-        } else if (isLahadDatu && typeof RASTER_OVERLAYS !== 'undefined' && RASTER_OVERLAYS[layerValue]) {
-            let oData = RASTER_OVERLAYS[layerValue];
-            window.compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.85, zIndex: 400 }).addTo(targetMap);
-        } else if (isPPPTAR && typeof RASTER_OVERLAYS_PPPTAR !== 'undefined' && RASTER_OVERLAYS_PPPTAR[layerValue]) {
-            let oData = RASTER_OVERLAYS_PPPTAR[layerValue];
-            window.compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.85, zIndex: 400 }).addTo(targetMap);
         } else if (bLayer && typeof createContinuousNutrientRaster === 'function') {
             window.compRasterOverlay = createContinuousNutrientRaster(bLayer, layerValue, targetMap);
         }
@@ -4217,9 +4307,6 @@ function toggleNutrientLayerStd(layerValue) {
     
     const selectEl = document.getElementById('map-select-std') || document.getElementById('map-select-comp');
     const currentMapType = selectEl ? selectEl.value : 'lahad_datu_combined';
-    const isLahadDatu = currentMapType.includes('lahad_datu') || currentMapType.includes('mpob_36_trial');
-    const isPPPTAR = currentMapType.includes('ppptar');
-    const isSekinchan = currentMapType.includes('sekinchan');
 
     let bLayer = window.stdBoundaryLayer || (typeof stdBoundaryLayer !== 'undefined' ? stdBoundaryLayer : null);
 
@@ -4235,14 +4322,9 @@ function toggleNutrientLayerStd(layerValue) {
             bLayer.setStyle({ color: "#10b981", fillColor: "transparent", fillOpacity: 0.0 });
         }
 
-        if (isSekinchan && typeof RASTER_OVERLAYS_SEKINCHAN !== 'undefined' && RASTER_OVERLAYS_SEKINCHAN[layerValue]) {
-            // Prebuilt Sekinchan 1 Poly prediction (training_v3/predictions_sekinchan1poly_2026-10-09_130535)
-            let oData = RASTER_OVERLAYS_SEKINCHAN[layerValue];
-            window.stdRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.85, zIndex: 400 }).addTo(targetMap);
-            if (bLayer && typeof bLayer.bringToFront === 'function') bLayer.bringToFront();
-        } else if (isPPPTAR && typeof RASTER_OVERLAYS_PPPTAR !== 'undefined' && RASTER_OVERLAYS_PPPTAR[layerValue]) {
-            // Prebuilt Ladang PPPTAR prediction (training_v2/predictions_Ladang_PPPTAR_2026-10-06_130811)
-            let oData = RASTER_OVERLAYS_PPPTAR[layerValue];
+        const prebuiltOverlays = getActiveEstateRasterOverlays(currentMapType);
+        if (prebuiltOverlays && prebuiltOverlays[layerValue]) {
+            let oData = prebuiltOverlays[layerValue];
             window.stdRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.85, zIndex: 400 }).addTo(targetMap);
             if (bLayer && typeof bLayer.bringToFront === 'function') bLayer.bringToFront();
         } else if (window.DYNAMIC_PREDICTION_RASTERS && window.DYNAMIC_PREDICTION_RASTERS[layerValue]) {
@@ -4251,12 +4333,6 @@ function toggleNutrientLayerStd(layerValue) {
             if (bLayer && typeof bLayer.bringToFront === 'function') {
                 bLayer.bringToFront();
             }
-        } else if (isLahadDatu && typeof RASTER_OVERLAYS !== 'undefined' && RASTER_OVERLAYS[layerValue]) {
-            let oData = RASTER_OVERLAYS[layerValue];
-            window.stdRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.85, zIndex: 400 }).addTo(targetMap);
-        } else if (isPPPTAR && typeof RASTER_OVERLAYS_PPPTAR !== 'undefined' && RASTER_OVERLAYS_PPPTAR[layerValue]) {
-            let oData = RASTER_OVERLAYS_PPPTAR[layerValue];
-            window.stdRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.85, zIndex: 400 }).addTo(targetMap);
         } else if (bLayer && typeof createContinuousNutrientRaster === 'function') {
             window.stdRasterOverlay = createContinuousNutrientRaster(bLayer, layerValue, targetMap);
         }
@@ -4786,8 +4862,10 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
 
                 let now = new Date();
                 let dateStr = now.toLocaleDateString('en-GB') + ', ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true }).toLowerCase();
-                let mapVal = document.getElementById('map-select-std') ? document.getElementById('map-select-std').value : 'lahad_datu';
-                let estateName = mapVal === 'seraya' ? 'Seraya with block boundary' : 'Lahad Datu with block boundary';
+                let selectStd = document.getElementById('map-select-std') || document.getElementById('map-select-comp');
+                let estateName = selectStd && selectStd.selectedIndex >= 0 && selectStd.options[selectStd.selectedIndex].value
+                    ? selectStd.options[selectStd.selectedIndex].text
+                    : 'Estate Boundary';
 
                 let htmlContent = `
                 <style>

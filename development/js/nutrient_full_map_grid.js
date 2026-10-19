@@ -130,22 +130,96 @@
     }
 
     function resolveRasterSource(mapKey) {
-        if (mapKey.includes('sekinchan') && typeof RASTER_OVERLAYS_SEKINCHAN !== 'undefined') {
-            const meta = (typeof SEKINCHAN_PREDICTION_META !== 'undefined') ? SEKINCHAN_PREDICTION_META : {};
-            return {
-                overlays: RASTER_OVERLAYS_SEKINCHAN,
-                grids: (typeof RASTER_GRID_DATA_SEKINCHAN !== 'undefined') ? RASTER_GRID_DATA_SEKINCHAN : null,
-                label: 'Prebuilt 10m prediction' + (meta.acquisition_date ? ` · Sentinel-2 ${meta.acquisition_date}` : '')
-            };
-        }
-        if (mapKey.includes('ppptar') && typeof RASTER_OVERLAYS_PPPTAR !== 'undefined') {
-            const meta = (typeof PPPTAR_PREDICTION_META !== 'undefined') ? PPPTAR_PREDICTION_META : {};
-            const runDate = meta.acquisition_date || (meta.timestamp ? String(meta.timestamp).split('_')[0] : '');
-            return {
-                overlays: RASTER_OVERLAYS_PPPTAR,
-                grids: (typeof RASTER_GRID_DATA_PPPTAR !== 'undefined') ? RASTER_GRID_DATA_PPPTAR : null,
-                label: 'Prebuilt 10m prediction' + (runDate ? ` · ${runDate}` : '')
-            };
+        const prebuiltMapSources = {
+            sekinchan: {
+                overlays: typeof RASTER_OVERLAYS_SEKINCHAN !== 'undefined' ? RASTER_OVERLAYS_SEKINCHAN : null,
+                grids: typeof RASTER_GRID_DATA_SEKINCHAN !== 'undefined' ? RASTER_GRID_DATA_SEKINCHAN : null,
+                meta: typeof SEKINCHAN_PREDICTION_META !== 'undefined' ? SEKINCHAN_PREDICTION_META : {},
+                label: 'Sekinchan 1 Poly'
+            },
+            ppptar: {
+                overlays: typeof RASTER_OVERLAYS_PPPTAR !== 'undefined' ? RASTER_OVERLAYS_PPPTAR : null,
+                grids: typeof RASTER_GRID_DATA_PPPTAR !== 'undefined' ? RASTER_GRID_DATA_PPPTAR : null,
+                meta: typeof PPPTAR_PREDICTION_META !== 'undefined' ? PPPTAR_PREDICTION_META : {},
+                label: 'Ladang PPPTAR'
+            },
+            agathis: {
+                overlays: typeof RASTER_OVERLAYS_AGATHIS !== 'undefined' ? RASTER_OVERLAYS_AGATHIS : null,
+                grids: typeof RASTER_GRID_DATA_AGATHIS !== 'undefined' ? RASTER_GRID_DATA_AGATHIS : null,
+                meta: typeof AGATHIS_PREDICTION_META !== 'undefined' ? AGATHIS_PREDICTION_META : {},
+                label: 'Agathis'
+            },
+            belian: {
+                overlays: typeof RASTER_OVERLAYS_BELIAN !== 'undefined' ? RASTER_OVERLAYS_BELIAN : null,
+                grids: typeof RASTER_GRID_DATA_BELIAN !== 'undefined' ? RASTER_GRID_DATA_BELIAN : null,
+                meta: typeof BELIAN_PREDICTION_META !== 'undefined' ? BELIAN_PREDICTION_META : {},
+                label: 'Belian'
+            },
+            binuang: {
+                overlays: typeof RASTER_OVERLAYS_BINUANG !== 'undefined' ? RASTER_OVERLAYS_BINUANG : null,
+                grids: typeof RASTER_GRID_DATA_BINUANG !== 'undefined' ? RASTER_GRID_DATA_BINUANG : null,
+                meta: typeof BINUANG_PREDICTION_META !== 'undefined' ? BINUANG_PREDICTION_META : {},
+                label: 'Binuang'
+            },
+            gaharu: {
+                overlays: typeof RASTER_OVERLAYS_GAHARU !== 'undefined' ? RASTER_OVERLAYS_GAHARU : null,
+                grids: typeof RASTER_GRID_DATA_GAHARU !== 'undefined' ? RASTER_GRID_DATA_GAHARU : null,
+                meta: typeof GAHARU_PREDICTION_META !== 'undefined' ? GAHARU_PREDICTION_META : {},
+                label: 'Gaharu'
+            },
+            kapur: {
+                overlays: typeof RASTER_OVERLAYS_KAPUR !== 'undefined' ? RASTER_OVERLAYS_KAPUR : null,
+                grids: typeof RASTER_GRID_DATA_KAPUR !== 'undefined' ? RASTER_GRID_DATA_KAPUR : null,
+                meta: typeof KAPUR_PREDICTION_META !== 'undefined' ? KAPUR_PREDICTION_META : {},
+                label: 'Kapur'
+            },
+            keruing: {
+                overlays: typeof RASTER_OVERLAYS_KERUING !== 'undefined' ? RASTER_OVERLAYS_KERUING : null,
+                grids: typeof RASTER_GRID_DATA_KERUING !== 'undefined' ? RASTER_GRID_DATA_KERUING : null,
+                meta: typeof KERUING_PREDICTION_META !== 'undefined' ? KERUING_PREDICTION_META : {},
+                label: 'Keruing'
+            },
+            menggaris: {
+                overlays: typeof RASTER_OVERLAYS_MENGGARIS !== 'undefined' ? RASTER_OVERLAYS_MENGGARIS : null,
+                grids: typeof RASTER_GRID_DATA_MENGGARIS !== 'undefined' ? RASTER_GRID_DATA_MENGGARIS : null,
+                meta: typeof MENGGARIS_PREDICTION_META !== 'undefined' ? MENGGARIS_PREDICTION_META : {},
+                label: 'Menggaris'
+            },
+            merbau: {
+                overlays: typeof RASTER_OVERLAYS_MERBAU !== 'undefined' ? RASTER_OVERLAYS_MERBAU : null,
+                grids: typeof RASTER_GRID_DATA_MERBAU !== 'undefined' ? RASTER_GRID_DATA_MERBAU : null,
+                meta: typeof MERBAU_PREDICTION_META !== 'undefined' ? MERBAU_PREDICTION_META : {},
+                label: 'Merbau'
+            },
+            ramin: {
+                overlays: typeof RASTER_OVERLAYS_RAMIN !== 'undefined' ? RASTER_OVERLAYS_RAMIN : null,
+                grids: typeof RASTER_GRID_DATA_RAMIN !== 'undefined' ? RASTER_GRID_DATA_RAMIN : null,
+                meta: typeof RAMIN_PREDICTION_META !== 'undefined' ? RAMIN_PREDICTION_META : {},
+                label: 'Ramin'
+            },
+            selanganbatu: {
+                overlays: typeof RASTER_OVERLAYS_SELANGANBATU !== 'undefined' ? RASTER_OVERLAYS_SELANGANBATU : null,
+                grids: typeof RASTER_GRID_DATA_SELANGANBATU !== 'undefined' ? RASTER_GRID_DATA_SELANGANBATU : null,
+                meta: typeof SELANGANBATU_PREDICTION_META !== 'undefined' ? SELANGANBATU_PREDICTION_META : {},
+                label: 'Selangan Batu'
+            },
+            seraya: {
+                overlays: typeof RASTER_OVERLAYS_SERAYA !== 'undefined' ? RASTER_OVERLAYS_SERAYA : null,
+                grids: typeof RASTER_GRID_DATA_SERAYA !== 'undefined' ? RASTER_GRID_DATA_SERAYA : null,
+                meta: typeof SERAYA_PREDICTION_META !== 'undefined' ? SERAYA_PREDICTION_META : {},
+                label: 'Seraya'
+            }
+        };
+
+        for (const [key, item] of Object.entries(prebuiltMapSources)) {
+            if (mapKey.includes(key) && item.overlays) {
+                const runDate = item.meta.acquisition_date || (item.meta.timestamp ? String(item.meta.timestamp).split('_')[0] : '2026');
+                return {
+                    overlays: item.overlays,
+                    grids: item.grids,
+                    label: `Prebuilt 10m prediction (${item.label}) · Sentinel-2 ${runDate}`
+                };
+            }
         }
         if (window.DYNAMIC_PREDICTION_RASTERS && Object.keys(window.DYNAMIC_PREDICTION_RASTERS).length) {
             return { overlays: window.DYNAMIC_PREDICTION_RASTERS, grids: null, label: 'Latest Run Prediction · 10m Sentinel-2' };
