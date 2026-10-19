@@ -2355,6 +2355,27 @@ function handleDroneImageUpload(event) {
     }
 }
 
+// Ensure dedicated panes for strict layer hierarchy:
+// 1. Base Map (z-index 200)
+// 2. Drone Orthomosaic (z-index 300)
+// 3. Nutrient Heatmap Color Rasters (z-index 400)
+// 4. Block Boundary Vectors & Labels (z-index 500)
+function ensureMapPanes(map) {
+    if (!map) return;
+    if (!map.getPane('dronePane')) {
+        const dp = map.createPane('dronePane');
+        dp.style.zIndex = 300;
+    }
+    if (!map.getPane('rasterPane')) {
+        const rp = map.createPane('rasterPane');
+        rp.style.zIndex = 400;
+    }
+    if (!map.getPane('boundaryPane')) {
+        const bp = map.createPane('boundaryPane');
+        bp.style.zIndex = 500;
+    }
+}
+
 function updateDroneImageOverlay() {
     const showDroneChk = document.getElementById('comp-show-drone-chk'); 
     const isShowDrone = showDroneChk ? showDroneChk.checked : false;
@@ -2380,27 +2401,31 @@ function updateDroneImageOverlay() {
 
     if (!isShowDrone) return;
 
-    if (!uploadedDroneUrl) {
+    if (mapComp) ensureMapPanes(mapComp);
+    if (mapStd) ensureMapPanes(mapStd);
+
+    const selectEl = document.getElementById('map-select-comp') || document.getElementById('map-select-std');
+    const curEstate = selectEl ? (selectEl.value || '').toLowerCase() : '';
+
+    let imgUrl = uploadedDroneUrl;
+    let imgBounds = null;
+
+    // Check if Agathis estate is active and use preprocessed Ultra HD drone mosaic
+    if (curEstate.includes('agathis') && (!uploadedDroneUrl || uploadedDroneUrl.includes('agathis_drone_hd'))) {
+        imgUrl = 'assets/agathis_drone_hd.webp';
+        // Exact georeferenced bounds: [[South, West], [North, East]]
+        imgBounds = L.latLngBounds([[4.6730344, 117.4893535], [4.7776123, 117.5559645]]);
+        if (droneDateInput && !droneDateInput.value) {
+            droneDateInput.value = '2026-05-05';
+        }
+    } else if (!uploadedDroneUrl) {
         alert("Please click 'Upload Drone' to upload your drone image (.tif, .png, or .jpg) first.");
         if (showDroneChk) showDroneChk.checked = false;
         return;
     }
 
     let activeBoundary = compBoundaryLayer || stdBoundaryLayer;
-    let imgUrl = uploadedDroneUrl;
-    let imgBounds = null;
-    let dateStr = "";
-
-    if (selectedDate) {
-        const parts = selectedDate.split('-');
-        if (parts.length === 3) {
-            dateStr = `${parts[2]}/${parts[1]}/${parts[0]}`;
-        } else {
-            dateStr = selectedDate;
-        }
-    }
-
-    if (activeBoundary) {
+    if (!imgBounds && activeBoundary) {
         imgBounds = activeBoundary.getBounds();
     }
 
@@ -2409,26 +2434,46 @@ function updateDroneImageOverlay() {
         return;
     }
 
-    if (mapComp) {
-        compDroneLayer = L.imageOverlay(imgUrl, imgBounds, {
+    let dateStr = "";
+    const activeDateVal = droneDateInput ? droneDateInput.value : '';
+    if (activeDateVal) {
+        const parts = activeDateVal.split('-');
+        if (parts.length === 3) {
+            dateStr = `${parts[2]}/${parts[1]}/${parts[0]}`;
+        } else {
+            dateStr = activeDateVal;
+        }
+    } else if (curEstate.includes('agathis')) {
+        dateStr = "05/05/2026";
+    }
+
+    function attachDroneLayer(mapInstance, paneName) {
+        let layer = L.imageOverlay(imgUrl, imgBounds, {
             opacity: 1.0,
             interactive: false,
-            zIndex: 250
-        }).addTo(mapComp);
-        if (activeBoundary) {
-            clipLayerToBoundary(compDroneLayer, compBoundaryLayer, mapComp);
-        }
+            pane: paneName
+        }).addTo(mapInstance);
+        
+        // Robust fallback if relative path needs parent/root prefix
+        layer.on('error', function() {
+            const alts = ['assets/agathis_drone_hd.webp', 'assets/agathis_drone_web.webp', 'development/assets/agathis_drone_hd.webp', '/assets/agathis_drone_hd.webp', '../assets/agathis_drone_hd.webp'];
+            for (let a of alts) {
+                if (a !== imgUrl) {
+                    imgUrl = a;
+                    layer.setUrl(a);
+                    break;
+                }
+            }
+        });
+        return layer;
+    }
+
+    if (mapComp) {
+        compDroneLayer = attachDroneLayer(mapComp, 'dronePane');
     }
 
     if (mapStd) {
-        stdDroneLayer = L.imageOverlay(imgUrl, imgBounds, {
-            opacity: 1.0,
-            interactive: false,
-            zIndex: 250
-        }).addTo(mapStd);
-        if (activeBoundary) {
-            clipLayerToBoundary(stdDroneLayer, stdBoundaryLayer, mapStd);
-        }
+        stdDroneLayer = attachDroneLayer(mapStd, 'dronePane');
     }
 
     let boundsForBadge = activeBoundary ? activeBoundary.getBounds() : imgBounds;
@@ -2442,7 +2487,7 @@ function updateDroneImageOverlay() {
         const badgeHtml = `
             <div class="sentinel-boundary-badge" style="background: rgba(15, 23, 42, 0.95); border: 1px solid #10b981; color: #ffffff; border-radius: 6px; padding: 2px 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); white-space: nowrap;">
                 <span class="badge-icon">🛸</span>
-                <span class="badge-title" style="color: #34d399; font-weight: 700;">Drone Orthomosaic</span>
+                <span class="badge-title" style="color: #34d399; font-weight: 700;">Drone Orthomosaic (Ultra HD)</span>
                 ${dateSpanHtml}
             </div>
         `;
@@ -2450,15 +2495,15 @@ function updateDroneImageOverlay() {
         const badgeIcon = L.divIcon({
             className: 'sentinel-badge-container',
             html: badgeHtml,
-            iconSize: [260, 32],
-            iconAnchor: [130, 36]
+            iconSize: [280, 32],
+            iconAnchor: [140, 36]
         });
 
         if (mapComp) {
-            compDroneDateBadge = L.marker(badgePos, { icon: badgeIcon, interactive: false, zIndexOffset: 1000 }).addTo(mapComp);
+            compDroneDateBadge = L.marker(badgePos, { icon: badgeIcon, interactive: false, pane: 'boundaryPane', zIndexOffset: 1000 }).addTo(mapComp);
         }
         if (mapStd) {
-            stdDroneDateBadge = L.marker(badgePos, { icon: badgeIcon, interactive: false, zIndexOffset: 1000 }).addTo(mapStd);
+            stdDroneDateBadge = L.marker(badgePos, { icon: badgeIcon, interactive: false, pane: 'boundaryPane', zIndexOffset: 1000 }).addTo(mapStd);
         }
     }
 }
@@ -3720,14 +3765,22 @@ function lockEnteredSatDate() {
             
             // Render on Page 2 map (Comprehensive)
             if (mapComp) {
+                ensureMapPanes(mapComp);
                 compBoundaryLayer = L.geoJSON(blocksData, {
-                    style: function(f) { return { color: "#ff7800", weight: 2, fillOpacity: (type === "polygon_ish" ? 0.15 : 0.0), fillColor: "#ff7800" }; },
+                    pane: 'boundaryPane',
+                    style: function(f) { return { color: "#ff7800", weight: 1.5, fillOpacity: 0.001, fillColor: "transparent" }; },
                     onEachFeature: (feature, layer) => {
                         const _tipFieldsC = (typeof BOUNDARY_TOOLTIP_FIELDS !== 'undefined' && BOUNDARY_TOOLTIP_FIELDS[type]) || [];
                         const _tipRowsC = _tipFieldsC.filter(k => feature.properties[k] !== undefined && feature.properties[k] !== '' && feature.properties[k] !== null)
                             .map(k => `<tr><td style="font-weight:600;padding:1px 6px;white-space:nowrap">${k}</td><td style="padding:1px 6px">${feature.properties[k]}</td></tr>`).join('');
                         const _tipHtmlC = `<div style="font-family:sans-serif;font-size:12px;max-width:300px"><b style="font-size:13px">${feature.properties.name}</b>${_tipRowsC ? `<table style="margin-top:4px;border-collapse:collapse">${_tipRowsC}</table>` : ''}</div>`;
                         layer.bindTooltip(_tipHtmlC, { sticky: true, className: 'block-tooltip', direction: 'top' });
+                        layer.on('mouseover', () => {
+                            layer.setStyle({ weight: 2.5, fillOpacity: 0.20, fillColor: "#ff7800" });
+                        });
+                        layer.on('mouseout', () => {
+                            layer.setStyle({ weight: 1.5, fillOpacity: 0.001, fillColor: "transparent" });
+                        });
                         layer.on('click', (e) => {
                             L.DomEvent.stopPropagation(e);
                             handleBlockClick(feature, e.latlng, 'comp', _tipHtmlC);
@@ -3738,14 +3791,22 @@ function lockEnteredSatDate() {
             
             // Render on Page 3 map (Standard)
             if (mapStd) {
+                ensureMapPanes(mapStd);
                 stdBoundaryLayer = L.geoJSON(blocksData, {
-                    style: function(f) { return { color: "#12b886", weight: 2, fillOpacity: (type === "polygon_ish" ? 0.15 : 0.0), fillColor: "#12b886" }; },
+                    pane: 'boundaryPane',
+                    style: function(f) { return { color: "#12b886", weight: 1.5, fillOpacity: 0.001, fillColor: "transparent" }; },
                     onEachFeature: (feature, layer) => {
                         const _tipFieldsS = (typeof BOUNDARY_TOOLTIP_FIELDS !== 'undefined' && BOUNDARY_TOOLTIP_FIELDS[type]) || [];
                         const _tipRowsS = _tipFieldsS.filter(k => feature.properties[k] !== undefined && feature.properties[k] !== '' && feature.properties[k] !== null)
                             .map(k => `<tr><td style="font-weight:600;padding:1px 6px;white-space:nowrap">${k}</td><td style="padding:1px 6px">${feature.properties[k]}</td></tr>`).join('');
                         const _tipHtmlS = `<div style="font-family:sans-serif;font-size:12px;max-width:300px"><b style="font-size:13px">${feature.properties.name}</b>${_tipRowsS ? `<table style="margin-top:4px;border-collapse:collapse">${_tipRowsS}</table>` : ''}</div>`;
                         layer.bindTooltip(_tipHtmlS, { sticky: true, direction: 'top' });
+                        layer.on('mouseover', () => {
+                            layer.setStyle({ weight: 2.5, fillOpacity: 0.20, fillColor: "#12b886" });
+                        });
+                        layer.on('mouseout', () => {
+                            layer.setStyle({ weight: 1.5, fillOpacity: 0.001, fillColor: "transparent" });
+                        });
                         layer.on('click', (e) => {
                             L.DomEvent.stopPropagation(e);
                             handleBlockClick(feature, e.latlng, 'std', _tipHtmlS);
@@ -3802,6 +3863,12 @@ function lockEnteredSatDate() {
                     let b = stdBoundaryLayer.getBounds();
                     if (b && b.isValid()) mapStd.fitBounds(b, { padding: [30, 30], maxZoom: 16 });
                 } catch(e) {}
+            }
+
+            // If drone overlay checkbox is active, automatically refresh/render drone overlay
+            const showDroneChk = document.getElementById('comp-show-drone-chk');
+            if (showDroneChk && showDroneChk.checked) {
+                updateDroneImageOverlay();
             }
         }
 
@@ -4307,7 +4374,8 @@ function createContinuousNutrientRaster(boundaryLayer, layerValue, map) {
     const dataUrl = canvas.toDataURL('image/png');
     
     // Pure Leaflet ImageOverlay anchored to geographic bounds (robust across zoom levels)
-    let overlay = L.imageOverlay(dataUrl, bounds, { opacity: 1.0, zIndex: 400 }).addTo(map);
+    ensureMapPanes(map);
+    let overlay = L.imageOverlay(dataUrl, bounds, { opacity: 0.75, pane: 'rasterPane', zIndex: 400 }).addTo(map);
     return overlay;
 }
 
@@ -4342,6 +4410,7 @@ function getActiveEstateRasterOverlays(mapType) {
 function toggleNutrientLayerComp(layerValue) {
     let targetMap = window.mapComp || (typeof mapComp !== 'undefined' ? mapComp : null);
     if (!targetMap) return;
+    ensureMapPanes(targetMap);
     document.querySelectorAll('#page-comprehensive .nutrient-legend-box').forEach(el => el.style.display = 'none');
     
     if (window.compRasterOverlay && targetMap) {
@@ -4356,24 +4425,24 @@ function toggleNutrientLayerComp(layerValue) {
 
     if (layerValue === "OFF") {
         if (bLayer) {
-            bLayer.setStyle({ color: "#ff7800", fillColor: "#ff7800", fillOpacity: 0.15 });
+            bLayer.setStyle({ color: "#ff7800", weight: 1.5, fillColor: "transparent", fillOpacity: 0.001 });
         }
     } else {
         let legendBox = document.getElementById(`${layerValue.toLowerCase()}-comp-legend`);
         if (legendBox) legendBox.style.display = 'block';
         
         if (bLayer) {
-            bLayer.setStyle({ color: "#ff7800", fillColor: "transparent", fillOpacity: 0.0 });
+            bLayer.setStyle({ color: "#ff7800", weight: 1.5, fillColor: "transparent", fillOpacity: 0.001 });
         }
 
         const prebuiltOverlays = getActiveEstateRasterOverlays(currentMapType);
         if (prebuiltOverlays && prebuiltOverlays[layerValue]) {
             let oData = prebuiltOverlays[layerValue];
-            window.compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.85, zIndex: 400 }).addTo(targetMap);
+            window.compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.75, pane: 'rasterPane', zIndex: 400 }).addTo(targetMap);
             if (bLayer && typeof bLayer.bringToFront === 'function') bLayer.bringToFront();
         } else if (window.DYNAMIC_PREDICTION_RASTERS && window.DYNAMIC_PREDICTION_RASTERS[layerValue]) {
             let oData = window.DYNAMIC_PREDICTION_RASTERS[layerValue];
-            window.compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.85, zIndex: 400 }).addTo(targetMap);
+            window.compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.75, pane: 'rasterPane', zIndex: 400 }).addTo(targetMap);
             if (bLayer && typeof bLayer.bringToFront === 'function') {
                 bLayer.bringToFront();
             }
@@ -4388,6 +4457,7 @@ window.toggleNutrientLayerComp = toggleNutrientLayerComp;
 function toggleNutrientLayerStd(layerValue) {
     let targetMap = window.mapStd || (typeof mapStd !== 'undefined' ? mapStd : null);
     if (!targetMap) return;
+    ensureMapPanes(targetMap);
     document.querySelectorAll('#page-standard .nutrient-legend-box').forEach(el => el.style.display = 'none');
     
     if (window.stdRasterOverlay && targetMap) {
@@ -4402,24 +4472,24 @@ function toggleNutrientLayerStd(layerValue) {
 
     if (layerValue === "OFF") {
         if (bLayer) {
-            bLayer.setStyle({ color: "#10b981", fillColor: "#10b981", fillOpacity: 0.20 });
+            bLayer.setStyle({ color: "#10b981", weight: 1.5, fillColor: "transparent", fillOpacity: 0.001 });
         }
     } else {
         let legendBox = document.getElementById(`${layerValue.toLowerCase()}-std-legend`);
         if (legendBox) legendBox.style.display = 'block';
         
         if (bLayer) {
-            bLayer.setStyle({ color: "#10b981", fillColor: "transparent", fillOpacity: 0.0 });
+            bLayer.setStyle({ color: "#10b981", weight: 1.5, fillColor: "transparent", fillOpacity: 0.001 });
         }
 
         const prebuiltOverlays = getActiveEstateRasterOverlays(currentMapType);
         if (prebuiltOverlays && prebuiltOverlays[layerValue]) {
             let oData = prebuiltOverlays[layerValue];
-            window.stdRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.85, zIndex: 400 }).addTo(targetMap);
+            window.stdRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.75, pane: 'rasterPane', zIndex: 400 }).addTo(targetMap);
             if (bLayer && typeof bLayer.bringToFront === 'function') bLayer.bringToFront();
         } else if (window.DYNAMIC_PREDICTION_RASTERS && window.DYNAMIC_PREDICTION_RASTERS[layerValue]) {
             let oData = window.DYNAMIC_PREDICTION_RASTERS[layerValue];
-            window.stdRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.85, zIndex: 400 }).addTo(targetMap);
+            window.stdRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.75, pane: 'rasterPane', zIndex: 400 }).addTo(targetMap);
             if (bLayer && typeof bLayer.bringToFront === 'function') {
                 bLayer.bringToFront();
             }
