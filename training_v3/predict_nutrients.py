@@ -267,21 +267,39 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_overr
 
     # STEP 3: GeoTIFF Rasters & Overlays
     print("\nSTEP 3: Building GeoTIFF rasters & PNG overlays...")
-    lons_uniq = np.sort(np.unique(df_grid['Longitude']))
-    lats_uniq = np.sort(np.unique(df_grid['Latitude']))[::-1] # Descending row order (top to bottom)
+    lons_all = df_grid['Longitude'].values
+    lats_all = df_grid['Latitude'].values
 
-    cols = len(lons_uniq)
-    rows = len(lats_uniq)
+    lons_uniq = np.sort(np.unique(lons_all))
+    lats_uniq = np.sort(np.unique(lats_all))
 
-    transform = from_bounds(min_lng, min_lat, max_lng, max_lat, cols, rows)
+    diff_lons = np.diff(lons_uniq)
+    diff_lats = np.diff(lats_uniq)
+
+    step_lng = np.median(diff_lons[diff_lons > 1e-6]) if len(diff_lons) > 0 else 0.00009
+    step_lat = np.median(diff_lats[diff_lats > 1e-6]) if len(diff_lats) > 0 else 0.00009
+
+    cols = int(round((max_lng - min_lng) / step_lng)) + 1
+    rows = int(round((max_lat - min_lat) / step_lat)) + 1
+
+    left = min_lng - step_lng / 2.0
+    right = left + cols * step_lng
+    top = max_lat + step_lat / 2.0
+    bottom = top - rows * step_lat
+
+    transform = from_bounds(left, bottom, right, top, cols, rows)
     crs = CRS.from_epsg(4326)
 
-    # Exact O(1) Dictionary Mapping
-    lng_to_col = {val: i for i, val in enumerate(lons_uniq)}
-    lat_to_row = {val: i for i, val in enumerate(lats_uniq)}
+    c_idx = np.clip(np.round((lons_all - min_lng) / step_lng).astype(int), 0, cols - 1)
+    r_idx = np.clip(np.round((max_lat - lats_all) / step_lat).astype(int), 0, rows - 1)
 
-    c_idx = np.array([lng_to_col[lng] for lng in df_grid['Longitude'].values])
-    r_idx = np.array([lat_to_row[lat] for lat in df_grid['Latitude'].values])
+    # Compute exact polygon interior mask so 100% of pixels inside the boundary are continuous with zero grid gaps
+    try:
+        from rasterio.features import geometry_mask
+        from shapely.geometry import mapping
+        inside_poly_mask = geometry_mask([mapping(poly_union)], out_shape=(rows, cols), transform=transform, invert=True)
+    except Exception:
+        inside_poly_mask = None
 
     overlays_dict = {}
     generated_files = [pred_csv_name, pred_csv_gz_name]
@@ -297,6 +315,33 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_overr
             if 0 <= r < rows and 0 <= c < cols and v > 0:
                 raster_grid[r, c] = v
                 rgba_img[r, c] = color_fn(v)
+
+        # Fill any missed interior pixels inside the polygon boundary (eliminates any rounding/grid gaps)
+        if inside_poly_mask is not None and np.any(~np.isnan(raster_grid)):
+            missing_interior = inside_poly_mask & np.isnan(raster_grid)
+            if np.any(missing_interior):
+                try:
+                    from scipy.ndimage import distance_transform_edt
+                    nearest_idx = distance_transform_edt(
+                        np.isnan(raster_grid),
+                        return_distances=False,
+                        return_indices=True
+                    )
+                    raster_grid[missing_interior] = raster_grid[tuple(nearest_idx[:, missing_interior])]
+                except Exception:
+                    for _ in range(6):
+                        if not np.any(missing_interior):
+                            break
+                        padded = np.pad(raster_grid, 1, mode='constant', constant_values=np.nan)
+                        for dr, dc in [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (-1, 1), (1, -1), (1, 1)]:
+                            shifted = padded[1 + dr : 1 + dr + rows, 1 + dc : 1 + dc + cols]
+                            can_fill = missing_interior & (~np.isnan(shifted))
+                            if np.any(can_fill):
+                                raster_grid[can_fill] = shifted[can_fill]
+                                missing_interior = inside_poly_mask & np.isnan(raster_grid)
+                filled_coords = np.argwhere(inside_poly_mask & (~np.isnan(raster_grid)) & (rgba_img[:, :, 3] == 0))
+                for r, c in filled_coords:
+                    rgba_img[r, c] = color_fn(float(raster_grid[r, c]))
 
         raster_results[nut] = raster_grid
 
@@ -323,13 +368,15 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_overr
         generated_files.append(out_tif_name)
         print(f"  ✓ Exported Float GeoTIFF: {out_tif_name}")
 
-
-
-        # PNG Base64 Overlay
+        # PNG Base64 Overlay (cap max dimension to 2000px so JSON response stays fast)
+        up = max(1, min(4, 2000 // max(cols, rows, 1)))
         img = Image.fromarray(rgba_img)
-        img_resized = img.resize((cols * 4, rows * 4), Image.Resampling.NEAREST)
+        if up > 1:
+            img_resized = img.resize((cols * up, rows * up), Image.Resampling.NEAREST)
+        else:
+            img_resized = img
         buf = io.BytesIO()
-        img_resized.save(buf, format="PNG")
+        img_resized.save(buf, format="PNG", optimize=True)
         b64_str = base64.b64encode(buf.getvalue()).decode('utf-8')
 
         overlays_dict[nut] = {
@@ -345,18 +392,36 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_overr
     for idx, poly, rec in wgs_polygons:
         b_name = f"Block_{idx+1}"
         if rec and len(rec) > 0:
-            b_name = str(rec[0])
+            for field in ['Blok_name', 'Block_No', 'No_Block', 'Block', 'name', 'NAME', 'BLOCK']:
+                if hasattr(rec, field) and getattr(rec, field):
+                    b_name = str(getattr(rec, field)).strip()
+                    break
+            else:
+                for val in reversed(rec):
+                    if isinstance(val, str) and val.strip() and not val.strip().isdigit():
+                        b_name = val.strip()
+                        break
+                else:
+                    b_name = str(rec[0])
 
         b_stats = {"Date": acquisition_date, "Estate": estate_name, "Block_ID": b_name}
         
-        block_prep = prep(poly)
-        block_mask = [block_prep.contains(Point(x, y)) for x, y in zip(lngs, lats)]
+        b_minx, b_miny, b_maxx, b_maxy = poly.bounds
+        bbox_mask = (lngs >= b_minx) & (lngs <= b_maxx) & (lats >= b_miny) & (lats <= b_maxy)
+        bbox_indices = np.where(bbox_mask)[0]
 
-        
+        if len(bbox_indices) > 0:
+            block_prep = prep(poly)
+            candidate_points = [Point(lngs[i], lats[i]) for i in bbox_indices]
+            sub_mask = [block_prep.contains(pt) for pt in candidate_points]
+            matched_indices = bbox_indices[sub_mask]
+        else:
+            matched_indices = []
+
         for target in TARGET_COLS:
             vals = df_grid[target].values
-            sub_vals = vals[block_mask]
-            if len(sub_vals) > 0:
+            if len(matched_indices) > 0:
+                sub_vals = vals[matched_indices]
                 b_stats[f"{target}_mean"] = float(np.mean(sub_vals))
                 b_stats[f"{target}_min"] = float(np.min(sub_vals))
                 b_stats[f"{target}_max"] = float(np.max(sub_vals))
@@ -409,7 +474,9 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Spatial Nutrient Prediction Engine")
     parser.add_argument("--shp", type=str, default=DEFAULT_SHAPEFILE, help="Path to target shapefile (.shp)")
     parser.add_argument("--date", type=str, default="2026-10-06", help="Target acquisition date (e.g., '2026-10-06', '06-Oct-2026', 'today')")
+    parser.add_argument("--out", type=str, default=None, help="Parent folder for the output (default: training_v3/). E.g. 'training_v3/2019'")
     args = parser.parse_args()
 
-    run_predictions(shp_path=args.shp, acquisition_date=args.date)
+    result = run_predictions(shp_path=args.shp, acquisition_date=args.date, out_dir_override=args.out)
+    sys.exit(0 if result else 1)
 

@@ -119,17 +119,29 @@ def read_window_data(asset_url: str, bbox: list, out_crs="EPSG:4326"):
     with rasterio.open(asset_url) as src:
         minx, miny, maxx, maxy = transform_bounds(out_crs, src.crs, bbox[0], bbox[1], bbox[2], bbox[3])
         win = from_bounds(minx, miny, maxx, maxy, src.transform)
-        win = win.intersection(rasterio.windows.Window(0, 0, src.width, src.height))
+        full_win = rasterio.windows.Window(0, 0, src.width, src.height)
+        try:
+            win = win.intersection(full_win)
+        except Exception:
+            return None, src.crs, None
+        if win.width <= 0 or win.height <= 0:
+            return None, src.crs, None
         data = src.read(1, window=win)
         win_transform = rasterio.windows.transform(win, src.transform)
         return data, src.crs, win_transform
 
-def sample_coordinates(data: np.ndarray, crs, win_transform, lons: np.ndarray, lats: np.ndarray):
+def sample_coordinates(data: np.ndarray, crs, win_transform, lons: np.ndarray, lats: np.ndarray, default_val=0):
+    if data is None or win_transform is None or data.size == 0:
+        return np.full(len(lons), default_val, dtype=np.float32)
     xs, ys = transform('EPSG:4326', crs, lons, lats)
     rows, cols = rasterio.transform.rowcol(win_transform, xs, ys)
-    rows = np.clip(rows, 0, data.shape[0] - 1)
-    cols = np.clip(cols, 0, data.shape[1] - 1)
-    return data[rows, cols]
+    rows = np.asarray(rows)
+    cols = np.asarray(cols)
+    valid = (rows >= 0) & (rows < data.shape[0]) & (cols >= 0) & (cols < data.shape[1])
+    out = np.full(len(lons), default_val, dtype=data.dtype)
+    if np.any(valid):
+        out[valid] = data[rows[valid], cols[valid]]
+    return out
 
 def fetch_sentinel_for_shapefile(
     shp_path: str,
@@ -199,19 +211,41 @@ def fetch_sentinel_for_shapefile(
 
     print(f"  ✓ Shapefile WGS84 Bounds: Lng [{min_lng:.5f}, {max_lng:.5f}], Lat [{min_lat:.5f}, {max_lat:.5f}]")
 
-    # 2. Generate Uncapped 10m Spatial Grid points across entire polygon boundary
+    # 2. Generate 10m Spatial Grid points across entire polygon boundary
     avg_lat = (min_lat + max_lat) / 2.0
     step_lat = grid_spacing_m / 110600.0
     step_lng = grid_spacing_m / (110600.0 * math.cos(math.radians(avg_lat)))
 
-    lons_seq = np.arange(min_lng, max_lng + step_lng, step_lng)
-    lats_seq = np.arange(max_lat, min_lat - step_lat, -step_lat)
+    cols_est = int(round((max_lng - min_lng) / step_lng)) + 1
+    rows_est = int(round((max_lat - min_lat) / step_lat)) + 1
+    max_dim = max(cols_est, rows_est)
+    if max_dim > 450:
+        scale = max_dim / 450.0
+        step_lng *= scale
+        step_lat *= scale
+
+    lons_seq = np.arange(min_lng, max_lng + step_lng * 0.5, step_lng)
+    lats_seq = np.arange(max_lat, min_lat - step_lat * 0.5, -step_lat)
     lon_grid, lat_grid = np.meshgrid(lons_seq, lats_seq)
     lon_flat = lon_grid.flatten()
     lat_flat = lat_grid.flatten()
 
-    pts = [Point(x, y) for x, y in zip(lon_flat, lat_flat)]
-    inside_mask = [prep_poly.contains(p) for p in pts]
+    try:
+        from rasterio.features import geometry_mask
+        from rasterio.transform import from_bounds as _from_bounds
+        from shapely.geometry import mapping
+        _cols, _rows = len(lons_seq), len(lats_seq)
+        _left = min_lng - step_lng / 2.0
+        _right = _left + _cols * step_lng
+        _top = max_lat + step_lat / 2.0
+        _bottom = _top - _rows * step_lat
+        _tf = _from_bounds(_left, _bottom, _right, _top, _cols, _rows)
+        inside_2d = geometry_mask([mapping(poly_union)], out_shape=(_rows, _cols), transform=_tf, invert=True)
+        inside_mask = inside_2d.flatten()
+    except Exception:
+        pts = [Point(x, y) for x, y in zip(lon_flat, lat_flat)]
+        inside_mask = [prep_poly.contains(p) for p in pts]
+
     lons = lon_flat[inside_mask]
     lats = lat_flat[inside_mask]
     num_points = len(lons)

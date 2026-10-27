@@ -4152,6 +4152,7 @@ function toggleSatDataMode(mode) {
         // Switch dropdown map change with zoom-to-boundary support
         // Switch dropdown map change with robust zoom-to-boundary support
         function onMapSelectChanged(val) {
+            window.DYNAMIC_PREDICTION_RASTERS = null;
             setElementValue('map-select-comp', val);
             setElementValue('map-select-std', val);
 
@@ -4365,16 +4366,16 @@ function toggleNutrientLayerComp(layerValue) {
         }
 
         const prebuiltOverlays = getActiveEstateRasterOverlays(currentMapType);
-        if (prebuiltOverlays && prebuiltOverlays[layerValue]) {
-            let oData = prebuiltOverlays[layerValue];
-            window.compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.75, pane: 'rasterPane', zIndex: 400 }).addTo(targetMap);
-            if (bLayer && typeof bLayer.bringToFront === 'function') bLayer.bringToFront();
-        } else if (window.DYNAMIC_PREDICTION_RASTERS && window.DYNAMIC_PREDICTION_RASTERS[layerValue]) {
+        if (window.DYNAMIC_PREDICTION_RASTERS && window.DYNAMIC_PREDICTION_RASTERS[layerValue]) {
             let oData = window.DYNAMIC_PREDICTION_RASTERS[layerValue];
             window.compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.75, pane: 'rasterPane', zIndex: 400 }).addTo(targetMap);
             if (bLayer && typeof bLayer.bringToFront === 'function') {
                 bLayer.bringToFront();
             }
+        } else if (prebuiltOverlays && prebuiltOverlays[layerValue]) {
+            let oData = prebuiltOverlays[layerValue];
+            window.compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.75, pane: 'rasterPane', zIndex: 400 }).addTo(targetMap);
+            if (bLayer && typeof bLayer.bringToFront === 'function') bLayer.bringToFront();
         } else if (bLayer && typeof createContinuousNutrientRaster === 'function') {
             window.compRasterOverlay = createContinuousNutrientRaster(bLayer, layerValue, targetMap);
         }
@@ -4412,16 +4413,16 @@ function toggleNutrientLayerStd(layerValue) {
         }
 
         const prebuiltOverlays = getActiveEstateRasterOverlays(currentMapType);
-        if (prebuiltOverlays && prebuiltOverlays[layerValue]) {
-            let oData = prebuiltOverlays[layerValue];
-            window.stdRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.75, pane: 'rasterPane', zIndex: 400 }).addTo(targetMap);
-            if (bLayer && typeof bLayer.bringToFront === 'function') bLayer.bringToFront();
-        } else if (window.DYNAMIC_PREDICTION_RASTERS && window.DYNAMIC_PREDICTION_RASTERS[layerValue]) {
+        if (window.DYNAMIC_PREDICTION_RASTERS && window.DYNAMIC_PREDICTION_RASTERS[layerValue]) {
             let oData = window.DYNAMIC_PREDICTION_RASTERS[layerValue];
             window.stdRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.75, pane: 'rasterPane', zIndex: 400 }).addTo(targetMap);
             if (bLayer && typeof bLayer.bringToFront === 'function') {
                 bLayer.bringToFront();
             }
+        } else if (prebuiltOverlays && prebuiltOverlays[layerValue]) {
+            let oData = prebuiltOverlays[layerValue];
+            window.stdRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.75, pane: 'rasterPane', zIndex: 400 }).addTo(targetMap);
+            if (bLayer && typeof bLayer.bringToFront === 'function') bLayer.bringToFront();
         } else if (bLayer && typeof createContinuousNutrientRaster === 'function') {
             window.stdRasterOverlay = createContinuousNutrientRaster(bLayer, layerValue, targetMap);
         }
@@ -4772,7 +4773,8 @@ function runRfrPredictionFlow() {
                         estate_name: mapType,
                         date: targetDate,
                         is_realtime: isRealtime,
-                        bounds: bounds
+                        bounds: bounds,
+                        geojson: (typeof REAL_MAPS_DATA !== 'undefined' && REAL_MAPS_DATA[shpKey]) ? REAL_MAPS_DATA[shpKey] : null
                     }),
                     signal: window._PREDICTION_ABORT_CTRL.signal
                 });

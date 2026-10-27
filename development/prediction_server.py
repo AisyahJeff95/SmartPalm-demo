@@ -48,7 +48,7 @@ if os.path.isfile(PREDICT_SCRIPT_PATH):
     except Exception as e:
         print(f"! Warning: Failed to load predict_nutrients module from training_v3: {e}")
 
-def find_shapefile_for_estate(estate_raw):
+def find_shapefile_for_estate(estate_raw, geojson_data=None):
     """Finds matching .shp file across training_v3/map, training_v3, development/boundaries, or development."""
     clean_name = estate_raw.strip()
     map_dir = os.path.join(TRAINING_V3_DIR, "map")
@@ -75,6 +75,34 @@ def find_shapefile_for_estate(estate_raw):
                     if (clean_name.lower() in fstem or fstem in clean_name.lower()
                             or (fnorm and (clean_norm == fnorm or clean_norm in fnorm or fnorm in clean_norm))):
                         return os.path.join(search_dir, fname)
+
+    # If client passed GeoJSON for an estate/custom shapefile not yet on disk, synthesize a .shp in BOUNDARIES_DIR
+    if geojson_data and isinstance(geojson_data, dict) and geojson_data.get("features"):
+        try:
+            import shapefile
+            os.makedirs(BOUNDARIES_DIR, exist_ok=True)
+            safe_stem = "".join(ch if (ch.isalnum() or ch in ("_", "-")) else "_" for ch in clean_name).strip("_") or "custom_estate"
+            out_shp = os.path.join(BOUNDARIES_DIR, f"{safe_stem}.shp")
+            with shapefile.Writer(out_shp, shapeType=shapefile.POLYGON) as w:
+                w.field("No_Block", "C", size=80)
+                for idx, feat in enumerate(geojson_data.get("features", [])):
+                    geom = feat.get("geometry") or {}
+                    props = feat.get("properties") or {}
+                    bname = str(props.get("No_Block") or props.get("name") or props.get("block") or f"Block_{idx+1}")
+                    gtype = geom.get("type", "")
+                    coords = geom.get("coordinates") or []
+                    if gtype == "Polygon" and coords:
+                        w.poly(coords)
+                        w.record(bname)
+                    elif gtype == "MultiPolygon" and coords:
+                        for poly_coords in coords:
+                            if poly_coords:
+                                w.poly(poly_coords)
+                                w.record(bname)
+            if os.path.isfile(out_shp):
+                return out_shp
+        except Exception as e:
+            print(f"  ! Warning: Failed to synthesize shapefile from GeoJSON: {e}")
 
     # Fallback to DEFAULT shapefile
     for fb in [
@@ -240,7 +268,7 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
             print(f"📅 Dashboard Prediction Request [LOCKED DATE MODE]: {estate_raw} (target date: {date_val})")
             print(f"==========================================================================")
 
-        shp_path = find_shapefile_for_estate(estate_raw)
+        shp_path = find_shapefile_for_estate(estate_raw, geojson_data=data.get("geojson"))
         if not shp_path or not os.path.isfile(shp_path):
             return self._send_json(400, {"error": f"Shapefile for '{estate_raw}' not found"})
 
