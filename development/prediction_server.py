@@ -49,16 +49,16 @@ if os.path.isfile(PREDICT_SCRIPT_PATH):
         print(f"! Warning: Failed to load predict_nutrients module from training_v3: {e}")
 
 def find_shapefile_for_estate(estate_raw):
-    """Finds matching .shp file across training_v3, development/boundaries, or development."""
+    """Finds matching .shp file across training_v3/map, training_v3, development/boundaries, or development."""
     clean_name = estate_raw.strip()
+    map_dir = os.path.join(TRAINING_V3_DIR, "map")
+    sekinchan_dir = os.path.join(TRAINING_V3_DIR, "sekinchan")
+    reada_dir = os.path.join(PROJECT_ROOT, "Reada-standalone")
     
-    candidates = [
-        os.path.join(TRAINING_V3_DIR, f"{clean_name}.shp"),
-        os.path.join(BOUNDARIES_DIR, f"{clean_name}.shp"),
-        os.path.join(BASE_DIR, f"{clean_name}.shp"),
-    ]
+    search_dirs = [map_dir, TRAINING_V3_DIR, sekinchan_dir, BOUNDARIES_DIR, BASE_DIR, reada_dir]
 
-    for c in candidates:
+    for sdir in search_dirs:
+        c = os.path.join(sdir, f"{clean_name}.shp")
         if os.path.isfile(c):
             return c
 
@@ -66,7 +66,7 @@ def find_shapefile_for_estate(estate_raw):
         return ''.join(ch for ch in s.lower() if ch.isalnum())
 
     clean_norm = _norm(clean_name)
-    for search_dir in [TRAINING_V3_DIR, BOUNDARIES_DIR, BASE_DIR]:
+    for search_dir in search_dirs:
         if os.path.exists(search_dir):
             for fname in os.listdir(search_dir):
                 if fname.lower().endswith('.shp'):
@@ -77,9 +77,13 @@ def find_shapefile_for_estate(estate_raw):
                         return os.path.join(search_dir, fname)
 
     # Fallback to DEFAULT shapefile
-    fallback_shp = os.path.join(TRAINING_V3_DIR, "Seraya with Block Boundary.shp")
-    if os.path.isfile(fallback_shp):
-        return fallback_shp
+    for fb in [
+        os.path.join(map_dir, "seraya.shp"),
+        os.path.join(TRAINING_V3_DIR, "Seraya with Block Boundary.shp"),
+        os.path.join(reada_dir, "Seraya with Block Boundary.shp")
+    ]:
+        if os.path.isfile(fb):
+            return fb
     
     return None
 
@@ -246,7 +250,9 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
             return self._send_json(500, {"error": "Prediction engine not loaded"})
 
         # Run real prediction pipeline from training_v3/predict_nutrients.py
+        t0 = time.time()
         result = run_predictions(shp_path=shp_path, acquisition_date=date_val, out_dir_override=PREDICTIONS_DIR)
+        elapsed_sec = round(time.time() - t0, 2)
 
         if not result:
             return self._send_json(500, {"error": "Prediction pipeline execution failed"})
@@ -254,6 +260,10 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
         response_payload = {
             "status": "success",
             "message": f"Real 10m Sentinel predictions & shapefile rasters generated for {estate_raw}",
+            "shp_path": shp_path,
+            "target_date": date_val,
+            "is_realtime": bool(is_realtime),
+            "execution_time_sec": elapsed_sec,
             "folder_name": result["folder_name"],
             "folder_path": result["out_dir"],
             "files": result["files"],
