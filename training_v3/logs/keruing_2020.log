@@ -1,0 +1,58 @@
+
+=== attempt 1: /Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/predict_nutrients.py --shp /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/map/keruing.shp --date 2020-08-01 --out /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/2020
+==========================================================================
+🌴 SPATIAL NUTRIENT PREDICTION PIPELINE: keruing
+==========================================================================
+📁 Target Shapefile : /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/map/keruing.shp
+📅 Acquisition Date: 2020-08-01
+📁 Output Directory : /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/2020/predictions_keruing_2026-10-13_133707
+==========================================================================
+
+  ✓ Detected projected coordinates. Reprojecting Timbalai RSO (EPSG:29873) -> WGS84 (EPSG:4326)...
+  ✓ Bounds for keruing: Lng [117.5968, 117.6767], Lat [4.5340, 4.6214]
+Loading trained Random Forest models from /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3...
+  ✓ Loaded rf_model_N.pkl
+  ✓ Loaded rf_model_P.pkl
+  ✓ Loaded rf_model_K.pkl
+  ✓ Loaded rf_model_Mg.pkl
+  ✓ Loaded rf_model_Ca.pkl
+  ✓ Loaded rf_model_B.pkl
+
+STEP 1: Calling fetch_sentinel_for_shapefile() from fetch_sentinel_data.py...
+==========================================================================
+🛰️  UNCAPPED 10M CLOUD-FREE SENTINEL DATA FETCHER: keruing
+==========================================================================
+📁 Target Shapefile: /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/map/keruing.shp
+📅 Target Date     : 2020-08-01 (±30 days window)
+  ✓ Reprojecting Timbalai RSO (EPSG:29873) -> WGS84 (EPSG:4326)...
+  ✓ Shapefile WGS84 Bounds: Lng [117.59676, 117.67675], Lat [4.53403, 4.62145]
+  ✓ Generated 380,268 true 10m2 spatial grid points inside full estate map boundary (883 cols x 968 rows).
+
+--- Multi-Temporal SCL Cloud-Free Compositing (2020-07-02 to 2020-08-31, Cloud Filter: < 60%) ---
+  Pass S2B_MSIL2A_20200714T022549_R046_T50NNL_20200913T042129 (2020-07-14) | Added new clear pixels: 185,581 | Total clear composite: 185,581/380,268 (48.8%)
+  Pass S2A_MSIL2A_20200719T022551_R046_T50NNL_20200816T164814 (2020-07-19) | Added new clear pixels: 171,266 | Total clear composite: 356,847/380,268 (93.8%)
+  Pass S2A_MSIL2A_20200729T022601_R046_T50NNL_20200817T232507 (2020-07-29) | Added new clear pixels: 17,893 | Total clear composite: 374,740/380,268 (98.5%)
+  Pass S2B_MSIL2A_20200803T022549_R046_T50NNL_20200816T003816 (2020-08-03) | Added new clear pixels: 3,173 | Total clear composite: 377,913/380,268 (99.4%)
+  Pass S2A_MSIL2A_20200808T022601_R046_T50NNL_20200815T101626 (2020-08-08) | Added new clear pixels: 1,673 | Total clear composite: 379,586/380,268 (99.8%)
+  Pass S2B_MSIL2A_20200823T022549_R046_T50NNL_20201027T090819 (2020-08-23) | Added new clear pixels: 418 | Total clear composite: 380,004/380,268 (99.9%)
+  Pass S2A_MSIL2A_20200828T022551_R046_T50NNL_20200907T132647 (2020-08-28) | Added new clear pixels: 80 | Total clear composite: 380,084/380,268 (100.0%)
+
+✅ Sentinel Dataset Fetched Successfully: 380,268 cloud-free 10m grid records.
+
+STEP 2: Executing Random Forest predictions...
+  ✓ Exported predictions CSV: /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/2020/predictions_keruing_2026-10-13_133707/predicted_10m_nutrients.csv (380,268 records)
+  ✓ Exported predictions CSV.GZ: /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/2020/predictions_keruing_2026-10-13_133707/predicted_10m_nutrients.csv.gz
+
+STEP 3: Building GeoTIFF rasters & PNG overlays...
+  ✓ Exported Float GeoTIFF: N_nutrient_10m.tif
+  ✓ Exported Float GeoTIFF: P_nutrient_10m.tif
+  ✓ Exported Float GeoTIFF: K_nutrient_10m.tif
+  ✓ Exported Float GeoTIFF: Mg_nutrient_10m.tif
+  ✓ Exported Float GeoTIFF: Ca_nutrient_10m.tif
+  ✓ Exported Float GeoTIFF: B_nutrient_10m.tif
+  ✓ Exported Block Summary CSV: predicted_nutrients_by_block.csv (54 blocks)
+
+==========================================================================
+✅ REAL SENTINEL 10M PREDICTION COMPLETED IN 813.54s!
+📁 Output Directory: /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/2020/predictions_keruing_2026-10-13_133707
+==========================================================================

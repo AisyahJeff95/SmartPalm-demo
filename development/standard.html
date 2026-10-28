@@ -2217,6 +2217,17 @@ function updateSentinelClippingAndBadge() {
 
     if (!isShowOverlay) return;
 
+    const selectEl = document.getElementById('map-select-comp') || document.getElementById('map-select-std') || document.getElementById('map-select-kpsm');
+    const hasSelectedMap = Boolean(selectEl && selectEl.value && selectEl.value.trim() !== '');
+    const hasUploadedBoundary = Boolean((typeof compBoundaryLayer !== 'undefined' && compBoundaryLayer) || (typeof stdBoundaryLayer !== 'undefined' && stdBoundaryLayer) || window._UPLOADED_SHP_BUFFER);
+    if (!hasSelectedMap && !hasUploadedBoundary) {
+        if (showOverlayChk) showOverlayChk.checked = false;
+        if (typeof showNoMapSelectedModal === 'function') {
+            showNoMapSelectedModal('overlay');
+        }
+        return;
+    }
+
     let bounds = null;
     let activeBoundary = compBoundaryLayer || stdBoundaryLayer;
     if (activeBoundary) {
@@ -2918,49 +2929,10 @@ function toggleSatDataMode(mode) {
         <div class="sidebar">
 
             <!-- Section 1 Header: Satellite -->
-            <div class="ui-section-title">Satellite</div>
+            <div class="ui-section-title">Map &amp; Satellite</div>
 
-                                                            <!-- Card 1: Satellite Data -->
-            <div class="ui-card">
-                <div class="flex-row-between" style="margin-bottom: 8px;">
-                    <div class="ui-card-label">Satellite Data</div>
-                    <div class="ui-card-content-stack">
-                        <label class="ui-checkbox-label">
-                            <input type="checkbox" id="comp-realtime-chk" onchange="toggleSatDataMode('realtime')"> Real-time
-                        </label>
-                        <label class="ui-checkbox-label" id="comp-previous-label">
-                            <input type="checkbox" id="comp-previous-chk" onchange="toggleSatDataMode('previous')"> Previous
-                        </label>
-                        <div class="ui-date-row">
-                            <span class="ui-date-icon">▶</span>
-                            <span class="ui-date-label">Date:</span>
-                            <input type="date" class="ui-date-input" id="comp-sat-date" disabled onchange="updateSentinelClippingAndBadge()">
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- View/Unview Sentinel Overlay Toggle -->
-                <div style="border-top: 1px solid #f2f2f7; padding-top: 8px; margin-top: 6px;">
-                    <label class="ui-checkbox-label" style="font-weight: 600; color: #00802b;">
-                        <input type="checkbox" id="comp-show-overlay-chk" onchange="updateSentinelClippingAndBadge()"> Show Sentinel Satellite Overlay
-                    </label>
-                </div>
-
-                <div class="ui-hint-text" style="font-size: 11px; color: #6d6d72; line-height: 1.35; margin-top: 6px;">
-                    * If no data is available on the selected date, satellite data within a 10-day window will be fetched.
-                </div>
-
-                <!-- Run Prediction Button (Gradient Border Style) -->
-                <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid #f2f2f7;">
-                    <button id="btn-run-prediction" onclick="runRfrPredictionFlow()" style="width: 100%; padding: 11px 18px; background: linear-gradient(#09090f, #09090f) padding-box, linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #f97316 100%) border-box; border: 2px solid transparent; border-radius: 12px; color: #ffffff; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 600; font-size: 14px; letter-spacing: 0.2px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 0 18px rgba(139, 92, 246, 0.35), 0 4px 12px rgba(0, 0, 0, 0.3); transition: all 0.25s ease;" onmouseover="this.style.boxShadow='0 0 24px rgba(139, 92, 246, 0.6), 0 0 12px rgba(249, 115, 22, 0.4)'; this.style.transform='translateY(-1px)';" onmouseout="this.style.boxShadow='0 0 18px rgba(139, 92, 246, 0.35), 0 4px 12px rgba(0, 0, 0, 0.3)'; this.style.transform='translateY(0)';">
-                        <span>Run Prediction</span>
-                        <span style="font-size: 17px; line-height: 1;">→</span>
-                    </button>
-                </div>
-            </div>
-
-                        <!-- Card 2: Map File Selection -->
-            <div class="ui-card">
+            <!-- Card 1: Map File Selection -->
+            <div class="ui-card" id="card-map-file-selection" style="transition: box-shadow 0.3s ease, border-color 0.3s ease;">
                 <div class="ui-card-label" style="margin-bottom: 10px;">Map File Selection</div>
                 
                 <div class="ui-field-row" style="margin-bottom: 12px;">
@@ -3012,40 +2984,77 @@ function toggleSatDataMode(mode) {
                 </div>
 
                 <div class="ui-hint-text" id="shp-dbf-status-hint">* Upload .shp and .dbf files of the estate for boundary rendering.</div>
+            </div>
 
-                <!-- Hi-Res Drone Image Upload Section -->
-                <div style="border-top: 1px solid #f2f2f7; padding-top: 10px; margin-top: 10px;">
-                    <div class="ui-card-label" style="font-size: 13px; margin-bottom: 8px; color: #1c1c1e;">Upload Hi-Res Drone Image:</div>
-                    
-                    <div style="margin-bottom: 8px;">
-                        <div class="ui-field-row-between">
-                            <span class="ui-sub-label">Drone Image (.tif / .png / .jpg):</span>
-                            <button class="ui-upload-outline-btn" onclick="document.getElementById('drone-file-input').click()">Upload Drone</button>
-                            <input type="file" id="drone-file-input" accept="image/*,.tif,.tiff" style="display:none;" onchange="handleDroneImageUpload(event)">
-                        </div>
-                        <div id="drone-status-log" style="font-size: 11px; margin-top: 4px; display: none;">
-                            <div id="drone-msg-upload" style="color: #00802b; font-weight: 600; display: none;">* successfully uploaded</div>
-                            <div id="drone-msg-converting" style="color: #d97706; font-weight: 600; display: none; margin-top: 2px;">* converting into PNG...</div>
-                            <div id="drone-msg-converted" style="color: #00802b; font-weight: 600; display: none; margin-top: 2px;">* successfully converted to PNG</div>
-                        </div>
-                    </div>
-
-                    <div class="ui-field-row" style="margin-top: 6px;">
-                        <span class="ui-sub-label" style="font-weight: 600; white-space: nowrap;">Date Taken:</span>
-                        <input type="date" class="ui-date-input" id="drone-date-input" style="flex: 1;" onchange="updateDroneImageOverlay()">
-                    </div>
-
-                    <!-- Show Uploaded Drone Overlay Checkbox inside Map File Selection at bottom -->
-                    <div style="border-top: 1px solid #f2f2f7; padding-top: 8px; margin-top: 8px;">
-                        <label class="ui-checkbox-label" style="font-weight: 600; color: #2563eb;">
-                            <input type="checkbox" id="comp-show-drone-chk" onchange="updateDroneImageOverlay()"> Show Uploaded Drone Overlay
+            <!-- Card 2: Satellite Data -->
+            <div class="ui-card" id="card-satellite-data">
+                <div class="flex-row-between" style="margin-bottom: 8px;">
+                    <div class="ui-card-label">Satellite Data</div>
+                    <div class="ui-card-content-stack">
+                        <label class="ui-checkbox-label">
+                            <input type="checkbox" id="comp-realtime-chk" onchange="toggleSatDataMode('realtime')"> Real-time
                         </label>
+                        <label class="ui-checkbox-label" id="comp-previous-label">
+                            <input type="checkbox" id="comp-previous-chk" onchange="toggleSatDataMode('previous')"> Previous
+                        </label>
+                        <div class="ui-date-row">
+                            <span class="ui-date-icon">▶</span>
+                            <span class="ui-date-label">Date:</span>
+                            <input type="date" class="ui-date-input" id="comp-sat-date" disabled onchange="updateSentinelClippingAndBadge()">
+                        </div>
                     </div>
-
-
-
-                    <div class="ui-hint-text" id="drone-status-hint" style="margin-top: 4px;">* Upload high-resolution drone orthomosaic image to overlay on active map boundary.</div>
                 </div>
+                
+                <!-- View/Unview Sentinel Overlay Toggle -->
+                <div style="border-top: 1px solid #f2f2f7; padding-top: 8px; margin-top: 6px;">
+                    <label class="ui-checkbox-label" style="font-weight: 600; color: #00802b;">
+                        <input type="checkbox" id="comp-show-overlay-chk" onchange="updateSentinelClippingAndBadge()"> Show Sentinel Satellite Overlay
+                    </label>
+                </div>
+
+                <div class="ui-hint-text" style="font-size: 11px; color: #6d6d72; line-height: 1.35; margin-top: 6px;">
+                    * If no data is available on the selected date, satellite data within a 10-day window will be fetched.
+                </div>
+
+                <!-- Run Prediction Button (Gradient Border Style) -->
+                <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid #f2f2f7;">
+                    <button id="btn-run-prediction" onclick="runRfrPredictionFlow()" style="width: 100%; padding: 11px 18px; background: linear-gradient(#09090f, #09090f) padding-box, linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #f97316 100%) border-box; border: 2px solid transparent; border-radius: 12px; color: #ffffff; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 600; font-size: 14px; letter-spacing: 0.2px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 0 18px rgba(139, 92, 246, 0.35), 0 4px 12px rgba(0, 0, 0, 0.3); transition: all 0.25s ease;" onmouseover="this.style.boxShadow='0 0 24px rgba(139, 92, 246, 0.6), 0 0 12px rgba(249, 115, 22, 0.4)'; this.style.transform='translateY(-1px)';" onmouseout="this.style.boxShadow='0 0 18px rgba(139, 92, 246, 0.35), 0 4px 12px rgba(0, 0, 0, 0.3)'; this.style.transform='translateY(0)';">
+                        <span>Run Prediction</span>
+                        <span style="font-size: 17px; line-height: 1;">→</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Card 3: Upload Hi-Res Drone Image -->
+            <div class="ui-card" id="card-drone-upload">
+                <div class="ui-card-label" style="margin-bottom: 10px;">Upload Hi-Res Drone Image</div>
+                
+                <div style="margin-bottom: 8px;">
+                    <div class="ui-field-row-between">
+                        <span class="ui-sub-label">Drone Image (.tif / .png / .jpg):</span>
+                        <button class="ui-upload-outline-btn" onclick="document.getElementById('drone-file-input').click()">Upload Drone</button>
+                        <input type="file" id="drone-file-input" accept="image/*,.tif,.tiff" style="display:none;" onchange="handleDroneImageUpload(event)">
+                    </div>
+                    <div id="drone-status-log" style="font-size: 11px; margin-top: 4px; display: none;">
+                        <div id="drone-msg-upload" style="color: #00802b; font-weight: 600; display: none;">* successfully uploaded</div>
+                        <div id="drone-msg-converting" style="color: #d97706; font-weight: 600; display: none; margin-top: 2px;">* converting into PNG...</div>
+                        <div id="drone-msg-converted" style="color: #00802b; font-weight: 600; display: none; margin-top: 2px;">* successfully converted to PNG</div>
+                    </div>
+                </div>
+
+                <div class="ui-field-row" style="margin-top: 6px;">
+                    <span class="ui-sub-label" style="font-weight: 600; white-space: nowrap;">Date Taken:</span>
+                    <input type="date" class="ui-date-input" id="drone-date-input" style="flex: 1;" onchange="updateDroneImageOverlay()">
+                </div>
+
+                <!-- Show Uploaded Drone Overlay Checkbox -->
+                <div style="border-top: 1px solid #f2f2f7; padding-top: 8px; margin-top: 8px;">
+                    <label class="ui-checkbox-label" style="font-weight: 600; color: #2563eb;">
+                        <input type="checkbox" id="comp-show-drone-chk" onchange="updateDroneImageOverlay()"> Show Uploaded Drone Overlay
+                    </label>
+                </div>
+
+                <div class="ui-hint-text" id="drone-status-hint" style="margin-top: 4px;">* Upload high-resolution drone orthomosaic image to overlay on active map boundary.</div>
             </div>
 
             <!-- Card 3: Estate Name (for report) -->
@@ -3897,6 +3906,85 @@ function toggleSatDataMode(mode) {
             }
         }
 
+        window._UPLOADED_SHP_BUFFER = null;
+        window._UPLOADED_SHP_NAME = "";
+        window._UPLOADED_DBF_BUFFER = null;
+
+        async function handleIndividualShapefileUpload(event, fileType) {
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            try {
+                if (fileType === 'shp') {
+                    window._UPLOADED_SHP_BUFFER = await file.arrayBuffer();
+                    window._UPLOADED_SHP_NAME = file.name.replace(/\.shp$/i, '');
+                    uploadedShapefileName = window._UPLOADED_SHP_NAME;
+                    const msgEl = document.getElementById('shp-success-msg');
+                    if (msgEl) {
+                        msgEl.textContent = `* Successfully uploaded (${file.name})`;
+                        msgEl.style.display = 'block';
+                    }
+                } else if (fileType === 'dbf') {
+                    window._UPLOADED_DBF_BUFFER = await file.arrayBuffer();
+                    const msgEl = document.getElementById('dbf-success-msg');
+                    if (msgEl) {
+                        msgEl.textContent = `* Successfully uploaded (${file.name})`;
+                        msgEl.style.display = 'block';
+                    }
+                }
+
+                if (window._UPLOADED_SHP_BUFFER && window.shp) {
+                    let geometries = shp.parseShp(window._UPLOADED_SHP_BUFFER);
+                    let properties = window._UPLOADED_DBF_BUFFER ? shp.parseDbf(window._UPLOADED_DBF_BUFFER) : [];
+                    let geojson = shp.combine([geometries, properties]);
+
+                    if (geojson && geojson.features && geojson.features.length > 0) {
+                        geojson = reprojectGeoJSONIfNeeded(geojson, null);
+                        geojson.features.forEach((feature, idx) => {
+                            if (!feature.properties) feature.properties = {};
+                            let props = feature.properties;
+                            let foundName = props.name || props.NAME || props.Name || props.BLOCK || props.Block || props.block || props.No_Block || props.ID || props.Id || props.id || props.LABEL || props.Label;
+                            feature.properties.name = foundName ? String(foundName) : (`Block ${idx + 1}`);
+                        });
+
+                        let baseName = window._UPLOADED_SHP_NAME || 'Uploaded_Estate';
+                        let customKey = 'custom_' + baseName.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+                        let mapDisplayName = `Custom: ${baseName} (${geojson.features.length} blocks)`;
+                        geojson.mapName = mapDisplayName;
+                        REAL_MAPS_DATA[customKey] = geojson;
+
+                        ['map-select-comp', 'map-select-std', 'map-select-kpsm'].forEach(selectId => {
+                            let select = document.getElementById(selectId);
+                            if (select) {
+                                let existingOpt = Array.from(select.options).find(o => o.value === customKey);
+                                if (!existingOpt) {
+                                    existingOpt = document.createElement('option');
+                                    existingOpt.value = customKey;
+                                    select.appendChild(existingOpt);
+                                }
+                                existingOpt.innerText = mapDisplayName;
+                                existingOpt.selected = true;
+                                select.value = customKey;
+                            }
+                        });
+
+                        onMapSelectChanged(customKey);
+
+                        let estateInput = document.getElementById('estate-name-input');
+                        if (estateInput && !estateInput.value.trim()) {
+                            estateInput.value = baseName;
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error("Individual Shapefile Upload Error:", err);
+                alert("Failed to parse uploaded file: " + err.message);
+            } finally {
+                event.target.value = "";
+            }
+        }
+        window.handleIndividualShapefileUpload = handleIndividualShapefileUpload;
+
         function reprojectGeoJSONIfNeeded(geojson, prjText) {
             if (!geojson || !geojson.features || geojson.features.length === 0) return geojson;
 
@@ -4158,8 +4246,8 @@ function toggleSatDataMode(mode) {
 
             if (!val) {
                 // Clear boundaries & overlays and zoom to whole Malaysia map
-                if (compBoundaryLayer && mapComp) mapComp.removeLayer(compBoundaryLayer);
-                if (stdBoundaryLayer && mapStd) mapStd.removeLayer(stdBoundaryLayer);
+                if (compBoundaryLayer && mapComp) { mapComp.removeLayer(compBoundaryLayer); compBoundaryLayer = null; }
+                if (stdBoundaryLayer && mapStd) { mapStd.removeLayer(stdBoundaryLayer); stdBoundaryLayer = null; }
                 if (compRasterOverlay && mapComp) { mapComp.removeLayer(compRasterOverlay); compRasterOverlay = null; }
                 if (stdRasterOverlay && mapStd) { mapStd.removeLayer(stdRasterOverlay); stdRasterOverlay = null; }
                 
@@ -4697,8 +4785,83 @@ function closePredictionModalAfterComplete() {
 }
 window.closePredictionModalAfterComplete = closePredictionModalAfterComplete;
 
+function showNoMapSelectedModal(triggerReason) {
+    let existing = document.getElementById('no-map-selected-modal');
+    if (existing) existing.remove();
+
+    const actionText = (triggerReason === 'overlay')
+        ? 'displaying the Sentinel satellite overlay'
+        : 'running the 10m Sentinel nutrient prediction';
+
+    const modal = document.createElement('div');
+    modal.id = 'no-map-selected-modal';
+    modal.style.cssText = 'position:fixed; inset:0; z-index:999999; background:rgba(15,23,42,0.68); backdrop-filter:blur(5px); display:flex; align-items:center; justify-content:center; padding:20px; font-family:-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;';
+
+    modal.innerHTML = `
+        <div style="width:100%; max-width:440px; background:#ffffff; border-radius:16px; border:1px solid #e2e8f0; box-shadow:0 24px 50px rgba(0,0,0,0.35); overflow:hidden; animation:fadeIn 0.2s ease-out;">
+            <div style="padding:18px 22px; background:linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-bottom:1px solid #fde68a; display:flex; align-items:center; gap:12px;">
+                <div style="width:38px; height:38px; border-radius:10px; background:#f59e0b; color:#ffffff; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; box-shadow:0 4px 10px rgba(245,158,11,0.3);">
+                    ⚠️
+                </div>
+                <div>
+                    <div style="font-size:16px; font-weight:700; color:#92400e;">No Estate Map Selected</div>
+                    <div style="font-size:12px; color:#b45309; margin-top:1px;">Step 1 required before prediction</div>
+                </div>
+            </div>
+            <div style="padding:20px 22px; color:#334155; font-size:13.5px; line-height:1.55;">
+                Please select an estate map from <strong>Select Map</strong> or upload your estate <strong>.shp &amp; .dbf</strong> boundary files in <strong>Map File Selection</strong> before ${actionText}.
+            </div>
+            <div style="padding:14px 22px; background:#f8fafc; border-top:1px solid #e2e8f0; display:flex; justify-content:flex-end; gap:10px;">
+                <button type="button" onclick="dismissNoMapSelectedModal()" style="padding:9px 18px; background:linear-gradient(135deg, #00802b 0%, #059669 100%); color:#ffffff; border:none; border-radius:10px; font-size:13px; font-weight:700; cursor:pointer; box-shadow:0 4px 12px rgba(0,128,43,0.28);">
+                    Select Map Boundary →
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+}
+window.showNoMapSelectedModal = showNoMapSelectedModal;
+
+function dismissNoMapSelectedModal() {
+    const modal = document.getElementById('no-map-selected-modal');
+    if (modal) modal.remove();
+
+    const cardEl = document.getElementById('card-map-file-selection');
+    const selectEl = document.getElementById('map-select-comp') || document.getElementById('map-select-std') || document.getElementById('map-select-kpsm');
+
+    if (cardEl && typeof cardEl.scrollIntoView === 'function') {
+        cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        cardEl.style.borderColor = '#f59e0b';
+        cardEl.style.boxShadow = '0 0 0 3px rgba(245, 158, 11, 0.35)';
+        setTimeout(() => {
+            cardEl.style.borderColor = '';
+            cardEl.style.boxShadow = '';
+        }, 2600);
+    }
+    if (selectEl) {
+        selectEl.focus();
+        selectEl.style.borderColor = '#f59e0b';
+        selectEl.style.boxShadow = '0 0 0 3px rgba(245, 158, 11, 0.25)';
+        setTimeout(() => {
+            selectEl.style.borderColor = '';
+            selectEl.style.boxShadow = '';
+        }, 2600);
+    }
+}
+window.dismissNoMapSelectedModal = dismissNoMapSelectedModal;
+
 function runRfrPredictionFlow() {
     if (window._PREDICTION_IS_RUNNING) return;
+
+    const selectEl = document.getElementById('map-select-comp') || document.getElementById('map-select-std') || document.getElementById('map-select-kpsm');
+    const hasSelectedDropdown = Boolean(selectEl && selectEl.value && selectEl.value.trim() !== '');
+    const hasUploadedBoundary = Boolean((typeof compBoundaryLayer !== 'undefined' && compBoundaryLayer) || (typeof stdBoundaryLayer !== 'undefined' && stdBoundaryLayer) || window._UPLOADED_SHP_BUFFER);
+
+    if (!hasSelectedDropdown && !hasUploadedBoundary) {
+        showNoMapSelectedModal('predict');
+        return;
+    }
 
     const btn = document.getElementById('btn-run-prediction');
     
@@ -4709,9 +4872,8 @@ function runRfrPredictionFlow() {
         btn.innerHTML = '<span>⏳ Processing Sentinel Data...</span>';
     }
 
-    let mapType = 'Seraya with Block Boundary';
-    let shpKey = 'seraya';
-    const selectEl = document.getElementById('map-select-comp') || document.getElementById('map-select-std') || document.getElementById('map-select-kpsm');
+    let mapType = uploadedShapefileName || window._UPLOADED_SHP_NAME || 'Custom Uploaded Estate';
+    let shpKey = 'custom_upload';
     if (selectEl && selectEl.selectedIndex >= 0) {
         const opt = selectEl.options[selectEl.selectedIndex];
         if (opt && opt.value) {

@@ -1,0 +1,20 @@
+{
+  "estate_name": "ssb",
+  "acquisition_date": "2026-10-06",
+  "shapefile_source": "/Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/map/ssb.shp",
+  "timestamp": "2026-10-19_141445",
+  "total_blocks": 638,
+  "total_pixels": 2785013,
+  "execution_time_seconds": 1144.97,
+  "files_generated": [
+    "predicted_10m_nutrients.csv",
+    "predicted_10m_nutrients.csv.gz",
+    "N_nutrient_10m.tif",
+    "P_nutrient_10m.tif",
+    "K_nutrient_10m.tif",
+    "Mg_nutrient_10m.tif",
+    "Ca_nutrient_10m.tif",
+    "B_nutrient_10m.tif",
+    "predicted_nutrients_by_block.csv"
+  ]
+}

@@ -1,0 +1,15 @@
+======================================================================
+🌴 Batch nutrient prediction: 11 estates × 1 years
+   Years   : 2025   (date 08-01)
+   To run  : 4    Already done (skipped): 7
+   Workers : 4    Output: training_v3/<year>/    Logs: training_v3/logs/
+======================================================================
+Skipped: binuang 2025, belian 2025, agathis 2025, gaharu 2025, kapur 2025, keruing 2025, menggaris 2025
+  [ 1/4] ✓ selanganbatu  2025  (3.9 min)
+  [ 2/4] ✓ ramin         2025  (5.4 min)
+  [ 3/4] ✓ seraya        2025  (5.8 min)
+  [ 4/4] ✓ merbau        2025  (6.6 min)
+
+======================================================================
+Finished in 6.6 min — 4 succeeded, 0 failed.
+======================================================================

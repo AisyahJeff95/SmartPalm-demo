@@ -1,0 +1,54 @@
+======================================================================
+🌴 Batch nutrient prediction: 11 estates × 4 dates
+   Dates   : 2025-12-01, 2026-01-01, 2026-02-01, 2026-03-01
+   To run  : 44    Already done (skipped): 0
+   Workers : 4    Output: training_v3/<YYYY-MM>/    Logs: training_v3/logs/
+======================================================================
+  [ 1/44] ✓ gaharu        2025-12  (3.3 min)
+  [ 2/44] ✓ belian        2025-12  (3.7 min)
+  [ 3/44] ✓ agathis       2025-12  (4.0 min)
+  [ 4/44] ✓ binuang       2025-12  (4.4 min)
+  [ 5/44] ✓ kapur         2025-12  (3.3 min)
+  [ 6/44] ✓ keruing       2025-12  (3.8 min)
+  [ 7/44] ✓ menggaris     2025-12  (4.1 min)
+  [ 8/44] ✓ merbau        2025-12  (4.5 min)
+  [ 9/44] ✓ ramin         2025-12  (4.3 min)
+  [10/44] ✓ selanganbatu  2025-12  (3.8 min)
+  [11/44] ✓ seraya        2025-12  (3.8 min)
+  [12/44] ✓ binuang       2026-01  (4.9 min)
+  [13/44] ✓ belian        2026-01  (3.8 min)
+  [14/44] ✓ agathis       2026-01  (3.9 min)
+  [15/44] ✓ gaharu        2026-01  (3.5 min)
+  [16/44] ✓ kapur         2026-01  (3.5 min)
+  [17/44] ✓ keruing       2026-01  (3.6 min)
+  [18/44] ✓ menggaris     2026-01  (4.0 min)
+  [19/44] ✓ merbau        2026-01  (3.8 min)
+  [20/44] ✓ ramin         2026-01  (4.0 min)
+  [21/44] ✓ selanganbatu  2026-01  (3.9 min)
+  [22/44] ✓ seraya        2026-01  (3.3 min)
+  [23/44] ✓ binuang       2026-02  (4.7 min)
+  [24/44] ✓ belian        2026-02  (4.6 min)
+  [25/44] ✓ agathis       2026-02  (3.9 min)
+  [26/44] ✓ gaharu        2026-02  (4.0 min)
+  [27/44] ✓ kapur         2026-02  (3.3 min)
+  [28/44] ✓ keruing       2026-02  (3.7 min)
+  [29/44] ✓ menggaris     2026-02  (4.1 min)
+  [30/44] ✓ merbau        2026-02  (4.0 min)
+  [31/44] ✓ ramin         2026-02  (5.5 min)
+  [32/44] ✓ selanganbatu  2026-02  (4.1 min)
+  [33/44] ✓ seraya        2026-02  (4.0 min)
+  [34/44] ✓ binuang       2026-03  (4.2 min)
+  [35/44] ✓ belian        2026-03  (4.5 min)
+  [36/44] ✓ kapur         2026-03  (2.7 min)
+  [37/44] ✓ gaharu        2026-03  (3.4 min)
+  [38/44] ✓ agathis       2026-03  (4.0 min)
+  [39/44] ✓ keruing       2026-03  (3.6 min)
+  [40/44] ✓ merbau        2026-03  (3.6 min)
+  [41/44] ✓ menggaris     2026-03  (3.9 min)
+  [42/44] ✓ ramin         2026-03  (4.1 min)
+  [43/44] ✓ seraya        2026-03  (3.5 min)
+  [44/44] ✓ selanganbatu  2026-03  (4.0 min)
+
+======================================================================
+Finished in 44.9 min — 44 succeeded, 0 failed.
+======================================================================

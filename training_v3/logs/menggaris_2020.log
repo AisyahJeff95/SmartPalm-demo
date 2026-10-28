@@ -1,0 +1,58 @@
+
+=== attempt 1: /Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/predict_nutrients.py --shp /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/map/menggaris.shp --date 2020-08-01 --out /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/2020
+==========================================================================
+🌴 SPATIAL NUTRIENT PREDICTION PIPELINE: menggaris
+==========================================================================
+📁 Target Shapefile : /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/map/menggaris.shp
+📅 Acquisition Date: 2020-08-01
+📁 Output Directory : /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/2020/predictions_menggaris_2026-10-13_133712
+==========================================================================
+
+  ✓ Detected projected coordinates. Reprojecting Timbalai RSO (EPSG:29873) -> WGS84 (EPSG:4326)...
+  ✓ Bounds for menggaris: Lng [117.5935, 117.6645], Lat [4.6339, 4.7089]
+Loading trained Random Forest models from /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3...
+  ✓ Loaded rf_model_N.pkl
+  ✓ Loaded rf_model_P.pkl
+  ✓ Loaded rf_model_K.pkl
+  ✓ Loaded rf_model_Mg.pkl
+  ✓ Loaded rf_model_Ca.pkl
+  ✓ Loaded rf_model_B.pkl
+
+STEP 1: Calling fetch_sentinel_for_shapefile() from fetch_sentinel_data.py...
+==========================================================================
+🛰️  UNCAPPED 10M CLOUD-FREE SENTINEL DATA FETCHER: menggaris
+==========================================================================
+📁 Target Shapefile: /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/map/menggaris.shp
+📅 Target Date     : 2020-08-01 (±30 days window)
+  ✓ Reprojecting Timbalai RSO (EPSG:29873) -> WGS84 (EPSG:4326)...
+  ✓ Shapefile WGS84 Bounds: Lng [117.59349, 117.66452], Lat [4.63390, 4.70887]
+  ✓ Generated 384,609 true 10m2 spatial grid points inside full estate map boundary (785 cols x 831 rows).
+
+--- Multi-Temporal SCL Cloud-Free Compositing (2020-07-02 to 2020-08-31, Cloud Filter: < 60%) ---
+  Pass S2B_MSIL2A_20200714T022549_R046_T50NNL_20200913T042129 (2020-07-14) | Added new clear pixels: 115,208 | Total clear composite: 115,208/384,609 (30.0%)
+  Pass S2A_MSIL2A_20200719T022551_R046_T50NNL_20200816T164814 (2020-07-19) | Added new clear pixels: 196,687 | Total clear composite: 311,895/384,609 (81.1%)
+  Pass S2A_MSIL2A_20200729T022601_R046_T50NNL_20200817T232507 (2020-07-29) | Added new clear pixels: 58,108 | Total clear composite: 370,003/384,609 (96.2%)
+  Pass S2B_MSIL2A_20200803T022549_R046_T50NNL_20200816T003816 (2020-08-03) | Added new clear pixels: 8,874 | Total clear composite: 378,877/384,609 (98.5%)
+  Pass S2A_MSIL2A_20200808T022601_R046_T50NNL_20200815T101626 (2020-08-08) | Added new clear pixels: 3,626 | Total clear composite: 382,503/384,609 (99.5%)
+  Pass S2B_MSIL2A_20200823T022549_R046_T50NNL_20201027T090819 (2020-08-23) | Added new clear pixels: 1,074 | Total clear composite: 383,577/384,609 (99.7%)
+  Pass S2A_MSIL2A_20200828T022551_R046_T50NNL_20200907T132647 (2020-08-28) | Added new clear pixels: 28 | Total clear composite: 383,605/384,609 (99.7%)
+
+✅ Sentinel Dataset Fetched Successfully: 384,609 cloud-free 10m grid records.
+
+STEP 2: Executing Random Forest predictions...
+  ✓ Exported predictions CSV: /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/2020/predictions_menggaris_2026-10-13_133712/predicted_10m_nutrients.csv (384,609 records)
+  ✓ Exported predictions CSV.GZ: /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/2020/predictions_menggaris_2026-10-13_133712/predicted_10m_nutrients.csv.gz
+
+STEP 3: Building GeoTIFF rasters & PNG overlays...
+  ✓ Exported Float GeoTIFF: N_nutrient_10m.tif
+  ✓ Exported Float GeoTIFF: P_nutrient_10m.tif
+  ✓ Exported Float GeoTIFF: K_nutrient_10m.tif
+  ✓ Exported Float GeoTIFF: Mg_nutrient_10m.tif
+  ✓ Exported Float GeoTIFF: Ca_nutrient_10m.tif
+  ✓ Exported Float GeoTIFF: B_nutrient_10m.tif
+  ✓ Exported Block Summary CSV: predicted_nutrients_by_block.csv (62 blocks)
+
+==========================================================================
+✅ REAL SENTINEL 10M PREDICTION COMPLETED IN 727.11s!
+📁 Output Directory: /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/2020/predictions_menggaris_2026-10-13_133712
+==========================================================================

@@ -1,0 +1,126 @@
+========================================================================
+SMARTPALM - HUGGING FACE SPACES & API CONNECTION GUIDE
+========================================================================
+
+1. HUGGING FACE SPACES URLS & CREDENTIALS
+------------------------------------------------------------------------
+Hugging Face Username : Aisyjeff95
+
+Space 1 (SmartPalm Demo):
+- Space Page URL      : https://huggingface.co/spaces/Aisyjeff95/smartpalm-demo
+- Direct Live App URL : https://aisyjeff95-smartpalm-demo.hf.space
+- Git Remote Name     : hf-space
+
+Space 2 (SmartPalm Classifier):
+- Space Page URL      : https://huggingface.co/spaces/Aisyjeff95/smartpalm-classifier
+- Direct Live App URL : https://aisyjeff95-smartpalm-classifier.hf.space
+- Git Remote Name     : hf
+
+Server Port on HF     : 7860 (configured in README.md and Dockerfile)
+Entry Script          : development/prediction_server.py
+Prediction Engine     : training_v3/predict_nutrients.py
+
+
+2. HOW TO DEPLOY / UPDATE HUGGING FACE
+------------------------------------------------------------------------
+From your terminal in /Users/drsitiaisyahjaafar/SmartPalm-demo:
+
+  git add .
+  git commit -m "Update prediction server"
+  git push hf-space main
+
+(Or push to smartpalm-classifier using: git push hf main)
+ 
+
+3. API ENDPOINTS ON HUGGING FACE
+------------------------------------------------------------------------
+Base URL: https://aisyjeff95-smartpalm-demo.hf.space
+
+A) RUN NUTRIENT PREDICTION
+   Endpoint : POST /api/predict
+   Full URL : https://aisyjeff95-smartpalm-demo.hf.space/api/predict
+   Headers  : Content-Type: application/json
+
+   Request Body (JSON):
+   {
+     "estate_name": "Seraya with Block Boundary",
+     "date": "2026-10-06",
+     "is_realtime": false
+   }
+   * Note: Set "is_realtime": true to automatically use today's latest date.
+
+   Response (JSON):
+   {
+     "status": "success",
+     "message": "Real 10m Sentinel predictions & shapefile rasters generated...",
+     "folder_name": "predictions_Seraya_with_Block_Boundary_2026-10-27_132000",
+     "folder_path": "/code/development/predictions/...",
+     "files": { ... },
+     "overlays": {
+       "bounds": [[min_lat, min_lng], [max_lat, max_lng]],
+       "N": "data:image/png;base64,...",
+       "P": "data:image/png;base64,...",
+       "K": "data:image/png;base64,...",
+       "Mg": "data:image/png;base64,...",
+       "Ca": "data:image/png;base64,...",
+       "B": "data:image/png;base64,..."
+     }
+   }
+
+B) DOWNLOAD PREDICTION OUTPUT (.ZIP)
+   Endpoint : GET /api/download_zip
+   Full URL : https://aisyjeff95-smartpalm-demo.hf.space/api/download_zip?folder_name=<FOLDER_NAME>
+   * Note: If folder_name is omitted, it downloads the most recent prediction folder.
+
+C) SAVE PDF REPORT
+   Endpoint : POST /api/save_pdf
+   Full URL : https://aisyjeff95-smartpalm-demo.hf.space/api/save_pdf
+   Request Body (JSON):
+   {
+     "pdf_name": "Report_Seraya.pdf",
+     "pdf_base64": "<BASE64_ENCODED_PDF_STRING>"
+   }
+
+
+4. EXAMPLE CODE TO CONNECT FRONTEND (JAVASCRIPT FETCH)
+------------------------------------------------------------------------
+const HF_BASE_URL = "https://aisyjeff95-smartpalm-demo.hf.space";
+
+async function runHuggingFacePrediction(estateName, targetDate, isRealtime = false) {
+  const response = await fetch(`${HF_BASE_URL}/api/predict`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      estate_name: estateName,
+      date: targetDate,
+      is_realtime: isRealtime
+    })
+  });
+
+  if (!response.ok) {
+    throw new Error(`Prediction failed: ${response.status}`);
+  }
+
+  const result = await response.json();
+  console.log("Prediction Folder:", result.folder_name);
+  console.log("Nutrient Overlays:", result.overlays);
+  return result;
+}
+
+
+5. EXAMPLE TERMINAL TEST (CURL)
+------------------------------------------------------------------------
+curl -X POST https://aisyjeff95-smartpalm-demo.hf.space/api/predict \
+  -H "Content-Type: application/json" \
+  -d '{"estate_name": "Seraya with Block Boundary", "date": "2026-10-06", "is_realtime": false}'
+
+
+6. SIMULTANEOUS RUNS & CAPACITY SUMMARY (FREE CPU-BASIC TIER: 2 vCPU / 16GB RAM)
+------------------------------------------------------------------------
+- Viewing Web Dashboard & Static Maps : 50 - 100+ simultaneous users
+- Smooth Live /api/predict Runs       : 2 - 4 simultaneous runs (~15-40s per run)
+- Peak Burst Live /api/predict Runs   : 5 - 8 simultaneous runs (~60-90s per run)
+- Overload / Timeout Threshold        : 10+ simultaneous runs (HF 60s HTTP timeout)
+========================================================================

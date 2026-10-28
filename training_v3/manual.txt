@@ -11,9 +11,52 @@ padi
 
 python3 training_v3/predict_nutrients.py --shp "training_v3/sekinchan/sekinchan2.shp" --date 2026-10-09
 
-python3 training_v3/predict_nutrients.py --shp "training_v3/map/agathis.shp" --date 2025-08-15
+python3 training_v3/predict_nutrients.py --shp "training_v3/map/agathis.shp" --date 2025-08-01
 
-python3 training_v3/predict_nutrients.py --shp "training_v3/map/agathis.shp" --date 2022-08-15
+python3 training_v3/predict_nutrients.py --shp "training_v3/map/agathis.shp" --date 2022-08-01
 
-python3 training_v3/predict_nutrients.py --shp "training_v3/map/agathis.shp" --date 2019-08-15
+python3 training_v3/predict_nutrients.py --shp "training_v3/map/agathis.shp" --date 2019-08-05
+
+2025
+12 
+python3 training_v3/predict_nutrients.py --shp "training_v3/map/agathis.shp" --date 2025-12-01
+
+2026
+bulan:
+1
+python3 training_v3/predict_nutrients.py --shp "training_v3/map/agathis.shp" --date 2026-01-01
+
+2
+python3 training_v3/predict_nutrients.py --shp "training_v3/map/agathis.shp" --date 2026-02-01
+
+3
+python3 training_v3/predict_nutrients.py --shp "training_v3/map/agathis.shp" --date 2026-03-01
+
+
+
+full map running.
+2025
+
+python3 training_v3/predict_nutrients.py --shp "training_v3/map/binuang.shp" --date 2025-08-01
+python3 training_v3/predict_nutrients.py --shp "training_v3/map/belian.shp" --date 2025-08-01
+python3 training_v3/predict_nutrients.py --shp "training_v3/map/agathis.shp" --date 2025-08-01
+python3 training_v3/predict_nutrients.py --shp "training_v3/map/gaharu.shp" --date 2025-08-01
+python3 training_v3/predict_nutrients.py --shp "training_v3/map/kapur.shp" --date 2025-08-01
+python3 training_v3/predict_nutrients.py --shp "training_v3/map/keruing.shp" --date 2025-08-01
+python3 training_v3/predict_nutrients.py --shp "training_v3/map/menggaris.shp" --date 2025-08-01
+python3 training_v3/predict_nutrients.py --shp "training_v3/map/merbau.shp" --date 2025-08-01
+python3 training_v3/predict_nutrients.py --shp "training_v3/map/ramin.shp" --date 2025-08-01
+python3 training_v3/predict_nutrients.py --shp "training_v3/map/selanganbatu.shp" --date 2025-08-01
+python3 training_v3/predict_nutrients.py --shp "training_v3/map/seraya.shp" --date 2025-08-01
+
+
+
+
+
+
+
+
+
+
+
 

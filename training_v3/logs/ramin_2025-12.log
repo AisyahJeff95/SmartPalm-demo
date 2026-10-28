@@ -1,0 +1,56 @@
+
+=== attempt 1: /Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/predict_nutrients.py --shp /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/map/ramin.shp --date 2025-12-01 --out /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/2025-12
+==========================================================================
+🌴 SPATIAL NUTRIENT PREDICTION PIPELINE: ramin
+==========================================================================
+📁 Target Shapefile : /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/map/ramin.shp
+📅 Acquisition Date: 2025-12-01
+📁 Output Directory : /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/2025-12/predictions_ramin_2026-10-14_112216
+==========================================================================
+
+  ✓ Detected projected coordinates. Reprojecting Timbalai RSO (EPSG:29873) -> WGS84 (EPSG:4326)...
+  ✓ Bounds for ramin: Lng [117.3691, 117.4495], Lat [4.6731, 4.7559]
+Loading trained Random Forest models from /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3...
+  ✓ Loaded rf_model_N.pkl
+  ✓ Loaded rf_model_P.pkl
+  ✓ Loaded rf_model_K.pkl
+  ✓ Loaded rf_model_Mg.pkl
+  ✓ Loaded rf_model_Ca.pkl
+  ✓ Loaded rf_model_B.pkl
+
+STEP 1: Calling fetch_sentinel_for_shapefile() from fetch_sentinel_data.py...
+==========================================================================
+🛰️  UNCAPPED 10M CLOUD-FREE SENTINEL DATA FETCHER: ramin
+==========================================================================
+📁 Target Shapefile: /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/map/ramin.shp
+📅 Target Date     : 2025-12-01 (±30 days window)
+  ✓ Reprojecting Timbalai RSO (EPSG:29873) -> WGS84 (EPSG:4326)...
+  ✓ Shapefile WGS84 Bounds: Lng [117.36908, 117.44954], Lat [4.67315, 4.75586]
+  ✓ Generated 412,410 true 10m2 spatial grid points inside full estate map boundary (888 cols x 916 rows).
+
+--- Multi-Temporal SCL Cloud-Free Compositing (2025-11-01 to 2025-12-31, Cloud Filter: < 60%) ---
+  Pass S2A_MSIL2A_20251102T023141_R046_T50NNL_20251102T072107 (2025-11-02) | Added new clear pixels: 126,646 | Total clear composite: 126,646/412,410 (30.7%)
+  Pass S2A_MSIL2A_20251122T023141_R046_T50NNL_20251122T073215 (2025-11-22) | Added new clear pixels: 89,378 | Total clear composite: 216,024/412,410 (52.4%)
+  Pass S2C_MSIL2A_20251130T023051_R046_T50NNL_20251130T053714 (2025-11-30) | Added new clear pixels: 69,959 | Total clear composite: 285,983/412,410 (69.3%)
+  Pass S2C_MSIL2A_20251210T023121_R046_T50NNL_20251210T052412 (2025-12-10) | Added new clear pixels: 74,212 | Total clear composite: 360,195/412,410 (87.3%)
+  Pass S2C_MSIL2A_20251220T023131_R046_T50NNL_20251220T052409 (2025-12-20) | Added new clear pixels: 4,820 | Total clear composite: 365,015/412,410 (88.5%)
+
+✅ Sentinel Dataset Fetched Successfully: 412,410 cloud-free 10m grid records.
+
+STEP 2: Executing Random Forest predictions...
+  ✓ Exported predictions CSV: /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/2025-12/predictions_ramin_2026-10-14_112216/predicted_10m_nutrients.csv (412,410 records)
+  ✓ Exported predictions CSV.GZ: /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/2025-12/predictions_ramin_2026-10-14_112216/predicted_10m_nutrients.csv.gz
+
+STEP 3: Building GeoTIFF rasters & PNG overlays...
+  ✓ Exported Float GeoTIFF: N_nutrient_10m.tif
+  ✓ Exported Float GeoTIFF: P_nutrient_10m.tif
+  ✓ Exported Float GeoTIFF: K_nutrient_10m.tif
+  ✓ Exported Float GeoTIFF: Mg_nutrient_10m.tif
+  ✓ Exported Float GeoTIFF: Ca_nutrient_10m.tif
+  ✓ Exported Float GeoTIFF: B_nutrient_10m.tif
+  ✓ Exported Block Summary CSV: predicted_nutrients_by_block.csv (51 blocks)
+
+==========================================================================
+✅ REAL SENTINEL 10M PREDICTION COMPLETED IN 258.57s!
+📁 Output Directory: /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/2025-12/predictions_ramin_2026-10-14_112216
+==========================================================================

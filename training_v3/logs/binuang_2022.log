@@ -1,0 +1,60 @@
+
+=== attempt 1: /Applications/Xcode.app/Contents/Developer/usr/bin/python3 /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/predict_nutrients.py --shp /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/map/binuang.shp --date 2022-08-01 --out /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/2022
+==========================================================================
+🌴 SPATIAL NUTRIENT PREDICTION PIPELINE: binuang
+==========================================================================
+📁 Target Shapefile : /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/map/binuang.shp
+📅 Acquisition Date: 2022-08-01
+📁 Output Directory : /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/2022/predictions_binuang_2026-10-13_145828
+==========================================================================
+
+  ✓ Detected projected coordinates. Reprojecting Timbalai RSO (EPSG:29873) -> WGS84 (EPSG:4326)...
+  ✓ Bounds for binuang: Lng [117.4287, 117.5195], Lat [4.6737, 4.7403]
+Loading trained Random Forest models from /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3...
+  ✓ Loaded rf_model_N.pkl
+  ✓ Loaded rf_model_P.pkl
+  ✓ Loaded rf_model_K.pkl
+  ✓ Loaded rf_model_Mg.pkl
+  ✓ Loaded rf_model_Ca.pkl
+  ✓ Loaded rf_model_B.pkl
+
+STEP 1: Calling fetch_sentinel_for_shapefile() from fetch_sentinel_data.py...
+==========================================================================
+🛰️  UNCAPPED 10M CLOUD-FREE SENTINEL DATA FETCHER: binuang
+==========================================================================
+📁 Target Shapefile: /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/map/binuang.shp
+📅 Target Date     : 2022-08-01 (±30 days window)
+  ✓ Reprojecting Timbalai RSO (EPSG:29873) -> WGS84 (EPSG:4326)...
+  ✓ Shapefile WGS84 Bounds: Lng [117.42874, 117.51952], Lat [4.67373, 4.74033]
+  ✓ Generated 388,860 true 10m2 spatial grid points inside full estate map boundary (1002 cols x 738 rows).
+
+--- Multi-Temporal SCL Cloud-Free Compositing (2022-07-02 to 2022-08-31, Cloud Filter: < 60%) ---
+  Pass S2B_MSIL2A_20220724T022539_R046_T50NNL_20240717T214416 (2022-07-24) | Added new clear pixels: 67,726 | Total clear composite: 67,726/388,860 (17.4%)
+  Pass S2B_MSIL2A_20220724T022539_R046_T50NNL_20220725T233603 (2022-07-24) | Added new clear pixels: 1,063 | Total clear composite: 68,789/388,860 (17.7%)
+  Pass S2B_MSIL2A_20220803T022539_R046_T50NNL_20240711T201147 (2022-08-03) | Added new clear pixels: 56,172 | Total clear composite: 124,961/388,860 (32.1%)
+  Pass S2B_MSIL2A_20220803T022539_R046_T50NNL_20220803T163040 (2022-08-03) | Added new clear pixels: 515 | Total clear composite: 125,476/388,860 (32.3%)
+  Pass S2B_MSIL2A_20220813T022529_R046_T50NNL_20240713T044709 (2022-08-13) | Added new clear pixels: 59,486 | Total clear composite: 184,962/388,860 (47.6%)
+  Pass S2B_MSIL2A_20220813T022529_R046_T50NNL_20220813T102838 (2022-08-13) | Added new clear pixels: 256 | Total clear composite: 185,218/388,860 (47.6%)
+  Pass S2A_MSIL2A_20220818T022541_R046_T50NNL_20220818T185402 (2022-08-18) | Added new clear pixels: 91,007 | Total clear composite: 276,225/388,860 (71.0%)
+  Pass S2B_MSIL2A_20220823T022529_R046_T50NNL_20240704T100722 (2022-08-23) | Added new clear pixels: 75,859 | Total clear composite: 352,084/388,860 (90.5%)
+  Pass S2B_MSIL2A_20220823T022529_R046_T50NNL_20220824T130701 (2022-08-23) | Added new clear pixels: 156 | Total clear composite: 352,240/388,860 (90.6%)
+
+✅ Sentinel Dataset Fetched Successfully: 388,860 cloud-free 10m grid records.
+
+STEP 2: Executing Random Forest predictions...
+  ✓ Exported predictions CSV: /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/2022/predictions_binuang_2026-10-13_145828/predicted_10m_nutrients.csv (388,860 records)
+  ✓ Exported predictions CSV.GZ: /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/2022/predictions_binuang_2026-10-13_145828/predicted_10m_nutrients.csv.gz
+
+STEP 3: Building GeoTIFF rasters & PNG overlays...
+  ✓ Exported Float GeoTIFF: N_nutrient_10m.tif
+  ✓ Exported Float GeoTIFF: P_nutrient_10m.tif
+  ✓ Exported Float GeoTIFF: K_nutrient_10m.tif
+  ✓ Exported Float GeoTIFF: Mg_nutrient_10m.tif
+  ✓ Exported Float GeoTIFF: Ca_nutrient_10m.tif
+  ✓ Exported Float GeoTIFF: B_nutrient_10m.tif
+  ✓ Exported Block Summary CSV: predicted_nutrients_by_block.csv (69 blocks)
+
+==========================================================================
+✅ REAL SENTINEL 10M PREDICTION COMPLETED IN 520.51s!
+📁 Output Directory: /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/2022/predictions_binuang_2026-10-13_145828
+==========================================================================
