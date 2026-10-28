@@ -2005,6 +2005,7 @@
     <script src="js/selanganbatu_raster_overlays.js"></script>
     <script src="js/seraya_raster_overlays.js"></script>
     <script src="js/nutrient_full_map_grid.js"></script>
+    <script src="js/malaysia_soil_reconnaissance.js"></script>
 <script>
 
 
@@ -2990,12 +2991,9 @@ function lockEnteredSatDate() {
                         <span class="ui-sub-label" style="font-weight: 600; width: 78px; flex-shrink: 0;">Soil Type:</span>
                         <div id="identified-soil-type-val" class="ui-nutrient-box" style="flex: 1; min-height: 32px; height: auto; padding: 4px 10px; font-weight: 600; font-size: 12.5px; color: #1c1c1e; background: #f8fafc; text-align: center;">--</div>
                     </div>
-                    <div class="ui-field-row" style="margin-bottom: 6px;">
-                        <span class="ui-sub-label" style="font-weight: 600; width: 78px; flex-shrink: 0;">Soil Series:</span>
-                        <div id="identified-soil-series-val" class="ui-nutrient-box" style="flex: 1; min-height: 32px; height: auto; padding: 4px 10px; font-weight: 500; font-size: 12px; color: #1c1c1e; background: #f8fafc; text-align: center;">--</div>
-                    </div>
                     <div class="ui-hint-text" style="font-size: 11px; color: #6d6d72; line-height: 1.35; margin-top: 6px;">
-                        * Note: This data is based on MPOB Reconnaissance Soil Malaysia Data, Publisher: Director of National Mapping, Malaysia. Year: 1968
+                        * Note: This data is based on MPOB Reconnaissance Soil Malaysia Data, Publisher: Director of National Mapping, Malaysia. Year: 1968.
+                        <a href="soil-reconnaissance-map.html" target="_blank" rel="noopener noreferrer" style="color: #0284c7; font-weight: 600; text-decoration: underline; display: inline-block; margin-top: 2px;">View Full Soil Reconnaissance Map ↗</a>
                     </div>
                 </div>
 
@@ -3384,20 +3382,19 @@ function lockEnteredSatDate() {
         function updateIdentifiedSoilTypeDisplay(blocksData, clickedLatLng, clickedFeature) {
             const typeEl = document.getElementById('identified-soil-type-val');
             const seriesEl = document.getElementById('identified-soil-series-val');
-            if (!typeEl || !seriesEl) return;
+            if (!typeEl) return;
 
             if (!blocksData && !clickedLatLng && !clickedFeature) {
                 typeEl.textContent = '--';
                 typeEl.style.color = '#1c1c1e';
-                seriesEl.textContent = '--';
-                seriesEl.style.color = '#1c1c1e';
+                if (seriesEl) {
+                    seriesEl.textContent = '--';
+                    seriesEl.style.color = '#1c1c1e';
+                }
                 return;
             }
 
             const soilFeatures = [];
-            if (typeof REAL_MAPS_DATA !== 'undefined' && REAL_MAPS_DATA.soil_series && Array.isArray(REAL_MAPS_DATA.soil_series.features)) {
-                soilFeatures.push(...REAL_MAPS_DATA.soil_series.features);
-            }
             if (Array.isArray(window.PERMANENT_SOIL_SERIES_DATASETS)) {
                 for (const ds of window.PERMANENT_SOIL_SERIES_DATASETS) {
                     if (ds && Array.isArray(ds.features)) {
@@ -3405,15 +3402,29 @@ function lockEnteredSatDate() {
                     }
                 }
             }
+            if (soilFeatures.length === 0 && typeof REAL_MAPS_DATA !== 'undefined' && REAL_MAPS_DATA.soil_series && Array.isArray(REAL_MAPS_DATA.soil_series.features)) {
+                soilFeatures.push(...REAL_MAPS_DATA.soil_series.features);
+            }
 
             const matchedTypes = new Set();
             const matchedSeries = new Set();
 
+            const normalizeSoilType = (raw) => {
+                if (!raw) return '';
+                const s = String(raw).trim();
+                const u = s.toUpperCase();
+                if (u === 'INLAND') return 'Inland';
+                if (u === 'COASTAL') return 'Coastal';
+                if (u === 'PEAT') return 'Peat';
+                if (u === 'WATER / NON-SOIL' || u === 'NOT RELATED' || u === 'UNKNOWN') return '';
+                return s;
+            };
+
             const extractProps = (props) => {
                 if (!props) return false;
-                const st = props.SOIL_TYPE || props.SOIL_TYPE_ || props.Soil_Type || props.soil_type;
-                const sr = props.DESCR || props.DESCRIPTIO || props.SOIL_SERIE || props.Soil_Series || props.soil_series || props.SERIES;
-                if (st) matchedTypes.add(String(st).trim());
+                const st = normalizeSoilType(props.SOIL_TYPE || props.SOIL_TYPE_ || props.Soil_Type || props.soil_type);
+                const sr = props.DESCR || props.DESCRPTION || props.DESCRIPTIO || props.SOIL_SERIE || props.Soil_Series || props.soil_series || props.SERIES || props.ASSOCIATIO;
+                if (st) matchedTypes.add(st);
                 if (sr) matchedSeries.add(String(sr).trim());
                 return Boolean(st || sr);
             };
@@ -3440,8 +3451,12 @@ function lockEnteredSatDate() {
 
             if (soilFeatures.length > 0 && testPts.length > 0) {
                 for (const pt of testPts) {
+                    const px = pt[0], py = pt[1];
                     for (const sf of soilFeatures) {
-                        if (sf && sf.geometry && _ptInGeomSoil(pt[0], pt[1], sf.geometry)) {
+                        if (!sf || !sf.geometry) continue;
+                        const bb = sf.properties && sf.properties.BBOX;
+                        if (bb && (px < bb[0] || py < bb[1] || px > bb[2] || py > bb[3])) continue;
+                        if (_ptInGeomSoil(px, py, sf.geometry)) {
                             extractProps(sf.properties);
                         }
                     }
@@ -3451,13 +3466,17 @@ function lockEnteredSatDate() {
             if (matchedTypes.size > 0 || matchedSeries.size > 0) {
                 typeEl.textContent = matchedTypes.size > 0 ? Array.from(matchedTypes).join(' / ') : 'Identified';
                 typeEl.style.color = '#00802b';
-                seriesEl.textContent = matchedSeries.size > 0 ? Array.from(matchedSeries).join(', ') : '--';
-                seriesEl.style.color = '#1c1c1e';
+                if (seriesEl) {
+                    seriesEl.textContent = matchedSeries.size > 0 ? Array.from(matchedSeries).join(', ') : '--';
+                    seriesEl.style.color = '#1c1c1e';
+                }
             } else {
                 typeEl.textContent = 'Not in current coverage';
                 typeEl.style.color = '#6d6d72';
-                seriesEl.textContent = '--';
-                seriesEl.style.color = '#6d6d72';
+                if (seriesEl) {
+                    seriesEl.textContent = '--';
+                    seriesEl.style.color = '#6d6d72';
+                }
             }
         }
         window.updateIdentifiedSoilTypeDisplay = updateIdentifiedSoilTypeDisplay;
