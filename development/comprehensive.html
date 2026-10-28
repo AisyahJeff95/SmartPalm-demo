@@ -2983,6 +2983,22 @@ function lockEnteredSatDate() {
                     * If no data is available on the selected date, satellite data within a 10-day window will be fetched.
                 </div>
 
+                <!-- Soil Type Identification Section (MPOB Reconnaissance Soil Malaysia Data) -->
+                <div id="soil-type-identification-section" style="margin-top: 12px; padding-top: 10px; border-top: 1px solid #f2f2f7;">
+                    <div class="ui-card-label" style="margin-bottom: 8px;">Soil Type</div>
+                    <div class="ui-field-row" style="margin-bottom: 6px;">
+                        <span class="ui-sub-label" style="font-weight: 600; width: 78px; flex-shrink: 0;">Soil Type:</span>
+                        <div id="identified-soil-type-val" class="ui-nutrient-box" style="flex: 1; min-height: 32px; height: auto; padding: 4px 10px; font-weight: 600; font-size: 12.5px; color: #1c1c1e; background: #f8fafc; text-align: center;">--</div>
+                    </div>
+                    <div class="ui-field-row" style="margin-bottom: 6px;">
+                        <span class="ui-sub-label" style="font-weight: 600; width: 78px; flex-shrink: 0;">Soil Series:</span>
+                        <div id="identified-soil-series-val" class="ui-nutrient-box" style="flex: 1; min-height: 32px; height: auto; padding: 4px 10px; font-weight: 500; font-size: 12px; color: #1c1c1e; background: #f8fafc; text-align: center;">--</div>
+                    </div>
+                    <div class="ui-hint-text" style="font-size: 11px; color: #6d6d72; line-height: 1.35; margin-top: 6px;">
+                        * Note: This data is based on MPOB Reconnaissance Soil Malaysia Data, Publisher: Director of National Mapping, Malaysia. Year: 1968
+                    </div>
+                </div>
+
                 <!-- Run Prediction Button (Gradient Border Style) -->
                 <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid #f2f2f7;">
                     <button id="btn-run-prediction" onclick="runRfrPredictionFlow()" style="width: 100%; padding: 11px 18px; background: linear-gradient(#09090f, #09090f) padding-box, linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #f97316 100%) border-box; border: 2px solid transparent; border-radius: 12px; color: #ffffff; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-weight: 600; font-size: 14px; letter-spacing: 0.2px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 0 18px rgba(139, 92, 246, 0.35), 0 4px 12px rgba(0, 0, 0, 0.3); transition: all 0.25s ease;" onmouseover="this.style.boxShadow='0 0 24px rgba(139, 92, 246, 0.6), 0 0 12px rgba(249, 115, 22, 0.4)'; this.style.transform='translateY(-1px)';" onmouseout="this.style.boxShadow='0 0 18px rgba(139, 92, 246, 0.35), 0 4px 12px rgba(0, 0, 0, 0.3)'; this.style.transform='translateY(0)';">
@@ -2992,9 +3008,9 @@ function lockEnteredSatDate() {
                 </div>
             </div>
 
-            <!-- Card 3: Upload Hi-Res Drone Image -->
+            <!-- Card 3: Optional Drone Image Upload -->
             <div class="ui-card" id="card-drone-upload">
-                <div class="ui-card-label" style="margin-bottom: 10px;">Upload Hi-Res Drone Image</div>
+                <div class="ui-card-label" style="margin-bottom: 10px;">Optional:</div>
                 
                 <div style="margin-bottom: 8px;">
                     <div class="ui-field-row-between">
@@ -3022,28 +3038,6 @@ function lockEnteredSatDate() {
                 </div>
 
                 <div class="ui-hint-text" id="drone-status-hint" style="margin-top: 4px;">* Upload high-resolution drone orthomosaic image to overlay on active map boundary.</div>
-            </div>
-
-            <!-- Card 3: Estate Name (for report) -->
-            <div class="ui-card">
-                <div class="ui-card-label" style="margin-bottom: 8px;">Estate Name (for report):</div>
-                <div class="ui-field-row">
-                    <input type="text" id="estate-name-input" class="ui-pill-input" placeholder="">
-                    <input type="checkbox" id="estate-name-lock-chk" class="ui-accent-checkbox" onchange="toggleLockInput(this, 'estate-name-input')" title="Lock / Unlock input">
-                </div>
-            </div>
-
-            <!-- Card 5: Soil Data -->
-            <div class="ui-card flex-row-between" style="align-items: center;">
-                <div class="ui-card-label">Soil Data</div>
-                <div style="display: flex; gap: 12px; font-size: 13px; margin-top: 4px;">
-                    <label style="cursor:pointer; display:flex; align-items:center; gap:4px;">
-                        <input type="checkbox" id="chk-eds-inland"> Inland
-                    </label>
-                    <label style="cursor:pointer; display:flex; align-items:center; gap:4px;">
-                        <input type="checkbox" id="chk-eds-alluvial"> Alluvial / Coastal
-                    </label>
-                </div>
             </div>
 
             <!-- Card 6: Nutrient Detection -->
@@ -3090,7 +3084,29 @@ function lockEnteredSatDate() {
             <!-- Section 2 Header: Fertilizer Recommendation -->
             <div class="ui-section-title" style="margin-top: 10px;">Fertilizer Recommendation</div>
 
-                                    <!-- Card 7: Enter Fertilizer Used/ To Use [Ratio] -->
+            <!-- Estate Name (for report) -->
+            <div class="ui-card">
+                <div class="ui-card-label" style="margin-bottom: 8px;">Estate Name (for report):</div>
+                <div class="ui-field-row">
+                    <input type="text" id="estate-name-input" class="ui-pill-input" placeholder="">
+                    <input type="checkbox" id="estate-name-lock-chk" class="ui-accent-checkbox" onchange="toggleLockInput(this, 'estate-name-input')" title="Lock / Unlock input">
+                </div>
+            </div>
+
+            <!-- Soil Data -->
+            <div class="ui-card flex-row-between" style="align-items: center;">
+                <div class="ui-card-label">Soil Data</div>
+                <div style="display: flex; gap: 12px; font-size: 13px; margin-top: 4px;">
+                    <label style="cursor:pointer; display:flex; align-items:center; gap:4px;">
+                        <input type="checkbox" id="chk-eds-inland"> Inland
+                    </label>
+                    <label style="cursor:pointer; display:flex; align-items:center; gap:4px;">
+                        <input type="checkbox" id="chk-eds-alluvial"> Alluvial / Coastal
+                    </label>
+                </div>
+            </div>
+
+            <!-- Card 7: Enter Fertilizer Used/ To Use [Ratio] -->
             <div class="ui-card">
                 <div class="ui-card-label" style="margin-bottom: 10px;">Enter Fertilizer Used/ To Use [<span style="font-weight: 700;">Ratio</span>]</div>
                 
@@ -3124,6 +3140,11 @@ function lockEnteredSatDate() {
                     </select>
                     <input type="checkbox" id="fert-list-lock-chk" class="ui-accent-checkbox" onchange="toggleLockInput(this, 'fert-list-input')" title="Lock / Unlock input">
                 </div>
+            </div>
+
+            <!-- Selected Block Status for Report -->
+            <div id="selected-block-report-hint" class="ui-hint-text" style="font-size: 11px; color: #6d6d72; margin-bottom: 6px; padding: 0 2px;">
+                * Click a single block on the dashboard map first to generate report.
             </div>
 
             <!-- Generate Report Button -->
@@ -3263,11 +3284,183 @@ function lockEnteredSatDate() {
         let stdBoundaryLayer = null;
         let stdRasterOverlay = null;
         let selectedBlock = "Block 22";
+        let hasClickedBlock = false;
+        let selectedBlockFeature = null;
         let uploadedShapefileName = "";  // set when user uploads a .shp file
         let selectedLat = 5.10423;
         let selectedLng = 118.42851;
         let clickedMarkerComp = null;
         let clickedMarkerStd = null;
+
+        function updateSelectedBlockReportHint() {
+            const el = document.getElementById('selected-block-report-hint');
+            if (!el) return;
+            if (hasClickedBlock && selectedBlock) {
+                el.style.color = '#00802b';
+                el.style.fontWeight = '600';
+                el.innerHTML = `✓ Selected Block for Report (Page 1): <strong>${selectedBlock}</strong>`;
+            } else {
+                el.style.color = '#6d6d72';
+                el.style.fontWeight = '400';
+                el.innerHTML = '* Click a single block on the dashboard map first to generate report.';
+            }
+        }
+
+        // Permanent Soil Series Spatial Identification (MPOB Reconnaissance Soil Malaysia Data)
+        window.PERMANENT_SOIL_SERIES_DATASETS = window.PERMANENT_SOIL_SERIES_DATASETS || [];
+        window.registerPermanentSoilSeriesData = function(geojson) {
+            if (geojson && Array.isArray(geojson.features)) {
+                window.PERMANENT_SOIL_SERIES_DATASETS.push(geojson);
+            }
+        };
+
+        function _ptInRingSoil(lng, lat, ring) {
+            let inside = false;
+            for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+                const xi = ring[i][0], yi = ring[i][1];
+                const xj = ring[j][0], yj = ring[j][1];
+                const intersect = ((yi > lat) !== (yj > lat)) &&
+                    (lng < (xj - xi) * (lat - yi) / ((yj - yi) || 1e-12) + xi);
+                if (intersect) inside = !inside;
+            }
+            return inside;
+        }
+
+        function _ptInGeomSoil(lng, lat, geom) {
+            if (!geom || !geom.coordinates) return false;
+            if (geom.type === 'Polygon') {
+                if (!_ptInRingSoil(lng, lat, geom.coordinates[0])) return false;
+                for (let h = 1; h < geom.coordinates.length; h++) {
+                    if (_ptInRingSoil(lng, lat, geom.coordinates[h])) return false;
+                }
+                return true;
+            } else if (geom.type === 'MultiPolygon') {
+                for (const poly of geom.coordinates) {
+                    if (poly && poly[0] && _ptInRingSoil(lng, lat, poly[0])) {
+                        let inHole = false;
+                        for (let h = 1; h < poly.length; h++) {
+                            if (_ptInRingSoil(lng, lat, poly[h])) { inHole = true; break; }
+                        }
+                        if (!inHole) return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function _getFeatureSamplePointsSoil(feature) {
+            const pts = [];
+            if (!feature || !feature.geometry) return pts;
+            const g = feature.geometry;
+            if (g.type === 'Point' && Array.isArray(g.coordinates)) {
+                pts.push(g.coordinates);
+            } else if (g.type === 'Polygon' && g.coordinates && g.coordinates[0]) {
+                const ring = g.coordinates[0];
+                let sx = 0, sy = 0;
+                const step = Math.max(1, Math.floor(ring.length / 8));
+                for (let i = 0; i < ring.length; i++) {
+                    sx += ring[i][0];
+                    sy += ring[i][1];
+                    if (i % step === 0) pts.push(ring[i]);
+                }
+                if (ring.length > 0) pts.unshift([sx / ring.length, sy / ring.length]);
+            } else if (g.type === 'MultiPolygon' && g.coordinates) {
+                for (const poly of g.coordinates) {
+                    if (poly && poly[0] && poly[0].length > 0) {
+                        const ring = poly[0];
+                        let sx = 0, sy = 0;
+                        for (let i = 0; i < ring.length; i++) {
+                            sx += ring[i][0];
+                            sy += ring[i][1];
+                        }
+                        pts.push([sx / ring.length, sy / ring.length]);
+                        pts.push(ring[0]);
+                    }
+                }
+            }
+            return pts;
+        }
+
+        function updateIdentifiedSoilTypeDisplay(blocksData, clickedLatLng, clickedFeature) {
+            const typeEl = document.getElementById('identified-soil-type-val');
+            const seriesEl = document.getElementById('identified-soil-series-val');
+            if (!typeEl || !seriesEl) return;
+
+            if (!blocksData && !clickedLatLng && !clickedFeature) {
+                typeEl.textContent = '--';
+                typeEl.style.color = '#1c1c1e';
+                seriesEl.textContent = '--';
+                seriesEl.style.color = '#1c1c1e';
+                return;
+            }
+
+            const soilFeatures = [];
+            if (typeof REAL_MAPS_DATA !== 'undefined' && REAL_MAPS_DATA.soil_series && Array.isArray(REAL_MAPS_DATA.soil_series.features)) {
+                soilFeatures.push(...REAL_MAPS_DATA.soil_series.features);
+            }
+            if (Array.isArray(window.PERMANENT_SOIL_SERIES_DATASETS)) {
+                for (const ds of window.PERMANENT_SOIL_SERIES_DATASETS) {
+                    if (ds && Array.isArray(ds.features)) {
+                        soilFeatures.push(...ds.features);
+                    }
+                }
+            }
+
+            const matchedTypes = new Set();
+            const matchedSeries = new Set();
+
+            const extractProps = (props) => {
+                if (!props) return false;
+                const st = props.SOIL_TYPE || props.SOIL_TYPE_ || props.Soil_Type || props.soil_type;
+                const sr = props.DESCR || props.DESCRIPTIO || props.SOIL_SERIE || props.Soil_Series || props.soil_series || props.SERIES;
+                if (st) matchedTypes.add(String(st).trim());
+                if (sr) matchedSeries.add(String(sr).trim());
+                return Boolean(st || sr);
+            };
+
+            if (clickedFeature && clickedFeature.properties) {
+                extractProps(clickedFeature.properties);
+            }
+
+            const testPts = [];
+            if (clickedLatLng && typeof clickedLatLng.lng === 'number' && typeof clickedLatLng.lat === 'number') {
+                testPts.push([clickedLatLng.lng, clickedLatLng.lat]);
+            }
+            if (clickedFeature) {
+                testPts.push(..._getFeatureSamplePointsSoil(clickedFeature));
+            } else if (blocksData && Array.isArray(blocksData.features)) {
+                for (let i = 0; i < blocksData.features.length; i++) {
+                    const f = blocksData.features[i];
+                    if (f && f.properties) extractProps(f.properties);
+                    if (i < 120) {
+                        testPts.push(..._getFeatureSamplePointsSoil(f));
+                    }
+                }
+            }
+
+            if (soilFeatures.length > 0 && testPts.length > 0) {
+                for (const pt of testPts) {
+                    for (const sf of soilFeatures) {
+                        if (sf && sf.geometry && _ptInGeomSoil(pt[0], pt[1], sf.geometry)) {
+                            extractProps(sf.properties);
+                        }
+                    }
+                }
+            }
+
+            if (matchedTypes.size > 0 || matchedSeries.size > 0) {
+                typeEl.textContent = matchedTypes.size > 0 ? Array.from(matchedTypes).join(' / ') : 'Identified';
+                typeEl.style.color = '#00802b';
+                seriesEl.textContent = matchedSeries.size > 0 ? Array.from(matchedSeries).join(', ') : '--';
+                seriesEl.style.color = '#1c1c1e';
+            } else {
+                typeEl.textContent = 'Not in current coverage';
+                typeEl.style.color = '#6d6d72';
+                seriesEl.textContent = '--';
+                seriesEl.style.color = '#6d6d72';
+            }
+        }
+        window.updateIdentifiedSoilTypeDisplay = updateIdentifiedSoilTypeDisplay;
         
         // Active nutrient values
         let currentNutrients = {
@@ -3733,6 +3926,10 @@ function lockEnteredSatDate() {
             }
 
             // Clean clicked markers safely
+            hasClickedBlock = false;
+            selectedBlockFeature = null;
+            updateSelectedBlockReportHint();
+            updateIdentifiedSoilTypeDisplay(blocksData, null, null);
             if (clickedMarkerComp && mapComp) {
                 mapComp.removeLayer(clickedMarkerComp);
                 clickedMarkerComp = null;
@@ -4041,7 +4238,11 @@ function lockEnteredSatDate() {
 
         // Handle Click Event on block boundaries
         function handleBlockClick(feature, latlng, page, tipHtml) {
-            selectedBlock = feature.properties.name;
+            selectedBlock = (feature && feature.properties && (feature.properties.name || feature.properties.BLOCK || feature.properties.Block)) || "Selected Block";
+            hasClickedBlock = true;
+            selectedBlockFeature = feature;
+            updateSelectedBlockReportHint();
+            updateIdentifiedSoilTypeDisplay(null, latlng, feature);
             selectedLat = latlng.lat;
             selectedLng = latlng.lng;
             
@@ -4094,6 +4295,10 @@ function lockEnteredSatDate() {
         // Handle Direct Map Click Events (Outside Boundaries)
         function handleMapDirectClick(latlng, page) {
             selectedBlock = "Block 22";
+            hasClickedBlock = false;
+            selectedBlockFeature = null;
+            updateSelectedBlockReportHint();
+            updateIdentifiedSoilTypeDisplay(null, latlng, null);
             selectedLat = latlng.lat;
             selectedLng = latlng.lng;
             
@@ -4221,10 +4426,14 @@ function lockEnteredSatDate() {
         // Switch dropdown map change with robust zoom-to-boundary support
         function onMapSelectChanged(val) {
             window.DYNAMIC_PREDICTION_RASTERS = null;
+            hasClickedBlock = false;
+            selectedBlockFeature = null;
+            updateSelectedBlockReportHint();
             setElementValue('map-select-comp', val);
             setElementValue('map-select-std', val);
 
             if (!val) {
+                updateIdentifiedSoilTypeDisplay(null, null, null);
                 // Clear boundaries & overlays and zoom to whole Malaysia map
                 if (compBoundaryLayer && mapComp) { mapComp.removeLayer(compBoundaryLayer); compBoundaryLayer = null; }
                 if (stdBoundaryLayer && mapStd) { mapStd.removeLayer(stdBoundaryLayer); stdBoundaryLayer = null; }
@@ -4696,7 +4905,7 @@ function openPredictionProgressModal(estateLabel, shpDisplay, targetDate, isReal
                 <div style="display:flex; align-items:center; gap:12px;">
                     <span id="pred-modal-spinner" style="font-size:20px; display:inline-block; animation:spin 2s linear infinite;">🛰️</span>
                     <div>
-                        <div style="color:#ffffff; font-weight:700; font-size:15px; letter-spacing:0.2px;">SmartPalm 10m Sentinel-1 & Sentinel-2 Prediction Pipeline</div>
+                        <div style="color:#ffffff; font-weight:700; font-size:15px; letter-spacing:0.2px;">Palmnex 10m Sentinel-1 & Sentinel-2 Prediction Pipeline</div>
                         <div style="color:#94a3b8; font-size:12px; margin-top:2px;">Estate: <strong style="color:#e2e8f0;">${estateLabel}</strong> · Mode: <span style="color:#38bdf8; font-weight:600;">${modeBadge}</span></div>
                     </div>
                 </div>
@@ -4805,7 +5014,13 @@ function showNoMapSelectedModal(triggerReason) {
 
     const actionText = (triggerReason === 'overlay')
         ? 'displaying the Sentinel satellite overlay'
-        : 'running the 10m Sentinel nutrient prediction';
+        : (triggerReason === 'report')
+            ? 'generating the block report'
+            : 'running the 10m Sentinel nutrient prediction';
+
+    const subtitleText = (triggerReason === 'report')
+        ? 'Step 1 required before generating report'
+        : 'Step 1 required before prediction';
 
     const modal = document.createElement('div');
     modal.id = 'no-map-selected-modal';
@@ -4819,7 +5034,7 @@ function showNoMapSelectedModal(triggerReason) {
                 </div>
                 <div>
                     <div style="font-size:16px; font-weight:700; color:#92400e;">No Estate Map Selected</div>
-                    <div style="font-size:12px; color:#b45309; margin-top:1px;">Step 1 required before prediction</div>
+                    <div style="font-size:12px; color:#b45309; margin-top:1px;">${subtitleText}</div>
                 </div>
             </div>
             <div style="padding:20px 22px; color:#334155; font-size:13.5px; line-height:1.55;">
@@ -4864,6 +5079,55 @@ function dismissNoMapSelectedModal() {
     }
 }
 window.dismissNoMapSelectedModal = dismissNoMapSelectedModal;
+
+function showNoBlockSelectedModal() {
+    let existing = document.getElementById('no-block-selected-modal');
+    if (existing) existing.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'no-block-selected-modal';
+    modal.style.cssText = 'position:fixed; inset:0; z-index:999999; background:rgba(15,23,42,0.68); backdrop-filter:blur(5px); display:flex; align-items:center; justify-content:center; padding:20px; font-family:-apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;';
+
+    modal.innerHTML = `
+        <div style="width:100%; max-width:440px; background:#ffffff; border-radius:16px; border:1px solid #e2e8f0; box-shadow:0 24px 50px rgba(0,0,0,0.35); overflow:hidden; animation:fadeIn 0.2s ease-out;">
+            <div style="padding:18px 22px; background:linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-bottom:1px solid #fde68a; display:flex; align-items:center; gap:12px;">
+                <div style="width:38px; height:38px; border-radius:10px; background:#f59e0b; color:#ffffff; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0; box-shadow:0 4px 10px rgba(245,158,11,0.3);">
+                    📍
+                </div>
+                <div>
+                    <div style="font-size:16px; font-weight:700; color:#92400e;">No Block Selected</div>
+                    <div style="font-size:12px; color:#b45309; margin-top:1px;">Single block selection required for Page 1 report</div>
+                </div>
+            </div>
+            <div style="padding:20px 22px; color:#334155; font-size:13.5px; line-height:1.55;">
+                Please <strong>click a single block</strong> on the dashboard map first before generating the report.<br><br>
+                <span style="font-size:12.5px; color:#64748b;">Page 1 of the report is generated specifically for your selected block, followed by full estate supplements from Page 2 onwards.</span>
+            </div>
+            <div style="padding:14px 22px; background:#f8fafc; border-top:1px solid #e2e8f0; display:flex; justify-content:flex-end; gap:10px;">
+                <button type="button" onclick="dismissNoBlockSelectedModal()" style="padding:9px 18px; background:linear-gradient(135deg, #00802b 0%, #059669 100%); color:#ffffff; border:none; border-radius:10px; font-size:13px; font-weight:700; cursor:pointer; box-shadow:0 4px 12px rgba(0,128,43,0.28);">
+                    Click a Block on Map →
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+}
+window.showNoBlockSelectedModal = showNoBlockSelectedModal;
+
+function dismissNoBlockSelectedModal() {
+    const modal = document.getElementById('no-block-selected-modal');
+    if (modal) modal.remove();
+
+    const mapEl = document.getElementById('map-comprehensive-element') || document.getElementById('map-standard-element');
+    if (mapEl) {
+        mapEl.style.boxShadow = '0 0 0 4px rgba(245, 158, 11, 0.55)';
+        setTimeout(() => {
+            mapEl.style.boxShadow = '';
+        }, 2600);
+    }
+}
+window.dismissNoBlockSelectedModal = dismissNoBlockSelectedModal;
 
 function runRfrPredictionFlow() {
     if (window._PREDICTION_IS_RUNNING) return;
@@ -5371,6 +5635,20 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
         //  PDF REPORT GENERATION SERVICE (html2pdf)
         // =========================================================================
         function viewReportPDF(soilMode) {
+            const selectEl = document.getElementById('map-select-comp') || document.getElementById('map-select-std') || document.getElementById('map-select-kpsm');
+            const hasSelectedDropdown = Boolean(selectEl && selectEl.value && selectEl.value.trim() !== '');
+            const hasUploadedBoundary = Boolean((typeof compBoundaryLayer !== 'undefined' && compBoundaryLayer) || (typeof stdBoundaryLayer !== 'undefined' && stdBoundaryLayer) || window._UPLOADED_SHP_BUFFER);
+
+            if (!hasSelectedDropdown && !hasUploadedBoundary) {
+                showNoMapSelectedModal('report');
+                return;
+            }
+
+            if (!hasClickedBlock) {
+                showNoBlockSelectedModal();
+                return;
+            }
+
             let printArea = document.getElementById('report-preview-body');
             printArea.style.padding = '20px 10px';
             printArea.style.fontFamily = 'unset';
