@@ -3379,6 +3379,41 @@ function lockEnteredSatDate() {
             return pts;
         }
 
+        function syncSoilDataCardCheckboxes(matchedTypes) {
+            const chkInland = document.getElementById('chk-eds-inland');
+            const chkAlluvial = document.getElementById('chk-eds-alluvial');
+            const lblInland = chkInland ? chkInland.closest('label') : null;
+            const lblAlluvial = chkAlluvial ? chkAlluvial.closest('label') : null;
+
+            const setOptionState = (chk, lbl, enabled) => {
+                if (!chk) return;
+                chk.disabled = !enabled;
+                if (!enabled) chk.checked = false;
+                if (lbl) {
+                    lbl.style.opacity = enabled ? '1' : '0.38';
+                    lbl.style.pointerEvents = enabled ? 'auto' : 'none';
+                    lbl.style.cursor = enabled ? 'pointer' : 'not-allowed';
+                    lbl.style.color = enabled ? '' : '#9ca3af';
+                }
+            };
+
+            const hasInland = matchedTypes && matchedTypes.has('Inland');
+            const hasCoastal = matchedTypes && (matchedTypes.has('Coastal') || matchedTypes.has('Alluvial'));
+
+            if (hasInland && !hasCoastal) {
+                setOptionState(chkInland, lblInland, true);
+                setOptionState(chkAlluvial, lblAlluvial, false);
+                if (typeof reportData !== 'undefined' && reportData) reportData.soilType = 'Inland';
+            } else if (hasCoastal && !hasInland) {
+                setOptionState(chkInland, lblInland, false);
+                setOptionState(chkAlluvial, lblAlluvial, true);
+                if (typeof reportData !== 'undefined' && reportData) reportData.soilType = 'Alluvial / Coastal';
+            } else {
+                setOptionState(chkInland, lblInland, true);
+                setOptionState(chkAlluvial, lblAlluvial, true);
+            }
+        }
+
         function updateIdentifiedSoilTypeDisplay(blocksData, clickedLatLng, clickedFeature) {
             const typeEl = document.getElementById('identified-soil-type-val');
             const seriesEl = document.getElementById('identified-soil-series-val');
@@ -3391,6 +3426,7 @@ function lockEnteredSatDate() {
                     seriesEl.textContent = '--';
                     seriesEl.style.color = '#1c1c1e';
                 }
+                syncSoilDataCardCheckboxes(null);
                 return;
             }
 
@@ -3478,6 +3514,7 @@ function lockEnteredSatDate() {
                     seriesEl.style.color = '#6d6d72';
                 }
             }
+            syncSoilDataCardCheckboxes(matchedTypes);
         }
         window.updateIdentifiedSoilTypeDisplay = updateIdentifiedSoilTypeDisplay;
         
