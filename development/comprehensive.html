@@ -2959,7 +2959,7 @@ function lockEnteredSatDate() {
                     <div class="ui-card-label">Satellite Data</div>
                     <div class="ui-card-content-stack">
                         <label class="ui-checkbox-label">
-                            <input type="checkbox" id="comp-realtime-chk" onchange="toggleSatDataMode('realtime')"> Real-time
+                            <input type="checkbox" id="comp-realtime-chk" checked onchange="toggleSatDataMode('realtime')"> Real-time
                         </label>
                         <label class="ui-checkbox-label" id="comp-previous-label">
                             <input type="checkbox" id="comp-previous-chk" onchange="toggleSatDataMode('previous')"> Previous
@@ -4913,6 +4913,11 @@ function runRfrPredictionFlow() {
     } else if (dateInput && !dateInput.disabled && dateInput.value) {
         isRealtime = false;
         targetDate = dateInput.value;
+    } else {
+        isRealtime = true;
+        targetDate = new Date().toISOString().slice(0, 10);
+        if (realtimeChk) realtimeChk.checked = true;
+        if (dateInput) dateInput.disabled = true;
     }
 
     let bounds = [[4.41323, 117.41170], [4.72680, 117.81996]];
