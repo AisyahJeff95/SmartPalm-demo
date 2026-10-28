@@ -220,9 +220,33 @@
 
         /* Live Hover Database Panel */
         .db-inspector {
-            padding: 12px 16px;
-            border-bottom: 1px solid var(--panel-border);
+            flex: 1;
+            overflow-y: auto;
+            padding: 14px 16px;
             background: rgba(2, 6, 23, 0.45);
+        }
+
+        /* Right Sidebar Panel */
+        .right-panel {
+            width: 360px;
+            min-width: 320px;
+            max-width: 400px;
+            height: 100%;
+            background: var(--panel-bg);
+            border-left: 1px solid var(--panel-border);
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            backdrop-filter: blur(16px);
+        }
+
+        .right-panel-header {
+            padding: 14px 14px 10px;
+            border-bottom: 1px solid var(--panel-border);
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.75));
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
 
         .db-inspector-header {
@@ -289,7 +313,6 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 8px;
             font-size: 11px;
             color: var(--text-muted);
             font-weight: 600;
@@ -310,7 +333,7 @@
         .soil-unit-card:hover, .soil-unit-card.active {
             background: rgba(30, 41, 59, 0.95);
             border-color: #38bdf8;
-            transform: translateX(2px);
+            transform: translateX(-2px);
         }
 
         .soil-unit-top {
@@ -446,7 +469,7 @@
 </head>
 <body>
     <div class="app-layout">
-        <!-- Left Sidebar: Controls, Live Hover Database Record & Searchable Soil Units -->
+        <!-- Left Sidebar: Controls & Live Hover Database Record -->
         <aside class="sidebar">
             <div class="sidebar-header">
                 <div class="brand-row">
@@ -481,10 +504,10 @@
                     <div>
                         <span class="control-label">Base Map</span>
                         <select id="basemap-select" class="select-input" onchange="switchBaseMap(this.value)">
-                            <option value="dark">Dark GIS Canvas</option>
+                            <option value="topo" selected>Topographic Terrain</option>
+                            <option value="osm">OpenStreetMap (Leaflet)</option>
                             <option value="satellite">Satellite Imagery (Esri)</option>
-                            <option value="osm">OpenStreetMap</option>
-                            <option value="topo">Topographic Terrain</option>
+                            <option value="dark">Blank Dark Canvas</option>
                         </select>
                     </div>
                 </div>
@@ -520,32 +543,18 @@
                         </div>
                     </div>
                 </div>
-
-                <div>
-                    <input type="text" id="soil-search-input" class="search-input" placeholder="Search soil series, association, FCD_S, landform, parent material..." oninput="renderFeatureDirectory()" />
-                </div>
             </div>
 
             <!-- Live Database Inspector -->
             <div class="db-inspector">
                 <div class="db-inspector-header">
                     <span class="control-label" style="margin: 0; color: #38bdf8;">Soil Database Record (Hover / Click)</span>
-                    <span id="db-lock-badge" class="db-status-pill" onclick="clearLockedFeature()" style="cursor: pointer;" title="Click a polygon on the map to lock/unlock">Live Hover</span>
                 </div>
                 <div id="db-record-content">
                     <div style="font-size: 12px; color: #94a3b8; padding: 10px 0;">
                         Move your cursor over any soil polygon on the map to inspect its complete MPOB 1968 Reconnaissance Soil Database attributes.
                     </div>
                 </div>
-            </div>
-
-            <!-- Directory of all 118 soil records -->
-            <div class="feature-list-container">
-                <div class="feature-list-header">
-                    <span>Database Units (<span id="unit-count-label">0</span>)</span>
-                    <span>Area (Ha)</span>
-                </div>
-                <div id="soil-directory-list"></div>
             </div>
         </aside>
 
@@ -557,6 +566,20 @@
             </div>
             <div id="soil-map"></div>
         </main>
+
+        <!-- Right Sidebar Panel: Search & Directory of all 118 Soil Database Units -->
+        <aside class="right-panel">
+            <div class="right-panel-header">
+                <div class="feature-list-header">
+                    <span>Database Units (<span id="unit-count-label">0</span>)</span>
+                    <span>Area (Ha)</span>
+                </div>
+                <input type="text" id="soil-search-input" class="search-input" placeholder="Search soil series, association, FCD_S, landform..." oninput="renderFeatureDirectory()" />
+            </div>
+            <div class="feature-list-container">
+                <div id="soil-directory-list"></div>
+            </div>
+        </aside>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -634,20 +657,9 @@
             `;
         }
 
-        function updateSidebarInspector(props, isLocked) {
+        function updateSidebarInspector(props) {
             const container = document.getElementById('db-record-content');
-            const badge = document.getElementById('db-lock-badge');
             if (!container) return;
-
-            if (badge) {
-                if (isLocked) {
-                    badge.textContent = 'Locked (Click to Unlock)';
-                    badge.classList.add('locked');
-                } else {
-                    badge.textContent = 'Live Hover';
-                    badge.classList.remove('locked');
-                }
-            }
 
             if (!props) {
                 container.innerHTML = `
@@ -689,31 +701,28 @@
         });
 
         const BASEMAPS = {
-            dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; OpenStreetMap &copy; CARTO',
+            topo: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenTopoMap',
+                maxZoom: 17
+            }),
+            osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors',
                 maxZoom: 19
             }),
             satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                 attribution: 'Tiles &copy; Esri',
                 maxZoom: 19
             }),
-            osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap contributors',
-                maxZoom: 19
-            }),
-            topo: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenTopoMap',
-                maxZoom: 17
-            })
+            dark: L.layerGroup()
         };
 
-        let activeBaseMap = BASEMAPS.dark.addTo(map);
+        let activeBaseMap = BASEMAPS.topo.addTo(map);
 
         function switchBaseMap(key) {
             if (activeBaseMap) map.removeLayer(activeBaseMap);
-            activeBaseMap = BASEMAPS[key] || BASEMAPS.dark;
+            activeBaseMap = BASEMAPS[key] || BASEMAPS.topo;
             activeBaseMap.addTo(map);
-            activeBaseMap.bringToBack();
+            if (activeBaseMap.bringToBack) activeBaseMap.bringToBack();
         }
 
         map.on('mousemove', (e) => {
