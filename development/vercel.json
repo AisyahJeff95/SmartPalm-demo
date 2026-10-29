@@ -1,6 +1,23 @@
 {
   "version": 2,
   "cleanUrls": true,
+  "redirects": [
+    {
+      "source": "/PalmnexReaDS",
+      "destination": "https://www.palmnex.com.my",
+      "permanent": false
+    },
+    {
+      "source": "/PalmnexReaDS.html",
+      "destination": "https://www.palmnex.com.my",
+      "permanent": false
+    },
+    {
+      "source": "/palmnexreads",
+      "destination": "https://www.palmnex.com.my",
+      "permanent": false
+    }
+  ],
   "rewrites": [
     {
       "source": "/comprehensive",
@@ -9,14 +26,6 @@
     {
       "source": "/standard",
       "destination": "/standard.html"
-    },
-    {
-      "source": "/PalmnexReaDS",
-      "destination": "/PalmnexReaDS.html"
-    },
-    {
-      "source": "/palmnexreads",
-      "destination": "/PalmnexReaDS.html"
     },
     {
       "source": "/reada",
