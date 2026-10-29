@@ -1995,6 +1995,7 @@
     <script src="js/sekinchan1poly_raster_overlays.js"></script>
     <script src="js/nutrient_full_map_grid.js"></script>
     <script src="js/malaysia_soil_reconnaissance.js"></script>
+    <script src="js/prediction_cache_history.js"></script>
 <script>
 
 
@@ -4801,6 +4802,9 @@ function toggleSatDataMode(mode) {
             }
 
             loadShapeBoundaries(val);
+            const restoredFromCache = (typeof window.restoreEstatePredictionFromCache === 'function')
+                ? window.restoreEstatePredictionFromCache(val)
+                : false;
 
             function zoomToActiveMap() {
                 let activeBoundary = compBoundaryLayer || stdBoundaryLayer;
@@ -4819,7 +4823,7 @@ function toggleSatDataMode(mode) {
             setTimeout(zoomToActiveMap, 500);
             // Sekinchan / PPPTAR have prebuilt rasters: re-apply the selected nutrient layer immediately
             const activeLayerRadio = document.querySelector('input[name="comp_layer"]:checked');
-            if ((val.includes('sekinchan') || val.includes('ppptar')) && activeLayerRadio && activeLayerRadio.value !== 'OFF') {
+            if ((restoredFromCache || val.includes('sekinchan') || val.includes('ppptar')) && activeLayerRadio && activeLayerRadio.value !== 'OFF') {
                 setTimeout(() => { if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp(activeLayerRadio.value); }, 250);
             }
         }
@@ -5479,6 +5483,7 @@ function runRfrPredictionFlow() {
     (async () => {
         let data = null;
         let lastErr = null;
+        let usedBaseUrl = 'https://aisyjeff95-smartpalm-demo.hf.space';
         for (const ep of endpoints) {
             if (!window._PREDICTION_IS_RUNNING) return;
             try {
@@ -5496,6 +5501,7 @@ function runRfrPredictionFlow() {
                 });
                 if (res.ok) {
                     data = await res.json();
+                    usedBaseUrl = ep.startsWith('http') ? ep.replace(/\/api\/predict.*$/, '') : window.location.origin;
                     break;
                 }
             } catch (e) {
@@ -5516,8 +5522,26 @@ function runRfrPredictionFlow() {
 
         if (data && (data.folder_name || data.overlays)) {
             window._USE_RF_PREDICTIONS = true;
+            window._LAST_PREDICTION_BASE_URL = usedBaseUrl;
             if (data.folder_name) window._LAST_PREDICTION_FOLDER = data.folder_name;
             if (data.overlays) window.DYNAMIC_PREDICTION_RASTERS = data.overlays;
+            if (typeof window.savePredictionRunToCacheAndHistory === 'function') {
+                await window.savePredictionRunToCacheAndHistory({
+                    shpKey: shpKey,
+                    estateName: mapType,
+                    targetDate: targetDate,
+                    isRealtime: isRealtime,
+                    folderName: data.folder_name,
+                    folderPath: outDir,
+                    baseUrl: usedBaseUrl,
+                    overlays: data.overlays,
+                    bounds: bounds,
+                    executionTimeSec: elapsedSec
+                });
+                if (window.PREDICTION_CACHE_BY_ESTATE && window.PREDICTION_CACHE_BY_ESTATE[shpKey] && window.PREDICTION_CACHE_BY_ESTATE[shpKey].overlays) {
+                    window.DYNAMIC_PREDICTION_RASTERS = window.PREDICTION_CACHE_BY_ESTATE[shpKey].overlays;
+                }
+            }
 
             const logEl = document.getElementById('prediction-terminal-log');
             if (logEl) logEl.innerHTML = '';

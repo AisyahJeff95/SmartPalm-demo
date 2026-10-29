@@ -151,6 +151,17 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
             folder_param = params.get("folder_name", [None])[0]
             return self.handle_download_zip(folder_param)
 
+        if url_path == "/api/prediction_history":
+            return self.handle_prediction_history()
+
+        if url_path == "/api/prediction_overlays":
+            query_str = ""
+            if "?" in self.path:
+                query_str = self.path.split("?", 1)[1]
+            params = urllib.parse.parse_qs(query_str)
+            folder_param = params.get("folder_name", [None])[0]
+            return self.handle_prediction_overlays(folder_param)
+
         # Route root requests to development/index.html (or index.html)
         if url_path in ["/", "", "/index.html"]:
             file_path = os.path.join(BASE_DIR, "index.html")
@@ -195,23 +206,105 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
 
         return self._send_json(404, {"error": f"File not found: {url_path}"})
 
-    def handle_download_zip(self, folder_name=None):
-        target_dir = None
+    def _find_prediction_folder(self, folder_name=None):
+        search_roots = [PREDICTIONS_DIR, TRAINING_V3_DIR]
         if folder_name:
             clean_folder = os.path.basename(folder_name.strip())
-            candidate = os.path.join(PREDICTIONS_DIR, clean_folder)
-            if os.path.isdir(candidate):
-                target_dir = candidate
-            else:
-                matches = [d for d in os.listdir(PREDICTIONS_DIR) if clean_folder.lower() in d.lower() and os.path.isdir(os.path.join(PREDICTIONS_DIR, d))]
+            for sroot in search_roots:
+                if not os.path.isdir(sroot):
+                    continue
+                candidate = os.path.join(sroot, clean_folder)
+                if os.path.isdir(candidate):
+                    return candidate
+            for sroot in search_roots:
+                if not os.path.isdir(sroot):
+                    continue
+                matches = [
+                    os.path.join(sroot, d) for d in os.listdir(sroot)
+                    if d.startswith("predictions_") and clean_folder.lower() in d.lower() and os.path.isdir(os.path.join(sroot, d))
+                ]
                 if matches:
-                    target_dir = os.path.join(PREDICTIONS_DIR, matches[-1])
+                    return max(matches, key=os.path.getmtime)
 
+        all_dirs = []
+        for sroot in search_roots:
+            if not os.path.isdir(sroot):
+                continue
+            for d in os.listdir(sroot):
+                full_p = os.path.join(sroot, d)
+                if d.startswith("predictions_") and os.path.isdir(full_p):
+                    all_dirs.append(full_p)
+        if all_dirs:
+            return max(all_dirs, key=os.path.getmtime)
+        return None
+
+    def handle_prediction_history(self):
+        search_roots = [PREDICTIONS_DIR, TRAINING_V3_DIR]
+        seen = set()
+        runs = []
+        for sroot in search_roots:
+            if not os.path.isdir(sroot):
+                continue
+            for d in os.listdir(sroot):
+                if not d.startswith("predictions_"):
+                    continue
+                full_p = os.path.join(sroot, d)
+                if not os.path.isdir(full_p) or d in seen:
+                    continue
+                seen.add(d)
+                files_in_dir = [f for f in os.listdir(full_p) if not f.startswith(".")]
+                if not files_in_dir:
+                    continue
+                meta_path = os.path.join(full_p, "prediction_metadata.json")
+                meta = {}
+                if os.path.isfile(meta_path):
+                    try:
+                        with open(meta_path, "r", encoding="utf-8") as mf:
+                            meta = json.load(mf)
+                    except Exception:
+                        meta = {}
+                mtime = os.path.getmtime(full_p)
+                # Parse folder name predictions_<estate>_<YYYY-MM-DD>_<HHMMSS>
+                estate_guess = meta.get("estate_name") or d.replace("predictions_", "")
+                date_guess = meta.get("acquisition_date") or datetime.fromtimestamp(mtime).strftime("%Y-%m-%d")
+                parts = d.split("_")
+                if len(parts) >= 4 and len(parts[-2]) == 10 and parts[-2].count("-") == 2:
+                    if not meta.get("acquisition_date"):
+                        date_guess = parts[-2]
+                    if not meta.get("estate_name"):
+                        estate_guess = " ".join(parts[1:-2])
+
+                runs.append({
+                    "folder_name": d,
+                    "estate_name": estate_guess,
+                    "target_date": date_guess,
+                    "timestamp": meta.get("timestamp") or datetime.fromtimestamp(mtime).strftime("%Y-%m-%d %H:%M:%S"),
+                    "mtime": mtime,
+                    "total_blocks": meta.get("total_blocks"),
+                    "total_pixels": meta.get("total_pixels"),
+                    "execution_time_sec": meta.get("execution_time_seconds"),
+                    "has_overlays": os.path.isfile(os.path.join(full_p, "overlays.json")),
+                    "files_count": len(files_in_dir)
+                })
+        runs.sort(key=lambda r: r["mtime"], reverse=True)
+        return self._send_json(200, {"status": "success", "runs": runs})
+
+    def handle_prediction_overlays(self, folder_name):
+        target_dir = self._find_prediction_folder(folder_name)
         if not target_dir:
-            # Fallback to the most recent prediction folder
-            subdirs = [os.path.join(PREDICTIONS_DIR, d) for d in os.listdir(PREDICTIONS_DIR) if os.path.isdir(os.path.join(PREDICTIONS_DIR, d))]
-            if subdirs:
-                target_dir = max(subdirs, key=os.path.getmtime)
+            return self._send_json(404, {"error": "Prediction folder not found"})
+        overlays_path = os.path.join(target_dir, "overlays.json")
+        if os.path.isfile(overlays_path):
+            try:
+                with open(overlays_path, "r", encoding="utf-8") as f:
+                    ov = json.load(f)
+                return self._send_json(200, {"status": "success", "folder_name": os.path.basename(target_dir), "overlays": ov})
+            except Exception as e:
+                return self._send_json(500, {"error": f"Failed to load overlays: {e}"})
+        return self._send_json(404, {"error": "No cached overlays.json in this historical folder"})
+
+    def handle_download_zip(self, folder_name=None):
+        target_dir = self._find_prediction_folder(folder_name)
 
         if not target_dir or not os.path.isdir(target_dir):
             return self._send_json(404, {"error": "Prediction output directory not found"})
@@ -284,6 +377,13 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
 
         if not result:
             return self._send_json(500, {"error": "Prediction pipeline execution failed"})
+
+        if result.get("out_dir") and result.get("overlays"):
+            try:
+                with open(os.path.join(result["out_dir"], "overlays.json"), "w", encoding="utf-8") as ovf:
+                    json.dump(result["overlays"], ovf)
+            except Exception as e:
+                print(f"  ! Warning: Failed to save overlays.json: {e}")
 
         response_payload = {
             "status": "success",
