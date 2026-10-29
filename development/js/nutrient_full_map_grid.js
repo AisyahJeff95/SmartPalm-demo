@@ -1132,94 +1132,39 @@
         `;
     }
 
-    // Render Page 1 Fig 1.1: Pure Earth Satellite Map View (No Colored Nutrient Rasters)
-    function renderSelectedBlockPortionCanvas(details) {
-        const W = 750, H = 440;
-        const cvs = document.createElement('canvas');
-        cvs.width = W; cvs.height = H;
-        const ctx = cvs.getContext('2d');
+    // Helper to load a single satellite tile with CORS support (Google Earth Satellite -> Esri World Imagery fallback)
+    function loadSatelliteTileImage(z, tx, ty) {
+        const sub = Math.abs(tx + ty) % 4;
+        const urls = [
+            `https://mt${sub}.google.com/vt/lyrs=s&x=${tx}&y=${ty}&z=${z}`,
+            `https://khms${sub}.google.com/kh/v=995?x=${tx}&y=${ty}&z=${z}`,
+            `https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${ty}/${tx}`
+        ];
+        return new Promise((resolve) => {
+            let idx = 0;
+            const tryNext = () => {
+                if (idx >= urls.length) { resolve(null); return; }
+                const url = urls[idx++];
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                const timer = setTimeout(() => { img.src = ''; tryNext(); }, 3500);
+                img.onload = () => { clearTimeout(timer); resolve(img); };
+                img.onerror = () => { clearTimeout(timer); tryNext(); };
+                img.src = url;
+            };
+            tryNext();
+        });
+    }
 
-        // 1. Deep Natural Earth Satellite Canopy Base (Sentinel-2 / Google Earth RGB Vegetation Tones)
-        const bgGrad = ctx.createLinearGradient(0, 0, W, H);
-        bgGrad.addColorStop(0, '#162d1c');
-        bgGrad.addColorStop(0.5, '#1d3823');
-        bgGrad.addColorStop(1, '#142818');
-        ctx.fillStyle = bgGrad;
-        ctx.fillRect(0, 0, W, H);
-
-        // Subtle terrain elevation/soil moisture variation patches
-        for (let py = 0; py < H; py += 28) {
-            for (let px = 0; px < W; px += 28) {
-                const n = Math.sin(px * 0.031 + py * 0.019) * Math.cos(px * 0.017 - py * 0.027);
-                ctx.fillStyle = n > 0 ? 'rgba(42, 82, 48, 0.22)' : 'rgba(12, 28, 16, 0.22)';
-                ctx.fillRect(px, py, 30, 30);
-            }
-        }
-
-        // Realistic Oil Palm Plantation Crown Canopy Grid (9m equilateral triangular planting pattern)
-        const rowDy = 11.5;
-        const colDx = 13.0;
-        for (let r = -1; r * rowDy < H + 16; r++) {
-            const cy = r * rowDy;
-            const xOffset = (r % 2 === 0) ? 0 : colDx * 0.5;
-            for (let c = -1; c * colDx < W + 16; c++) {
-                const cx = c * colDx + xOffset;
-                const hash = Math.abs(Math.sin(r * 12.9898 + c * 78.233) * 43758.5453) % 1;
-                const jx = cx + (hash - 0.5) * 2.2;
-                const jy = cy + (((hash * 17) % 1) - 0.5) * 2.2;
-                const rad = 4.6 + (hash * 1.1);
-
-                // Canopy shadow
-                ctx.fillStyle = 'rgba(7, 16, 10, 0.55)';
-                ctx.beginPath();
-                ctx.arc(jx + 1.4, jy + 1.4, rad, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Outer palm crown rosette
-                const greens = ['#224628', '#28522f', '#2e5c35', '#1e3f24', '#33633a'];
-                ctx.fillStyle = greens[Math.floor(hash * greens.length)];
-                ctx.beginPath();
-                ctx.arc(jx, jy, rad, 0, Math.PI * 2);
-                ctx.fill();
-
-                // Sunlit palm frond highlights
-                ctx.strokeStyle = 'rgba(92, 148, 86, 0.55)';
-                ctx.lineWidth = 0.85;
-                for (let f = 0; f < 6; f++) {
-                    const ang = (f * Math.PI) / 3 + (hash * 0.5);
-                    ctx.beginPath();
-                    ctx.moveTo(jx, jy);
-                    ctx.lineTo(jx + Math.cos(ang) * rad * 0.95, jy + Math.sin(ang) * rad * 0.95);
-                    ctx.stroke();
-                }
-            }
-        }
-
-        const vp = computeBlockViewport(details, true);
-        const toX = (lng) => ((lng - vp.west) / (vp.east - vp.west)) * W;
-        const toY = (lat) => ((vp.north - lat) / (vp.north - vp.south)) * H;
-
-        // 2. Plantation collection roads & neighbouring estate block boundaries
+    // Helper to draw block boundaries on top of the satellite canvas in Fig 1.1
+    function drawSelectedBlockBoundariesOnSatellite(ctx, details, toX, toY) {
+        // 1. Neighbouring estate block boundaries in crisp orange
         if (details.allRings && details.allRings.length) {
             ctx.save();
             ctx.lineJoin = 'round';
             ctx.lineCap = 'round';
-            // Unpaved plantation road bed along block boundaries
-            ctx.strokeStyle = 'rgba(120, 102, 78, 0.65)';
-            ctx.lineWidth = 4.2;
-            details.allRings.forEach(ring => {
-                ctx.beginPath();
-                ring.forEach((pt, i) => {
-                    const x = toX(pt[0]), y = toY(pt[1]);
-                    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-                });
-                ctx.closePath();
-                ctx.stroke();
-            });
-
-            // Crisp neighboring block boundary survey lines
-            ctx.strokeStyle = 'rgba(226, 232, 240, 0.65)';
-            ctx.lineWidth = 1.3;
+            ctx.strokeStyle = 'rgba(255, 120, 0, 0.65)';
+            ctx.lineWidth = 1.6;
             details.allRings.forEach(ring => {
                 ctx.beginPath();
                 ring.forEach((pt, i) => {
@@ -1232,25 +1177,13 @@
             ctx.restore();
         }
 
-        // 3. Highlight Selected Block Boundary (Earth view inside, no colored nutrient rasters!)
+        // 2. Highlight Selected Block Boundary (pure Google Earth satellite inside, no text labels)
         const blockRings = (details.blockRings && details.blockRings.length) ? details.blockRings : details.allRings;
         if (blockRings && blockRings.length) {
             ctx.save();
             ctx.lineJoin = 'round';
 
-            // Very subtle warm highlight tint so Earth satellite palm canopy remains clearly visible
-            ctx.fillStyle = 'rgba(250, 204, 21, 0.08)';
-            blockRings.forEach(ring => {
-                ctx.beginPath();
-                ring.forEach((pt, i) => {
-                    const x = toX(pt[0]), y = toY(pt[1]);
-                    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-                });
-                ctx.closePath();
-                ctx.fill();
-            });
-
-            // Outer high-contrast casing
+            // Outer dark contrast halo so boundary stands out against any satellite texture
             ctx.strokeStyle = 'rgba(15, 23, 42, 0.85)';
             ctx.lineWidth = 6.0;
             blockRings.forEach(ring => {
@@ -1263,7 +1196,7 @@
                 ctx.stroke();
             });
 
-            // Bright gold/amber survey boundary
+            // High-visibility gold/orange block boundary
             ctx.strokeStyle = '#fde047';
             ctx.lineWidth = 3.2;
             blockRings.forEach(ring => {
@@ -1277,8 +1210,116 @@
             });
             ctx.restore();
         }
+    }
 
-        return cvs.toDataURL('image/png');
+    // Render Page 1 Fig 1.1 synchronous fallback + async real Google Earth Satellite Tile Stitcher
+    function renderSelectedBlockPortionCanvas(details, tileImagesMap) {
+        const W = 750, H = 440;
+        const cvs = document.createElement('canvas');
+        cvs.width = W; cvs.height = H;
+        const ctx = cvs.getContext('2d');
+
+        const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+        bgGrad.addColorStop(0, '#162d1c');
+        bgGrad.addColorStop(0.5, '#1d3823');
+        bgGrad.addColorStop(1, '#142818');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, W, H);
+
+        const vp = computeBlockViewport(details, true);
+        const toX = (lng) => ((lng - vp.west) / (vp.east - vp.west)) * W;
+        const toY = (lat) => ((vp.north - lat) / (vp.north - vp.south)) * H;
+
+        let drewRealTiles = false;
+        if (tileImagesMap && tileImagesMap.tiles && tileImagesMap.tiles.length > 0) {
+            const nTiles = Math.pow(2, tileImagesMap.z);
+            const tileXToLng = (tx) => (tx / nTiles) * 360 - 180;
+            const tileYToLat = (ty) => {
+                const n = Math.PI - (2 * Math.PI * ty) / nTiles;
+                return (180 / Math.PI) * Math.atan(0.5 * (Math.exp(n) - Math.exp(-n)));
+            };
+            tileImagesMap.tiles.forEach(({ tx, ty, img }) => {
+                if (!img) return;
+                const x1 = toX(tileXToLng(tx));
+                const x2 = toX(tileXToLng(tx + 1));
+                const y1 = toY(tileYToLat(ty));
+                const y2 = toY(tileYToLat(ty + 1));
+                ctx.drawImage(img, x1, y1, (x2 - x1) + 0.6, (y2 - y1) + 0.6);
+                drewRealTiles = true;
+            });
+        }
+
+        if (!drewRealTiles) {
+            // Offline fallback canopy texture if no network access
+            for (let py = 0; py < H; py += 28) {
+                for (let px = 0; px < W; px += 28) {
+                    const n = Math.sin(px * 0.031 + py * 0.019) * Math.cos(px * 0.017 - py * 0.027);
+                    ctx.fillStyle = n > 0 ? 'rgba(42, 82, 48, 0.22)' : 'rgba(12, 28, 16, 0.22)';
+                    ctx.fillRect(px, py, 30, 30);
+                }
+            }
+            const rowDy = 11.5, colDx = 13.0;
+            for (let r = -1; r * rowDy < H + 16; r++) {
+                const cy = r * rowDy;
+                const xOffset = (r % 2 === 0) ? 0 : colDx * 0.5;
+                for (let c = -1; c * colDx < W + 16; c++) {
+                    const cx = c * colDx + xOffset;
+                    const hash = Math.abs(Math.sin(r * 12.9898 + c * 78.233) * 43758.5453) % 1;
+                    const jx = cx + (hash - 0.5) * 2.2;
+                    const jy = cy + (((hash * 17) % 1) - 0.5) * 2.2;
+                    const rad = 4.6 + (hash * 1.1);
+                    ctx.fillStyle = 'rgba(7, 16, 10, 0.55)';
+                    ctx.beginPath(); ctx.arc(jx + 1.4, jy + 1.4, rad, 0, Math.PI * 2); ctx.fill();
+                    const greens = ['#224628', '#28522f', '#2e5c35', '#1e3f24', '#33633a'];
+                    ctx.fillStyle = greens[Math.floor(hash * greens.length)];
+                    ctx.beginPath(); ctx.arc(jx, jy, rad, 0, Math.PI * 2); ctx.fill();
+                }
+            }
+        }
+
+        drawSelectedBlockBoundariesOnSatellite(ctx, details, toX, toY);
+
+        try {
+            return cvs.toDataURL('image/png');
+        } catch (err) {
+            return renderSelectedBlockPortionCanvas(details, null);
+        }
+    }
+
+    async function fetchGoogleEarthBlockPortionDataUrl(details) {
+        const vp = computeBlockViewport(details, true);
+        const lngSpan = Math.max(0.0005, vp.east - vp.west);
+        const rawZ = Math.round(Math.log2((360 / lngSpan) * 2.6));
+        const z = Math.max(13, Math.min(18, rawZ));
+        const nTiles = Math.pow(2, z);
+        const lngToTileX = (lng) => ((lng + 180) / 360) * nTiles;
+        const latToTileY = (lat) => {
+            const rad = (lat * Math.PI) / 180;
+            return ((1 - Math.log(Math.tan(rad) + 1 / Math.cos(rad)) / Math.PI) / 2) * nTiles;
+        };
+
+        const minTx = Math.floor(lngToTileX(vp.west));
+        const maxTx = Math.floor(lngToTileX(vp.east));
+        const minTy = Math.floor(latToTileY(vp.north));
+        const maxTy = Math.floor(latToTileY(vp.south));
+
+        const tileCoords = [];
+        for (let ty = minTy; ty <= maxTy; ty++) {
+            for (let tx = minTx; tx <= maxTx; tx++) {
+                tileCoords.push({ tx, ty });
+            }
+        }
+        // Cap tile requests to a reasonable count
+        if (tileCoords.length === 0 || tileCoords.length > 36) {
+            return renderSelectedBlockPortionCanvas(details, null);
+        }
+
+        const loadedTiles = await Promise.all(tileCoords.map(async ({ tx, ty }) => {
+            const img = await loadSatelliteTileImage(z, tx, ty);
+            return { tx, ty, img };
+        }));
+
+        return renderSelectedBlockPortionCanvas(details, { z, tiles: loadedTiles });
     }
 
     // Render 1:1 Uncompressed Square Inner Plot for Selected Block Nutrient Raster (Axes & Text handled by Vector SVG)
@@ -1339,15 +1380,14 @@
             const grid = details.rasterSource && details.rasterSource.grids ? details.rasterSource.grids[key] : null;
             const overlay = details.rasterSource && details.rasterSource.overlays ? details.rasterSource.overlays[key] : null;
 
+            // Use full-resolution 10m PNG overlay (identical to dashboard map); only fall back to downsampled grid if overlay is unavailable
             if (loadedImg && overlay && overlay.bounds && overlay.bounds.length === 2) {
                 const bnd = overlay.bounds;
                 const ox1 = toX(bnd[0][1]), oy1 = toY(bnd[1][0]);
                 const ox2 = toX(bnd[1][1]), oy2 = toY(bnd[0][0]);
                 ctx.imageSmoothingEnabled = false;
                 ctx.drawImage(loadedImg, ox1, oy1, ox2 - ox1, oy2 - oy1);
-            }
-
-            if (grid && grid.bounds && Array.isArray(grid.data)) {
+            } else if (grid && grid.bounds && Array.isArray(grid.data)) {
                 const gb = grid.bounds;
                 for (let r = 0; r < grid.height; r++) {
                     const lat1 = gb.top - (r / grid.height) * (gb.top - gb.bottom);
@@ -1478,9 +1518,6 @@
         const isBlockMode = (mode === 'block');
         const classStatusLabels = ['Deficient', 'Low', 'Marginal', 'Optimum', 'High', 'Excessive'];
         const activeVp = isBlockMode ? computeBlockViewport(details, false) : computeEstateViewport(details);
-        const tagLabel = isBlockMode
-            ? `Block ${details.blockName} (${details.areaHa.toFixed(1)} ha)`
-            : `Estate: ${details.estateName}`;
 
         const cardsHtml = NUTRIENT_PANELS.map((panel) => {
             const key = panel.key;
@@ -1541,7 +1578,7 @@
                 ? `Spatial foliar mapping across <strong>${scopeName}</strong> indicates an average ${panel.name.toLowerCase()} level of <strong>${meanFormatted} ${panel.unit}</strong> (range ${minFormatted}–${maxFormatted} ${panel.unit}, CV ${cvFormatted}%), exceeding the MPOB Leaf 17 critical threshold (${panel.critical}). Approximately <strong>${adeqPctFormatted}%</strong> of the analyzed canopy area exhibits optimal-to-high sufficiency, requiring standard maintenance fertilization.`
                 : `Spatial foliar diagnostics across <strong>${scopeName}</strong> reveal a sub-optimal mean ${panel.name.toLowerCase()} concentration of <strong>${meanFormatted} ${panel.unit}</strong> (range ${minFormatted}–${maxFormatted} ${panel.unit}, CV ${cvFormatted}%), below the MPOB critical threshold (${panel.critical}). Localized deficiency affects <strong>${defPctFormatted}%</strong> of the canopy zone, warranting targeted corrective supplementation.`;
 
-            const vectorPlotHtml = buildMatplotlibVectorFrameHtml(imgId, activeVp, tagLabel, !isBlockMode, false, '');
+            const vectorPlotHtml = buildMatplotlibVectorFrameHtml(imgId, activeVp, '', !isBlockMode, false, '');
 
             return `
                 <div style="border:1px solid #94a3b8; border-radius:3px; background:#ffffff; padding:6px 8px; display:flex; flex-direction:column; justify-content:space-between; box-sizing:border-box;">
@@ -1659,7 +1696,7 @@
             loadedImages[panel.key] = await loadOverlayImage(ov);
         }));
 
-        // 1. Page 1 Selected Block Portion Image (Upgrade container with Matplotlib Vector Axes + Earth Satellite View)
+        // 1. Page 1 Selected Block Portion Image (Matplotlib Vector Axes + Real Google Earth Satellite View, no figure labels)
         let blockPortionImgEl = document.getElementById('report-selected-block-portion-img');
         if (blockPortionImgEl && blockPortionImgEl.parentElement) {
             const parentContainer = blockPortionImgEl.parentElement;
@@ -1670,15 +1707,22 @@
             parentContainer.innerHTML = buildMatplotlibVectorFrameHtml(
                 'report-selected-block-portion-img',
                 vpWide,
-                `BLOCK ${details.blockName} · Earth Satellite View`,
+                '',
                 false,
                 true,
-                `Block ${details.blockName} (${details.areaHa.toFixed(2)} ha)`
+                ''
             );
             blockPortionImgEl = document.getElementById('report-selected-block-portion-img');
         }
         if (blockPortionImgEl) {
-            blockPortionImgEl.src = renderSelectedBlockPortionCanvas(details);
+            // Render immediate fallback first, then replace with real Google Earth satellite tiles
+            blockPortionImgEl.src = renderSelectedBlockPortionCanvas(details, null);
+            fetchGoogleEarthBlockPortionDataUrl(details).then((realSatDataUrl) => {
+                const currentEl = document.getElementById('report-selected-block-portion-img');
+                if (currentEl && realSatDataUrl) {
+                    currentEl.src = realSatDataUrl;
+                }
+            }).catch(() => {});
         }
 
         // 2. Selected Block 6 Nutrient Rasters + Whole Estate 6 Nutrient Rasters

@@ -597,7 +597,7 @@ function calculateStandardCorrectiveDosage() {
                     <div style="display: grid; grid-template-columns: 53% 45%; justify-content: space-between; margin-bottom: 8px;">
                       <div style="background-color: #ffffff; border: 1px solid #94a3b8; border-radius: 3px; padding: 7px 10px;">
                         <div style="font-size: 9.2px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1.5px solid #0f172a; padding-bottom: 3px; margin-bottom: 5px;">
-                            1.0 Study Site &amp; Stand Geoinformation Registry
+                            1.0 Estate &amp; Block Geoinformation
                         </div>
                         <table style="width: 100%; border-collapse: collapse; font-size: 8.8px; color: #1e293b;">
                           <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="padding: 3px 0; width: 44%; color: #475569; font-weight:600;">Estate / Plantation Name</td><td style="padding: 3px 0; font-weight: 700; color: #0f172a;">${estate_name}</td></tr>
@@ -613,7 +613,6 @@ function calculateStandardCorrectiveDosage() {
                       <div style="background-color: #ffffff; border: 1px solid #94a3b8; border-radius: 3px; padding: 7px 10px; display: flex; flex-direction: column; justify-content: space-between;">
                         <div style="font-size: 9.2px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1.5px solid #0f172a; padding-bottom: 3px; margin-bottom: 4px; display:flex; justify-content:space-between;">
                             <span>Fig 1.1 — Selected Block Spatial Context</span>
-                            <span style="font-size:7.5px; color:#475569;">Block ${blockNameStr}</span>
                         </div>
                         <div id="report-selected-block-portion-container" style="width: 100%; height: 172px; background-color: #ffffff; border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; overflow: hidden;">
                           <img id="report-selected-block-portion-img" alt="Selected Block Portion" style="width: 100%; height: 100%; object-fit: contain; display: block;" />
