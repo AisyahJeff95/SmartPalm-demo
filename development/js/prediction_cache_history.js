@@ -264,12 +264,24 @@
             folderPath: entry.folderPath || '',
             baseUrl: entry.baseUrl || DEFAULT_HF_BASE,
             overlays: normOverlays,
+            grids: entry.grids || null,
             bounds: entry.bounds || (normOverlays && normOverlays.bounds) || null,
             executionTimeSec: entry.executionTimeSec || null,
             timestamp: new Date().toISOString(),
             mtime: Date.now() / 1000,
             hasOverlays: Boolean(normOverlays)
         };
+
+        if (record.grids) {
+            window.DYNAMIC_PREDICTION_GRIDS = record.grids;
+        } else if (normOverlays && typeof window.decodeDynamicPredictionGrids === 'function') {
+            window.decodeDynamicPredictionGrids(normOverlays, record.bounds).then(decoded => {
+                if (decoded && Object.keys(decoded).length > 0) {
+                    record.grids = decoded;
+                    window.DYNAMIC_PREDICTION_GRIDS = decoded;
+                }
+            });
+        }
 
         window.PREDICTION_CACHE_BY_ESTATE[shpKey] = record;
         window.PREDICTION_CACHE_BY_ESTATE[normalizeKey(shpKey)] = record;
@@ -297,6 +309,7 @@
     function restoreEstatePredictionFromCache(shpKey) {
         if (!shpKey) {
             window.DYNAMIC_PREDICTION_RASTERS = null;
+            window.DYNAMIC_PREDICTION_GRIDS = null;
             window._LAST_PREDICTION_FOLDER = '';
             updateHistoryUIBadge('');
             return false;
@@ -307,6 +320,15 @@
 
         if (cached && (cached.overlays || cached.folderName)) {
             window.DYNAMIC_PREDICTION_RASTERS = cached.overlays || null;
+            window.DYNAMIC_PREDICTION_GRIDS = cached.grids || null;
+            if (!window.DYNAMIC_PREDICTION_GRIDS && cached.overlays && typeof window.decodeDynamicPredictionGrids === 'function') {
+                window.decodeDynamicPredictionGrids(cached.overlays, cached.bounds).then(decoded => {
+                    if (decoded && Object.keys(decoded).length > 0) {
+                        cached.grids = decoded;
+                        window.DYNAMIC_PREDICTION_GRIDS = decoded;
+                    }
+                });
+            }
             window._LAST_PREDICTION_FOLDER = cached.folderName || '';
             window._LAST_PREDICTION_BASE_URL = cached.baseUrl || DEFAULT_HF_BASE;
             window._USE_RF_PREDICTIONS = true;
@@ -337,6 +359,7 @@
             return true;
         } else {
             window.DYNAMIC_PREDICTION_RASTERS = null;
+            window.DYNAMIC_PREDICTION_GRIDS = null;
             window._LAST_PREDICTION_FOLDER = '';
             updateHistoryUIBadge(shpKey);
             return false;
@@ -388,6 +411,7 @@
                                 targetDate: targetDateHint || '',
                                 baseUrl: b || window.location.origin,
                                 overlays: normOv,
+                                grids: data.grids || null,
                                 hasOverlays: true
                             });
                             await savePredictionRunToCacheAndHistory(run);

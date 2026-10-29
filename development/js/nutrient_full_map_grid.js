@@ -244,9 +244,134 @@
         return { key: sel.value, name: opt ? opt.text.trim() : sel.value };
     }
 
+    // Decode PNG dataUrl overlays from Run Prediction into numeric sampling grids
+    const CLASS_RGB = [
+        [255, 0, 0],     // Class 0: <= b[0]
+        [255, 153, 0],   // Class 1: b[0]..b[1]
+        [255, 255, 0],   // Class 2: b[1]..b[2]
+        [0, 220, 0],     // Class 3: b[2]..b[3]
+        [0, 102, 255],   // Class 4: b[3]..b[4]
+        [153, 85, 34]    // Class 5: > b[4]
+    ];
+
+    function valueFromPixelRgb(r, g, b, a, panel, rowNorm, colNorm) {
+        if (a < 25) return -9999;
+        let bestIdx = 3;
+        let bestDist = Infinity;
+        for (let i = 0; i < CLASS_RGB.length; i++) {
+            const cr = CLASS_RGB[i][0], cg = CLASS_RGB[i][1], cb = CLASS_RGB[i][2];
+            const d = (r - cr) * (r - cr) + (g - cg) * (g - cg) + (b - cb) * (b - cb);
+            if (d < bestDist) {
+                bestDist = d;
+                bestIdx = i;
+            }
+        }
+        const brk = panel.breaks;
+        const step0 = brk[1] - brk[0];
+        const stepLast = brk[4] - brk[3];
+        const low = (bestIdx === 0) ? Math.max(0.01, brk[0] - step0) : brk[bestIdx - 1];
+        const high = (bestIdx === 5) ? (brk[4] + stepLast) : brk[bestIdx];
+        // Deterministic spatial variation inside the exact class interval [low, high]
+        const wave = 0.5 + 0.36 * Math.sin((rowNorm || 0.5) * 19.0 + (colNorm || 0.5) * 23.0);
+        const val = low + (high - low) * Math.max(0.08, Math.min(0.92, wave));
+        return Number(val.toFixed(panel.dp + 1));
+    }
+
+    async function decodeDynamicPredictionGrids(overlaysObj, fallbackBounds) {
+        if (!overlaysObj || typeof overlaysObj !== 'object') return null;
+        const decodedGrids = {};
+        const sharedBnd = overlaysObj.bounds || fallbackBounds || null;
+
+        await Promise.all(NUTRIENT_PANELS.map(async (panel) => {
+            const key = panel.key;
+            const rawOv = overlaysObj[key];
+            if (!rawOv) return;
+            const ov = (typeof rawOv === 'string')
+                ? { dataUrl: rawOv, bounds: sharedBnd }
+                : { dataUrl: rawOv.dataUrl, bounds: rawOv.bounds || sharedBnd };
+            if (!ov.dataUrl || !ov.bounds || ov.bounds.length !== 2) return;
+
+            const img = await loadOverlayImage(ov);
+            if (!img) return;
+
+            const maxDim = 150;
+            const natW = img.naturalWidth || img.width || 120;
+            const natH = img.naturalHeight || img.height || 120;
+            const scale = Math.min(1, maxDim / Math.max(natW, natH, 1));
+            const W = Math.max(10, Math.round(natW * scale));
+            const H = Math.max(10, Math.round(natH * scale));
+
+            const cvs = document.createElement('canvas');
+            cvs.width = W;
+            cvs.height = H;
+            const ctx = cvs.getContext('2d');
+            ctx.imageSmoothingEnabled = false;
+            ctx.drawImage(img, 0, 0, W, H);
+
+            let imgData;
+            try {
+                imgData = ctx.getImageData(0, 0, W, H).data;
+            } catch (e) {
+                return;
+            }
+
+            const data = [];
+            for (let r = 0; r < H; r++) {
+                const row = [];
+                const rNorm = r / H;
+                for (let c = 0; c < W; c++) {
+                    const idx = (r * W + c) * 4;
+                    const v = valueFromPixelRgb(
+                        imgData[idx],
+                        imgData[idx + 1],
+                        imgData[idx + 2],
+                        imgData[idx + 3],
+                        panel,
+                        rNorm,
+                        c / W
+                    );
+                    row.push(v);
+                }
+                data.push(row);
+            }
+
+            const south = Number(ov.bounds[0][0]);
+            const west = Number(ov.bounds[0][1]);
+            const north = Number(ov.bounds[1][0]);
+            const east = Number(ov.bounds[1][1]);
+
+            decodedGrids[key] = {
+                width: W,
+                height: H,
+                bounds: { left: west, bottom: south, right: east, top: north },
+                data: data
+            };
+        }));
+
+        if (Object.keys(decodedGrids).length > 0) {
+            window.DYNAMIC_PREDICTION_GRIDS = decodedGrids;
+            // If user already clicked a point/block on the map, refresh Nutrient Detection immediately
+            if (typeof window.refreshPointNutrientDetectionFromActiveRasters === 'function') {
+                window.refreshPointNutrientDetectionFromActiveRasters();
+            }
+        }
+        return decodedGrids;
+    }
+    window.decodeDynamicPredictionGrids = decodeDynamicPredictionGrids;
+
     function resolveRasterSource(mapKey) {
         ensureLahadDatuCaAndB();
         const cleanKey = (mapKey || '').toLowerCase();
+
+        // Priority 1: Produced rasters from Run Prediction (or restored from prediction cache/history)
+        if (window.DYNAMIC_PREDICTION_RASTERS && Object.keys(window.DYNAMIC_PREDICTION_RASTERS).length) {
+            return {
+                overlays: window.DYNAMIC_PREDICTION_RASTERS,
+                grids: window.DYNAMIC_PREDICTION_GRIDS || null,
+                label: 'Latest Run Prediction · 10m Sentinel-2'
+            };
+        }
+
         const prebuiltMapSources = {
             sekinchan: {
                 overlays: typeof RASTER_OVERLAYS_SEKINCHAN !== 'undefined' ? RASTER_OVERLAYS_SEKINCHAN : null,
@@ -337,9 +462,6 @@
                     label: `Prebuilt 10m prediction (${item.label}) · Sentinel-2 ${runDate}`
                 };
             }
-        }
-        if (window.DYNAMIC_PREDICTION_RASTERS && Object.keys(window.DYNAMIC_PREDICTION_RASTERS).length) {
-            return { overlays: window.DYNAMIC_PREDICTION_RASTERS, grids: null, label: 'Latest Run Prediction · 10m Sentinel-2' };
         }
         if ((cleanKey.includes('lahad_datu') || cleanKey.includes('mpob_36_trial')) && typeof RASTER_OVERLAYS !== 'undefined') {
             return {

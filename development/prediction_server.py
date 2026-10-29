@@ -294,11 +294,24 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
         if not target_dir:
             return self._send_json(404, {"error": "Prediction folder not found"})
         overlays_path = os.path.join(target_dir, "overlays.json")
+        grids_path = os.path.join(target_dir, "grids.json")
         if os.path.isfile(overlays_path):
             try:
                 with open(overlays_path, "r", encoding="utf-8") as f:
                     ov = json.load(f)
-                return self._send_json(200, {"status": "success", "folder_name": os.path.basename(target_dir), "overlays": ov})
+                gr = None
+                if os.path.isfile(grids_path):
+                    try:
+                        with open(grids_path, "r", encoding="utf-8") as gf:
+                            gr = json.load(gf)
+                    except Exception:
+                        gr = None
+                return self._send_json(200, {
+                    "status": "success",
+                    "folder_name": os.path.basename(target_dir),
+                    "overlays": ov,
+                    "grids": gr
+                })
             except Exception as e:
                 return self._send_json(500, {"error": f"Failed to load overlays: {e}"})
         return self._send_json(404, {"error": "No cached overlays.json in this historical folder"})
@@ -382,6 +395,9 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
             try:
                 with open(os.path.join(result["out_dir"], "overlays.json"), "w", encoding="utf-8") as ovf:
                     json.dump(result["overlays"], ovf)
+                if result.get("grids"):
+                    with open(os.path.join(result["out_dir"], "grids.json"), "w", encoding="utf-8") as grf:
+                        json.dump(result["grids"], grf)
             except Exception as e:
                 print(f"  ! Warning: Failed to save overlays.json: {e}")
 
@@ -395,7 +411,8 @@ class PredictionRequestHandler(BaseHTTPRequestHandler):
             "folder_name": result["folder_name"],
             "folder_path": result["out_dir"],
             "files": result["files"],
-            "overlays": result["overlays"]
+            "overlays": result["overlays"],
+            "grids": result.get("grids")
         }
 
         self._send_json(200, response_payload)

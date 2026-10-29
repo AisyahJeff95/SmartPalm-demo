@@ -384,6 +384,43 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_overr
             "bounds": [[min_lat, min_lng], [max_lat, max_lng]]
         }
 
+    # Build compact downsampled float grids (max 150x150) for exact client-side point & block sampling
+    grids_dict = {}
+    max_g = 150
+    g_rows = min(rows, max_g)
+    g_cols = min(cols, max_g)
+    r_step_idx = np.linspace(0, rows - 1, g_rows).round().astype(int)
+    c_step_idx = np.linspace(0, cols - 1, g_cols).round().astype(int)
+    dec_map = {'N': 3, 'P': 4, 'K': 3, 'Mg': 3, 'Ca': 3, 'B': 2}
+
+    for nut in TARGET_COLS:
+        rg = raster_results.get(nut)
+        if rg is None:
+            continue
+        sub = rg[np.ix_(r_step_idx, c_step_idx)]
+        dp = dec_map.get(nut, 3)
+        grid_rows = []
+        for r_i in range(g_rows):
+            row_vals = []
+            for c_i in range(g_cols):
+                v = float(sub[r_i, c_i])
+                if np.isnan(v) or v <= 0:
+                    row_vals.append(-9999)
+                else:
+                    row_vals.append(round(v, dp))
+            grid_rows.append(row_vals)
+        grids_dict[nut] = {
+            "width": int(g_cols),
+            "height": int(g_rows),
+            "bounds": {
+                "left": float(min_lng),
+                "bottom": float(min_lat),
+                "right": float(max_lng),
+                "top": float(max_lat)
+            },
+            "data": grid_rows
+        }
+
     # Compute block summary across actual shapefile block polygons
     lngs = df_grid['Longitude'].values
     lats = df_grid['Latitude'].values
@@ -466,6 +503,7 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_overr
         "out_dir": out_dir,
         "files": generated_files,
         "overlays": overlays_dict,
+        "grids": grids_dict,
         "bounds": [[min_lat, min_lng], [max_lat, max_lng]]
     }
 

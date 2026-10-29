@@ -627,6 +627,8 @@ function calculateStandardCorrectiveDosage() {
             
             html2pdf().set(opt).from(tempArea).save();
         }
+        window.downloadPdfFromPreview = downloadPdfFromPreview;
+        window.downloadReportAsPDF = downloadPdfFromPreview;
         function setNutrientLayerSelectionEnabled(enabled, msgText, isSuccess) {
     const radioInputs = document.querySelectorAll('input[name="comp_layer"], input[name="std_layer"], input[name="kpsm_layer"]');
     radioInputs.forEach(input => {

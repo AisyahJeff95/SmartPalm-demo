@@ -6495,20 +6495,73 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
 
         // Save previewed report as PDF
         function downloadPdfFromPreview() {
-            let contentHtml = document.getElementById('report-preview-body').innerHTML;
-            let tempArea = document.createElement('div');
-            tempArea.innerHTML = contentHtml;
-            
-            let opt = {
+            const previewBody = document.getElementById('report-preview-body');
+            if (!previewBody || !previewBody.innerHTML.trim()) {
+                alert('Please generate a report preview first.');
+                return;
+            }
+
+            const btn = document.querySelector('#modal-report-preview .eds-print-report-btn');
+            const origText = btn ? btn.innerHTML : '⬇ Download PDF';
+            if (btn) {
+                btn.innerHTML = '⏳ Generating PDF...';
+                btn.disabled = true;
+            }
+
+            const tempArea = document.createElement('div');
+            tempArea.style.width = '210mm';
+            tempArea.style.background = '#ffffff';
+            tempArea.innerHTML = previewBody.innerHTML;
+
+            // Normalize .report-page margins/heights so html2canvas renders exact A4 pages with no extra blank pages
+            const pages = tempArea.querySelectorAll('.report-page');
+            pages.forEach((p, idx) => {
+                p.style.margin = '0';
+                p.style.boxShadow = 'none';
+                p.style.height = '296mm';
+                p.style.maxHeight = '296mm';
+                p.style.overflow = 'hidden';
+                p.style.pageBreakAfter = (idx < pages.length - 1) ? 'always' : 'avoid';
+            });
+
+            const safeBlock = String(typeof selectedBlock !== 'undefined' && selectedBlock ? selectedBlock : 'block')
+                .toLowerCase()
+                .replace(/[^a-z0-9_-]+/g, '_')
+                .replace(/^_+|_+$/g, '') || 'block';
+
+            const opt = {
                 margin:       0,
-                filename:     `palmnex_agronomic_report_${selectedBlock.toLowerCase().replace(' ', '')}.pdf`,
+                filename:     `palmnex_agronomic_report_${safeBlock}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                html2canvas:  { scale: 2, useCORS: true, allowTaint: true, logging: false, scrollY: 0 },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak:    { mode: ['css', 'legacy'] }
             };
-            
-            html2pdf().set(opt).from(tempArea).save();
+
+            if (typeof html2pdf === 'function') {
+                html2pdf().set(opt).from(tempArea).save().then(() => {
+                    if (btn) {
+                        btn.innerHTML = origText;
+                        btn.disabled = false;
+                    }
+                }).catch(err => {
+                    console.error('PDF generation error:', err);
+                    if (btn) {
+                        btn.innerHTML = origText;
+                        btn.disabled = false;
+                    }
+                    window.print();
+                });
+            } else {
+                if (btn) {
+                    btn.innerHTML = origText;
+                    btn.disabled = false;
+                }
+                window.print();
+            }
         }
+        window.downloadPdfFromPreview = downloadPdfFromPreview;
+        window.downloadReportAsPDF = downloadPdfFromPreview;
     
         // =========================================================================
         // ReaDA Engine View Navigation & Dialog Handlers (Authentic Palmnex Replica)

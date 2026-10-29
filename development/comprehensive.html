@@ -3678,8 +3678,10 @@ function lockEnteredSatDate() {
 
             for (let key of ["N", "P", "K", "Mg", "Ca", "B"]) {
                 let r = null;
-                // Use whichever prebuilt grid actually covers this point
+                // Priority 1: Produced prediction grids from Run Prediction (window.DYNAMIC_PREDICTION_GRIDS)
+                const dynGrid = (window.DYNAMIC_PREDICTION_GRIDS && window.DYNAMIC_PREDICTION_GRIDS[key]) ? window.DYNAMIC_PREDICTION_GRIDS[key] : null;
                 const gridCandidates = [
+                    dynGrid,
                     (typeof RASTER_GRID_DATA_SEKINCHAN !== 'undefined') ? RASTER_GRID_DATA_SEKINCHAN[key] : null,
                     (typeof RASTER_GRID_DATA !== 'undefined') ? RASTER_GRID_DATA[key] : null,
                     (typeof RASTER_GRID_DATA_PPPTAR !== 'undefined') ? RASTER_GRID_DATA_PPPTAR[key] : null,
@@ -3713,6 +3715,21 @@ function lockEnteredSatDate() {
                             let val = r.data[row][col];
                             if (val !== -9999 && val > 0) {
                                 result[key.toLowerCase()] = val;
+                            } else {
+                                // Search nearest valid neighbor within 2 cells in case click landed on a polygon edge pixel
+                                let foundNear = null;
+                                for (let rad = 1; rad <= 2 && foundNear === null; rad++) {
+                                    for (let dr = -rad; dr <= rad && foundNear === null; dr++) {
+                                        for (let dc = -rad; dc <= rad && foundNear === null; dc++) {
+                                            let nr = row + dr, nc = col + dc;
+                                            if (nr >= 0 && nr < r.height && nc >= 0 && nc < r.width) {
+                                                let nv = r.data[nr][nc];
+                                                if (nv !== -9999 && nv > 0) foundNear = nv;
+                                            }
+                                        }
+                                    }
+                                }
+                                if (foundNear !== null) result[key.toLowerCase()] = foundNear;
                             }
                         }
                     }
@@ -3728,6 +3745,17 @@ function lockEnteredSatDate() {
 
             return result;
         }
+        window.sampleRastersOrFallback = sampleRastersOrFallback;
+
+        function refreshPointNutrientDetectionFromActiveRasters() {
+            if (!hasClickedBlock && !clickedMarkerComp && !clickedMarkerStd) return;
+            if (typeof selectedLat !== 'number' || typeof selectedLng !== 'number') return;
+            const s = sampleRastersOrFallback(selectedLat, selectedLng);
+            if (s && s.n !== null && s.n !== undefined) {
+                updateNutrientValues(s);
+            }
+        }
+        window.refreshPointNutrientDetectionFromActiveRasters = refreshPointNutrientDetectionFromActiveRasters;
 
         // Initialize maps
         window.addEventListener('DOMContentLoaded', () => {
@@ -4325,35 +4353,36 @@ function lockEnteredSatDate() {
             selectedLng = latlng.lng;
             
             let sampled = sampleRastersOrFallback(latlng.lat, latlng.lng);
-            if (typeof window.computeSelectedBlockDetailsAndNutrients === 'function') {
-                try {
-                    const blockDetails = window.computeSelectedBlockDetailsAndNutrients(feature, latlng);
-                    if (blockDetails && blockDetails.nutrients) {
-                        const _val = (v, def) => {
-                            const raw = (v && typeof v === 'object' && v.avg !== undefined) ? v.avg : v;
-                            const n = parseFloat(raw);
-                            return (!isNaN(n) && n > 0) ? n : def;
-                        };
-                        sampled = {
-                            n: _val(blockDetails.nutrients.N, sampled.n || 2.45),
-                            p: _val(blockDetails.nutrients.P, sampled.p || 0.145),
-                            k: _val(blockDetails.nutrients.K, sampled.k || 1.02),
-                            mg: _val(blockDetails.nutrients.Mg, sampled.mg || 0.23),
-                            ca: _val(blockDetails.nutrients.Ca, sampled.ca || 0.62),
-                            b: _val(blockDetails.nutrients.B, sampled.b || 15.2)
-                        };
+            // Only fill missing nutrients (where raster pixel had no data) from block raster stats or feature properties
+            if (sampled.n === null || sampled.p === null || sampled.k === null || sampled.mg === null || sampled.ca === null || sampled.b === null) {
+                if (typeof window.computeSelectedBlockDetailsAndNutrients === 'function') {
+                    try {
+                        const blockDetails = window.computeSelectedBlockDetailsAndNutrients(feature, latlng);
+                        if (blockDetails && blockDetails.nutrients) {
+                            const _val = (v, def) => {
+                                const raw = (v && typeof v === 'object' && v.avg !== undefined) ? v.avg : v;
+                                const n = parseFloat(raw);
+                                return (!isNaN(n) && n > 0) ? n : def;
+                            };
+                            if (sampled.n === null || sampled.n === undefined) sampled.n = _val(blockDetails.nutrients.N, 2.45);
+                            if (sampled.p === null || sampled.p === undefined) sampled.p = _val(blockDetails.nutrients.P, 0.145);
+                            if (sampled.k === null || sampled.k === undefined) sampled.k = _val(blockDetails.nutrients.K, 1.02);
+                            if (sampled.mg === null || sampled.mg === undefined) sampled.mg = _val(blockDetails.nutrients.Mg, 0.23);
+                            if (sampled.ca === null || sampled.ca === undefined) sampled.ca = _val(blockDetails.nutrients.Ca, 0.62);
+                            if (sampled.b === null || sampled.b === undefined) sampled.b = _val(blockDetails.nutrients.B, 15.2);
+                        }
+                    } catch (err) {
+                        console.warn('computeSelectedBlockDetailsAndNutrients warning in handleBlockClick:', err);
                     }
-                } catch (err) {
-                    console.warn('computeSelectedBlockDetailsAndNutrients warning in handleBlockClick:', err);
+                } else if (feature && feature.properties) {
+                    const p = feature.properties;
+                    if (sampled.n === null) { if (p.N_mean !== undefined) sampled.n = p.N_mean; else if (p.n !== undefined) sampled.n = p.n; }
+                    if (sampled.p === null) { if (p.P_mean !== undefined) sampled.p = p.P_mean; else if (p.p !== undefined) sampled.p = p.p; }
+                    if (sampled.k === null) { if (p.K_mean !== undefined) sampled.k = p.K_mean; else if (p.k !== undefined) sampled.k = p.k; }
+                    if (sampled.mg === null) { if (p.Mg_mean !== undefined) sampled.mg = p.Mg_mean; else if (p.mg !== undefined) sampled.mg = p.mg; }
+                    if (sampled.ca === null) { if (p.Ca_mean !== undefined) sampled.ca = p.Ca_mean; else if (p.ca !== undefined) sampled.ca = p.ca; }
+                    if (sampled.b === null) { if (p.B_mean !== undefined) sampled.b = p.B_mean; else if (p.b !== undefined) sampled.b = p.b; }
                 }
-            } else if ((sampled.n === null || sampled.n === undefined) && feature && feature.properties) {
-                const p = feature.properties;
-                if (p.N_mean !== undefined) sampled.n = p.N_mean; else if (p.n !== undefined) sampled.n = p.n;
-                if (p.P_mean !== undefined) sampled.p = p.P_mean; else if (p.p !== undefined) sampled.p = p.p;
-                if (p.K_mean !== undefined) sampled.k = p.K_mean; else if (p.k !== undefined) sampled.k = p.k;
-                if (p.Mg_mean !== undefined) sampled.mg = p.Mg_mean; else if (p.mg !== undefined) sampled.mg = p.mg;
-                if (p.Ca_mean !== undefined) sampled.ca = p.Ca_mean; else if (p.ca !== undefined) sampled.ca = p.ca;
-                if (p.B_mean !== undefined) sampled.b = p.B_mean; else if (p.b !== undefined) sampled.b = p.b;
             }
             updateNutrientValues(sampled);
             
@@ -4527,6 +4556,7 @@ function lockEnteredSatDate() {
         // Switch dropdown map change with robust zoom-to-boundary support
         function onMapSelectChanged(val) {
             window.DYNAMIC_PREDICTION_RASTERS = null;
+            window.DYNAMIC_PREDICTION_GRIDS = null;
             hasClickedBlock = false;
             selectedBlockFeature = null;
             updateSelectedBlockReportHint();
@@ -5359,6 +5389,11 @@ function runRfrPredictionFlow() {
             window._LAST_PREDICTION_BASE_URL = usedBaseUrl;
             if (data.folder_name) window._LAST_PREDICTION_FOLDER = data.folder_name;
             if (data.overlays) window.DYNAMIC_PREDICTION_RASTERS = data.overlays;
+            if (data.grids) {
+                window.DYNAMIC_PREDICTION_GRIDS = data.grids;
+            } else if (data.overlays && typeof window.decodeDynamicPredictionGrids === 'function') {
+                await window.decodeDynamicPredictionGrids(data.overlays, bounds);
+            }
             if (typeof window.savePredictionRunToCacheAndHistory === 'function') {
                 await window.savePredictionRunToCacheAndHistory({
                     shpKey: shpKey,
@@ -5369,12 +5404,16 @@ function runRfrPredictionFlow() {
                     folderPath: outDir,
                     baseUrl: usedBaseUrl,
                     overlays: data.overlays,
+                    grids: window.DYNAMIC_PREDICTION_GRIDS || data.grids || null,
                     bounds: bounds,
                     executionTimeSec: elapsedSec
                 });
                 if (window.PREDICTION_CACHE_BY_ESTATE && window.PREDICTION_CACHE_BY_ESTATE[shpKey] && window.PREDICTION_CACHE_BY_ESTATE[shpKey].overlays) {
                     window.DYNAMIC_PREDICTION_RASTERS = window.PREDICTION_CACHE_BY_ESTATE[shpKey].overlays;
                 }
+            }
+            if (typeof window.refreshPointNutrientDetectionFromActiveRasters === 'function') {
+                window.refreshPointNutrientDetectionFromActiveRasters();
             }
 
             // Ensure all Step 1, Step 2, Step 3 logs are shown in the terminal pop-up
@@ -6511,20 +6550,73 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
 
         // Save previewed report as PDF
         function downloadPdfFromPreview() {
-            let contentHtml = document.getElementById('report-preview-body').innerHTML;
-            let tempArea = document.createElement('div');
-            tempArea.innerHTML = contentHtml;
-            
-            let opt = {
+            const previewBody = document.getElementById('report-preview-body');
+            if (!previewBody || !previewBody.innerHTML.trim()) {
+                alert('Please generate a report preview first.');
+                return;
+            }
+
+            const btn = document.querySelector('#modal-report-preview .eds-print-report-btn');
+            const origText = btn ? btn.innerHTML : '⬇ Download PDF';
+            if (btn) {
+                btn.innerHTML = '⏳ Generating PDF...';
+                btn.disabled = true;
+            }
+
+            const tempArea = document.createElement('div');
+            tempArea.style.width = '210mm';
+            tempArea.style.background = '#ffffff';
+            tempArea.innerHTML = previewBody.innerHTML;
+
+            // Normalize .report-page margins/heights so html2canvas renders exact A4 pages with no extra blank pages
+            const pages = tempArea.querySelectorAll('.report-page');
+            pages.forEach((p, idx) => {
+                p.style.margin = '0';
+                p.style.boxShadow = 'none';
+                p.style.height = '296mm';
+                p.style.maxHeight = '296mm';
+                p.style.overflow = 'hidden';
+                p.style.pageBreakAfter = (idx < pages.length - 1) ? 'always' : 'avoid';
+            });
+
+            const safeBlock = String(typeof selectedBlock !== 'undefined' && selectedBlock ? selectedBlock : 'block')
+                .toLowerCase()
+                .replace(/[^a-z0-9_-]+/g, '_')
+                .replace(/^_+|_+$/g, '') || 'block';
+
+            const opt = {
                 margin:       0,
-                filename:     `palmnex_agronomic_report_${selectedBlock.toLowerCase().replace(' ', '')}.pdf`,
+                filename:     `palmnex_agronomic_report_${safeBlock}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                html2canvas:  { scale: 2, useCORS: true, allowTaint: true, logging: false, scrollY: 0 },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak:    { mode: ['css', 'legacy'] }
             };
-            
-            html2pdf().set(opt).from(tempArea).save();
+
+            if (typeof html2pdf === 'function') {
+                html2pdf().set(opt).from(tempArea).save().then(() => {
+                    if (btn) {
+                        btn.innerHTML = origText;
+                        btn.disabled = false;
+                    }
+                }).catch(err => {
+                    console.error('PDF generation error:', err);
+                    if (btn) {
+                        btn.innerHTML = origText;
+                        btn.disabled = false;
+                    }
+                    window.print();
+                });
+            } else {
+                if (btn) {
+                    btn.innerHTML = origText;
+                    btn.disabled = false;
+                }
+                window.print();
+            }
         }
+        window.downloadPdfFromPreview = downloadPdfFromPreview;
+        window.downloadReportAsPDF = downloadPdfFromPreview;
     
         // =========================================================================
         // ReaDA Engine View Navigation & Dialog Handlers (Authentic Palmnex Replica)

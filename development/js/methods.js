@@ -885,6 +885,7 @@
         window.viewPdfReportFromOutputModal = viewPdfReportFromOutputModal;
         window.viewReportPDF = viewReportPDF;
         window.downloadPdfFromPreview = downloadPdfFromPreview;
+        window.downloadReportAsPDF = downloadPdfFromPreview;
         if (typeof selectGridCell === 'function') window.selectGridCell = selectGridCell;
         if (typeof applySelectedTreatment === 'function') window.applySelectedTreatment = applySelectedTreatment;
     
