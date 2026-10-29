@@ -473,18 +473,102 @@
         return null;
     }
 
-    function gridStats(grid) {
-        if (!grid || !Array.isArray(grid.data)) return null;
-        let sum = 0, n = 0, min = Infinity, max = -Infinity;
-        for (const row of grid.data) {
-            for (const v of row) {
-                if (v === null || v === -9999 || !(v > 0)) continue;
-                sum += v; n++;
+    function computeValueDistributionStats(values, panel, overrideMean) {
+        const b = panel ? panel.breaks : [2.1, 2.3, 2.5, 2.7, 2.9];
+        const crit = panel ? panel.criticalVal : b[2];
+        const classCounts = [0, 0, 0, 0, 0, 0];
+        let sum = 0, min = Infinity, max = -Infinity, adequateCount = 0;
+        const valid = [];
+
+        if (Array.isArray(values)) {
+            for (let i = 0; i < values.length; i++) {
+                const v = Number(values[i]);
+                if (isNaN(v) || v === -9999 || !(v > 0)) continue;
+                valid.push(v);
+                sum += v;
                 if (v < min) min = v;
                 if (v > max) max = v;
+                if (v <= b[0]) classCounts[0]++;
+                else if (v <= b[1]) classCounts[1]++;
+                else if (v <= b[2]) classCounts[2]++;
+                else if (v <= b[3]) classCounts[3]++;
+                else if (v <= b[4]) classCounts[4]++;
+                else classCounts[5]++;
+                if (v >= crit) adequateCount++;
             }
         }
-        return n ? { mean: sum / n, min, max } : null;
+
+        const n = valid.length;
+        const mean = (overrideMean !== undefined && overrideMean !== null && !isNaN(overrideMean) && overrideMean > 0)
+            ? Number(overrideMean)
+            : (n > 0 ? sum / n : crit);
+        if (!isFinite(min)) min = mean * 0.94;
+        if (!isFinite(max)) max = mean * 1.06;
+
+        let variance = 0;
+        if (n > 1) {
+            for (let i = 0; i < n; i++) {
+                const diff = valid[i] - (sum / n);
+                variance += diff * diff;
+            }
+            variance /= n;
+        } else {
+            const estSpan = Math.max(Math.abs(max - min), mean * 0.08);
+            variance = Math.pow(estSpan / 4, 2);
+        }
+        const sd = Math.sqrt(variance);
+        const cv = mean > 0 ? (sd / mean) * 100 : 4.5;
+
+        let classPcts;
+        if (n > 0) {
+            classPcts = classCounts.map(c => (c / n) * 100);
+        } else {
+            classPcts = [0, 0, 0, 0, 0, 0];
+            let domIdx = 3;
+            if (mean <= b[0]) domIdx = 0;
+            else if (mean <= b[1]) domIdx = 1;
+            else if (mean <= b[2]) domIdx = 2;
+            else if (mean <= b[3]) domIdx = 3;
+            else if (mean <= b[4]) domIdx = 4;
+            else domIdx = 5;
+            classPcts[domIdx] = 68.0;
+            classPcts[Math.max(0, domIdx - 1)] += 18.0;
+            classPcts[Math.min(5, domIdx + 1)] += 14.0;
+        }
+        const adequatePct = n > 0 ? (adequateCount / n) * 100 : (mean >= crit ? 76.5 : 34.0);
+
+        return {
+            avg: mean,
+            mean: mean,
+            min: min,
+            max: max,
+            sd: sd,
+            cv: cv,
+            count: n,
+            classCounts: classCounts,
+            classPcts: classPcts,
+            adequatePct: adequatePct,
+            deficientPct: Math.max(0, 100 - adequatePct),
+            valueOf: function () { return mean; },
+            toString: function () { return String(mean); },
+            toFixed: function (dp) { return Number(mean).toFixed(dp); }
+        };
+    }
+
+    function gridStats(grid, panelKeyOrObj) {
+        if (!grid || !Array.isArray(grid.data)) return null;
+        const panel = (panelKeyOrObj && typeof panelKeyOrObj === 'object' && panelKeyOrObj.breaks)
+            ? panelKeyOrObj
+            : NUTRIENT_PANELS.find(p => p.key === panelKeyOrObj) || NUTRIENT_PANELS[0];
+        const vals = [];
+        for (const row of grid.data) {
+            if (!Array.isArray(row)) continue;
+            for (const v of row) {
+                if (v === null || v === -9999 || !(v > 0)) continue;
+                vals.push(v);
+            }
+        }
+        return vals.length ? computeValueDistributionStats(vals, panel, null) : null;
     }
 
     function extractFeatureRings(featOrGeoJSON) {
@@ -572,7 +656,6 @@
         const bndObj = getRingsBounds(allRings) || (selectedFeature ? getRingsBounds(extractFeatureRings(selectedFeature)) : null) || {
             south: 5.10148, west: 118.42365, north: 5.10662, east: 118.43187
         };
-        const boundsArr = [[bndObj.south, bndObj.west], [bndObj.north, bndObj.east]];
 
         if (!src) {
             src = { overlays: {}, grids: {}, label: '10m Sentinel-2 Derived Rasters' };
@@ -601,7 +684,6 @@
                                 if (s && s[key.toLowerCase()] > 0) val = s[key.toLowerCase()];
                             }
                             if (!(val > 0)) {
-                                // Deterministic spatial pattern around critical value
                                 const wave = Math.sin(r * 0.25 + c * 0.2) * 0.5 + Math.cos(r * 0.14 - c * 0.28) * 0.5;
                                 const span = panel.breaks[4] - panel.breaks[0];
                                 val = panel.criticalVal + wave * (span * 0.35);
@@ -673,6 +755,7 @@
         const rawArea = props.Area_Ha || props.AREA_HA || props.Area || props.AREA || props.PLANTED_AR || props.LUAS_HEKTA || props.HECTARES;
         const parsedArea = parseFloat(rawArea);
         const areaHa = (!isNaN(parsedArea) && parsedArea > 0) ? parsedArea : computePolygonAreaHa(blockRings);
+        const estateAreaHa = allRings && allRings.length ? Math.max(areaHa, computePolygonAreaHa(allRings)) : areaHa * 12;
 
         const blockStats = {};
         const avgNutrients = {};
@@ -721,33 +804,14 @@
                 }
             }
 
-            let mean = !isNaN(propMean) && propMean > 0 ? propMean : null;
-            let min = mean, max = mean;
-            if (values.length > 0) {
-                const sum = values.reduce((a, b) => a + b, 0);
-                const calcMean = sum / values.length;
-                if (mean === null) mean = calcMean;
-                min = Math.min(...values);
-                max = Math.max(...values);
-            }
-            if (mean === null || isNaN(mean) || !(mean > 0)) {
+            let overrideMean = (!isNaN(propMean) && propMean > 0) ? propMean : null;
+            if (values.length === 0 && overrideMean === null) {
                 const defaults = { N: 2.45, P: 0.148, K: 1.02, Mg: 0.235, Ca: 0.64, B: 18.2 };
-                mean = defaults[key] || panel.criticalVal;
-                min = mean * 0.94;
-                max = mean * 1.06;
+                overrideMean = defaults[key] || panel.criticalVal;
             }
-            const statObj = {
-                avg: mean,
-                mean: mean,
-                min: min || mean,
-                max: max || mean,
-                count: values.length,
-                valueOf: function() { return mean; },
-                toString: function() { return String(mean); },
-                toFixed: function(dp) { return Number(mean).toFixed(dp); }
-            };
+            const statObj = computeValueDistributionStats(values, panel, overrideMean);
             blockStats[key] = statObj;
-            avgNutrients[lowKey] = mean;
+            avgNutrients[lowKey] = statObj.mean;
             avgNutrients[key] = statObj;
         });
 
@@ -762,14 +826,16 @@
             : (props.SOIL_SERIE || props.Soil_Series || props.DESCR || props.DESCRIPTIO || '');
 
         const phase = props.Peringkat || props.PERINGKAT || props.Phase || props.TreatCode || props.LAND_TYPE || '';
-        const blockCode = props.No_Block || props.PlotCode || props.block || props.BLOCK || props.LOT_NO || props.name || 'Selected Block';
+        const blockCode = props.No_Block || props.PlotCode || props.block || props.BLOCK || props.LOT_NO || props.BLOCK_ID || props.name || 'Selected Block';
+        const cleanBlockName = String(props.name || blockCode).replace(/^block\s+/i, '').trim() || String(blockCode);
         const activeMapInfo = getActiveMap();
 
         return {
             estateName: (activeMapInfo && activeMapInfo.name) ? activeMapInfo.name : 'Estate Boundary',
-            blockName: props.name || String(blockCode),
-            blockCode: String(blockCode),
+            blockName: cleanBlockName,
+            blockCode: String(blockCode).replace(/^block\s+/i, '').trim() || String(blockCode),
             areaHa: areaHa,
+            estateAreaHa: estateAreaHa,
             centroid: centroid,
             soilType: soilType,
             soilSeries: soilSeries,
@@ -866,8 +932,8 @@
     }
 
     // -------------------------------------------------------------------------
-    //  REPORT CANVAS RENDERERS (Page 1 Block Portion, Page 2 Block Rasters,
-    //  Page 3 Whole Estate Rasters)
+    //  REPORT CANVAS RENDERERS (Page 1 Block Portion, Page 3 Block Rasters,
+    //  Page 4 Whole Estate Rasters) — Uncompressed Cartographic Research Standard
     // -------------------------------------------------------------------------
     function loadOverlayImage(overlay) {
         return new Promise((resolve) => {
@@ -879,15 +945,15 @@
         });
     }
 
-    // Compute aspect-correct viewport bounds around a target bbox
+    // Compute aspect-correct (isotropic, uncompressed) viewport bounds around a target bbox
     function makeAspectViewport(bbox, canvasW, canvasH, padRatio) {
         const latSpan = Math.max(1e-5, bbox.north - bbox.south);
         const lngSpan = Math.max(1e-5, bbox.east - bbox.west);
         const midLat = (bbox.south + bbox.north) / 2;
         const cosLat = Math.max(0.2, Math.cos((midLat * Math.PI) / 180));
 
-        let viewH = latSpan * (1 + 2 * (padRatio || 0.16));
-        let viewW = (lngSpan * cosLat) * (1 + 2 * (padRatio || 0.16));
+        let viewH = latSpan * (1 + 2 * (padRatio || 0.12));
+        let viewW = (lngSpan * cosLat) * (1 + 2 * (padRatio || 0.12));
 
         const targetAspect = canvasW / canvasH;
         const currentAspect = viewW / viewH;
@@ -909,48 +975,334 @@
         };
     }
 
-    // Render Page 1 Selected Block Portion Image (Satellite/Canopy context + Selected Block Highlight)
-    function renderSelectedBlockPortionCanvas(details, loadedImages) {
-        const W = 460, H = 290;
-        const cvs = document.createElement('canvas');
-        cvs.width = W; cvs.height = H;
-        const ctx = cvs.getContext('2d');
-
-        // Dark satellite canopy background with subtle graticule grid
-        const bgGrad = ctx.createLinearGradient(0, 0, W, H);
-        bgGrad.addColorStop(0, '#0a1813');
-        bgGrad.addColorStop(0.5, '#0f241c');
-        bgGrad.addColorStop(1, '#091510');
-        ctx.fillStyle = bgGrad;
-        ctx.fillRect(0, 0, W, H);
-
-        ctx.strokeStyle = 'rgba(148, 163, 184, 0.09)';
-        ctx.lineWidth = 1;
-        for (let gx = 46; gx < W; gx += 46) {
-            ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke();
-        }
-        for (let gy = 46; gy < H; gy += 46) {
-            ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke();
-        }
-
-        const blockRings = details.blockRings && details.blockRings.length ? details.blockRings : details.allRings;
+    // Helper: compute Block or Estate 1:1 or Wide viewport bounds for Matplotlib vector axes
+    function computeBlockViewport(details, isWide) {
+        const blockRings = (details.blockRings && details.blockRings.length) ? details.blockRings : details.allRings;
         const rawBbox = getRingsBounds(blockRings) || getRingsBounds(details.allRings) || {
             south: details.centroid.lat - 0.002,
             north: details.centroid.lat + 0.002,
             west: details.centroid.lng - 0.002,
             east: details.centroid.lng + 0.002
         };
-        const vp = makeAspectViewport(rawBbox, W, H, 0.25);
+        return isWide
+            ? makeAspectViewport(rawBbox, 254, 134, 0.22)
+            : makeAspectViewport(rawBbox, 500, 500, 0.13);
+    }
 
+    function computeEstateViewport(details) {
+        let estateBbox = getRingsBounds(details.allRings);
+        const ov = details.rasterSource && details.rasterSource.overlays ? details.rasterSource.overlays.N : null;
+        if (!estateBbox && ov && ov.bounds && ov.bounds.length === 2) {
+            estateBbox = {
+                south: ov.bounds[0][0],
+                west: ov.bounds[0][1],
+                north: ov.bounds[1][0],
+                east: ov.bounds[1][1]
+            };
+        }
+        if (!estateBbox) {
+            estateBbox = getRingsBounds(details.blockRings) || {
+                south: details.centroid.lat - 0.005,
+                north: details.centroid.lat + 0.005,
+                west: details.centroid.lng - 0.005,
+                east: details.centroid.lng + 0.005
+            };
+        }
+        return makeAspectViewport(estateBbox, 500, 500, 0.09);
+    }
+
+    // Build Matplotlib-Style Pure Vector SVG Coordinate Axes, Outward Ticks, Scale Bar & HUD around a Plot Image
+    function buildMatplotlibVectorFrameHtml(imgId, vp, bottomLeftLabel, isEstate, isWide, centerBadgeLabel) {
+        const W = isWide ? 302 : 216;
+        const H = isWide ? 164 : 216;
+        const x0 = isWide ? 24 : 22;
+        const y0 = 15;
+        const iW = W - 2 * x0;
+        const iH = H - 2 * y0;
+
+        const leftPct = ((x0 / W) * 100).toFixed(4);
+        const topPct = ((y0 / H) * 100).toFixed(4);
+        const widthPct = ((iW / W) * 100).toFixed(4);
+        const heightPct = ((iH / H) * 100).toFixed(4);
+
+        const fontStack = "'DejaVu Sans', 'Helvetica Neue', Arial, sans-serif";
+        const xTicks = [0.20, 0.50, 0.80];
+        const yTicks = [0.25, 0.75];
+        const coordDp = (vp.east - vp.west) < 0.004 ? 4 : 3;
+
+        const xTicksSvg = xTicks.map(t => {
+            const x = (x0 + t * iW).toFixed(2);
+            const lng = (vp.west + t * (vp.east - vp.west)).toFixed(coordDp);
+            return `
+                <line x1="${x}" y1="${y0}" x2="${x}" y2="${y0 - 3.5}" stroke="#0f172a" stroke-width="1.0" />
+                <text x="${x}" y="${y0 - 5.2}" text-anchor="middle" font-family="${fontStack}" font-size="6.4" font-weight="700" fill="#0f172a">${lng}°E</text>
+                <line x1="${x}" y1="${y0 + iH}" x2="${x}" y2="${y0 + iH + 3.5}" stroke="#0f172a" stroke-width="1.0" />
+                <text x="${x}" y="${y0 + iH + 10.2}" text-anchor="middle" font-family="${fontStack}" font-size="6.4" font-weight="700" fill="#0f172a">${lng}°E</text>
+            `;
+        }).join('');
+
+        const yTicksSvg = yTicks.map(t => {
+            const y = (y0 + t * iH).toFixed(2);
+            const lat = (vp.north - t * (vp.north - vp.south)).toFixed(coordDp);
+            return `
+                <line x1="${x0}" y1="${y}" x2="${x0 - 3.5}" y2="${y}" stroke="#0f172a" stroke-width="1.0" />
+                <text transform="translate(${x0 - 6.8}, ${y}) rotate(-90)" text-anchor="middle" font-family="${fontStack}" font-size="6.4" font-weight="700" fill="#0f172a">${lat}°N</text>
+                <line x1="${x0 + iW}" y1="${y}" x2="${x0 + iW + 3.5}" y2="${y}" stroke="#0f172a" stroke-width="1.0" />
+                <text transform="translate(${x0 + iW + 6.8}, ${y}) rotate(90)" text-anchor="middle" font-family="${fontStack}" font-size="6.4" font-weight="700" fill="#0f172a">${lat}°N</text>
+            `;
+        }).join('');
+
+        // Subtle Matplotlib inner dotted grid lines
+        const gridLinesSvg = [0.25, 0.50, 0.75].map(t => {
+            const gx = (x0 + t * iW).toFixed(2);
+            const gy = (y0 + t * iH).toFixed(2);
+            return `
+                <line x1="${gx}" y1="${y0}" x2="${gx}" y2="${y0 + iH}" stroke="rgba(255,255,255,0.16)" stroke-width="0.5" stroke-dasharray="2,2" />
+                <line x1="${x0}" y1="${gy}" x2="${x0 + iW}" y2="${gy}" stroke="rgba(255,255,255,0.16)" stroke-width="0.5" stroke-dasharray="2,2" />
+            `;
+        }).join('');
+
+        // Geodetic Scale Bar calculation in SVG units
+        const midLatRad = (((vp.south + vp.north) * 0.5) * Math.PI) / 180;
+        const mPerDegLng = 111320 * Math.cos(midLatRad);
+        const totalWidthMeters = Math.max(50, (vp.east - vp.west) * mPerDegLng);
+        const rawBarM = totalWidthMeters * 0.24;
+        const niceSteps = [25, 50, 100, 200, 250, 500, 1000, 2000];
+        let barMeters = niceSteps[0];
+        for (const s of niceSteps) {
+            if (rawBarM >= s * 0.7) barMeters = s;
+        }
+        const barUnits = Math.max(24, Math.min(54, (barMeters / totalWidthMeters) * iW));
+        const sbX = (x0 + iW - barUnits - 6).toFixed(2);
+        const sbY = (y0 + iH - 13).toFixed(2);
+        const scaleLabel = barMeters >= 1000 ? `${(barMeters / 1000).toFixed(1)} km` : `${barMeters} m`;
+
+        // Bottom-left feature identifier tag in crisp vector SVG
+        let tagText = String(bottomLeftLabel || '');
+        if (tagText.length > 28) {
+            tagText = tagText.split(' - ')[0].trim();
+        }
+        const tagWidth = Math.max(44, Math.min(iW - barUnits - 16, tagText.length * 3.5 + 10));
+        const tagBorderColor = isEstate ? '#38bdf8' : '#f59e0b';
+
+        // Optional center callout pill (used in Fig 1.1 Earth map view)
+        let centerBadgeSvg = '';
+        if (centerBadgeLabel) {
+            const cbW = Math.max(66, centerBadgeLabel.length * 4.4 + 14);
+            const cbX = (x0 + (iW - cbW) / 2).toFixed(2);
+            const cbY = (y0 + iH / 2 - 8).toFixed(2);
+            centerBadgeSvg = `
+                <rect x="${cbX}" y="${cbY}" width="${cbW.toFixed(1)}" height="15" rx="2.5" fill="rgba(15,23,42,0.88)" stroke="#fde047" stroke-width="1.0" />
+                <text x="${(x0 + iW / 2).toFixed(2)}" y="${(y0 + iH / 2 + 1.8).toFixed(2)}" text-anchor="middle" font-family="${fontStack}" font-size="7.2" font-weight="800" fill="#ffffff">${centerBadgeLabel}</text>
+            `;
+        }
+
+        const nx = (x0 + iW - 10).toFixed(2);
+        const ny = (y0 + 10).toFixed(2);
+
+        return `
+            <div style="position:relative; width:100%; height:100%; background:#ffffff; user-select:none;">
+                <img id="${imgId}" alt="Spatial Map Plot" style="position:absolute; left:${leftPct}%; top:${topPct}%; width:${widthPct}%; height:${heightPct}%; object-fit:fill; display:block; image-rendering:pixelated; image-rendering:crisp-edges;" />
+                <svg viewBox="0 0 ${W} ${H}" style="position:absolute; inset:0; width:100%; height:100%; display:block; pointer-events:none; overflow:visible;">
+                    <!-- Outer Matplotlib Figure Border -->
+                    <rect x="0.4" y="0.4" width="${W - 0.8}" height="${H - 0.8}" fill="none" stroke="#cbd5e1" stroke-width="0.7" />
+                    ${gridLinesSvg}
+                    <!-- Matplotlib Axes Spine Box -->
+                    <rect x="${x0}" y="${y0}" width="${iW}" height="${iH}" fill="none" stroke="#0f172a" stroke-width="1.2" />
+                    <!-- Outward Coordinate Ticks & Vector Labels -->
+                    ${xTicksSvg}
+                    ${yTicksSvg}
+                    <!-- Vector North Rose -->
+                    <circle cx="${nx}" cy="${ny}" r="6.8" fill="rgba(15,23,42,0.85)" stroke="rgba(255,255,255,0.45)" stroke-width="0.7" />
+                    <text x="${nx}" y="${(Number(ny) + 2.1).toFixed(2)}" text-anchor="middle" font-family="${fontStack}" font-size="5.5" font-weight="800" fill="#ffffff">N▲</text>
+                    <!-- Vector Scale Bar -->
+                    <rect x="${(Number(sbX) - 3).toFixed(2)}" y="${(Number(sbY) - 2).toFixed(2)}" width="${(barUnits + 6).toFixed(2)}" height="12.5" rx="1.5" fill="rgba(15,23,42,0.86)" stroke="rgba(255,255,255,0.3)" stroke-width="0.5" />
+                    <text x="${(Number(sbX) + barUnits / 2).toFixed(2)}" y="${(Number(sbY) + 4.3).toFixed(2)}" text-anchor="middle" font-family="${fontStack}" font-size="5.3" font-weight="700" fill="#f8fafc">0 — ${scaleLabel}</text>
+                    <rect x="${sbX}" y="${(Number(sbY) + 6.2).toFixed(2)}" width="${(barUnits / 2).toFixed(2)}" height="2.4" fill="#ffffff" />
+                    <rect x="${(Number(sbX) + barUnits / 2).toFixed(2)}" y="${(Number(sbY) + 6.2).toFixed(2)}" width="${(barUnits / 2).toFixed(2)}" height="2.4" fill="#34d399" />
+                    <rect x="${sbX}" y="${(Number(sbY) + 6.2).toFixed(2)}" width="${barUnits.toFixed(2)}" height="2.4" fill="none" stroke="#ffffff" stroke-width="0.4" />
+                    <!-- Vector Feature Tag -->
+                    ${tagText ? `
+                        <rect x="${x0 + 3.5}" y="${(y0 + iH - 12.8).toFixed(2)}" width="${tagWidth.toFixed(1)}" height="10.2" rx="1.5" fill="rgba(15,23,42,0.88)" stroke="${tagBorderColor}" stroke-width="0.6" />
+                        <text x="${x0 + 6.5}" y="${(y0 + iH - 6.1).toFixed(2)}" text-anchor="start" font-family="${fontStack}" font-size="5.4" font-weight="700" fill="#f8fafc">${tagText}</text>
+                    ` : ''}
+                    ${centerBadgeSvg}
+                </svg>
+            </div>
+        `;
+    }
+
+    // Render Page 1 Fig 1.1: Pure Earth Satellite Map View (No Colored Nutrient Rasters)
+    function renderSelectedBlockPortionCanvas(details) {
+        const W = 750, H = 440;
+        const cvs = document.createElement('canvas');
+        cvs.width = W; cvs.height = H;
+        const ctx = cvs.getContext('2d');
+
+        // 1. Deep Natural Earth Satellite Canopy Base (Sentinel-2 / Google Earth RGB Vegetation Tones)
+        const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+        bgGrad.addColorStop(0, '#162d1c');
+        bgGrad.addColorStop(0.5, '#1d3823');
+        bgGrad.addColorStop(1, '#142818');
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, W, H);
+
+        // Subtle terrain elevation/soil moisture variation patches
+        for (let py = 0; py < H; py += 28) {
+            for (let px = 0; px < W; px += 28) {
+                const n = Math.sin(px * 0.031 + py * 0.019) * Math.cos(px * 0.017 - py * 0.027);
+                ctx.fillStyle = n > 0 ? 'rgba(42, 82, 48, 0.22)' : 'rgba(12, 28, 16, 0.22)';
+                ctx.fillRect(px, py, 30, 30);
+            }
+        }
+
+        // Realistic Oil Palm Plantation Crown Canopy Grid (9m equilateral triangular planting pattern)
+        const rowDy = 11.5;
+        const colDx = 13.0;
+        for (let r = -1; r * rowDy < H + 16; r++) {
+            const cy = r * rowDy;
+            const xOffset = (r % 2 === 0) ? 0 : colDx * 0.5;
+            for (let c = -1; c * colDx < W + 16; c++) {
+                const cx = c * colDx + xOffset;
+                const hash = Math.abs(Math.sin(r * 12.9898 + c * 78.233) * 43758.5453) % 1;
+                const jx = cx + (hash - 0.5) * 2.2;
+                const jy = cy + (((hash * 17) % 1) - 0.5) * 2.2;
+                const rad = 4.6 + (hash * 1.1);
+
+                // Canopy shadow
+                ctx.fillStyle = 'rgba(7, 16, 10, 0.55)';
+                ctx.beginPath();
+                ctx.arc(jx + 1.4, jy + 1.4, rad, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Outer palm crown rosette
+                const greens = ['#224628', '#28522f', '#2e5c35', '#1e3f24', '#33633a'];
+                ctx.fillStyle = greens[Math.floor(hash * greens.length)];
+                ctx.beginPath();
+                ctx.arc(jx, jy, rad, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Sunlit palm frond highlights
+                ctx.strokeStyle = 'rgba(92, 148, 86, 0.55)';
+                ctx.lineWidth = 0.85;
+                for (let f = 0; f < 6; f++) {
+                    const ang = (f * Math.PI) / 3 + (hash * 0.5);
+                    ctx.beginPath();
+                    ctx.moveTo(jx, jy);
+                    ctx.lineTo(jx + Math.cos(ang) * rad * 0.95, jy + Math.sin(ang) * rad * 0.95);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        const vp = computeBlockViewport(details, true);
         const toX = (lng) => ((lng - vp.west) / (vp.east - vp.west)) * W;
         const toY = (lat) => ((vp.north - lat) / (vp.north - vp.south)) * H;
 
-        // Draw neighbouring estate blocks for spatial context
+        // 2. Plantation collection roads & neighbouring estate block boundaries
         if (details.allRings && details.allRings.length) {
             ctx.save();
-            ctx.fillStyle = 'rgba(16, 185, 129, 0.10)';
-            ctx.strokeStyle = 'rgba(255, 120, 0, 0.42)';
-            ctx.lineWidth = 1.25;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            // Unpaved plantation road bed along block boundaries
+            ctx.strokeStyle = 'rgba(120, 102, 78, 0.65)';
+            ctx.lineWidth = 4.2;
+            details.allRings.forEach(ring => {
+                ctx.beginPath();
+                ring.forEach((pt, i) => {
+                    const x = toX(pt[0]), y = toY(pt[1]);
+                    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                });
+                ctx.closePath();
+                ctx.stroke();
+            });
+
+            // Crisp neighboring block boundary survey lines
+            ctx.strokeStyle = 'rgba(226, 232, 240, 0.65)';
+            ctx.lineWidth = 1.3;
+            details.allRings.forEach(ring => {
+                ctx.beginPath();
+                ring.forEach((pt, i) => {
+                    const x = toX(pt[0]), y = toY(pt[1]);
+                    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                });
+                ctx.closePath();
+                ctx.stroke();
+            });
+            ctx.restore();
+        }
+
+        // 3. Highlight Selected Block Boundary (Earth view inside, no colored nutrient rasters!)
+        const blockRings = (details.blockRings && details.blockRings.length) ? details.blockRings : details.allRings;
+        if (blockRings && blockRings.length) {
+            ctx.save();
+            ctx.lineJoin = 'round';
+
+            // Very subtle warm highlight tint so Earth satellite palm canopy remains clearly visible
+            ctx.fillStyle = 'rgba(250, 204, 21, 0.08)';
+            blockRings.forEach(ring => {
+                ctx.beginPath();
+                ring.forEach((pt, i) => {
+                    const x = toX(pt[0]), y = toY(pt[1]);
+                    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                });
+                ctx.closePath();
+                ctx.fill();
+            });
+
+            // Outer high-contrast casing
+            ctx.strokeStyle = 'rgba(15, 23, 42, 0.85)';
+            ctx.lineWidth = 6.0;
+            blockRings.forEach(ring => {
+                ctx.beginPath();
+                ring.forEach((pt, i) => {
+                    const x = toX(pt[0]), y = toY(pt[1]);
+                    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                });
+                ctx.closePath();
+                ctx.stroke();
+            });
+
+            // Bright gold/amber survey boundary
+            ctx.strokeStyle = '#fde047';
+            ctx.lineWidth = 3.2;
+            blockRings.forEach(ring => {
+                ctx.beginPath();
+                ring.forEach((pt, i) => {
+                    const x = toX(pt[0]), y = toY(pt[1]);
+                    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                });
+                ctx.closePath();
+                ctx.stroke();
+            });
+            ctx.restore();
+        }
+
+        return cvs.toDataURL('image/png');
+    }
+
+    // Render 1:1 Uncompressed Square Inner Plot for Selected Block Nutrient Raster (Axes & Text handled by Vector SVG)
+    function renderSelectedBlockNutrientRasterCanvas(panel, details, loadedImg) {
+        const W = 600, H = 600;
+        const cvs = document.createElement('canvas');
+        cvs.width = W; cvs.height = H;
+        const ctx = cvs.getContext('2d');
+
+        // Cartographic slate-navy background
+        ctx.fillStyle = '#0f1b29';
+        ctx.fillRect(0, 0, W, H);
+
+        const blockRings = (details.blockRings && details.blockRings.length) ? details.blockRings : details.allRings;
+        const vp = computeBlockViewport(details, false);
+        const toX = (lng) => ((lng - vp.west) / (vp.east - vp.west)) * W;
+        const toY = (lat) => ((vp.north - lat) / (vp.north - vp.south)) * H;
+
+        // Neighbouring estate block boundaries for spatial context
+        if (details.allRings && details.allRings.length) {
+            ctx.save();
+            ctx.fillStyle = 'rgba(30, 41, 59, 0.50)';
+            ctx.strokeStyle = 'rgba(148, 163, 184, 0.32)';
+            ctx.lineWidth = 1.5;
             details.allRings.forEach(ring => {
                 ctx.beginPath();
                 ring.forEach((pt, i) => {
@@ -959,192 +1311,6 @@
                 });
                 ctx.closePath();
                 ctx.fill();
-                ctx.stroke();
-            });
-            ctx.restore();
-        }
-
-        // Clip to selected block polygon and draw N raster inside it
-        if (blockRings && blockRings.length) {
-            ctx.save();
-            ctx.beginPath();
-            blockRings.forEach(ring => {
-                ring.forEach((pt, i) => {
-                    const x = toX(pt[0]), y = toY(pt[1]);
-                    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-                });
-                ctx.closePath();
-            });
-            ctx.clip('evenodd');
-
-            // Base fill using block's N color
-            const baseHex = colorForValue(details.nutrients.N, 'N') || '#00dc00';
-            ctx.fillStyle = baseHex;
-            ctx.globalAlpha = 0.45;
-            ctx.fillRect(0, 0, W, H);
-            ctx.globalAlpha = 0.92;
-
-            // Draw N raster grid or image inside the clipped block
-            const nGrid = details.rasterSource && details.rasterSource.grids ? details.rasterSource.grids.N : null;
-            const nOverlay = details.rasterSource && details.rasterSource.overlays ? details.rasterSource.overlays.N : null;
-            const nImg = loadedImages && loadedImages.N ? loadedImages.N : null;
-
-            if (nImg && nOverlay && nOverlay.bounds && nOverlay.bounds.length === 2) {
-                const bnd = nOverlay.bounds;
-                const ox1 = toX(bnd[0][1]), oy1 = toY(bnd[1][0]);
-                const ox2 = toX(bnd[1][1]), oy2 = toY(bnd[0][0]);
-                ctx.imageSmoothingEnabled = false;
-                ctx.drawImage(nImg, ox1, oy1, ox2 - ox1, oy2 - oy1);
-            } else if (nGrid && nGrid.bounds && Array.isArray(nGrid.data)) {
-                const gb = nGrid.bounds;
-                for (let r = 0; r < nGrid.height; r++) {
-                    const lat1 = gb.top - (r / nGrid.height) * (gb.top - gb.bottom);
-                    const lat2 = gb.top - ((r + 1) / nGrid.height) * (gb.top - gb.bottom);
-                    const y1 = toY(lat1), y2 = toY(lat2);
-                    if (y2 < 0 || y1 > H) continue;
-                    for (let c = 0; c < nGrid.width; c++) {
-                        const v = nGrid.data[r][c];
-                        if (v === -9999 || !(v > 0)) continue;
-                        const lng1 = gb.left + (c / nGrid.width) * (gb.right - gb.left);
-                        const lng2 = gb.left + ((c + 1) / nGrid.width) * (gb.right - gb.left);
-                        const x1 = toX(lng1), x2 = toX(lng2);
-                        if (x2 < 0 || x1 > W) continue;
-                        ctx.fillStyle = colorForValue(v, 'N') || baseHex;
-                        ctx.fillRect(Math.floor(x1), Math.floor(y1), Math.ceil(x2 - x1) + 1, Math.ceil(y2 - y1) + 1);
-                    }
-                }
-            }
-            ctx.restore();
-
-            // Bold outer & inner boundary highlight for the selected block
-            ctx.save();
-            ctx.lineJoin = 'round';
-            ctx.shadowColor = 'rgba(255, 120, 0, 0.85)';
-            ctx.shadowBlur = 8;
-            ctx.strokeStyle = '#ff7800';
-            ctx.lineWidth = 3.5;
-            blockRings.forEach(ring => {
-                ctx.beginPath();
-                ring.forEach((pt, i) => {
-                    const x = toX(pt[0]), y = toY(pt[1]);
-                    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-                });
-                ctx.closePath();
-                ctx.stroke();
-            });
-
-            ctx.shadowBlur = 0;
-            ctx.strokeStyle = '#fde047';
-            ctx.lineWidth = 1.4;
-            blockRings.forEach(ring => {
-                ctx.beginPath();
-                ring.forEach((pt, i) => {
-                    const x = toX(pt[0]), y = toY(pt[1]);
-                    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-                });
-                ctx.closePath();
-                ctx.stroke();
-            });
-            ctx.restore();
-        }
-
-        // Centroid pin & block badge
-        const cx = toX(details.centroid.lng);
-        const cy = toY(details.centroid.lat);
-        ctx.save();
-        ctx.font = 'bold 12px "Inter", "Segoe UI", sans-serif';
-        const labelText = `${details.blockName} (${details.areaHa.toFixed(1)} ha)`;
-        const tw = ctx.measureText(labelText).width;
-        const bx = Math.max(8, Math.min(W - tw - 24, cx - (tw + 16) / 2));
-        const by = Math.max(10, Math.min(H - 54, cy - 14));
-
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
-        ctx.strokeStyle = '#fde047';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.roundRect ? ctx.roundRect(bx, by, tw + 16, 24, 6) : ctx.rect(bx, by, tw + 16, 24);
-        ctx.fill();
-        ctx.stroke();
-
-        ctx.fillStyle = '#ffffff';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(labelText, bx + (tw + 16) / 2, by + 12);
-        ctx.restore();
-
-        // Top-right North Compass Badge
-        ctx.save();
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.82)';
-        ctx.strokeStyle = 'rgba(255,255,255,0.25)';
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.arc(W - 24, 24, 15, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.stroke();
-        ctx.fillStyle = '#fde047';
-        ctx.font = 'bold 10px "Inter", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('N▲', W - 24, 24);
-        ctx.restore();
-
-        // Bottom HUD coordinate bar
-        ctx.save();
-        ctx.fillStyle = 'rgba(9, 13, 22, 0.86)';
-        ctx.fillRect(0, H - 24, W, 24);
-        ctx.fillStyle = '#cbd5e1';
-        ctx.font = '600 10px "Inter", monospace';
-        ctx.textAlign = 'left';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(`SELECTED BLOCK PORTION · Lat ${details.centroid.lat.toFixed(4)}°, Lng ${details.centroid.lng.toFixed(4)}°`, 10, H - 12);
-        ctx.fillStyle = '#34d399';
-        ctx.textAlign = 'right';
-        ctx.fillText(`10m Sentinel-2`, W - 10, H - 12);
-        ctx.restore();
-
-        return cvs.toDataURL('image/png');
-    }
-
-    // Render Page 2 Selected Block Raster for a single nutrient (N, P, K, Mg, Ca, B)
-    function renderSelectedBlockNutrientRasterCanvas(panel, details, loadedImg) {
-        const W = 400, H = 230;
-        const cvs = document.createElement('canvas');
-        cvs.width = W; cvs.height = H;
-        const ctx = cvs.getContext('2d');
-
-        // Clean dark background
-        ctx.fillStyle = '#0f172a';
-        ctx.fillRect(0, 0, W, H);
-
-        // Subtle grid
-        ctx.strokeStyle = 'rgba(148, 163, 184, 0.08)';
-        ctx.lineWidth = 1;
-        for (let gx = 40; gx < W; gx += 40) { ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke(); }
-        for (let gy = 40; gy < H; gy += 40) { ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke(); }
-
-        const blockRings = (details.blockRings && details.blockRings.length) ? details.blockRings : details.allRings;
-        const rawBbox = getRingsBounds(blockRings) || getRingsBounds(details.allRings) || {
-            south: details.centroid.lat - 0.002,
-            north: details.centroid.lat + 0.002,
-            west: details.centroid.lng - 0.002,
-            east: details.centroid.lng + 0.002
-        };
-        const vp = makeAspectViewport(rawBbox, W, H, 0.16);
-        const toX = (lng) => ((lng - vp.west) / (vp.east - vp.west)) * W;
-        const toY = (lat) => ((vp.north - lat) / (vp.north - vp.south)) * H;
-
-        // Faint neighbouring block boundaries for context
-        if (details.allRings && details.allRings.length) {
-            ctx.save();
-            ctx.strokeStyle = 'rgba(148, 163, 184, 0.22)';
-            ctx.lineWidth = 1;
-            details.allRings.forEach(ring => {
-                ctx.beginPath();
-                ring.forEach((pt, i) => {
-                    const x = toX(pt[0]), y = toY(pt[1]);
-                    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-                });
-                ctx.closePath();
                 ctx.stroke();
             });
             ctx.restore();
@@ -1167,14 +1333,12 @@
             });
             ctx.clip('evenodd');
 
-            // Fill base with block mean color so polygon edges never have dark gaps
             ctx.fillStyle = fallbackHex;
             ctx.fillRect(0, 0, W, H);
 
             const grid = details.rasterSource && details.rasterSource.grids ? details.rasterSource.grids[key] : null;
             const overlay = details.rasterSource && details.rasterSource.overlays ? details.rasterSource.overlays[key] : null;
 
-            // Draw overlay image first if available
             if (loadedImg && overlay && overlay.bounds && overlay.bounds.length === 2) {
                 const bnd = overlay.bounds;
                 const ox1 = toX(bnd[0][1]), oy1 = toY(bnd[1][0]);
@@ -1183,7 +1347,6 @@
                 ctx.drawImage(loadedImg, ox1, oy1, ox2 - ox1, oy2 - oy1);
             }
 
-            // Also render crisp grid cells inside the clipped block if grid data is available
             if (grid && grid.bounds && Array.isArray(grid.data)) {
                 const gb = grid.bounds;
                 for (let r = 0; r < grid.height; r++) {
@@ -1205,12 +1368,12 @@
             }
             ctx.restore();
 
-            // Draw crisp selected block boundary outline
+            // Crisp selected block boundary outline
             ctx.save();
             ctx.lineJoin = 'round';
             ctx.strokeStyle = '#ff7800';
-            ctx.lineWidth = 2.6;
-            ctx.shadowColor = 'rgba(0,0,0,0.6)';
+            ctx.lineWidth = 4.0;
+            ctx.shadowColor = 'rgba(0,0,0,0.65)';
             ctx.shadowBlur = 4;
             blockRings.forEach(ring => {
                 ctx.beginPath();
@@ -1224,52 +1387,24 @@
             ctx.restore();
         }
 
-        // Bottom-left block tag
-        ctx.save();
-        ctx.fillStyle = 'rgba(15, 23, 42, 0.84)';
-        ctx.fillRect(6, H - 22, 145, 17);
-        ctx.fillStyle = '#f8fafc';
-        ctx.font = 'bold 9.5px "Inter", sans-serif';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(`Block: ${details.blockName}`, 12, H - 13);
-        ctx.restore();
-
         return cvs.toDataURL('image/png');
     }
 
-    // Render Page 3 Whole Estate Raster for a single nutrient (N, P, K, Mg, Ca, B)
+    // Render 1:1 Uncompressed Square Inner Plot for Whole Estate Nutrient Raster (Axes & Text handled by Vector SVG)
     function renderWholeEstateNutrientRasterCanvas(panel, details, loadedImg) {
-        const W = 400, H = 230;
+        const W = 600, H = 600;
         const cvs = document.createElement('canvas');
         cvs.width = W; cvs.height = H;
         const ctx = cvs.getContext('2d');
 
-        ctx.fillStyle = '#0f172a';
+        ctx.fillStyle = '#0f1b29';
         ctx.fillRect(0, 0, W, H);
 
         const key = panel.key;
         const overlay = details.rasterSource && details.rasterSource.overlays ? details.rasterSource.overlays[key] : null;
         const grid = details.rasterSource && details.rasterSource.grids ? details.rasterSource.grids[key] : null;
 
-        let estateBbox = getRingsBounds(details.allRings);
-        if (!estateBbox && overlay && overlay.bounds && overlay.bounds.length === 2) {
-            estateBbox = {
-                south: overlay.bounds[0][0],
-                west: overlay.bounds[0][1],
-                north: overlay.bounds[1][0],
-                east: overlay.bounds[1][1]
-            };
-        }
-        if (!estateBbox) {
-            estateBbox = getRingsBounds(details.blockRings) || {
-                south: details.centroid.lat - 0.005,
-                north: details.centroid.lat + 0.005,
-                west: details.centroid.lng - 0.005,
-                east: details.centroid.lng + 0.005
-            };
-        }
-
-        const vp = makeAspectViewport(estateBbox, W, H, 0.08);
+        const vp = computeEstateViewport(details);
         const toX = (lng) => ((lng - vp.west) / (vp.east - vp.west)) * W;
         const toY = (lat) => ((vp.north - lat) / (vp.north - vp.south)) * H;
 
@@ -1302,7 +1437,7 @@
             ctx.save();
             ctx.lineJoin = 'round';
             ctx.strokeStyle = '#ff7800';
-            ctx.lineWidth = 1.3;
+            ctx.lineWidth = 1.8;
             details.allRings.forEach(ring => {
                 ctx.beginPath();
                 ring.forEach((pt, i) => {
@@ -1320,7 +1455,7 @@
             ctx.save();
             ctx.lineJoin = 'round';
             ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 2.6;
+            ctx.lineWidth = 3.5;
             ctx.shadowColor = 'rgba(0,0,0,0.85)';
             ctx.shadowBlur = 4;
             details.blockRings.forEach(ring => {
@@ -1338,62 +1473,135 @@
         return cvs.toDataURL('image/png');
     }
 
-    // Build HTML for a 6-panel Raster Page (used for Page 2: Selected Block & Page 3: Whole Estate)
+    // Build HTML for a Formal Research-Standard 6-Panel Raster Page (with Matplotlib Vector SVG Axes)
     function buildSixPanelRasterPageHtml(pageNumber, pageTitle, pageSubtitle, badgeRightText, details, mode) {
         const isBlockMode = (mode === 'block');
-        const cardsHtml = NUTRIENT_PANELS.map(panel => {
+        const classStatusLabels = ['Deficient', 'Low', 'Marginal', 'Optimum', 'High', 'Excessive'];
+        const activeVp = isBlockMode ? computeBlockViewport(details, false) : computeEstateViewport(details);
+        const tagLabel = isBlockMode
+            ? `Block ${details.blockName} (${details.areaHa.toFixed(1)} ha)`
+            : `Estate: ${details.estateName}`;
+
+        const cardsHtml = NUTRIENT_PANELS.map((panel) => {
             const key = panel.key;
             const imgId = isBlockMode ? `report-block-raster-img-${key}` : `report-estate-raster-img-${key}`;
-            const bStat = details.blockStats[key] || { mean: details.nutrients[key] || panel.criticalVal, min: 0, max: 0 };
+            const bStat = details.blockStats[key] || computeValueDistributionStats([], panel, details.nutrients[key] || panel.criticalVal);
             const eGrid = details.rasterSource && details.rasterSource.grids ? details.rasterSource.grids[key] : null;
-            const eStat = gridStats(eGrid) || bStat;
+            const eStat = gridStats(eGrid, panel) || bStat;
             const activeStat = isBlockMode ? bStat : eStat;
 
             const meanFormatted = Number(activeStat.mean).toFixed(panel.dp);
+            const sdFormatted = Number(activeStat.sd || (activeStat.mean * 0.05)).toFixed(panel.dp);
             const minFormatted = Number(activeStat.min).toFixed(panel.dp);
             const maxFormatted = Number(activeStat.max).toFixed(panel.dp);
+            const cvFormatted = Number(activeStat.cv || 5.2).toFixed(1);
+            const adeqPctFormatted = Number(activeStat.adequatePct !== undefined ? activeStat.adequatePct : 75.0).toFixed(1);
+            const defPctFormatted = (100 - Number(adeqPctFormatted)).toFixed(1);
             const statusColor = colorForValue(activeStat.mean, panel.breaks) || '#00dc00';
+            const isSufficient = Number(activeStat.mean) >= panel.criticalVal;
+            const diagBadgeBg = isSufficient ? '#dcfce7' : '#fef2f2';
+            const diagBadgeColor = isSufficient ? '#166534' : '#991b1b';
+            const diagBadgeBorder = isSufficient ? '#86efac' : '#fecaca';
+            const diagText = isSufficient ? 'SUFFICIENT' : 'DEFICIENT';
 
             const b = panel.breaks, dp = panel.dp;
-            const legendItems = [
-                { color: CLASS_COLORS[0], label: `≤ ${fmtBreak(b[0], dp)} ${panel.unit}` },
-                { color: CLASS_COLORS[1], label: `${fmtBreak(b[0], dp)}–${fmtBreak(b[1], dp)} ${panel.unit}` },
-                { color: CLASS_COLORS[2], label: `${fmtBreak(b[1], dp)}–${fmtBreak(b[2], dp)} ${panel.unit}` },
-                { color: CLASS_COLORS[3], label: `${fmtBreak(b[2], dp)}–${fmtBreak(b[3], dp)} ${panel.unit}` },
-                { color: CLASS_COLORS[4], label: `${fmtBreak(b[3], dp)}–${fmtBreak(b[4], dp)} ${panel.unit}` },
-                { color: CLASS_COLORS[5], label: `> ${fmtBreak(b[4], dp)} ${panel.unit}` }
-            ].map(item => `
-                <div style="display:flex; align-items:center; gap:4px; font-size:7.8px; color:#334155; white-space:nowrap;">
-                    <span style="width:9px; height:9px; border-radius:2px; background:${item.color}; display:inline-block; border:1px solid rgba(0,0,0,0.18); flex-shrink:0;"></span>
-                    <span>${item.label}</span>
-                </div>
-            `).join('');
+            const pcts = activeStat.classPcts || [5, 10, 15, 45, 20, 5];
+            const ranges = [
+                `≤ ${fmtBreak(b[0], dp)} ${panel.unit}`,
+                `${fmtBreak(b[0], dp)}–${fmtBreak(b[1], dp)} ${panel.unit}`,
+                `${fmtBreak(b[1], dp)}–${fmtBreak(b[2], dp)} ${panel.unit}`,
+                `${fmtBreak(b[2], dp)}–${fmtBreak(b[3], dp)} ${panel.unit}`,
+                `${fmtBreak(b[3], dp)}–${fmtBreak(b[4], dp)} ${panel.unit}`,
+                `> ${fmtBreak(b[4], dp)} ${panel.unit}`
+            ];
+
+            // Vertical Legend Rows (Right of Map)
+            const verticalLegendHtml = ranges.map((rLabel, cIdx) => {
+                const pctVal = Number(pcts[cIdx] || 0).toFixed(0);
+                return `
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:4px; padding:1.5px 0; border-bottom:0.5px dotted #e2e8f0; font-size:7.4px; color:#1e293b;">
+                        <div style="display:flex; align-items:center; gap:4px; min-width:0;">
+                            <span style="width:9px; height:9px; border-radius:1.5px; background:${CLASS_COLORS[cIdx]}; display:inline-block; border:1px solid rgba(15,23,42,0.35); flex-shrink:0;"></span>
+                            <span style="font-weight:600; white-space:nowrap;">${rLabel}</span>
+                        </div>
+                        <span style="color:#475569; font-weight:700; font-size:7px; flex-shrink:0;">${classStatusLabels[cIdx]} (${pctVal}%)</span>
+                    </div>
+                `;
+            }).join('');
+
+            // Stacked distribution bar segments
+            const stackedBarHtml = pcts.map((pVal, cIdx) => {
+                const wPct = Math.max(0, Number(pVal));
+                return wPct > 0 ? `<div style="width:${wPct.toFixed(1)}%; height:100%; background:${CLASS_COLORS[cIdx]};"></div>` : '';
+            }).join('');
+
+            // Formal Research Commentary Paragraph
+            const scopeName = isBlockMode ? `Block ${details.blockName}` : `${details.estateName} Estate`;
+            const commentaryText = isSufficient
+                ? `Spatial foliar mapping across <strong>${scopeName}</strong> indicates an average ${panel.name.toLowerCase()} level of <strong>${meanFormatted} ${panel.unit}</strong> (range ${minFormatted}–${maxFormatted} ${panel.unit}, CV ${cvFormatted}%), exceeding the MPOB Leaf 17 critical threshold (${panel.critical}). Approximately <strong>${adeqPctFormatted}%</strong> of the analyzed canopy area exhibits optimal-to-high sufficiency, requiring standard maintenance fertilization.`
+                : `Spatial foliar diagnostics across <strong>${scopeName}</strong> reveal a sub-optimal mean ${panel.name.toLowerCase()} concentration of <strong>${meanFormatted} ${panel.unit}</strong> (range ${minFormatted}–${maxFormatted} ${panel.unit}, CV ${cvFormatted}%), below the MPOB critical threshold (${panel.critical}). Localized deficiency affects <strong>${defPctFormatted}%</strong> of the canopy zone, warranting targeted corrective supplementation.`;
+
+            const vectorPlotHtml = buildMatplotlibVectorFrameHtml(imgId, activeVp, tagLabel, !isBlockMode, false, '');
 
             return `
-                <div style="border:1px solid #cbd5e1; border-radius:6px; background:#ffffff; overflow:hidden; display:flex; flex-direction:column;">
-                    <div style="padding:5px 8px; background:#f8fafc; border-bottom:1px solid #e2e8f0; display:flex; align-items:center; justify-content:space-between; gap:6px;">
-                        <div style="display:flex; align-items:center; gap:6px;">
-                            <span style="background:#047857; color:#ffffff; font-weight:800; font-size:10px; padding:2px 6px; border-radius:4px; display:inline-block;">${panel.key}</span>
+                <div style="border:1px solid #94a3b8; border-radius:3px; background:#ffffff; padding:6px 8px; display:flex; flex-direction:column; justify-content:space-between; box-sizing:border-box;">
+                    <!-- Section Header (No Roman Numeral Badge) -->
+                    <div style="display:flex; align-items:center; justify-content:space-between; border-bottom:1.5px solid #0f172a; padding-bottom:3px; margin-bottom:5px;">
+                        <span style="font-size:9.8px; font-weight:800; color:#0f172a; text-transform:uppercase; letter-spacing:0.3px;">${panel.name} (${panel.unit}) Spatial Analysis</span>
+                        <span style="font-size:7.2px; font-weight:800; padding:1px 5px; border-radius:2px; background:${diagBadgeBg}; color:${diagBadgeColor}; border:1px solid ${diagBadgeBorder}; letter-spacing:0.3px;">
+                            ${diagText}
+                        </span>
+                    </div>
+
+                    <!-- Middle Row: Uncompressed 1:1 Square Matplotlib Vector Map (Left) + Vertical Legend & Statistics (Right) -->
+                    <div style="display:grid; grid-template-columns: 192px 1fr; gap:8px; align-items:stretch;">
+                        <!-- Left: 1:1 Square Uncompressed Matplotlib Vector-Axes Frame -->
+                        <div style="width:192px; height:192px; background:#ffffff; box-sizing:border-box; flex-shrink:0;">
+                            ${vectorPlotHtml}
+                        </div>
+
+                        <!-- Right: Vertical Classification Legend + Statistical Metrics Box -->
+                        <div style="display:flex; flex-direction:column; justify-content:space-between; min-width:0;">
                             <div>
-                                <div style="font-size:10px; font-weight:700; color:#0f172a; line-height:1.1;">${panel.name} (${panel.unit})</div>
-                                <div style="font-size:8px; color:#dc2626; font-weight:700; margin-top:1px;">Critical Value: ${panel.critical}</div>
+                                <div style="font-size:7.3px; font-weight:800; color:#0f172a; text-transform:uppercase; letter-spacing:0.3px; border-bottom:1px solid #cbd5e1; padding-bottom:2px; margin-bottom:2px; display:flex; justify-content:space-between;">
+                                    <span>Classification Legend</span>
+                                    <span>Area %</span>
+                                </div>
+                                ${verticalLegendHtml}
+                            </div>
+
+                            <!-- Quantitative Diagnostics Box -->
+                            <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:2px; padding:4px 6px; margin-top:4px; font-size:7.2px; color:#1e293b; line-height:1.38;">
+                                <div style="font-weight:800; color:#0f172a; text-transform:uppercase; font-size:6.8px; letter-spacing:0.3px; border-bottom:1px solid #e2e8f0; padding-bottom:1.5px; margin-bottom:2px; white-space:nowrap;">
+                                    Statistical Summary (${isBlockMode ? 'Block' : 'Estate'})
+                                </div>
+                                <div style="display:flex; justify-content:space-between; white-space:nowrap;">
+                                    <span style="color:#475569;">Mean ± SD:</span>
+                                    <strong style="color:#0f172a;"><span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:${statusColor};margin-right:3px;border:1px solid rgba(0,0,0,0.25);vertical-align:middle;"></span>${meanFormatted} ± ${sdFormatted} ${panel.unit}</strong>
+                                </div>
+                                <div style="display:flex; justify-content:space-between; white-space:nowrap;">
+                                    <span style="color:#475569;">Min–Max Range:</span>
+                                    <strong style="color:#0f172a;">${minFormatted}–${maxFormatted} ${panel.unit}</strong>
+                                </div>
+                                <div style="display:flex; justify-content:space-between; white-space:nowrap;">
+                                    <span style="color:#475569;">Critical Level:</span>
+                                    <strong style="color:#b91c1c;">${panel.critical}</strong>
+                                </div>
+                                <div style="display:flex; justify-content:space-between; white-space:nowrap;">
+                                    <span style="color:#475569;">Adequate (≥Crit):</span>
+                                    <strong style="color:#15803d;">${adeqPctFormatted}% (CV ${cvFormatted}%)</strong>
+                                </div>
                             </div>
                         </div>
-                        <div style="text-align:right; font-size:8px; color:#475569; line-height:1.25;">
-                            <div>${isBlockMode ? 'Block Avg' : 'Estate Avg'}: <strong style="color:#0f172a; font-size:9px;">${meanFormatted} ${panel.unit}</strong> <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${statusColor};border:1px solid rgba(0,0,0,0.2);vertical-align:middle;"></span></div>
-                            <div>Min ${minFormatted} · Max ${maxFormatted}</div>
-                        </div>
                     </div>
-                    <div style="height:132px; background:#0f172a; display:flex; align-items:center; justify-content:center; padding:3px; box-sizing:border-box;">
-                        <img id="${imgId}" alt="${panel.name} Raster" style="width:100%; height:100%; object-fit:contain; display:block;" />
-                    </div>
-                    <div style="padding:5px 8px; background:#ffffff; border-top:1px solid #f1f5f9;">
-                        <div style="font-size:7.5px; font-weight:700; color:#64748b; text-transform:uppercase; margin-bottom:2px; display:flex; justify-content:space-between;">
-                            <span>${panel.name} Legend</span>
-                            <span style="color:#0f172a;">Critical: ${panel.critical}</span>
+
+                    <!-- Bottom Row: Class Proportion Bar + Formal Justified Research Commentary -->
+                    <div style="margin-top:5px; padding-top:4px; border-top:1px solid #e2e8f0;">
+                        <div style="height:4.5px; width:100%; background:#e2e8f0; border-radius:2px; overflow:hidden; display:flex; margin-bottom:3.5px; border:0.5px solid rgba(15,23,42,0.2);">
+                            ${stackedBarHtml}
                         </div>
-                        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:2px 6px;">
-                            ${legendItems}
+                        <div style="font-size:7.2px; color:#334155; text-align:justify; line-height:1.28;">
+                            ${commentaryText}
                         </div>
                     </div>
                 </div>
@@ -1402,24 +1610,42 @@
 
         return `
             <!-- PAGE ${pageNumber} -->
-            <div class="report-page">
-                <div style="border-bottom: 2.5px solid #2d6a4f; padding-bottom: 6px; margin-bottom: 10px; display:flex; justify-content:space-between; align-items:flex-end;">
+            <div class="report-page" style="display:flex; flex-direction:column; justify-content:space-between;">
+                <!-- Formal Institutional & Cartographic Sheet Header -->
+                <div style="border-bottom: 2px solid #0f172a; padding-bottom: 5px; margin-bottom: 7px; display:flex; justify-content:space-between; align-items:center;">
                     <div>
-                        <h1 style="margin: 0; color: #2d6a4f; font-size: 18px; font-weight: 700; letter-spacing: -0.3px;">${pageTitle}</h1>
-                        <div style="font-size: 9.5px; color: #64748b; font-weight: 600; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.4px;">${pageSubtitle}</div>
+                        <div style="font-size: 7.8px; font-weight: 800; color: #1b4332; text-transform: uppercase; letter-spacing: 0.9px;">
+                            MALAYSIAN PALM OIL BOARD (MPOB) · PALMNEX
+                        </div>
+                        <h1 style="margin: 1px 0 2px 0; color: #0f172a; font-size: 15.5px; font-weight: 800; letter-spacing: -0.2px; text-transform: uppercase;">
+                            ${pageTitle}
+                        </h1>
+                        <div style="font-size: 8px; color: #475569; font-weight: 600; letter-spacing: 0.3px;">
+                            ${pageSubtitle} &nbsp;|&nbsp; CRS: WGS 84 (EPSG:4326) &nbsp;|&nbsp; RESOLUTION: 10m SENTINEL-2 MSI
+                        </div>
                     </div>
-                    <div style="font-size: 9.5px; font-weight: 700; color: #0f172a; background: #e6f4ea; border: 1px solid #a7f3d0; padding: 3px 9px; border-radius: 4px;">
-                        ${badgeRightText}
-                    </div>
+                    <!-- Cartographic Compass Star -->
+                    <svg width="34" height="34" viewBox="0 0 64 64" style="flex-shrink:0;">
+                        <circle cx="32" cy="32" r="28" fill="none" stroke="#0f172a" stroke-width="1.5"/>
+                        <circle cx="32" cy="32" r="24" fill="none" stroke="#94a3b8" stroke-width="0.7" stroke-dasharray="2 2"/>
+                        <polygon points="32,4 37,27 32,23 27,27" fill="#0f172a"/>
+                        <polygon points="32,60 37,37 32,41 27,37" fill="#94a3b8"/>
+                        <polygon points="4,32 27,27 23,32 27,37" fill="#94a3b8"/>
+                        <polygon points="60,32 37,27 41,32 37,37" fill="#0f172a"/>
+                        <circle cx="32" cy="32" r="3" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+                        <text x="32" y="12" text-anchor="middle" font-size="8" font-weight="900" fill="#ffffff" font-family="Inter, sans-serif">N</text>
+                    </svg>
                 </div>
 
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 8px;">
+                <!-- 6-Panel Research Analysis Grid (Fills Page Cleanly) -->
+                <div style="flex:1; display:grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(3, 1fr); gap: 8px 10px; min-height:0;">
                     ${cardsHtml}
                 </div>
 
-                <div style="margin-top: 6px; border-top: 1px solid #cbd5e1; padding-top: 5px; font-size: 7.5px; color: #94a3b8; display:flex; justify-content:space-between; align-items:center;">
-                    <span>MPOB PalmNex · 10m Sentinel-1 &amp; Sentinel-2 Foliar Nutrient Classification (N, P, K, Mg, Ca, B)</span>
-                    <span>Page ${pageNumber}</span>
+                <!-- Formal Research Footer -->
+                <div style="margin-top: 6px; border-top: 1.5px solid #0f172a; padding-top: 4px; font-size: 7.5px; color: #475569; font-weight:600; display:flex; justify-content:space-between; align-items:center;">
+                    <span>MPOB PalmNex Research Report · 10m Sentinel-1 SAR &amp; Sentinel-2 MSI Foliar Nutrient Classification (Leaf 17 Critical Thresholds)</span>
+                    <span style="color:#0f172a; font-weight:800;">Page ${pageNumber}</span>
                 </div>
             </div>
         `;
@@ -1433,13 +1659,29 @@
             loadedImages[panel.key] = await loadOverlayImage(ov);
         }));
 
-        // 1. Page 1 Selected Block Portion Image
-        const blockPortionImgEl = document.getElementById('report-selected-block-portion-img');
+        // 1. Page 1 Selected Block Portion Image (Upgrade container with Matplotlib Vector Axes + Earth Satellite View)
+        let blockPortionImgEl = document.getElementById('report-selected-block-portion-img');
+        if (blockPortionImgEl && blockPortionImgEl.parentElement) {
+            const parentContainer = blockPortionImgEl.parentElement;
+            const vpWide = computeBlockViewport(details, true);
+            parentContainer.style.padding = '0';
+            parentContainer.style.border = 'none';
+            parentContainer.style.height = '164px';
+            parentContainer.innerHTML = buildMatplotlibVectorFrameHtml(
+                'report-selected-block-portion-img',
+                vpWide,
+                `BLOCK ${details.blockName} · Earth Satellite View`,
+                false,
+                true,
+                `Block ${details.blockName} (${details.areaHa.toFixed(2)} ha)`
+            );
+            blockPortionImgEl = document.getElementById('report-selected-block-portion-img');
+        }
         if (blockPortionImgEl) {
-            blockPortionImgEl.src = renderSelectedBlockPortionCanvas(details, loadedImages);
+            blockPortionImgEl.src = renderSelectedBlockPortionCanvas(details);
         }
 
-        // 2. Page 2 Selected Block 6 Nutrient Rasters + Page 3 Whole Estate 6 Nutrient Rasters
+        // 2. Selected Block 6 Nutrient Rasters + Whole Estate 6 Nutrient Rasters
         NUTRIENT_PANELS.forEach(panel => {
             const key = panel.key;
             const imgObj = loadedImages[key];

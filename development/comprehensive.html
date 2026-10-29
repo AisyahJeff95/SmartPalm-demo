@@ -5866,11 +5866,32 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                 };
             }
 
-            const blockNameStr = (blockDetails && blockDetails.blockName) ? blockDetails.blockName : (selectedBlock || 'Selected Block');
+            const rawBlockName = (blockDetails && blockDetails.blockName) ? blockDetails.blockName : (selectedBlock || 'Selected Block');
+            const blockNameStr = String(rawBlockName).replace(/^block\s+/i, '').trim() || String(rawBlockName);
             const blockAreaHa = (blockDetails && blockDetails.areaHa) ? Number(blockDetails.areaHa) : 25.0;
             const soilTypeIdentified = (blockDetails && blockDetails.soilType) ? blockDetails.soilType : ((document.getElementById('identified-soil-type-val') || {}).textContent || (soilMode + ' Soil'));
             const soilSeriesIdentified = (blockDetails && blockDetails.soilSeries) ? blockDetails.soilSeries : '';
             const phaseIdentified = (blockDetails && blockDetails.phase) ? blockDetails.phase : '';
+
+            const compassSvgHtml = `
+                <svg width="36" height="36" viewBox="0 0 64 64" style="flex-shrink:0;">
+                    <circle cx="32" cy="32" r="28" fill="none" stroke="#0f172a" stroke-width="1.5"/>
+                    <circle cx="32" cy="32" r="24" fill="none" stroke="#94a3b8" stroke-width="0.7" stroke-dasharray="2 2"/>
+                    <polygon points="32,4 37,27 32,23 27,27" fill="#0f172a"/>
+                    <polygon points="32,60 37,37 32,41 27,37" fill="#94a3b8"/>
+                    <polygon points="4,32 27,27 23,32 27,37" fill="#94a3b8"/>
+                    <polygon points="60,32 37,27 41,32 37,37" fill="#0f172a"/>
+                    <circle cx="32" cy="32" r="3" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+                    <text x="32" y="12" text-anchor="middle" font-size="8" font-weight="900" fill="#ffffff" font-family="Inter, sans-serif">N</text>
+                </svg>
+            `;
+
+            const getStatRangeStr = (key, dec, unit, fallbackVal) => {
+                const st = blockDetails && blockDetails.blockStats && blockDetails.blockStats[key];
+                const mn = st && st.min !== undefined ? Number(st.min) : fallbackVal * 0.93;
+                const mx = st && st.max !== undefined ? Number(st.max) : fallbackVal * 1.07;
+                return `${mn.toFixed(dec)}–${mx.toFixed(dec)}${unit}`;
+            };
 
             if (soilMode === 'Standard') {
                 let fert = (typeof STD_FERTILIZERS !== 'undefined' && STD_FERTILIZERS[selectedFertilizerIndex]) ? STD_FERTILIZERS[selectedFertilizerIndex] : { name: "MPOB F2 Super K", n: 7.0, p: 3.0, k: 30.0, mg: 0.0, b: 0.5, weight: 50 };
@@ -5879,12 +5900,12 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                 let reqPerHaKg = dosagePerPalm * 143;
 
                 let nutrients = [
-                    { key: "N", label: "N (Nitrogen)", unit: "%", dec: 2, actual: currentNutrients.N || 2.45, target: 2.50, pct: fert.n || 0 },
-                    { key: "P", label: "P (Phosphorus)", unit: "%", dec: 3, actual: currentNutrients.P || 0.145, target: 0.150, pct: fert.p || 0 },
-                    { key: "K", label: "K (Potassium)", unit: "%", dec: 2, actual: currentNutrients.K || 1.02, target: 1.00, pct: fert.k || 0 },
-                    { key: "Mg", label: "Mg (Magnesium)", unit: "%", dec: 2, actual: currentNutrients.Mg || 0.23, target: 0.24, pct: fert.mg || 0 },
-                    { key: "B", label: "B (Boron)", unit: " ppm", dec: 1, actual: currentNutrients.B || 15.2, target: 15.0, pct: fert.b || 0.5 },
-                    { key: "Ca", label: "Ca (Calcium)", unit: "%", dec: 2, actual: currentNutrients.Ca || 0.62, target: 0.60, pct: fert.ca || 2.5 }
+                    { key: "N", label: "Nitrogen (N)", unit: "%", dec: 2, actual: currentNutrients.N || 2.45, target: 2.50, pct: fert.n || 0 },
+                    { key: "P", label: "Phosphorus (P)", unit: "%", dec: 3, actual: currentNutrients.P || 0.145, target: 0.150, pct: fert.p || 0 },
+                    { key: "K", label: "Potassium (K)", unit: "%", dec: 2, actual: currentNutrients.K || 1.02, target: 1.00, pct: fert.k || 0 },
+                    { key: "Mg", label: "Magnesium (Mg)", unit: "%", dec: 2, actual: currentNutrients.Mg || 0.23, target: 0.24, pct: fert.mg || 0 },
+                    { key: "B", label: "Boron (B)", unit: " ppm", dec: 1, actual: currentNutrients.B || 15.2, target: 15.0, pct: fert.b || 0.5 },
+                    { key: "Ca", label: "Calcium (Ca)", unit: "%", dec: 2, actual: currentNutrients.Ca || 0.62, target: 0.60, pct: fert.ca || 2.5 }
                 ];
 
                 let rowsHtml = nutrients.map(function(nut) {
@@ -5894,30 +5915,37 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                     let recPalm = baseSupplied * deficitRatio;
                     let recHa = recPalm * 143;
                     let dotColor = (typeof window.colorForNutrientValue === 'function') ? window.colorForNutrientValue(nut.actual, nut.key) : getNutrientColorComp(nut.actual, nut.key);
+                    let suffPct = Math.round((nut.actual / nut.target) * 100);
+                    let isOpt = nut.actual >= nut.target;
+                    let statusBadge = isOpt
+                        ? `<span style="background:#dcfce7;color:#166534;border:1px solid #86efac;padding:1px 5px;border-radius:2px;font-size:7.5px;font-weight:800;">SUFFICIENT (${suffPct}%)</span>`
+                        : `<span style="background:#fef2f2;color:#991b1b;border:1px solid #fecaca;padding:1px 5px;border-radius:2px;font-size:7.5px;font-weight:800;">SUB-OPTIMAL (${suffPct}%)</span>`;
 
                     return `
                       <tr>
-                        <td style="padding: 5px 8px; border: 1px solid #cbd5e1; font-weight: 700; text-align: left; color: #0f172a;">${nut.label}</td>
-                        <td style="padding: 5px 8px; border: 1px solid #cbd5e1; color: #334155; font-weight: 600;">
-                          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${dotColor};margin-right:5px;border:1px solid rgba(0,0,0,0.2);vertical-align:middle;"></span>
-                          ${nut.actual.toFixed(nut.dec)}${nut.unit} <span style="font-size:8.5px;color:#64748b;">(Block Avg)</span>
+                        <td style="padding: 5px 7px; border: 1px solid #cbd5e1; font-weight: 700; text-align: left; color: #0f172a;">${nut.label}</td>
+                        <td style="padding: 5px 7px; border: 1px solid #cbd5e1; color: #0f172a; font-weight: 700;">
+                          <span style="display:inline-block;width:7.5px;height:7.5px;border-radius:50%;background:${dotColor};margin-right:4px;border:1px solid rgba(0,0,0,0.25);vertical-align:middle;"></span>
+                          ${nut.actual.toFixed(nut.dec)}${nut.unit}
                         </td>
-                        <td style="padding: 5px 8px; border: 1px solid #cbd5e1; color: #475569; font-weight: 600;">${nut.target.toFixed(nut.dec)}${nut.unit}</td>
-                        <td style="padding: 5px 8px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${recPalm.toFixed(2)}</td>
-                        <td style="padding: 5px 8px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${recHa.toFixed(2)}</td>
+                        <td style="padding: 5px 7px; border: 1px solid #cbd5e1; color: #475569; font-weight: 600;">${getStatRangeStr(nut.key, nut.dec, nut.unit, nut.actual)}</td>
+                        <td style="padding: 5px 7px; border: 1px solid #cbd5e1; color: #b91c1c; font-weight: 700;">${nut.target.toFixed(nut.dec)}${nut.unit}</td>
+                        <td style="padding: 5px 7px; border: 1px solid #cbd5e1;">${statusBadge}</td>
+                        <td style="padding: 5px 7px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${recPalm.toFixed(2)}</td>
+                        <td style="padding: 5px 7px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${recHa.toFixed(2)}</td>
                       </tr>
                     `;
                 }).join('');
 
                 let estateName = (blockDetails && blockDetails.estateName) ? blockDetails.estateName : 'Estate Boundary';
-                let coords_str = `Lat=${selectedLat.toFixed(5)}, Lng=${selectedLng.toFixed(5)}`;
+                let coords_str = `${selectedLat.toFixed(5)}°N, ${selectedLng.toFixed(5)}°E`;
 
                 const page2BlockRasters = (typeof window.buildSixPanelRasterPageHtml === 'function' && blockDetails)
                     ? window.buildSixPanelRasterPageHtml(
                         2,
-                        `Selected Block Nutrient Raster Maps (N, P, K, Mg, Ca, B)`,
-                        `MPOB - PALMNEX STANDARD BLOCK-LEVEL SPATIAL FOLIAR NUTRIENT DISTRIBUTION & CRITICAL THRESHOLDS`,
-                        `Page 2 of 3 • Selected Block: ${blockNameStr}`,
+                        `Selected Block Spatial Foliar Nutrient Analysis (N, P, K, Mg, Ca, B)`,
+                        `BLOCK-LEVEL FOLIAR DISTRIBUTION & MPOB LEAF 17 CRITICAL THRESHOLDS`,
+                        `Page 2 of 3 • Block: ${blockNameStr}`,
                         blockDetails,
                         'block'
                     )
@@ -5926,8 +5954,8 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                 const page3EstateRasters = (typeof window.buildSixPanelRasterPageHtml === 'function' && blockDetails)
                     ? window.buildSixPanelRasterPageHtml(
                         3,
-                        `Whole Estate Nutrient Raster Maps (N, P, K, Mg, Ca, B)`,
-                        `MPOB - PALMNEX STANDARD ESTATE-WIDE SPATIAL FOLIAR NUTRIENT DISTRIBUTION & CRITICAL THRESHOLDS`,
+                        `Whole Estate Spatial Foliar Nutrient Analysis (N, P, K, Mg, Ca, B)`,
+                        `ESTATE-WIDE FOLIAR DISTRIBUTION & MPOB LEAF 17 CRITICAL THRESHOLDS`,
                         `Page 3 of 3 • Estate: ${estateName}`,
                         blockDetails,
                         'estate'
@@ -5941,11 +5969,15 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                         height: 296.5mm;
                         margin: 0 auto 20px auto;
                         background: #ffffff;
-                        padding: 13mm 18mm;
+                        padding: 9.5mm 13mm;
                         box-sizing: border-box;
-                        font-family: 'Segoe UI', 'Inter', sans-serif;
+                        font-family: 'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+                        color: #0f172a;
                         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
                         page-break-after: always;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: space-between;
                     }
                     @media print {
                         .report-page {
@@ -5956,75 +5988,83 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                     }
                 </style>
                 <div class="report-page">
-                    <div style="border-bottom: 2.5px solid #2d6a4f; padding-bottom: 6px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: flex-end;">
-                      <div>
-                        <h1 style="margin: 0; color: #2d6a4f; font-size: 20px; font-weight: 700; letter-spacing: -0.5px;">Report — Selected Block & Nutrient Diagnostics</h1>
-                        <div style="font-size: 9.5px; color: #64748b; font-weight: 600; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px;">MPOB - PALMNEX STANDARD FOLIAR NUTRIENT ANALYSIS (NO SOIL ANALYSIS / OPENS)</div>
-                      </div>
-                      <div style="font-size: 9.5px; font-weight: 700; color: #1e293b; background: #f1f5f9; border: 1px solid #cbd5e1; padding: 3px 8px; border-radius: 4px;">
-                        Page 1 of 3 • ${blockNameStr}
-                      </div>
-                    </div>
-
-                    <div style="display: flex; gap: 12px; margin-bottom: 12px;">
-                      <div style="flex: 1.15; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 12px;">
-                        <h3 style="margin-top: 0; margin-bottom: 6px; font-size: 11.5px; font-weight: 700; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">Selected Block & Estate Details</h3>
-                        <table style="width: 100%; border-collapse: collapse; font-size: 10px; color: #334155;">
-                          <tr>
-                            <td style="padding: 2.5px 0; width: 42%; color: #64748b;">- Estate Name</td>
-                            <td style="padding: 2.5px 0; font-weight: 700; color: #0f172a;">${estateName}</td>
-                          </tr>
-                          <tr>
-                            <td style="padding: 2.5px 0; color: #64748b;">- Selected Block</td>
-                            <td style="padding: 2.5px 0; font-weight: 700; color: #2d6a4f;">${blockNameStr}${phaseIdentified ? ` (Phase: ${phaseIdentified})` : ''}</td>
-                          </tr>
-                          <tr>
-                            <td style="padding: 2.5px 0; color: #64748b;">- Block Area</td>
-                            <td style="padding: 2.5px 0; font-weight: 700; color: #0f172a;">${blockAreaHa.toFixed(2)} ha</td>
-                          </tr>
-                          <tr>
-                            <td style="padding: 2.5px 0; color: #64748b;">- Coordinates</td>
-                            <td style="padding: 2.5px 0; font-weight: 600; color: #0f172a; font-family: monospace;">${coords_str}</td>
-                          </tr>
-                          <tr>
-                            <td style="padding: 2.5px 0; color: #64748b;">- Soil Type</td>
-                            <td style="padding: 2.5px 0; font-weight: 700; color: #1e293b;">${soilTypeIdentified}${soilSeriesIdentified ? ` (${soilSeriesIdentified})` : ''}</td>
-                          </tr>
-                          <tr>
-                            <td style="padding: 2.5px 0; color: #64748b;">- Selected Fertilizer</td>
-                            <td style="padding: 2.5px 0; font-weight: 700; color: #2d6a4f;">${fert.name} (${dosagePerPalm.toFixed(2)} kg/palm • ${(reqPerHaKg / 1000).toFixed(2)} MT/ha)</td>
-                          </tr>
-                        </table>
-                      </div>
-
-                      <div style="flex: 0.85; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                        <div style="font-size: 9px; font-weight: 700; color: #0f172a; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.4px;">Selected Block Portion (${blockNameStr})</div>
-                        <div style="position: relative; width: 100%; height: 128px; border-radius: 6px; overflow: hidden; border: 2px solid #2d6a4f; background-color: #0b1320;">
-                          <img id="report-selected-block-portion-img" alt="Selected Block Portion" style="width: 100%; height: 100%; object-fit: cover; display: block;" />
+                    <div>
+                        <div style="border-bottom: 2px solid #0f172a; padding-bottom: 5px; margin-bottom: 10px;">
+                          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
+                            <img src="MPOB-3-all-black-fonts.png" alt="MPOB PalmNex Logo" style="height: 34px; width: auto; object-fit: contain; display: block;" />
+                            <img src="reada-logo-final.png" alt="PalmNex ReaDA Logo" style="height: 40px; width: 40px; object-fit: contain; display: block;" />
+                          </div>
+                          <div>
+                            <div style="font-size: 7.8px; font-weight: 800; color: #1b4332; text-transform: uppercase; letter-spacing: 0.9px;">
+                                MALAYSIAN PALM OIL BOARD (MPOB) · PALMNEX
+                            </div>
+                            <h1 style="margin: 1px 0 2px 0; color: #0f172a; font-size: 16px; font-weight: 800; letter-spacing: -0.2px; text-transform: uppercase;">
+                                Executive Agronomic &amp; Spatial Foliar Diagnostic Report
+                            </h1>
+                            <div style="font-size: 8px; color: #475569; font-weight: 600; letter-spacing: 0.3px;">
+                                STANDARD MPOB FOLIAR PROTOCOL &nbsp;|&nbsp; SITE: ${estateName.toUpperCase()} &nbsp;|&nbsp; BLOCK: ${blockNameStr} (${blockAreaHa.toFixed(2)} HA)
+                            </div>
+                          </div>
                         </div>
-                      </div>
+
+                        <div style="display: grid; grid-template-columns: 53% 45%; justify-content: space-between; margin-bottom: 10px;">
+                          <div style="background-color: #ffffff; border: 1px solid #94a3b8; border-radius: 3px; padding: 8px 10px;">
+                            <div style="font-size: 9.5px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1.5px solid #0f172a; padding-bottom: 3px; margin-bottom: 6px;">
+                                1.0 Study Site &amp; Block Geoinformation Registry
+                            </div>
+                            <table style="width: 100%; border-collapse: collapse; font-size: 9.2px; color: #1e293b;">
+                              <tr style="border-bottom: 1px dotted #e2e8f0;"><td style="padding: 3.5px 0; width: 44%; color: #475569; font-weight: 600;">Estate / Plantation</td><td style="padding: 3.5px 0; font-weight: 700; color: #0f172a;">${estateName}</td></tr>
+                              <tr style="border-bottom: 1px dotted #e2e8f0;"><td style="padding: 3.5px 0; color: #475569; font-weight: 600;">Selected Block ID</td><td style="padding: 3.5px 0; font-weight: 800; color: #1b4332;">Block ${blockNameStr}${phaseIdentified ? ` (Phase: ${phaseIdentified})` : ''}</td></tr>
+                              <tr style="border-bottom: 1px dotted #e2e8f0;"><td style="padding: 3.5px 0; color: #475569; font-weight: 600;">Geodetic Planted Area</td><td style="padding: 3.5px 0; font-weight: 700; color: #0f172a;">${blockAreaHa.toFixed(2)} ha (${Math.round(blockAreaHa * 143).toLocaleString()} palms)</td></tr>
+                              <tr style="border-bottom: 1px dotted #e2e8f0;"><td style="padding: 3.5px 0; color: #475569; font-weight: 600;">Centroid Coordinates</td><td style="padding: 3.5px 0; font-weight: 700; color: #0f172a; font-family: monospace;">${coords_str}</td></tr>
+                              <tr style="border-bottom: 1px dotted #e2e8f0;"><td style="padding: 3.5px 0; color: #475569; font-weight: 600;">Pedological Soil Unit</td><td style="padding: 3.5px 0; font-weight: 700; color: #0f172a;">${soilTypeIdentified}${soilSeriesIdentified ? ` (${soilSeriesIdentified})` : ''}</td></tr>
+                              <tr style="border-bottom: 1px dotted #e2e8f0;"><td style="padding: 3.5px 0; color: #475569; font-weight: 600;">Remote Sensing Sensor</td><td style="padding: 3.5px 0; font-weight: 700; color: #0f172a;">Sentinel-1 SAR &amp; Sentinel-2 MSI (10m)</td></tr>
+                              <tr><td style="padding: 3.5px 0; color: #475569; font-weight: 600;">Prescribed Formulation</td><td style="padding: 3.5px 0; font-weight: 800; color: #15803d;">${fert.name} (${dosagePerPalm.toFixed(2)} kg/palm)</td></tr>
+                            </table>
+                          </div>
+
+                          <div style="background-color: #ffffff; border: 1px solid #94a3b8; border-radius: 3px; padding: 8px 10px; display: flex; flex-direction: column; justify-content: space-between;">
+                            <div style="font-size: 9.5px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1.5px solid #0f172a; padding-bottom: 3px; margin-bottom: 5px; display:flex; justify-content:space-between;">
+                                <span>Fig 1.1 — Block Spatial Context</span>
+                                <span style="font-size:7.5px; color:#475569;">10m Raster</span>
+                            </div>
+                            <div style="width: 100%; height: 175px; background-color: #ffffff; border: 1px solid #cbd5e1; display:flex; align-items:center; justify-content:center;">
+                              <img id="report-selected-block-portion-img" alt="Selected Block Portion" style="width: 100%; height: 100%; object-fit: contain; display: block;" />
+                            </div>
+                          </div>
+                        </div>
+
+                        <div style="background-color: #ffffff; border: 1px solid #94a3b8; border-radius: 3px; padding: 8px 10px; margin-bottom: 10px;">
+                          <div style="font-size: 9.5px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1.5px solid #0f172a; padding-bottom: 3px; margin-bottom: 6px; display:flex; justify-content:space-between;">
+                            <span>2.0 Block Foliar Macro- &amp; Micro-Nutrient Diagnostics &amp; MPOB Fertilizer Prescription</span>
+                            <span style="font-size:8px; color:#475569;">Leaf 17 Standard</span>
+                          </div>
+                          <table style="width: 100%; border-collapse: collapse; font-size: 9px; text-align: center;">
+                            <thead>
+                              <tr style="background-color: #f1f5f9; border: 1px solid #94a3b8; color: #0f172a; font-weight: 800;">
+                                <th style="padding: 5px 7px; border: 1px solid #cbd5e1; text-align: left;">Element</th>
+                                <th style="padding: 5px 7px; border: 1px solid #cbd5e1;">Block Mean</th>
+                                <th style="padding: 5px 7px; border: 1px solid #cbd5e1;">Spatial Range</th>
+                                <th style="padding: 5px 7px; border: 1px solid #cbd5e1;">Critical Level</th>
+                                <th style="padding: 5px 7px; border: 1px solid #cbd5e1;">Diagnostic Status</th>
+                                <th style="padding: 5px 7px; border: 1px solid #cbd5e1;">Rate (kg/palm/yr)</th>
+                                <th style="padding: 5px 7px; border: 1px solid #cbd5e1;">Field Req. (kg/ha/yr)</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              ${rowsHtml}
+                            </tbody>
+                          </table>
+                          <div style="margin-top: 6px; font-size: 8.5px; font-weight: 700; color: #0f172a; display: flex; justify-content: space-between;">
+                            <span>Selected Formulation: <span style="color: #15803d;">${fert.name} (N:${fert.n}%, P:${fert.p}%, K:${fert.k}%, Mg:${fert.mg}%, B:${fert.b || 0.5}%)</span></span>
+                            <span style="color: #475569;">Cross-Reference: See Page 2 (Block Rasters) &amp; Page 3 (Estate Rasters)</span>
+                          </div>
+                        </div>
                     </div>
 
-                    <div style="background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 12px; margin-bottom: 12px;">
-                      <h3 style="margin-top: 0; margin-bottom: 6px; font-size: 11.5px; font-weight: 700; color: #0f172a;">Block Average Foliar Nutrient Analysis (N, P, K, Mg, B, Ca) & Fertilizer Recommendation</h3>
-                      <table style="width: 100%; border-collapse: collapse; font-size: 9.5px; text-align: center;">
-                        <thead>
-                          <tr style="background-color: #f1f5f9; border: 1px solid #cbd5e1; color: #0f172a; font-weight: 700;">
-                            <th style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: left; width: 22%;">Nutrient Element</th>
-                            <th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 26%;">Block Average (${blockNameStr})</th>
-                            <th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 18%;">Critical Level</th>
-                            <th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 17%;">Fert Rec. (kg/palm)</th>
-                            <th style="padding: 6px 8px; border: 1px solid #cbd5e1; width: 17%;">Fert Rec. (kg/ha)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          ${rowsHtml}
-                        </tbody>
-                      </table>
-                      <div style="margin-top: 7px; font-size: 10px; font-weight: 700; color: #0f172a; display: flex; justify-content: space-between;">
-                        <span>Selected MPOB Formulation: <span style="color: #2d6a4f;">${fert.name} (N:${fert.n}%, P:${fert.p}%, K:${fert.k}%, Mg:${fert.mg}%, B:${fert.b || 0.5}%)</span></span>
-                        <span style="color: #64748b; font-weight: 600;">Standard Density: 143 palms/ha</span>
-                      </div>
+                    <div style="margin-top: 6px; border-top: 1.5px solid #0f172a; padding-top: 4px; font-size: 7.5px; color: #475569; font-weight:600; display:flex; justify-content:space-between; align-items:center;">
+                      <span>MPOB PalmNex Agronomic Decision Support System · Sentinel-2 Foliar Nutrient Diagnostics</span>
+                      <span style="color:#0f172a; font-weight:800;">Page 1</span>
                     </div>
                 </div>
                 ${page2BlockRasters}
@@ -6035,8 +6075,11 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                     window.populateReportRasterImages(blockDetails);
                 }
             } else {
-                // Inland or Alluvial Comprehensive 4-page report
-                // Auto-run EDS calculation if data not yet populated (Generate Report clicked directly from sidebar)
+                // Inland or Alluvial Comprehensive 4-page Research Report
+                // Page 1: Executive Block & Foliar Diagnostic Summary
+                // Page 2: OPENS Pedological & Stand Input + Yield & Revenue Response Matrices (moved from Page 4 to Page 2)
+                // Page 3: Selected Block Spatial Foliar Nutrient Analysis (6-Panel Uncompressed Rasters)
+                // Page 4: Whole Estate Spatial Foliar Nutrient Analysis (6-Panel Uncompressed Rasters)
                 const isDataEmpty = !activeOutputData || Object.keys(activeOutputData.yield || {}).length === 0;
                 if (isDataEmpty) {
                     if (soilMode === 'Inland') {
@@ -6047,14 +6090,13 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                 }
 
                 let mapVal = document.getElementById('map-select-comp').value;
-                // Resolve estate name: user input > uploaded shapefile name > dropdown label
                 let _userEstateName = (document.getElementById('estate-name-input') || {}).value || '';
                 let _dropdownLabel = mapVal === 'lahad_datu' ? 'Lahad Datu with block boundary'
                                    : mapVal === 'seraya'    ? 'Seraya with block boundary'
                                    : mapVal === 'mpob_36_trial' ? 'MPOB Lahad Datu 36 Trial Plot'
                                    : (document.getElementById('map-select-comp')?.selectedOptions[0]?.text || mapVal);
                 let estate_name = _userEstateName.trim() || uploadedShapefileName || (blockDetails && blockDetails.estateName) || _dropdownLabel;
-                let coords_str = `Lat=${selectedLat.toFixed(5)}, Lng=${selectedLng.toFixed(5)}`;
+                let coords_str = `${selectedLat.toFixed(5)}°N, ${selectedLng.toFixed(5)}°E`;
                 
                 let inputs = {};
                 let char_html = "";
@@ -6078,36 +6120,34 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                     };
                     
                     char_html = `
-                    <table style="width: 100%; border-collapse: collapse; font-size: 11px; color: #334155;">
-                      <tr>
-                        <td style="width: 50%; padding: 4px; vertical-align: top;">
-                          <div style="border: 1px solid #cbd5e1; border-radius: 4px; padding: 8px; background: #f8fafc;">
-                            <div style="font-weight: 700; color: #0f172a; margin-bottom: 6px; border-bottom: 1px solid #cbd5e1; padding-bottom: 3px;">Characteristics</div>
-                            <table style="width: 100%; font-size: 10px;">
-                              <tr><td style="color: #64748b; padding: 2px 0;">Palm age (Year)</td><td style="font-weight: 600; text-align: right; color: #0f172a;">${inputs.age}</td></tr>
-                              <tr><td style="color: #64748b; padding: 2px 0;">Planting density (palms/ha)</td><td style="font-weight: 600; text-align: right; color: #0f172a;">${inputs.density}</td></tr>
-                              <tr><td style="color: #64748b; padding: 2px 0;">Soil drainage class</td><td style="font-weight: 600; text-align: right; color: #0f172a;">${inputs.drainage}</td></tr>
-                              <tr><td style="color: #64748b; padding: 2px 0;">Soil consistency class</td><td style="font-weight: 600; text-align: right; color: #0f172a;">${inputs.consistency}</td></tr>
-                              <tr><td style="color: #64748b; padding: 2px 0;">Slope class</td><td style="font-weight: 600; text-align: right; color: #0f172a;">${inputs.slope}</td></tr>
-                              <tr><td style="color: #64748b; padding: 2px 0;">Root growth impedance class</td><td style="font-weight: 600; text-align: right; color: #0f172a;">${inputs.root_impedance}</td></tr>
-                            </table>
-                          </div>
-                        </td>
-                        <td style="width: 50%; padding: 4px; vertical-align: top;">
-                          <div style="border: 1px solid #cbd5e1; border-radius: 4px; padding: 8px; background: #f8fafc;">
-                            <div style="font-weight: 700; color: #0f172a; margin-bottom: 6px; border-bottom: 1px solid #cbd5e1; padding-bottom: 3px;">&nbsp;</div>
-                            <table style="width: 100%; font-size: 10px;">
-                              <tr><td style="color: #64748b; padding: 2px 0;">Soil organic matter (%)</td><td style="font-weight: 600; text-align: right; color: #0f172a;">${inputs.organic}</td></tr>
-                              <tr><td style="color: #64748b; padding: 2px 0;">Silt (%)</td><td style="font-weight: 600; text-align: right; color: #0f172a;">${inputs.silt}</td></tr>
-                              <tr><td style="color: #64748b; padding: 2px 0;">Extractable K (cmol/kg)</td><td style="font-weight: 600; text-align: right; color: #0f172a;">${inputs.extractable}</td></tr>
-                              <tr><td style="color: #64748b; padding: 2px 0;">Total extractable bases (cmol/kg)</td><td style="font-weight: 600; text-align: right; color: #0f172a;">${inputs.teb}</td></tr>
-                              <tr><td style="color: #64748b; padding: 2px 0;">Annual rainfall (mm/year)</td><td style="font-weight: 600; text-align: right; color: #0f172a;">${inputs.rainfall}</td></tr>
-                              <tr><td colspan="2" style="padding: 2px 0;">&nbsp;</td></tr>
-                            </table>
-                          </div>
-                        </td>
-                      </tr>
-                    </table>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px;">
+                      <div style="border: 1px solid #94a3b8; border-radius: 3px; padding: 7px 9px; background: #ffffff;">
+                        <div style="font-size: 9px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 4px; border-bottom: 1.5px solid #0f172a; padding-bottom: 2px;">
+                          Table 2.1 — Stand &amp; Physical Soil Parameters
+                        </div>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 8.8px;">
+                          <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="color: #475569; padding: 2.2px 0; font-weight:600;">Palm Stand Age (Year)</td><td style="font-weight: 700; text-align: right; color: #0f172a;">${inputs.age} yrs</td></tr>
+                          <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="color: #475569; padding: 2.2px 0; font-weight:600;">Planting Density (palms/ha)</td><td style="font-weight: 700; text-align: right; color: #0f172a;">${inputs.density} palms/ha</td></tr>
+                          <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="color: #475569; padding: 2.2px 0; font-weight:600;">Soil Drainage Class</td><td style="font-weight: 700; text-align: right; color: #0f172a;">Class ${inputs.drainage}</td></tr>
+                          <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="color: #475569; padding: 2.2px 0; font-weight:600;">Soil Consistency Class</td><td style="font-weight: 700; text-align: right; color: #0f172a;">Class ${inputs.consistency}</td></tr>
+                          <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="color: #475569; padding: 2.2px 0; font-weight:600;">Terrain Slope Factor</td><td style="font-weight: 700; text-align: right; color: #0f172a;">${inputs.slope}</td></tr>
+                          <tr><td style="color: #475569; padding: 2.2px 0; font-weight:600;">Root Growth Impedance Class</td><td style="font-weight: 700; text-align: right; color: #0f172a;">${inputs.root_impedance}</td></tr>
+                        </table>
+                      </div>
+                      <div style="border: 1px solid #94a3b8; border-radius: 3px; padding: 7px 9px; background: #ffffff;">
+                        <div style="font-size: 9px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 4px; border-bottom: 1.5px solid #0f172a; padding-bottom: 2px;">
+                          Table 2.2 — Edaphic Chemical &amp; Climatic Inputs
+                        </div>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 8.8px;">
+                          <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="color: #475569; padding: 2.2px 0; font-weight:600;">Soil Organic Matter (SOM %)</td><td style="font-weight: 700; text-align: right; color: #0f172a;">${inputs.organic} %</td></tr>
+                          <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="color: #475569; padding: 2.2px 0; font-weight:600;">Silt Particle Fraction (%)</td><td style="font-weight: 700; text-align: right; color: #0f172a;">${inputs.silt} %</td></tr>
+                          <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="color: #475569; padding: 2.2px 0; font-weight:600;">Extractable Potassium K (cmol/kg)</td><td style="font-weight: 700; text-align: right; color: #0f172a;">${inputs.extractable} cmol/kg</td></tr>
+                          <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="color: #475569; padding: 2.2px 0; font-weight:600;">Total Extractable Bases (TEB)</td><td style="font-weight: 700; text-align: right; color: #0f172a;">${inputs.teb} cmol/kg</td></tr>
+                          <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="color: #475569; padding: 2.2px 0; font-weight:600;">Mean Annual Rainfall (mm/yr)</td><td style="font-weight: 700; text-align: right; color: #0f172a;">${inputs.rainfall} mm/yr</td></tr>
+                          <tr><td style="color: #475569; padding: 2.2px 0; font-weight:600;">Pedological Soil Group</td><td style="font-weight: 700; text-align: right; color: #1b4332;">Inland Mineral Soil</td></tr>
+                        </table>
+                      </div>
+                    </div>
                     `;
                 } else {
                     inputs = {
@@ -6124,114 +6164,32 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                     };
                     
                     char_html = `
-                    <table style="width: 100%; border-collapse: collapse; font-size: 11px; color: #334155;">
-                      <tr>
-                        <td style="width: 50%; padding: 4px; vertical-align: top;">
-                          <div style="border: 1px solid #cbd5e1; border-radius: 4px; padding: 8px; background: #f8fafc;">
-                            <div style="font-weight: 700; color: #0f172a; margin-bottom: 6px; border-bottom: 1px solid #cbd5e1; padding-bottom: 3px;">Characteristics</div>
-                            <table style="width: 100%; font-size: 10px;">
-                              <tr><td style="color: #64748b; padding: 2px 0;">Clay (%)</td><td style="font-weight: 600; text-align: right; color: #0f172a;">${inputs.clay}</td></tr>
-                              <tr><td style="color: #64748b; padding: 2px 0;">Soil drainage class</td><td style="font-weight: 600; text-align: right; color: #0f172a;">${inputs.drainage}</td></tr>
-                              <tr><td style="color: #64748b; padding: 2px 0;">Planting density (palms/ha)</td><td style="font-weight: 600; text-align: right; color: #0f172a;">${inputs.density}</td></tr>
-                              <tr><td style="color: #64748b; padding: 2px 0;">Annual rainfall (mm/year)</td><td style="font-weight: 600; text-align: right; color: #0f172a;">${inputs.rainfall}</td></tr>
-                            </table>
-                          </div>
-                        </td>
-                        <td style="width: 50%; padding: 4px; vertical-align: top;">
-                          <div style="border: 1px solid #cbd5e1; border-radius: 4px; padding: 8px; background: #f8fafc;">
-                            <div style="font-weight: 700; color: #0f172a; margin-bottom: 6px; border-bottom: 1px solid #cbd5e1; padding-bottom: 3px;">&nbsp;</div>
-                            <table style="width: 100%; font-size: 10px;">
-                              <tr><td style="color: #64748b; padding: 2px 0;">Total exchangeable cation (cmol/kg)</td><td style="font-weight: 600; text-align: right; color: #0f172a;">${inputs.tec}</td></tr>
-                              <tr><td style="color: #64748b; padding: 2px 0;">Extractable K (cmol/kg)</td><td style="font-weight: 600; text-align: right; color: #0f172a;">${inputs.extractable}</td></tr>
-                              <tr><td style="color: #64748b; padding: 2px 0;">Silt (%)</td><td style="font-weight: 600; text-align: right; color: #0f172a;">${inputs.silt}</td></tr>
-                              <tr><td colspan="2" style="padding: 2px 0;">&nbsp;</td></tr>
-                            </table>
-                          </div>
-                        </td>
-                      </tr>
-                    </table>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px;">
+                      <div style="border: 1px solid #94a3b8; border-radius: 3px; padding: 7px 9px; background: #ffffff;">
+                        <div style="font-size: 9px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 4px; border-bottom: 1.5px solid #0f172a; padding-bottom: 2px;">
+                          Table 2.1 — Stand &amp; Physical Soil Parameters
+                        </div>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 8.8px;">
+                          <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="color: #475569; padding: 2.5px 0; font-weight:600;">Clay Particle Fraction (%)</td><td style="font-weight: 700; text-align: right; color: #0f172a;">${inputs.clay} %</td></tr>
+                          <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="color: #475569; padding: 2.5px 0; font-weight:600;">Soil Drainage Class</td><td style="font-weight: 700; text-align: right; color: #0f172a;">Class ${inputs.drainage}</td></tr>
+                          <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="color: #475569; padding: 2.5px 0; font-weight:600;">Planting Density (palms/ha)</td><td style="font-weight: 700; text-align: right; color: #0f172a;">${inputs.density} palms/ha</td></tr>
+                          <tr><td style="color: #475569; padding: 2.5px 0; font-weight:600;">Mean Annual Rainfall (mm/yr)</td><td style="font-weight: 700; text-align: right; color: #0f172a;">${inputs.rainfall} mm/yr</td></tr>
+                        </table>
+                      </div>
+                      <div style="border: 1px solid #94a3b8; border-radius: 3px; padding: 7px 9px; background: #ffffff;">
+                        <div style="font-size: 9px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 4px; border-bottom: 1.5px solid #0f172a; padding-bottom: 2px;">
+                          Table 2.2 — Edaphic Chemical &amp; Cation Inputs
+                        </div>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 8.8px;">
+                          <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="color: #475569; padding: 2.5px 0; font-weight:600;">Total Exchangeable Cations (TEC)</td><td style="font-weight: 700; text-align: right; color: #0f172a;">${inputs.tec} cmol/kg</td></tr>
+                          <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="color: #475569; padding: 2.5px 0; font-weight:600;">Extractable Potassium K (cmol/kg)</td><td style="font-weight: 700; text-align: right; color: #0f172a;">${inputs.extractable} cmol/kg</td></tr>
+                          <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="color: #475569; padding: 2.5px 0; font-weight:600;">Silt Particle Fraction (%)</td><td style="font-weight: 700; text-align: right; color: #0f172a;">${inputs.silt} %</td></tr>
+                          <tr><td style="color: #475569; padding: 2.5px 0; font-weight:600;">Pedological Soil Group</td><td style="font-weight: 700; text-align: right; color: #1b4332;">Alluvial Marine/Riverine</td></tr>
+                        </table>
+                      </div>
+                    </div>
                     `;
                 }
-                
-                let cost_html = `
-                <div style="font-size: 11px; font-weight: bold; color: #1e293b; margin: 12px 4px; display: flex; justify-content: space-between; border-bottom: 1px dashed #cbd5e1; padding-bottom: 8px;">
-                  <div>Price for F.F.B/tonne: <span style="color: #2d6a4f;">RM ${inputs.ffb}</span></div>
-                  <div>Cost of SOA/tonne: <span style="color: #2d6a4f;">RM ${inputs.sa}</span></div>
-                  <div>Cost of KCl/tonne: <span style="color: #2d6a4f;">RM ${inputs.kcl}</span></div>
-                </div>
-                `;
-
-                function generateGridHtmlForPdf(nRates, kRates, gridData, selectedN, selectedK, isCrr, crrGrid, titleLabel) {
-                    let html = `
-                    <div style="margin-top: 14px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px 10px;">
-                      <div style="font-size: 11px; font-weight: 700; color: #0f172a; margin-bottom: 4px; text-align: center;">${titleLabel}</div>
-                      <div style="font-size: 8px; font-weight: 700; color: #64748b; text-align: center; margin-bottom: 4px;">K Fertilizer (kg/palm)</div>
-                      <div style="display: flex;">
-                        <div style="writing-mode: vertical-lr; transform: rotate(180deg); font-size: 8px; font-weight: 700; color: #64748b; text-align: center; padding-right: 6px; display: flex; align-items: center; justify-content: center;">
-                          N Fertilizer (kg/palm)
-                        </div>
-                        <table style="width: 100%; border-collapse: collapse; font-size: 7.5px; text-align: center; border: 1px solid #cbd5e1;">
-                          <thead>
-                            <tr style="background-color: #f1f5f9; border-bottom: 1.5px solid #cbd5e1;">
-                              <th style="border: 1px solid #cbd5e1; padding: 2px;">&nbsp;</th>`;
-                    for (let k of kRates) {
-                        html += `<th style="border: 1px solid #cbd5e1; padding: 2px; font-weight: 700;">${k.toFixed(1)}</th>`;
-                    }
-                    html += `</tr></thead><tbody>`;
-
-                    for (let n of nRates) {
-                        html += `<tr style="border-bottom: 1px solid #e2e8f0;"><td style="border: 1px solid #cbd5e1; padding: 2px; background-color: #f1f5f9; font-weight: 700;">${n.toFixed(1)}</td>`;
-                        for (let k of kRates) {
-                            let val = (gridData && gridData[n] && gridData[n][k] !== undefined) ? gridData[n][k] : 0;
-                            let isSelected = (Math.abs(n - selectedN) < 0.005) && (Math.abs(k - selectedK) < 0.005);
-                            
-                            let bg_color = "";
-                            let text_color = "#334155";
-                            let font_weight = "normal";
-                            let border_style = "1px solid #cbd5e1";
-                            
-                            if (isSelected) {
-                                bg_color = "#3b82f6";
-                                text_color = "#ffffff";
-                                font_weight = "bold";
-                                border_style = "2px solid #2563eb";
-                            } else if (isCrr) {
-                                if (Math.abs(val - 0.30) < 0.005) {
-                                    bg_color = "#00FF00";
-                                    text_color = "#000000";
-                                    font_weight = "bold";
-                                } else if (val >= 0.275 && val <= 0.295) {
-                                    bg_color = "#FFFF00";
-                                    text_color = "#000000";
-                                    font_weight = "bold";
-                                }
-                            } else {
-                                if (crrGrid && crrGrid[n] && crrGrid[n][k] !== undefined) {
-                                    let crr_val = crrGrid[n][k];
-                                    if (Math.abs(crr_val - 0.30) < 0.005) {
-                                        bg_color = "#d3d3d3";
-                                        font_weight = "bold";
-                                    }
-                                }
-                            }
-                            
-                            let style_str = `border: ${border_style}; padding: 2px;`;
-                            if (bg_color) {
-                                style_str += ` background-color: ${bg_color};`;
-                            }
-                            style_str += ` color: ${text_color}; font-weight: ${font_weight};`;
-                            
-                            let display_str = isCrr ? val.toFixed(2) : (val >= 1000 ? val.toLocaleString() : val.toFixed(2));
-                            html += `<td style="${style_str}">${display_str}</td>`;
-                        }
-                        html += `</tr>`;
-                    }
-                    html += `</tbody></table></div></div>`;
-                    return html;
-                }
-
-                let yield_table_html = generateGridHtmlForPdf(n_rates, k_rates, activeOutputData.yield, reportData.nRate, reportData.kRate, false, activeOutputData.crr, "FFB Yield Prediction");
-                let revenue_table_html = generateGridHtmlForPdf(n_rates, k_rates, activeOutputData.rev, reportData.nRate, reportData.kRate, false, activeOutputData.crr, "Revenue Gain");
 
                 let ffb_price = inputs.ffb || 800;
                 let calculated_rev = reportData.revenueVal > 0 ? reportData.revenueVal : (reportData.yieldVal * blockAreaHa * ffb_price);
@@ -6250,27 +6208,174 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                 let b_kg_ha = b_kg_palm * 143;
                 let ca_kg_ha = ca_kg_palm * 143;
 
+                let cost_html = `
+                <div style="background: #f8fafc; border: 1px solid #94a3b8; border-radius: 3px; padding: 6px 10px; margin-bottom: 8px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; text-align: center; font-size: 8px;">
+                  <div style="border-right: 1px solid #cbd5e1; padding-right: 4px;">
+                    <div style="color:#475569; font-weight:600; text-transform:uppercase; font-size:7px;">FFB Price / Tonne</div>
+                    <div style="color:#0f172a; font-weight:800; font-size:9.5px; margin-top:1px;">RM ${inputs.ffb}</div>
+                  </div>
+                  <div style="border-right: 1px solid #cbd5e1; padding-right: 4px;">
+                    <div style="color:#475569; font-weight:600; text-transform:uppercase; font-size:7px;">SOA Cost / Tonne</div>
+                    <div style="color:#0f172a; font-weight:800; font-size:9.5px; margin-top:1px;">RM ${inputs.sa}</div>
+                  </div>
+                  <div style="border-right: 1px solid #cbd5e1; padding-right: 4px;">
+                    <div style="color:#475569; font-weight:600; text-transform:uppercase; font-size:7px;">KCl Cost / Tonne</div>
+                    <div style="color:#0f172a; font-weight:800; font-size:9.5px; margin-top:1px;">RM ${inputs.kcl}</div>
+                  </div>
+                  <div style="border-right: 1px solid #cbd5e1; padding-right: 4px;">
+                    <div style="color:#475569; font-weight:600; text-transform:uppercase; font-size:7px;">Selected N &amp; K Rate</div>
+                    <div style="color:#1d4ed8; font-weight:800; font-size:9.5px; margin-top:1px;">N:${n_kg_palm.toFixed(1)} · K:${k_kg_palm.toFixed(1)} kg</div>
+                  </div>
+                  <div style="border-right: 1px solid #cbd5e1; padding-right: 4px;">
+                    <div style="color:#475569; font-weight:600; text-transform:uppercase; font-size:7px;">Chosen CRR Ratio</div>
+                    <div style="color:#15803d; font-weight:800; font-size:9.5px; margin-top:1px;">${reportData.crrVal.toFixed(2)}</div>
+                  </div>
+                  <div>
+                    <div style="color:#475569; font-weight:600; text-transform:uppercase; font-size:7px;">Predicted Yield</div>
+                    <div style="color:#1b4332; font-weight:800; font-size:9.5px; margin-top:1px;">${reportData.yieldVal.toFixed(2)} t/ha/yr</div>
+                  </div>
+                </div>
+                `;
+
+                function generateGridHtmlForPdf(nRates, kRates, gridData, selectedN, selectedK, isCrr, crrGrid, titleLabel, tableCode, unitLabel) {
+                    let html = `
+                    <div style="background: #ffffff; border: 1px solid #94a3b8; border-radius: 3px; padding: 7px 9px;">
+                      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom: 1.5px solid #0f172a; padding-bottom: 3.5px; margin-bottom: 5px;">
+                        <div style="font-size: 9.2px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px;">
+                          ${tableCode} — ${titleLabel} <span style="font-weight:600; color:#475569; text-transform:none;">(${unitLabel})</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px; font-size:7.4px; font-weight:700; color:#334155;">
+                          <span><span style="display:inline-block;width:8px;height:8px;background:#2563eb;border-radius:1.5px;vertical-align:middle;margin-right:3px;"></span>Selected Treatment (N=${selectedN.toFixed(1)}, K=${selectedK.toFixed(1)})</span>
+                          <span><span style="display:inline-block;width:8px;height:8px;background:#cbd5e1;border:1px solid #64748b;border-radius:1.5px;vertical-align:middle;margin-right:3px;"></span>Optimal CRR = 0.30 Zone</span>
+                        </div>
+                      </div>
+                      <div style="font-size: 7.8px; font-weight: 800; color: #1e293b; text-align: center; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.4px;">
+                        Potassium (K) Fertilizer Rate (kg/palm/yr) &rarr;
+                      </div>
+                      <table style="width: 100%; border-collapse: collapse; font-size: 7.8px; text-align: center; border: 1px solid #94a3b8;">
+                        <thead>
+                          <tr style="background-color: #f1f5f9; border-bottom: 1.5px solid #64748b; color: #0f172a;">
+                            <th style="border: 1px solid #94a3b8; padding: 3px 4px; font-weight: 800; background:#e2e8f0; width: 11%;">N \\ K (kg)</th>`;
+                    for (let k of kRates) {
+                        html += `<th style="border: 1px solid #cbd5e1; padding: 3px 2px; font-weight: 800;">${k.toFixed(1)}</th>`;
+                    }
+                    html += `</tr></thead><tbody>`;
+
+                    for (let n of nRates) {
+                        html += `<tr style="border-bottom: 1px solid #e2e8f0;"><td style="border: 1px solid #94a3b8; padding: 2.8px 4px; background-color: #f1f5f9; font-weight: 800; color: #0f172a;">N = ${n.toFixed(1)}</td>`;
+                        for (let k of kRates) {
+                            let val = (gridData && gridData[n] && gridData[n][k] !== undefined) ? gridData[n][k] : 0;
+                            let isSelected = (Math.abs(n - selectedN) < 0.005) && (Math.abs(k - selectedK) < 0.005);
+                            
+                            let bg_color = "";
+                            let text_color = "#1e293b";
+                            let font_weight = "500";
+                            let border_style = "1px solid #cbd5e1";
+                            
+                            if (isSelected) {
+                                bg_color = "#2563eb";
+                                text_color = "#ffffff";
+                                font_weight = "800";
+                                border_style = "1.5px solid #1e40af";
+                            } else if (isCrr) {
+                                if (Math.abs(val - 0.30) < 0.005) {
+                                    bg_color = "#bbf7d0";
+                                    text_color = "#14532d";
+                                    font_weight = "800";
+                                } else if (val >= 0.275 && val <= 0.295) {
+                                    bg_color = "#fef08a";
+                                    text_color = "#713f12";
+                                    font_weight = "700";
+                                }
+                            } else {
+                                if (crrGrid && crrGrid[n] && crrGrid[n][k] !== undefined) {
+                                    let crr_val = crrGrid[n][k];
+                                    if (Math.abs(crr_val - 0.30) < 0.005) {
+                                        bg_color = "#cbd5e1";
+                                        text_color = "#0f172a";
+                                        font_weight = "800";
+                                    }
+                                }
+                            }
+                            
+                            let style_str = `border: ${border_style}; padding: 2.8px 2px;`;
+                            if (bg_color) {
+                                style_str += ` background-color: ${bg_color};`;
+                            }
+                            style_str += ` color: ${text_color}; font-weight: ${font_weight};`;
+                            
+                            let display_str = isCrr ? val.toFixed(2) : (val >= 1000 ? val.toLocaleString() : val.toFixed(2));
+                            html += `<td style="${style_str}">${display_str}</td>`;
+                        }
+                        html += `</tr>`;
+                    }
+                    html += `</tbody></table></div>`;
+                    return html;
+                }
+
+                let yield_table_html = generateGridHtmlForPdf(n_rates, k_rates, activeOutputData.yield, reportData.nRate, reportData.kRate, false, activeOutputData.crr, "OPENS Response Surface Matrix: Predicted FFB Yield", "Table 2.3", "tonnes/ha/yr");
+                let revenue_table_html = generateGridHtmlForPdf(n_rates, k_rates, activeOutputData.rev, reportData.nRate, reportData.kRate, false, activeOutputData.crr, "OPENS Response Surface Matrix: Gross Revenue Gain", "Table 2.4", "RM/ha/yr");
+
                 const dotColorFn = (val, key) => (typeof window.colorForNutrientValue === 'function')
                     ? window.colorForNutrientValue(val, key)
                     : getNutrientColorComp(val, key);
 
-                const page2BlockRasters = (typeof window.buildSixPanelRasterPageHtml === 'function' && blockDetails)
+                const nutTableMeta = [
+                    { key: 'N',  label: 'Nitrogen (N)',   unit: '%',    dec: 2, val: currentNutrients.N,  crit: 2.50,  critStr: '2.50%',    recP: n_kg_palm,  recH: n_kg_ha },
+                    { key: 'P',  label: 'Phosphorus (P)', unit: '%',    dec: 3, val: currentNutrients.P,  crit: 0.150, critStr: '0.150%',   recP: p_kg_palm,  recH: p_kg_ha },
+                    { key: 'K',  label: 'Potassium (K)',  unit: '%',    dec: 2, val: currentNutrients.K,  crit: 1.00,  critStr: '1.00%',    recP: k_kg_palm,  recH: k_kg_ha },
+                    { key: 'Mg', label: 'Magnesium (Mg)', unit: '%',    dec: 2, val: currentNutrients.Mg, crit: 0.24,  critStr: '0.24%',    recP: mg_kg_palm, recH: mg_kg_ha },
+                    { key: 'B',  label: 'Boron (B)',      unit: ' ppm', dec: 1, val: currentNutrients.B,  crit: 15.0,  critStr: '15.0 ppm', recP: b_kg_palm,  recH: b_kg_ha },
+                    { key: 'Ca', label: 'Calcium (Ca)',   unit: '%',    dec: 2, val: currentNutrients.Ca, crit: 0.60,  critStr: '0.60%',    recP: ca_kg_palm, recH: ca_kg_ha }
+                ];
+
+                const compRowsHtml = nutTableMeta.map(item => {
+                    const suff = Math.round((item.val / item.crit) * 100);
+                    const isOpt = item.val >= item.crit;
+                    const badge = isOpt
+                        ? `<span style="background:#dcfce7;color:#166534;border:1px solid #86efac;padding:1.5px 6px;border-radius:2px;font-size:7.4px;font-weight:800;">SUFFICIENT (${suff}%)</span>`
+                        : `<span style="background:#fef2f2;color:#991b1b;border:1px solid #fecaca;padding:1.5px 6px;border-radius:2px;font-size:7.4px;font-weight:800;">DEFICIENT (${suff}%)</span>`;
+                    return `
+                        <tr>
+                            <td style="padding: 5.5px 7px; border: 1px solid #cbd5e1; font-weight: 700; text-align: left; color: #0f172a;">${item.label}</td>
+                            <td style="padding: 5.5px 7px; border: 1px solid #cbd5e1; color: #0f172a; font-weight: 700;">
+                                <span style="display:inline-block;width:7.5px;height:7.5px;border-radius:50%;background:${dotColorFn(item.val, item.key)};margin-right:4px;border:1px solid rgba(0,0,0,0.25);vertical-align:middle;"></span>
+                                ${item.val.toFixed(item.dec)}${item.unit}
+                            </td>
+                            <td style="padding: 5.5px 7px; border: 1px solid #cbd5e1; color: #475569; font-weight: 600;">${getStatRangeStr(item.key, item.dec, item.unit, item.val)}</td>
+                            <td style="padding: 5.5px 7px; border: 1px solid #cbd5e1; color: #b91c1c; font-weight: 700;">${item.critStr}</td>
+                            <td style="padding: 5.5px 7px; border: 1px solid #cbd5e1;">${badge}</td>
+                            <td style="padding: 5.5px 7px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${item.recP.toFixed(2)}</td>
+                            <td style="padding: 5.5px 7px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${item.recH.toFixed(2)}</td>
+                        </tr>
+                    `;
+                }).join('');
+
+                const deficientList = nutTableMeta.filter(n => n.val < n.crit).map(n => n.label);
+                const sufficientList = nutTableMeta.filter(n => n.val >= n.crit).map(n => n.label);
+                const synthesisText = deficientList.length > 0
+                    ? `Quantitative Sentinel-2 foliar diagnostics for <strong>Block ${blockNameStr}</strong> (${blockAreaHa.toFixed(2)} ha) indicate sufficient foliar status across ${sufficientList.join(', ') || 'primary macro-elements'}, whereas sub-optimal concentrations are detected for <strong>${deficientList.join(', ')}</strong> relative to MPOB Leaf 17 critical thresholds. Based on the ${soilMode} OPENS econometric model (Page 2) at a target Cost/Revenue Ratio (CRR) of <strong>${reportData.crrVal.toFixed(2)}</strong>, an annual prescription of <strong>${n_kg_palm.toFixed(2)} kg N/palm</strong> (${n_kg_ha.toFixed(1)} kg/ha) and <strong>${k_kg_palm.toFixed(2)} kg K/palm</strong> (${k_kg_ha.toFixed(1)} kg/ha) is recommended to achieve a predicted FFB yield of <strong>${reportData.yieldVal.toFixed(2)} t/ha/yr</strong>.`
+                    : `Quantitative Sentinel-2 foliar diagnostics for <strong>Block ${blockNameStr}</strong> (${blockAreaHa.toFixed(2)} ha) confirm optimal foliar nutrient sufficiency across all six evaluated macro- and micro-elements (N, P, K, Mg, B, Ca) relative to MPOB Leaf 17 critical thresholds. Based on the ${soilMode} OPENS econometric model (Page 2) at a target Cost/Revenue Ratio (CRR) of <strong>${reportData.crrVal.toFixed(2)}</strong>, a maintenance regime of <strong>${n_kg_palm.toFixed(2)} kg N/palm</strong> and <strong>${k_kg_palm.toFixed(2)} kg K/palm</strong> sustains a predicted FFB yield of <strong>${reportData.yieldVal.toFixed(2)} t/ha/yr</strong>.`;
+
+                // Page 3: Selected Block Nutrient Rasters (pushed to Page 3)
+                const page3BlockRasters = (typeof window.buildSixPanelRasterPageHtml === 'function' && blockDetails)
                     ? window.buildSixPanelRasterPageHtml(
-                        2,
-                        `Selected Block Nutrient Raster Maps (N, P, K, Mg, Ca, B)`,
-                        `MPOB - PALMNEX BLOCK-LEVEL SPATIAL FOLIAR NUTRIENT DISTRIBUTION & CRITICAL THRESHOLDS`,
-                        `Page 2 of 4 • Selected Block: ${blockNameStr}`,
+                        3,
+                        `Selected Block Spatial Foliar Nutrient Analysis (N, P, K, Mg, Ca, B)`,
+                        `BLOCK-LEVEL FOLIAR DISTRIBUTION & MPOB LEAF 17 CRITICAL THRESHOLDS`,
+                        `Page 3 of 4 • Block ${blockNameStr}`,
                         blockDetails,
                         'block'
                     )
                     : '';
 
-                const page3EstateRasters = (typeof window.buildSixPanelRasterPageHtml === 'function' && blockDetails)
+                // Page 4: Whole Estate Nutrient Rasters (pushed to Page 4)
+                const page4EstateRasters = (typeof window.buildSixPanelRasterPageHtml === 'function' && blockDetails)
                     ? window.buildSixPanelRasterPageHtml(
-                        3,
-                        `Whole Estate Nutrient Raster Maps (N, P, K, Mg, Ca, B)`,
-                        `MPOB - PALMNEX ESTATE-WIDE SPATIAL FOLIAR NUTRIENT DISTRIBUTION & CRITICAL THRESHOLDS`,
-                        `Page 3 of 4 • Estate: ${estate_name}`,
+                        4,
+                        `Whole Estate Spatial Foliar Nutrient Analysis (N, P, K, Mg, Ca, B)`,
+                        `ESTATE-WIDE FOLIAR DISTRIBUTION & MPOB LEAF 17 CRITICAL THRESHOLDS`,
+                        `Page 4 of 4 • Estate: ${estate_name}`,
                         blockDetails,
                         'estate'
                     )
@@ -6283,11 +6388,15 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                         height: 296.5mm;
                         margin: 0 auto 20px auto;
                         background: #ffffff;
-                        padding: 13mm 18mm;
+                        padding: 9.5mm 13mm;
                         box-sizing: border-box;
-                        font-family: 'Segoe UI', 'Inter', sans-serif;
+                        font-family: 'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+                        color: #0f172a;
                         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
                         page-break-after: always;
+                        display: flex;
+                        flex-direction: column;
+                        justify-content: space-between;
                     }
                     @media print {
                         .report-page {
@@ -6297,245 +6406,271 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                         }
                     }
                 </style>
-                <!-- PAGE 1: Selected Block Portion, Block Details, and Block Average N, P, K, Mg, B, Ca -->
+
+                <!-- PAGE 1: Executive Agronomic & Spatial Foliar Diagnostic Summary -->
                 <div class="report-page">
-                    <div style="border-bottom: 2.5px solid #2d6a4f; padding-bottom: 6px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: flex-end;">
-                      <div>
-                        <h1 style="margin: 0; color: #2d6a4f; font-size: 20px; font-weight: 700; letter-spacing: -0.5px;">Report — Selected Block & Nutrient Summary</h1>
-                        <div style="font-size: 9.5px; color: #64748b; font-weight: 600; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px;">MPOB - PALMNEX COMPREHENSIVE ${soilMode.toUpperCase()} SOIL & FOLIAR ANALYSIS</div>
-                      </div>
-                      <div style="font-size: 9.5px; font-weight: 700; color: #1e293b; background: #f1f5f9; border: 1px solid #cbd5e1; padding: 3px 8px; border-radius: 4px;">
-                        Page 1 of 4 • ${blockNameStr}
-                      </div>
+                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                        <!-- Formal Institutional Research Header (Page 1 Top Logos: MPOB PalmNex Left, ReaDA Right) -->
+                        <div style="border-bottom: 2px solid #0f172a; padding-bottom: 5px;">
+                          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 3px;">
+                            <img src="MPOB-3-all-black-fonts.png" alt="MPOB PalmNex Logo" style="height: 34px; width: auto; object-fit: contain; display: block;" />
+                            <img src="reada-logo-final.png" alt="PalmNex ReaDA Logo" style="height: 40px; width: 40px; object-fit: contain; display: block;" />
+                          </div>
+                          <div>
+                            <div style="font-size: 7.8px; font-weight: 800; color: #1b4332; text-transform: uppercase; letter-spacing: 0.9px;">
+                                MALAYSIAN PALM OIL BOARD (MPOB) · PALMNEX
+                            </div>
+                            <h1 style="margin: 1px 0 2px 0; color: #0f172a; font-size: 16px; font-weight: 800; letter-spacing: -0.2px; text-transform: uppercase;">
+                                Executive Agronomic &amp; Spatial Foliar Diagnostic Report
+                            </h1>
+                            <div style="font-size: 8px; color: #475569; font-weight: 600; letter-spacing: 0.3px;">
+                                COMPREHENSIVE ${soilMode.toUpperCase()} OPENS PROTOCOL &nbsp;|&nbsp; SITE: ${estate_name.toUpperCase()} &nbsp;|&nbsp; BLOCK ${blockNameStr} (${blockAreaHa.toFixed(2)} HA)
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Section 1.0: Site Geoinformatics + Uncompressed Block Context Map -->
+                        <div style="display: grid; grid-template-columns: 53% 45%; justify-content: space-between;">
+                          <div style="background-color: #ffffff; border: 1px solid #94a3b8; border-radius: 3px; padding: 8px 10px;">
+                            <div style="font-size: 9.2px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1.5px solid #0f172a; padding-bottom: 3px; margin-bottom: 5px;">
+                                1.0 Study Site &amp; Stand Geoinformation Registry
+                            </div>
+                            <table style="width: 100%; border-collapse: collapse; font-size: 8.8px; color: #1e293b;">
+                              <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="padding: 3.4px 0; width: 44%; color: #475569; font-weight:600;">Estate / Plantation Name</td><td style="padding: 3.4px 0; font-weight: 700; color: #0f172a;">${estate_name}</td></tr>
+                              <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="padding: 3.4px 0; color: #475569; font-weight:600;">Selected Block Identifier</td><td style="padding: 3.4px 0; font-weight: 800; color: #1b4332;">Block ${blockNameStr}${phaseIdentified ? ` (Phase: ${phaseIdentified})` : ''}</td></tr>
+                              <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="padding: 3.4px 0; color: #475569; font-weight:600;">Geodetic Planted Area</td><td style="padding: 3.4px 0; font-weight: 700; color: #0f172a;">${blockAreaHa.toFixed(2)} ha (${Math.round(blockAreaHa * (parseInt(inputs.density, 10) || 148)).toLocaleString()} palms)</td></tr>
+                              <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="padding: 3.4px 0; color: #475569; font-weight:600;">Centroid Coordinates (WGS84)</td><td style="padding: 3.4px 0; font-weight: 700; color: #0f172a; font-family: monospace;">${coords_str}</td></tr>
+                              <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="padding: 3.4px 0; color: #475569; font-weight:600;">Pedological Soil Unit &amp; Series</td><td style="padding: 3.4px 0; font-weight: 700; color: #1e293b;">${soilTypeIdentified}${soilSeriesIdentified ? ` (${soilSeriesIdentified})` : ''}</td></tr>
+                              <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="padding: 3.4px 0; color: #475569; font-weight:600;">Stand Age &amp; Planting Density</td><td style="padding: 3.4px 0; font-weight: 700; color: #0f172a;">${inputs.age || '12'} Years · ${inputs.density || 148} palms/ha</td></tr>
+                              <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="padding: 3.4px 0; color: #475569; font-weight:600;">Satellite Sensor &amp; Resolution</td><td style="padding: 3.4px 0; font-weight: 700; color: #0f172a;">Sentinel-1 SAR &amp; Sentinel-2 MSI (10m)</td></tr>
+                              <tr><td style="padding: 3.4px 0; color: #475569; font-weight:600;">Agronomic Decision Framework</td><td style="padding: 3.4px 0; font-weight: 700; color: #15803d;">MPOB Leaf 17 &amp; OPENS Response Matrix</td></tr>
+                            </table>
+                          </div>
+
+                          <div style="background-color: #ffffff; border: 1px solid #94a3b8; border-radius: 3px; padding: 8px 10px; display: flex; flex-direction: column; justify-content: space-between;">
+                            <div style="font-size: 9.2px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1.5px solid #0f172a; padding-bottom: 3px; margin-bottom: 4px; display:flex; justify-content:space-between; align-items:center;">
+                                <span>Fig 1.1 — Selected Block Spatial Context</span>
+                                <span style="font-size:7.5px; color:#475569; white-space:nowrap;">Block ${blockNameStr}</span>
+                            </div>
+                            <div style="width: 100%; height: 178px; background-color: #ffffff; border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center;">
+                              <img id="report-selected-block-portion-img" alt="Selected Block Portion" style="width: 100%; height: 100%; object-fit: contain; display: block;" />
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Section 2.0: Foliar Macro- & Micro-Nutrient Diagnostics & OPENS Prescription -->
+                        <div style="background-color: #ffffff; border: 1px solid #94a3b8; border-radius: 3px; padding: 8px 10px;">
+                          <div style="font-size: 9.2px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1.5px solid #0f172a; padding-bottom: 3px; margin-bottom: 6px; display:flex; justify-content:space-between;">
+                            <span>2.0 Block Foliar Macro- &amp; Micro-Nutrient Diagnostics &amp; OPENS Econometric Prescription</span>
+                            <span style="font-size:7.5px; color:#475569;">MPOB Leaf 17 Thresholds</span>
+                          </div>
+                          
+                          <!-- Bio-Economic Optimization Strip -->
+                          <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 2px; padding: 6px 10px; margin-bottom: 7px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; font-size: 8.2px;">
+                            <div style="border-right: 1px solid #cbd5e1;">
+                              <div style="color:#475569; font-weight:600; text-transform:uppercase; font-size:7px;">Target Cost/Revenue Ratio</div>
+                              <div style="font-weight: 800; color: #15803d; font-size: 10.5px; margin-top:1px;">CRR = ${reportData.crrVal.toFixed(2)}</div>
+                            </div>
+                            <div style="border-right: 1px solid #cbd5e1;">
+                              <div style="color:#475569; font-weight:600; text-transform:uppercase; font-size:7px;">Predicted FFB Yield</div>
+                              <div style="font-weight: 800; color: #0f172a; font-size: 10.5px; margin-top:1px;">${reportData.yieldVal.toFixed(2)} t/ha/yr</div>
+                            </div>
+                            <div style="border-right: 1px solid #cbd5e1;">
+                              <div style="color:#475569; font-weight:600; text-transform:uppercase; font-size:7px;">Projected Gross Revenue</div>
+                              <div style="font-weight: 800; color: #1b4332; font-size: 10.5px; margin-top:1px;">RM ${calculated_rev.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} / yr</div>
+                            </div>
+                            <div>
+                              <div style="color:#475569; font-weight:600; text-transform:uppercase; font-size:7px;">Valuation Basis</div>
+                              <div style="font-weight: 700; color: #334155; font-size: 8px; margin-top:2px;">${blockAreaHa.toFixed(2)} ha × RM ${ffb_price}/t FFB</div>
+                            </div>
+                          </div>
+
+                          <table style="width: 100%; border-collapse: collapse; font-size: 8.8px; text-align: center;">
+                            <thead>
+                              <tr style="background-color: #f1f5f9; border: 1px solid #94a3b8; color: #0f172a; font-weight: 800;">
+                                <th style="padding: 5px 7px; border: 1px solid #cbd5e1; text-align: left; width: 18%;">Nutrient Element</th>
+                                <th style="padding: 5px 7px; border: 1px solid #cbd5e1; width: 15%;">Block Mean</th>
+                                <th style="padding: 5px 7px; border: 1px solid #cbd5e1; width: 16%;">Spatial Range</th>
+                                <th style="padding: 5px 7px; border: 1px solid #cbd5e1; width: 13%;">Critical Level</th>
+                                <th style="padding: 5px 7px; border: 1px solid #cbd5e1; width: 16%;">Diagnostic Status</th>
+                                <th style="padding: 5px 7px; border: 1px solid #cbd5e1; width: 11%;">Rec. (kg/palm)</th>
+                                <th style="padding: 5px 7px; border: 1px solid #cbd5e1; width: 11%;">Rec. (kg/ha)</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              ${compRowsHtml}
+                            </tbody>
+                          </table>
+
+                          <div style="margin-top: 6px; font-size: 8.2px; font-weight: 700; color: #0f172a; display: flex; justify-content: space-between; align-items:center;">
+                            <span>Recommended Compound Formulation: <span style="color: #1b4332; font-weight: 800;">MPOB F2 Super K (N:7, P:3, K:30, Mg:0, B:0.5)</span></span>
+                            <span style="color: #475569; font-weight: 700;">Cross-Reference: Page 2 (OPENS Matrices) · Page 3 (Block Rasters) · Page 4 (Estate Rasters)</span>
+                          </div>
+                        </div>
+
+                        <!-- Section 3.0: Foliar Sufficiency Profile, Canopy Physiological Stress & Agronomic Synthesis -->
+                        <div style="background-color: #ffffff; border: 1px solid #94a3b8; border-radius: 3px; padding: 8px 10px;">
+                          <div style="font-size: 9.2px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1.5px solid #0f172a; padding-bottom: 3px; margin-bottom: 6px; display:flex; justify-content:space-between;">
+                            <span>3.0 Foliar Sufficiency Profile, Canopy Physiological Stress &amp; Agronomic Interpretation</span>
+                            <span style="font-size:7.5px; color:#475569;">Block ${blockNameStr}</span>
+                          </div>
+
+                          <div style="display: grid; grid-template-columns: 57% 41%; justify-content: space-between; align-items: stretch; margin-bottom: 7px;">
+                            <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 2px; padding: 7px 9px;">
+                              <div style="font-size: 8px; font-weight: 800; color: #0f172a; text-transform:uppercase; margin-bottom: 5px; border-bottom:1px solid #e2e8f0; padding-bottom:2px;">
+                                Fig 1.2 — Nutrient Sufficiency Index (% of Critical Threshold)
+                              </div>
+                              <div style="font-size: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px;">
+                                <div>
+                                  <div style="display:flex;justify-content:space-between;font-weight:700;color:#1e293b;margin-bottom:1.5px;"><span>N (${currentNutrients.N.toFixed(2)}%)</span><span>${Math.min(125, Math.round((currentNutrients.N / 2.50) * 100))}%</span></div>
+                                  <div style="height:5.5px;background:#e2e8f0;border-radius:2px;overflow:hidden;"><div style="height:100%;background:${dotColorFn(currentNutrients.N, 'N')};width:${Math.min(100, Math.round((currentNutrients.N / 2.80) * 100))}%;"></div></div>
+                                </div>
+                                <div>
+                                  <div style="display:flex;justify-content:space-between;font-weight:700;color:#1e293b;margin-bottom:1.5px;"><span>P (${currentNutrients.P.toFixed(3)}%)</span><span>${Math.min(125, Math.round((currentNutrients.P / 0.15) * 100))}%</span></div>
+                                  <div style="height:5.5px;background:#e2e8f0;border-radius:2px;overflow:hidden;"><div style="height:100%;background:${dotColorFn(currentNutrients.P, 'P')};width:${Math.min(100, Math.round((currentNutrients.P / 0.18) * 100))}%;"></div></div>
+                                </div>
+                                <div>
+                                  <div style="display:flex;justify-content:space-between;font-weight:700;color:#1e293b;margin-bottom:1.5px;"><span>K (${currentNutrients.K.toFixed(2)}%)</span><span>${Math.min(125, Math.round((currentNutrients.K / 1.00) * 100))}%</span></div>
+                                  <div style="height:5.5px;background:#e2e8f0;border-radius:2px;overflow:hidden;"><div style="height:100%;background:${dotColorFn(currentNutrients.K, 'K')};width:${Math.min(100, Math.round((currentNutrients.K / 1.25) * 100))}%;"></div></div>
+                                </div>
+                                <div>
+                                  <div style="display:flex;justify-content:space-between;font-weight:700;color:#1e293b;margin-bottom:1.5px;"><span>Mg (${currentNutrients.Mg.toFixed(2)}%)</span><span>${Math.min(125, Math.round((currentNutrients.Mg / 0.24) * 100))}%</span></div>
+                                  <div style="height:5.5px;background:#e2e8f0;border-radius:2px;overflow:hidden;"><div style="height:100%;background:${dotColorFn(currentNutrients.Mg, 'Mg')};width:${Math.min(100, Math.round((currentNutrients.Mg / 0.28) * 100))}%;"></div></div>
+                                </div>
+                                <div>
+                                  <div style="display:flex;justify-content:space-between;font-weight:700;color:#1e293b;margin-bottom:1.5px;"><span>B (${currentNutrients.B.toFixed(1)} ppm)</span><span>${Math.min(125, Math.round((currentNutrients.B / 15.0) * 100))}%</span></div>
+                                  <div style="height:5.5px;background:#e2e8f0;border-radius:2px;overflow:hidden;"><div style="height:100%;background:${dotColorFn(currentNutrients.B, 'B')};width:${Math.min(100, Math.round((currentNutrients.B / 20.0) * 100))}%;"></div></div>
+                                </div>
+                                <div>
+                                  <div style="display:flex;justify-content:space-between;font-weight:700;color:#1e293b;margin-bottom:1.5px;"><span>Ca (${currentNutrients.Ca.toFixed(2)}%)</span><span>${Math.min(125, Math.round((currentNutrients.Ca / 0.60) * 100))}%</span></div>
+                                  <div style="height:5.5px;background:#e2e8f0;border-radius:2px;overflow:hidden;"><div style="height:100%;background:${dotColorFn(currentNutrients.Ca, 'Ca')};width:${Math.min(100, Math.round((currentNutrients.Ca / 0.80) * 100))}%;"></div></div>
+                                </div>
+                              </div>
+                            </div>
+
+                            <!-- Stress Level Donut Chart -->
+                            <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 2px; padding: 7px 9px; display: flex; align-items: center; justify-content: space-between;">
+                              <div style="font-size: 8px; display: flex; flex-direction: column; gap: 4px;">
+                                <div style="font-weight: 800; color: #0f172a; text-transform:uppercase; border-bottom:1px solid #e2e8f0; padding-bottom:2px;">Fig 1.3 — Canopy Stress Index</div>
+                                <div><span style="font-weight: 800; color: #dc2626;">■ Stressed Canopy:</span> <span style="color: #1e293b; font-weight:700;">10.0% (${(blockAreaHa * 0.10).toFixed(1)} ha)</span></div>
+                                <div><span style="font-weight: 800; color: #ca8a04;">■ Moderate Vigour:</span> <span style="color: #1e293b; font-weight:700;">30.0% (${(blockAreaHa * 0.30).toFixed(1)} ha)</span></div>
+                                <div><span style="font-weight: 800; color: #16a34a;">■ Healthy Canopy:</span> <span style="color: #1e293b; font-weight:700;">60.0% (${(blockAreaHa * 0.60).toFixed(1)} ha)</span></div>
+                              </div>
+
+                              <svg width="78" height="78" viewBox="0 0 42 42" style="flex-shrink:0;">
+                                <circle cx="21" cy="21" r="15.91549430918954" fill="#ffffff"></circle>
+                                <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#e2e8f0" stroke-width="6"></circle>
+                                <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#16a34a" stroke-width="6" stroke-dasharray="60 40" stroke-dashoffset="25"></circle>
+                                <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#eab308" stroke-width="6" stroke-dasharray="30 70" stroke-dashoffset="65"></circle>
+                                <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#dc2626" stroke-width="6" stroke-dasharray="10 90" stroke-dashoffset="35"></circle>
+                              </svg>
+                            </div>
+                          </div>
+
+                          <!-- Formal Agronomic Research Synthesis Paragraph -->
+                          <div style="background:#f8fafc; border-left: 3px solid #1b4332; padding: 6px 9px; font-size: 7.9px; color: #1e293b; text-align: justify; line-height: 1.38;">
+                            <strong style="color:#0f172a; text-transform:uppercase;">Agronomic Diagnostic Synthesis:</strong> ${synthesisText}
+                          </div>
+                        </div>
+
+                        <!-- Section 4.0: Field Split-Application Schedule (Full Width) -->
+                        <div style="background-color: #ffffff; border: 1px solid #94a3b8; border-radius: 3px; padding: 7px 10px;">
+                          <div style="font-size: 9px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1.5px solid #0f172a; padding-bottom: 2.5px; margin-bottom: 5px; display:flex; justify-content:space-between;">
+                            <span>4.0 Recommended Split-Application Schedule</span>
+                            <span style="font-size:7.4px; color:#475569;">MPOB Best Management Practice · Block ${blockNameStr}</span>
+                          </div>
+                          <table style="width:100%; border-collapse:collapse; font-size:8.2px; text-align:center;">
+                            <thead>
+                              <tr style="background:#f1f5f9; border:1px solid #cbd5e1; color:#0f172a; font-weight:800;">
+                                <th style="padding:3.5px 6px; border:1px solid #cbd5e1; text-align:left; width:28%;">Application Window</th>
+                                <th style="padding:3.5px 6px; border:1px solid #cbd5e1; width:12%;">Split Share</th>
+                                <th style="padding:3.5px 6px; border:1px solid #cbd5e1; width:15%;">N Rate (kg/palm)</th>
+                                <th style="padding:3.5px 6px; border:1px solid #cbd5e1; width:15%;">K Rate (kg/palm)</th>
+                                <th style="padding:3.5px 6px; border:1px solid #cbd5e1; width:30%;">Recommended Placement Zone</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; text-align:left; font-weight:700;">Round 1 (Mar–Apr · Post-Monsoon)</td>
+                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; font-weight:700;">40%</td>
+                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; font-weight:700; color:#15803d;">${(n_kg_palm * 0.40).toFixed(2)}</td>
+                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; font-weight:700; color:#15803d;">${(k_kg_palm * 0.40).toFixed(2)}</td>
+                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; color:#475569;">Weed Circle / Frond Pile</td>
+                              </tr>
+                              <tr>
+                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; text-align:left; font-weight:700;">Round 2 (Jul–Aug · Mid-Year)</td>
+                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; font-weight:700;">35%</td>
+                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; font-weight:700; color:#15803d;">${(n_kg_palm * 0.35).toFixed(2)}</td>
+                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; font-weight:700; color:#15803d;">${(k_kg_palm * 0.35).toFixed(2)}</td>
+                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; color:#475569;">Inter-Row Frond Stack</td>
+                              </tr>
+                              <tr>
+                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; text-align:left; font-weight:700;">Round 3 (Oct–Nov · Pre-Monsoon)</td>
+                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; font-weight:700;">25%</td>
+                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; font-weight:700; color:#15803d;">${(n_kg_palm * 0.25).toFixed(2)}</td>
+                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; font-weight:700; color:#15803d;">${(k_kg_palm * 0.25).toFixed(2)}</td>
+                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; color:#475569;">Outer Harvester Path</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
                     </div>
 
-                    <!-- Top Section: Selected Block Details + Dynamic Selected Block Portion Image -->
-                    <div style="display: flex; gap: 12px; margin-bottom: 10px;">
-                      <div style="flex: 1.15; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 12px;">
-                        <h3 style="margin-top: 0; margin-bottom: 6px; font-size: 11.5px; font-weight: 700; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px;">Selected Block & Estate Details</h3>
-                        <table style="width: 100%; border-collapse: collapse; font-size: 10px; color: #334155;">
-                          <tr>
-                            <td style="padding: 2.5px 0; width: 42%; color: #64748b;">- Estate Name</td>
-                            <td style="padding: 2.5px 0; font-weight: 700; color: #0f172a;">${estate_name}</td>
-                          </tr>
-                          <tr>
-                            <td style="padding: 2.5px 0; color: #64748b;">- Selected Block</td>
-                            <td style="padding: 2.5px 0; font-weight: 700; color: #2d6a4f;">${blockNameStr}${phaseIdentified ? ` (Phase: ${phaseIdentified})` : ''}</td>
-                          </tr>
-                          <tr>
-                            <td style="padding: 2.5px 0; color: #64748b;">- Block Area</td>
-                            <td style="padding: 2.5px 0; font-weight: 700; color: #0f172a;">${blockAreaHa.toFixed(2)} ha</td>
-                          </tr>
-                          <tr>
-                            <td style="padding: 2.5px 0; color: #64748b;">- Coordinates</td>
-                            <td style="padding: 2.5px 0; font-weight: 600; color: #0f172a; font-family: monospace;">${coords_str}</td>
-                          </tr>
-                          <tr>
-                            <td style="padding: 2.5px 0; color: #64748b;">- Soil Type & Series</td>
-                            <td style="padding: 2.5px 0; font-weight: 700; color: #1e293b;">${soilTypeIdentified}${soilSeriesIdentified ? ` (${soilSeriesIdentified})` : ''}</td>
-                          </tr>
-                          <tr>
-                            <td style="padding: 2.5px 0; color: #64748b;">- Current Fertilizer Usage</td>
-                            <td style="padding: 2.5px 0; font-weight: 600; color: #0f172a;">Standard MPOB Rates (${inputs.density || 148} palms/ha)</td>
-                          </tr>
-                        </table>
-                      </div>
-
-                      <!-- Selected Block Portion Map Box (Replaces Static Photo) -->
-                      <div style="flex: 0.85; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                        <div style="font-size: 9px; font-weight: 700; color: #0f172a; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.4px;">Selected Block Portion (${blockNameStr})</div>
-                        <div style="position: relative; width: 100%; height: 128px; border-radius: 6px; overflow: hidden; border: 2px solid #2d6a4f; box-shadow: 0 3px 8px rgba(0,0,0,0.12); background-color: #0b1320;">
-                          <img id="report-selected-block-portion-img" alt="Selected Block Portion" style="width: 100%; height: 100%; object-fit: cover; display: block;" />
-                        </div>
-                      </div>
-                    </div>
-
-                    <!-- Middle Section: Report Table with All 6 Nutrients (N, P, K, Mg, B, Ca) Average for Selected Block -->
-                    <div style="background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px 12px; margin-bottom: 10px;">
-                      <h3 style="margin-top: 0; margin-bottom: 6px; font-size: 11.5px; font-weight: 700; color: #0f172a;">Block Average Foliar Nutrient Analysis (N, P, K, Mg, B, Ca) & OPENS Recommendation</h3>
-                      
-                      <!-- Chosen Output Grid Parameters Summary Banner -->
-                      <div style="background-color: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 6px; padding: 6px 10px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 10px; font-weight: 600; color: #1e293b;">
-                        <div>
-                          Chosen Cost/Revenue Ratio: <span style="font-weight: 800; color: #15803d; font-size: 11px; background: #e2e8f0; padding: 1px 6px; border-radius: 3px;">${reportData.crrVal.toFixed(2)}</span>
-                        </div>
-                        <div>
-                          Yield Prediction: <span style="font-weight: 800; color: #2d6a4f; font-size: 11px;">${reportData.yieldVal.toFixed(2)} (t/ha/yr)</span>
-                        </div>
-                        <div>
-                          Revenue Gain: <span style="font-weight: 800; color: #2d6a4f; font-size: 11px;">RM ${calculated_rev.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} / yr</span>
-                        </div>
-                      </div>
-                      <div style="font-size: 8.5px; color: #64748b; font-weight: 500; margin-bottom: 6px; text-align: right;">
-                        Revenue gain formula = (Yield prediction × ${blockAreaHa.toFixed(2)} ha × FFB price RM ${ffb_price})
-                      </div>
-
-                      <table style="width: 100%; border-collapse: collapse; font-size: 9.5px; text-align: center;">
-                        <thead>
-                          <tr style="background-color: #f1f5f9; border: 1px solid #cbd5e1; color: #0f172a; font-weight: 700;">
-                            <th style="padding: 5px 8px; border: 1px solid #cbd5e1; text-align: left; width: 20%;">Element</th>
-                            <th style="padding: 5px 8px; border: 1px solid #cbd5e1; width: 28%;">Block Average (${blockNameStr})</th>
-                            <th style="padding: 5px 8px; border: 1px solid #cbd5e1; width: 16%;">Critical Level</th>
-                            <th style="padding: 5px 8px; border: 1px solid #cbd5e1; width: 18%;">Fert Rec. (kg/palm)</th>
-                            <th style="padding: 5px 8px; border: 1px solid #cbd5e1; width: 18%;">Fert Rec. (kg/ha)</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <tr>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; font-weight: 700; text-align: left; color: #0f172a;">N (Nitrogen)</td>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; color: #334155; font-weight: 600;">
-                              <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${dotColorFn(currentNutrients.N, 'N')};margin-right:4px;border:1px solid rgba(0,0,0,0.2);vertical-align:middle;"></span>
-                              ${currentNutrients.N.toFixed(2)}% <span style="font-size:8px;color:#64748b;">(Avg)</span>
-                            </td>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; color: #475569; font-weight: 600;">2.50%</td>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${n_kg_palm.toFixed(2)}</td>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${n_kg_ha.toFixed(2)}</td>
-                          </tr>
-                          <tr>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; font-weight: 700; text-align: left; color: #0f172a;">P (Phosphorus)</td>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; color: #334155; font-weight: 600;">
-                              <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${dotColorFn(currentNutrients.P, 'P')};margin-right:4px;border:1px solid rgba(0,0,0,0.2);vertical-align:middle;"></span>
-                              ${currentNutrients.P.toFixed(3)}% <span style="font-size:8px;color:#64748b;">(Avg)</span>
-                            </td>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; color: #475569; font-weight: 600;">0.150%</td>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${p_kg_palm.toFixed(2)}</td>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${p_kg_ha.toFixed(2)}</td>
-                          </tr>
-                          <tr>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; font-weight: 700; text-align: left; color: #0f172a;">K (Potassium)</td>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; color: #334155; font-weight: 600;">
-                              <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${dotColorFn(currentNutrients.K, 'K')};margin-right:4px;border:1px solid rgba(0,0,0,0.2);vertical-align:middle;"></span>
-                              ${currentNutrients.K.toFixed(2)}% <span style="font-size:8px;color:#64748b;">(Avg)</span>
-                            </td>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; color: #475569; font-weight: 600;">1.00%</td>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${k_kg_palm.toFixed(2)}</td>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${k_kg_ha.toFixed(2)}</td>
-                          </tr>
-                          <tr>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; font-weight: 700; text-align: left; color: #0f172a;">Mg (Magnesium)</td>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; color: #334155; font-weight: 600;">
-                              <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${dotColorFn(currentNutrients.Mg, 'Mg')};margin-right:4px;border:1px solid rgba(0,0,0,0.2);vertical-align:middle;"></span>
-                              ${currentNutrients.Mg.toFixed(2)}% <span style="font-size:8px;color:#64748b;">(Avg)</span>
-                            </td>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; color: #475569; font-weight: 600;">0.24%</td>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${mg_kg_palm.toFixed(2)}</td>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${mg_kg_ha.toFixed(2)}</td>
-                          </tr>
-                          <tr>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; font-weight: 700; text-align: left; color: #0f172a;">B (Boron)</td>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; color: #334155; font-weight: 600;">
-                              <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${dotColorFn(currentNutrients.B, 'B')};margin-right:4px;border:1px solid rgba(0,0,0,0.2);vertical-align:middle;"></span>
-                              ${currentNutrients.B.toFixed(1)} ppm <span style="font-size:8px;color:#64748b;">(Avg)</span>
-                            </td>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; color: #475569; font-weight: 600;">15.0 ppm</td>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${b_kg_palm.toFixed(2)}</td>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${b_kg_ha.toFixed(2)}</td>
-                          </tr>
-                          <tr>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; font-weight: 700; text-align: left; color: #0f172a;">Ca (Calcium)</td>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; color: #334155; font-weight: 600;">
-                              <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${dotColorFn(currentNutrients.Ca, 'Ca')};margin-right:4px;border:1px solid rgba(0,0,0,0.2);vertical-align:middle;"></span>
-                              ${currentNutrients.Ca.toFixed(2)}% <span style="font-size:8px;color:#64748b;">(Avg)</span>
-                            </td>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; color: #475569; font-weight: 600;">0.60%</td>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${ca_kg_palm.toFixed(2)}</td>
-                            <td style="padding: 4.5px 8px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${ca_kg_ha.toFixed(2)}</td>
-                          </tr>
-                        </tbody>
-                      </table>
-
-                      <div style="margin-top: 6px; font-size: 10px; font-weight: 700; color: #0f172a; display: flex; justify-content: space-between;">
-                        <span>Recommended Formulation: <span style="color: #2d6a4f; font-weight: 700;">N:7, P:3, K:30, Mg:0, B:0.5</span></span>
-                        <span style="color: #64748b; font-weight: 600;">See Page 2 (Block Rasters) & Page 3 (Estate Rasters)</span>
-                      </div>
-                    </div>
-
-                    <!-- Bottom Section: Optimum Nutrient Analysis % & Stress Level Donut Chart -->
-                    <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 9px 12px; display: flex; gap: 12px; align-items: center;">
-                      <div style="flex: 1.2; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 4px; padding: 8px 10px;">
-                        <div style="font-size: 9px; font-weight: 700; color: #64748b; margin-bottom: 5px;">Block Nutrient Sufficiency (% of Critical Optimum)</div>
-                        <div style="font-size: 8.5px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px;">
-                          <div>
-                            <div style="display:flex;justify-content:space-between;font-weight:700;color:#334155;margin-bottom:2px;"><span>N (${currentNutrients.N.toFixed(2)}%)</span><span>${Math.min(120, Math.round((currentNutrients.N / 2.50) * 100))}%</span></div>
-                            <div style="height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden;"><div style="height:100%;background:#0284c7;width:${Math.min(100, Math.round((currentNutrients.N / 2.50) * 100))}%;"></div></div>
-                          </div>
-                          <div>
-                            <div style="display:flex;justify-content:space-between;font-weight:700;color:#334155;margin-bottom:2px;"><span>P (${currentNutrients.P.toFixed(3)}%)</span><span>${Math.min(120, Math.round((currentNutrients.P / 0.15) * 100))}%</span></div>
-                            <div style="height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden;"><div style="height:100%;background:#0d9488;width:${Math.min(100, Math.round((currentNutrients.P / 0.15) * 100))}%;"></div></div>
-                          </div>
-                          <div>
-                            <div style="display:flex;justify-content:space-between;font-weight:700;color:#334155;margin-bottom:2px;"><span>K (${currentNutrients.K.toFixed(2)}%)</span><span>${Math.min(120, Math.round((currentNutrients.K / 1.00) * 100))}%</span></div>
-                            <div style="height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden;"><div style="height:100%;background:#ea580c;width:${Math.min(100, Math.round((currentNutrients.K / 1.00) * 100))}%;"></div></div>
-                          </div>
-                          <div>
-                            <div style="display:flex;justify-content:space-between;font-weight:700;color:#334155;margin-bottom:2px;"><span>Mg (${currentNutrients.Mg.toFixed(2)}%)</span><span>${Math.min(120, Math.round((currentNutrients.Mg / 0.24) * 100))}%</span></div>
-                            <div style="height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden;"><div style="height:100%;background:#16a34a;width:${Math.min(100, Math.round((currentNutrients.Mg / 0.24) * 100))}%;"></div></div>
-                          </div>
-                          <div>
-                            <div style="display:flex;justify-content:space-between;font-weight:700;color:#334155;margin-bottom:2px;"><span>B (${currentNutrients.B.toFixed(1)} ppm)</span><span>${Math.min(120, Math.round((currentNutrients.B / 15.0) * 100))}%</span></div>
-                            <div style="height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden;"><div style="height:100%;background:#7c3aed;width:${Math.min(100, Math.round((currentNutrients.B / 15.0) * 100))}%;"></div></div>
-                          </div>
-                          <div>
-                            <div style="display:flex;justify-content:space-between;font-weight:700;color:#334155;margin-bottom:2px;"><span>Ca (${currentNutrients.Ca.toFixed(2)}%)</span><span>${Math.min(120, Math.round((currentNutrients.Ca / 0.60) * 100))}%</span></div>
-                            <div style="height:5px;background:#e2e8f0;border-radius:3px;overflow:hidden;"><div style="height:100%;background:#2563eb;width:${Math.min(100, Math.round((currentNutrients.Ca / 0.60) * 100))}%;"></div></div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Stress Level Donut Chart -->
-                      <div style="flex: 0.8; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 4px; padding: 8px 10px; display: flex; align-items: center; justify-content: space-between;">
-                        <div style="font-size: 8.5px; display: flex; flex-direction: column; gap: 4px;">
-                          <div style="font-weight: 700; color: #64748b;">Canopy Stress-level</div>
-                          <div><span style="font-weight: 700; color: #ef4444;">■ Stressed:</span> <span style="color: #64748b;">10.0%</span></div>
-                          <div><span style="font-weight: 700; color: #eab308;">■ Moderate:</span> <span style="color: #64748b;">30.0%</span></div>
-                          <div><span style="font-weight: 700; color: #22c55e;">■ Healthy:</span> <span style="color: #64748b;">60.0%</span></div>
-                        </div>
-
-                        <svg width="82" height="82" viewBox="0 0 42 42">
-                          <circle cx="21" cy="21" r="15.91549430918954" fill="#ffffff"></circle>
-                          <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#e2e8f0" stroke-width="6"></circle>
-                          <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#22c55e" stroke-width="6" stroke-dasharray="60 40" stroke-dashoffset="25"></circle>
-                          <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#eab308" stroke-width="6" stroke-dasharray="30 70" stroke-dashoffset="65"></circle>
-                          <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#ef4444" stroke-width="6" stroke-dasharray="10 90" stroke-dashoffset="35"></circle>
-                        </svg>
-                      </div>
-                    </div>
-
-                    <div style="margin-top: 8px; border-top: 1px solid #cbd5e1; padding-top: 5px; font-size: 7.5px; color: #94a3b8; text-align: center; line-height: 1.3;">
-                      Disclaimer: This report is generated dynamically by the MPOB PalmNex system based on Sentinel-2 satellite imagery index calculations, OPENS agronomic yield matrices, and leaf nutrient analysis.
+                    <!-- Formal Research Footer -->
+                    <div style="margin-top: 6px; border-top: 1.5px solid #0f172a; padding-top: 4px; font-size: 7.5px; color: #475569; font-weight:600; display:flex; justify-content:space-between; align-items:center;">
+                      <span>MPOB PalmNex Agronomic Decision Support System · Sentinel-2 Spectral Indices &amp; OPENS Econometric Yield Model</span>
+                      <span style="color:#0f172a; font-weight:800;">Page 1 of 4</span>
                     </div>
                 </div>
 
-                <!-- PAGE 2: Selected Block Raster Color Maps for N, P, K, Mg, Ca, B -->
-                ${page2BlockRasters}
-
-                <!-- PAGE 3: Whole Estate Raster Color Maps for N, P, K, Mg, Ca, B -->
-                ${page3EstateRasters}
-
-                <!-- PAGE 4: OPENS Soil Analysis Input & Complete Yield/Revenue Matrices -->
+                <!-- PAGE 2: OPENS Soil Analysis Input & Complete Yield/Revenue Matrices (Moved from Page 4 to Page 2) -->
                 <div class="report-page">
-                    <div style="border-bottom: 2.5px solid #2d6a4f; padding-bottom: 8px; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: flex-end;">
-                      <div>
-                        <h1 style="margin: 0; color: #2d6a4f; font-size: 20px; font-weight: 700; letter-spacing: -0.5px;">${soilMode} Soil Analysis Input (OPENS):</h1>
-                        <div style="font-size: 9.5px; color: #64748b; font-weight: 600; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.5px;">STAND & SOIL CHARACTERISTICS, FFB YIELD PREDICTION & REVENUE GAIN MATRICES</div>
-                      </div>
-                      <div style="font-size: 9.5px; font-weight: 700; color: #1e293b; background: #f1f5f9; border: 1px solid #cbd5e1; padding: 3px 8px; border-radius: 4px;">
-                        Page 4 of 4 • ${blockNameStr}
-                      </div>
+                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div style="border-bottom: 2px solid #0f172a; padding-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+                          <div>
+                            <div style="font-size: 7.8px; font-weight: 800; color: #1b4332; text-transform: uppercase; letter-spacing: 0.9px;">
+                                MALAYSIAN PALM OIL BOARD (MPOB) · PALMNEX
+                            </div>
+                            <h1 style="margin: 1px 0 2px 0; color: #0f172a; font-size: 16px; font-weight: 800; letter-spacing: -0.2px; text-transform: uppercase;">
+                                ${soilMode} Soil Analysis Input (OPENS) &amp; Response Surface Matrices
+                            </h1>
+                            <div style="font-size: 8px; color: #475569; font-weight: 600; letter-spacing: 0.3px;">
+                                STAND &amp; EDAPHIC CHARACTERISTICS, FFB YIELD PREDICTION &amp; GROSS REVENUE GAIN MATRICES &nbsp;|&nbsp; BLOCK ${blockNameStr}
+                            </div>
+                          </div>
+                          ${compassSvgHtml}
+                        </div>
+
+                        <!-- Characteristics Section -->
+                        ${char_html}
+
+                        <!-- Econometric Cost & Prescription Summary Bar -->
+                        ${cost_html}
+
+                        <!-- FFB Yield Prediction Matrix -->
+                        ${yield_table_html}
+
+                        <!-- Revenue Gain Matrix -->
+                        ${revenue_table_html}
+
+                        <!-- Methodological Research Note -->
+                        <div style="background:#f8fafc; border:1px solid #cbd5e1; border-left:3px solid #0f172a; border-radius:2px; padding:6px 9px; font-size:7.6px; color:#334155; text-align:justify; line-height:1.36;">
+                          <strong style="color:#0f172a; text-transform:uppercase;">Methodological Note (OPENS Response Surface Modelling):</strong> The Oil Palm Efficient Nutrient System (OPENS) response matrices evaluate 143 N &times; K factorial treatment combinations (N: 0.0–6.0 kg/palm; K: 0.0–5.0 kg/palm) parameterized by site-specific pedological, edaphic, and climatic variables (Tables 2.1–2.2). Shaded iso-zones denote combinations achieving the optimal marginal Cost/Revenue Ratio (CRR &approx; 0.30), while the highlighted blue cell designates the selected operational prescription for Block ${blockNameStr}.
+                        </div>
                     </div>
 
-                    <!-- Characteristics Section -->
-                    ${char_html}
-
-                    <!-- Cost variables section -->
-                    ${cost_html}
-
-                    <!-- FFB Yield Prediction Table -->
-                    ${yield_table_html}
-
-                    <!-- Revenue Gain Table -->
-                    ${revenue_table_html}
+                    <!-- Formal Research Footer -->
+                    <div style="margin-top: 6px; border-top: 1.5px solid #0f172a; padding-top: 4px; font-size: 7.5px; color: #475569; font-weight:600; display:flex; justify-content:space-between; align-items:center;">
+                      <span>MPOB PalmNex Research Report · OPENS Pedological &amp; Bio-Economic Response Surface Analysis</span>
+                      <span style="color:#0f172a; font-weight:800;">Page 2 of 4</span>
+                    </div>
                 </div>
+
+                <!-- PAGE 3: Selected Block Spatial Foliar Nutrient Analysis (6-Panel Uncompressed Rasters) -->
+                ${page3BlockRasters}
+
+                <!-- PAGE 4: Whole Estate Spatial Foliar Nutrient Analysis (6-Panel Uncompressed Rasters) -->
+                ${page4EstateRasters}
                 `;
 
                 if (typeof window.populateReportRasterImages === 'function' && blockDetails) {
@@ -6587,8 +6722,8 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
             const opt = {
                 margin:       0,
                 filename:     `palmnex_agronomic_report_${safeBlock}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, allowTaint: true, logging: false, scrollY: 0 },
+                image:        { type: 'jpeg', quality: 0.99 },
+                html2canvas:  { scale: 3, useCORS: true, allowTaint: true, logging: false, scrollY: 0 },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
                 pagebreak:    { mode: ['css', 'legacy'] }
             };

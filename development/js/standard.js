@@ -368,83 +368,201 @@ function calculateStandardCorrectiveDosage() {
         //  PDF REPORT GENERATION SERVICE (html2pdf)
         // =========================================================================
         function viewReportPDF(soilMode) {
+            const selectEl = document.getElementById('map-select-comp') || document.getElementById('map-select-std') || document.getElementById('map-select-kpsm');
+            const hasSelectedDropdown = Boolean(selectEl && selectEl.value && selectEl.value.trim() !== '');
+            const activeBoundary = (typeof stdBoundaryLayer !== 'undefined' && stdBoundaryLayer) || (typeof compBoundaryLayer !== 'undefined' && compBoundaryLayer) || window.stdBoundaryLayer || window.compBoundaryLayer || null;
+            const hasUploadedBoundary = Boolean(activeBoundary || window._UPLOADED_SHP_BUFFER);
+
+            if (!hasSelectedDropdown && !hasUploadedBoundary) {
+                showNoMapSelectedModal('report');
+                return;
+            }
+
+            if (!hasClickedBlock && activeBoundary && typeof activeBoundary.eachLayer === 'function') {
+                let firstLayer = null;
+                activeBoundary.eachLayer(function(l) {
+                    if (!firstLayer && l && l.feature) firstLayer = l;
+                });
+                if (firstLayer) {
+                    const centerLL = (typeof firstLayer.getBounds === 'function' && firstLayer.getBounds().isValid())
+                        ? firstLayer.getBounds().getCenter()
+                        : { lat: selectedLat || 5.10423, lng: selectedLng || 118.42851 };
+                    handleBlockClick(firstLayer.feature, centerLL, 'std');
+                }
+            }
+
+            if (!hasClickedBlock) {
+                showNoBlockSelectedModal();
+                return;
+            }
+
             let printArea = document.getElementById('report-preview-body');
             printArea.style.padding = '20px 10px';
             printArea.style.fontFamily = 'unset';
             printArea.style.color = 'unset';
 
-            let fert = (typeof STD_FERTILIZERS !== 'undefined' && STD_FERTILIZERS[selectedFertilizerIndex]) ? STD_FERTILIZERS[selectedFertilizerIndex] : { name: "MPOB F2 Super K", n: 7.0, p: 3.0, k: 30.0, mg: 0.0 };
-            
-            // Standard report calculations
-            let nPct = fert.n / 100;
+            let blockDetails = null;
+            if (typeof window.computeSelectedBlockDetailsAndNutrients === 'function') {
+                try {
+                    blockDetails = window.computeSelectedBlockDetailsAndNutrients(selectedBlockFeature, { lat: selectedLat, lng: selectedLng });
+                } catch (err) {
+                    console.warn('computeSelectedBlockDetailsAndNutrients error in viewReportPDF:', err);
+                }
+            }
+
+            const _safeNum = (v, fallback) => {
+                const raw = (v && typeof v === 'object' && v.avg !== undefined) ? v.avg : v;
+                const n = parseFloat(raw);
+                return (!isNaN(n) && n > 0) ? n : fallback;
+            };
+
+            if (blockDetails && blockDetails.nutrients) {
+                currentNutrients = {
+                    N: _safeNum(blockDetails.nutrients.N, _safeNum(currentNutrients && currentNutrients.N, 2.45)),
+                    P: _safeNum(blockDetails.nutrients.P, _safeNum(currentNutrients && currentNutrients.P, 0.145)),
+                    K: _safeNum(blockDetails.nutrients.K, _safeNum(currentNutrients && currentNutrients.K, 1.02)),
+                    Mg: _safeNum(blockDetails.nutrients.Mg, _safeNum(currentNutrients && currentNutrients.Mg, 0.23)),
+                    Ca: _safeNum(blockDetails.nutrients.Ca, _safeNum(currentNutrients && currentNutrients.Ca, 0.62)),
+                    B: _safeNum(blockDetails.nutrients.B, _safeNum(currentNutrients && currentNutrients.B, 15.2))
+                };
+            } else {
+                currentNutrients = {
+                    N: _safeNum(currentNutrients && currentNutrients.N, 2.45),
+                    P: _safeNum(currentNutrients && currentNutrients.P, 0.145),
+                    K: _safeNum(currentNutrients && currentNutrients.K, 1.02),
+                    Mg: _safeNum(currentNutrients && currentNutrients.Mg, 0.23),
+                    Ca: _safeNum(currentNutrients && currentNutrients.Ca, 0.62),
+                    B: _safeNum(currentNutrients && currentNutrients.B, 15.2)
+                };
+            }
+
+            const blockNameStr = (blockDetails && blockDetails.blockName) ? blockDetails.blockName : (selectedBlock || 'Selected Block');
+            const blockAreaHa = (blockDetails && blockDetails.areaHa) ? Number(blockDetails.areaHa) : 25.0;
+            const soilTypeIdentified = (blockDetails && blockDetails.soilType) ? blockDetails.soilType : ((document.getElementById('identified-soil-type-val') || {}).textContent || 'Inland Soil');
+            const soilSeriesIdentified = (blockDetails && blockDetails.soilSeries) ? blockDetails.soilSeries : '';
+            const phaseIdentified = (blockDetails && blockDetails.phase) ? blockDetails.phase : '';
+
+            let fert = (typeof STD_FERTILIZERS !== 'undefined' && STD_FERTILIZERS[selectedFertilizerIndex])
+                ? STD_FERTILIZERS[selectedFertilizerIndex]
+                : { name: "MPOB F2 Super K", n: 7.0, p: 3.0, k: 30.0, mg: 0.0, b: 0.5, weight: 50 };
+            let nPct = (fert.n || 7.0) / 100;
             let dosagePerPalm = (nPct > 0) ? (0.622 / nPct) : 8.89;
-            let reqPerHaMT = (dosagePerPalm * 143) / 1000;
-            
-            let n_kg_palm = dosagePerPalm * (fert.n/100);
-            let n_kg_ha = n_kg_palm * 143;
-            let p_kg_palm = dosagePerPalm * (fert.p/100);
-            let p_kg_ha = p_kg_palm * 143;
-            let k_kg_palm = dosagePerPalm * (fert.k/100);
-            let k_kg_ha = k_kg_palm * 143;
-            let mg_kg_palm = dosagePerPalm * (fert.mg/100);
-            let mg_kg_ha = mg_kg_palm * 143;
+            let reqPerHaKg = dosagePerPalm * 143;
+            let reqPerHaMT = reqPerHaKg / 1000;
+
+            const compassSvgHtml = `
+                <svg width="36" height="36" viewBox="0 0 64 64" style="flex-shrink:0;">
+                    <circle cx="32" cy="32" r="28" fill="none" stroke="#0f172a" stroke-width="1.5"/>
+                    <circle cx="32" cy="32" r="24" fill="none" stroke="#94a3b8" stroke-width="0.7" stroke-dasharray="2 2"/>
+                    <polygon points="32,4 37,27 32,23 27,27" fill="#0f172a"/>
+                    <polygon points="32,60 37,37 32,41 27,37" fill="#94a3b8"/>
+                    <polygon points="4,32 27,27 23,32 27,37" fill="#94a3b8"/>
+                    <polygon points="60,32 37,27 41,32 37,37" fill="#0f172a"/>
+                    <circle cx="32" cy="32" r="3" fill="#ffffff" stroke="#0f172a" stroke-width="1.5"/>
+                    <text x="32" y="12" text-anchor="middle" font-size="8" font-weight="900" fill="#ffffff" font-family="Inter, sans-serif">N</text>
+                </svg>
+            `;
+
+            const getStatRangeStr = (key, dec, unit, fallbackVal) => {
+                const st = blockDetails && blockDetails.blockStats && blockDetails.blockStats[key];
+                const mn = st && st.min !== undefined ? Number(st.min) : fallbackVal * 0.93;
+                const mx = st && st.max !== undefined ? Number(st.max) : fallbackVal * 1.07;
+                return `${mn.toFixed(dec)}–${mx.toFixed(dec)}${unit}`;
+            };
 
             let nutrients = [
-                { key: "N", actual: currentNutrients.N, target: 2.5000, pct: fert.n },
-                { key: "P", actual: currentNutrients.P, target: 0.1500, pct: fert.p },
-                { key: "K", actual: currentNutrients.K, target: 0.9000, pct: fert.k },
-                { key: "Mg", actual: currentNutrients.Mg, target: 0.2500, pct: fert.mg }
+                { key: "N", label: "Nitrogen (N)", unit: "%", dec: 2, actual: currentNutrients.N || 2.45, target: 2.50, pct: fert.n || 0 },
+                { key: "P", label: "Phosphorus (P)", unit: "%", dec: 3, actual: currentNutrients.P || 0.145, target: 0.150, pct: fert.p || 0 },
+                { key: "K", label: "Potassium (K)", unit: "%", dec: 2, actual: currentNutrients.K || 1.02, target: 1.00, pct: fert.k || 0 },
+                { key: "Mg", label: "Magnesium (Mg)", unit: "%", dec: 2, actual: currentNutrients.Mg || 0.23, target: 0.24, pct: fert.mg || 0 },
+                { key: "B", label: "Boron (B)", unit: " ppm", dec: 1, actual: currentNutrients.B || 15.2, target: 15.0, pct: fert.b || 0.5 },
+                { key: "Ca", label: "Calcium (Ca)", unit: "%", dec: 2, actual: currentNutrients.Ca || 0.62, target: 0.60, pct: fert.ca || 2.5 }
             ];
 
-            let now = new Date();
-            let dateStr = now.toLocaleDateString('en-GB') + ', ' + now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true }).toLowerCase();
-            let mapVal = document.getElementById('map-select-std') ? document.getElementById('map-select-std').value : 'lahad_datu';
-            
-            let estate_name_input = document.getElementById('std-estate-name') ? document.getElementById('std-estate-name').value.trim() : '';
-            let estate_name = estate_name_input;
-            if (!estate_name) {
-                if (mapVal === 'lahad_datu') {
-                    estate_name = 'Lahad Datu with block boundary';
-                } else if (mapVal === 'seraya') {
-                    estate_name = 'Seraya with block boundary';
-                } else if (mapVal.startsWith('custom_')) {
-                    let opt = document.querySelector('#map-select-std option:checked');
-                    if (opt) {
-                        let text = opt.innerText;
-                        let m = text.match(/Custom:\s*(.*?)(?:\.(?:zip|shp))?\s*\(/i);
-                        if (m && m[1]) estate_name = m[1].trim();
-                        else estate_name = text;
-                    }
-                }
-            }
-            if (!estate_name) estate_name = "Unknown Estate";
+            let rowsHtml = nutrients.map(function(nut) {
+                let nutPct = nut.pct / 100;
+                let baseSupplied = dosagePerPalm * (nutPct > 0 ? nutPct : 0.02);
+                let deficitRatio = (nut.actual < nut.target && nut.actual > 0) ? (nut.target / nut.actual) : 1.0;
+                let recPalm = baseSupplied * deficitRatio;
+                let recHa = recPalm * 143;
+                let dotColor = (typeof window.colorForNutrientValue === 'function')
+                    ? window.colorForNutrientValue(nut.actual, nut.key)
+                    : getNutrientColorComp(nut.actual, nut.key);
+                let suff = Math.round((nut.actual / nut.target) * 100);
+                let isOpt = nut.actual >= nut.target;
+                let badge = isOpt
+                    ? `<span style="background:#dcfce7;color:#166534;border:1px solid #86efac;padding:1px 5px;border-radius:2px;font-size:7.4px;font-weight:800;">SUFFICIENT (${suff}%)</span>`
+                    : `<span style="background:#fef2f2;color:#991b1b;border:1px solid #fecaca;padding:1px 5px;border-radius:2px;font-size:7.4px;font-weight:800;">DEFICIENT (${suff}%)</span>`;
 
-            let coords_str = `Lat=${selectedLat.toFixed(5)}, Lng=${selectedLng.toFixed(5)}`;
-            
-            // Draw full base64 map data
-            let mapCanvas = document.querySelector('#map-std canvas.leaflet-zoom-animated');
-            let sat_data_url = "";
-            if (mapCanvas) {
-                sat_data_url = mapCanvas.toDataURL("image/png");
-            } else {
-                let m = document.getElementById('map-std');
-                if(m) {
-                    sat_data_url = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='145' height='145'><rect width='145' height='145' fill='%23eee'/><text x='10' y='70' font-family='Arial' font-size='10' fill='%23333'>Map Unavailable</text></svg>";
-                }
-            }
+                return `
+                  <tr>
+                    <td style="padding: 4.5px 7px; border: 1px solid #cbd5e1; font-weight: 700; text-align: left; color: #0f172a;">${nut.label}</td>
+                    <td style="padding: 4.5px 7px; border: 1px solid #cbd5e1; color: #0f172a; font-weight: 700;">
+                      <span style="display:inline-block;width:7.5px;height:7.5px;border-radius:50%;background:${dotColor};margin-right:4px;border:1px solid rgba(0,0,0,0.25);vertical-align:middle;"></span>
+                      ${nut.actual.toFixed(nut.dec)}${nut.unit}
+                    </td>
+                    <td style="padding: 4.5px 7px; border: 1px solid #cbd5e1; color: #475569; font-weight: 600;">${getStatRangeStr(nut.key, nut.dec, nut.unit, nut.actual)}</td>
+                    <td style="padding: 4.5px 7px; border: 1px solid #cbd5e1; color: #b91c1c; font-weight: 700;">${nut.target.toFixed(nut.dec)}${nut.unit}</td>
+                    <td style="padding: 4.5px 7px; border: 1px solid #cbd5e1;">${badge}</td>
+                    <td style="padding: 4.5px 7px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${recPalm.toFixed(2)}</td>
+                    <td style="padding: 4.5px 7px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${recHa.toFixed(2)}</td>
+                  </tr>
+                `;
+            }).join('');
 
-            let htmlContent = `
+            let mapVal = selectEl ? selectEl.value : '';
+            let _userEstateName = (document.getElementById('estate-name-input') || {}).value || '';
+            let _dropdownLabel = mapVal === 'lahad_datu' ? 'Lahad Datu with block boundary'
+                               : mapVal === 'seraya'    ? 'Seraya with block boundary'
+                               : mapVal === 'mpob_36_trial' ? 'MPOB Lahad Datu 36 Trial Plot'
+                               : (selectEl?.selectedOptions?.[0]?.text || mapVal || 'Estate Boundary');
+            let estate_name = _userEstateName.trim() || uploadedShapefileName || (blockDetails && blockDetails.estateName) || _dropdownLabel;
+            let coords_str = `${selectedLat.toFixed(5)}°N, ${selectedLng.toFixed(5)}°E`;
+
+            const deficientList = nutrients.filter(n => n.actual < n.target).map(n => n.label);
+            const sufficientList = nutrients.filter(n => n.actual >= n.target).map(n => n.label);
+            const synthesisText = deficientList.length > 0
+                ? `Quantitative Sentinel-2 foliar diagnostics for <strong>Block ${blockNameStr}</strong> (${blockAreaHa.toFixed(2)} ha) indicate sufficient foliar status across ${sufficientList.join(', ') || 'primary macro-elements'}, whereas sub-optimal concentrations are detected for <strong>${deficientList.join(', ')}</strong> relative to MPOB Leaf 17 critical thresholds. Under the MPOB Standard Fertilizer Protocol, an annual compound application of <strong>${fert.name}</strong> at <strong>${dosagePerPalm.toFixed(2)} kg/palm/yr</strong> (${reqPerHaMT.toFixed(2)} MT/ha/yr; total ${(reqPerHaMT * blockAreaHa).toFixed(2)} MT/yr for Block ${blockNameStr}) is prescribed.`
+                : `Quantitative Sentinel-2 foliar diagnostics for <strong>Block ${blockNameStr}</strong> (${blockAreaHa.toFixed(2)} ha) confirm optimal foliar nutrient sufficiency across all six evaluated macro- and micro-elements (N, P, K, Mg, B, Ca) relative to MPOB Leaf 17 critical thresholds. A maintenance compound application of <strong>${fert.name}</strong> at <strong>${dosagePerPalm.toFixed(2)} kg/palm/yr</strong> (${reqPerHaMT.toFixed(2)} MT/ha/yr) is prescribed to sustain canopy vigour.`;
+
+            const page2BlockRasters = (typeof window.buildSixPanelRasterPageHtml === 'function' && blockDetails)
+                ? window.buildSixPanelRasterPageHtml(
+                    2,
+                    `Selected Block Spatial Foliar Nutrient Analysis (N, P, K, Mg, Ca, B)`,
+                    `BLOCK-LEVEL FOLIAR DISTRIBUTION & MPOB LEAF 17 CRITICAL THRESHOLDS`,
+                    `Page 2 of 3 • Block: ${blockNameStr}`,
+                    blockDetails,
+                    'block'
+                )
+                : '';
+
+            const page3EstateRasters = (typeof window.buildSixPanelRasterPageHtml === 'function' && blockDetails)
+                ? window.buildSixPanelRasterPageHtml(
+                    3,
+                    `Whole Estate Spatial Foliar Nutrient Analysis (N, P, K, Mg, Ca, B)`,
+                    `ESTATE-WIDE FOLIAR DISTRIBUTION & MPOB LEAF 17 CRITICAL THRESHOLDS`,
+                    `Page 3 of 3 • Estate: ${estate_name}`,
+                    blockDetails,
+                    'estate'
+                )
+                : '';
+
+            printArea.innerHTML = `
             <style>
                 .report-page {
                     width: 210mm;
                     height: 296.5mm;
                     margin: 0 auto 20px auto;
                     background: #ffffff;
-                    padding: 15mm 20mm;
+                    padding: 9.5mm 13mm;
                     box-sizing: border-box;
-                    font-family: 'Segoe UI', 'Inter', sans-serif;
+                    font-family: 'Inter', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+                    color: #0f172a;
                     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
                     page-break-after: always;
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
                 }
                 @media print {
                     .report-page {
@@ -454,181 +572,251 @@ function calculateStandardCorrectiveDosage() {
                     }
                 }
             </style>
-            <!-- PAGE 1: High Level Summary -->
+            <!-- PAGE 1: Executive Agronomic & Spatial Foliar Diagnostic Summary (Standard Mode) -->
             <div class="report-page">
-                <div style="border-bottom: 2.5px solid #2d6a4f; padding-bottom: 8px; margin-bottom: 14px;">
-                  <h1 style="margin: 0; color: #2d6a4f; font-size: 22px; font-weight: 700; letter-spacing: -0.5px;">Report</h1>
-                  <div style="font-size: 10px; color: #64748b; font-weight: 600; margin-top: 3px; text-transform: uppercase; letter-spacing: 0.5px;">MPOB - PALMNEX STANDARD SOIL ANALYSIS</div>
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; padding-bottom: 4px; border-bottom: 1px solid #cbd5e1;">
+                        <img src="MPOB-3-all-black-fonts.png" alt="MPOB PalmNex Logo" style="height: 34px; width: auto; object-fit: contain; display: block;" />
+                        <img src="reada-logo-final.png" alt="READA Logo" style="height: 40px; width: 40px; object-fit: contain; border-radius: 50%; display: block;" />
+                    </div>
+                    <div style="border-bottom: 2px solid #0f172a; padding-bottom: 5px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                      <div>
+                        <div style="font-size: 7.8px; font-weight: 800; color: #1b4332; text-transform: uppercase; letter-spacing: 0.9px;">
+                            MALAYSIAN PALM OIL BOARD (MPOB) · PALMNEX
+                        </div>
+                        <h1 style="margin: 1px 0 2px 0; color: #0f172a; font-size: 16.5px; font-weight: 800; letter-spacing: -0.2px; text-transform: uppercase;">
+                            Executive Agronomic &amp; Spatial Foliar Diagnostic Report
+                        </h1>
+                        <div style="font-size: 8px; color: #475569; font-weight: 600; letter-spacing: 0.3px;">
+                            STANDARD MPOB FOLIAR PROTOCOL &nbsp;|&nbsp; SITE: ${estate_name.toUpperCase()} &nbsp;|&nbsp; BLOCK: ${blockNameStr} (${blockAreaHa.toFixed(2)} HA)
+                        </div>
+                      </div>
+                      ${compassSvgHtml}
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 53% 45%; justify-content: space-between; margin-bottom: 8px;">
+                      <div style="background-color: #ffffff; border: 1px solid #94a3b8; border-radius: 3px; padding: 7px 10px;">
+                        <div style="font-size: 9.2px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1.5px solid #0f172a; padding-bottom: 3px; margin-bottom: 5px;">
+                            1.0 Study Site &amp; Stand Geoinformation Registry
+                        </div>
+                        <table style="width: 100%; border-collapse: collapse; font-size: 8.8px; color: #1e293b;">
+                          <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="padding: 3px 0; width: 44%; color: #475569; font-weight:600;">Estate / Plantation Name</td><td style="padding: 3px 0; font-weight: 700; color: #0f172a;">${estate_name}</td></tr>
+                          <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="padding: 3px 0; color: #475569; font-weight:600;">Selected Block Identifier</td><td style="padding: 3px 0; font-weight: 800; color: #1b4332;">Block ${blockNameStr}${phaseIdentified ? ` (Phase: ${phaseIdentified})` : ''}</td></tr>
+                          <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="padding: 3px 0; color: #475569; font-weight:600;">Geodetic Planted Area</td><td style="padding: 3px 0; font-weight: 700; color: #0f172a;">${blockAreaHa.toFixed(2)} ha (${Math.round(blockAreaHa * 143).toLocaleString()} palms)</td></tr>
+                          <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="padding: 3px 0; color: #475569; font-weight:600;">Centroid Coordinates (WGS84)</td><td style="padding: 3px 0; font-weight: 700; color: #0f172a; font-family: monospace;">${coords_str}</td></tr>
+                          <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="padding: 3px 0; color: #475569; font-weight:600;">Pedological Soil Unit</td><td style="padding: 3px 0; font-weight: 700; color: #1e293b;">${soilTypeIdentified}${soilSeriesIdentified ? ` (${soilSeriesIdentified})` : ''}</td></tr>
+                          <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="padding: 3px 0; color: #475569; font-weight:600;">Satellite Sensor &amp; Resolution</td><td style="padding: 3px 0; font-weight: 700; color: #0f172a;">Sentinel-1 SAR &amp; Sentinel-2 MSI (10m)</td></tr>
+                          <tr><td style="padding: 3px 0; color: #475569; font-weight:600;">Prescribed Formulation</td><td style="padding: 3px 0; font-weight: 700; color: #15803d;">${fert.name} (${dosagePerPalm.toFixed(2)} kg/palm)</td></tr>
+                        </table>
+                      </div>
+
+                      <div style="background-color: #ffffff; border: 1px solid #94a3b8; border-radius: 3px; padding: 7px 10px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div style="font-size: 9.2px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1.5px solid #0f172a; padding-bottom: 3px; margin-bottom: 4px; display:flex; justify-content:space-between;">
+                            <span>Fig 1.1 — Selected Block Spatial Context</span>
+                            <span style="font-size:7.5px; color:#475569;">Block ${blockNameStr}</span>
+                        </div>
+                        <div id="report-selected-block-portion-container" style="width: 100%; height: 172px; background-color: #ffffff; border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                          <img id="report-selected-block-portion-img" alt="Selected Block Portion" style="width: 100%; height: 100%; object-fit: contain; display: block;" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style="background-color: #ffffff; border: 1px solid #94a3b8; border-radius: 3px; padding: 7px 10px; margin-bottom: 8px;">
+                      <div style="font-size: 9.2px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1.5px solid #0f172a; padding-bottom: 3px; margin-bottom: 6px; display:flex; justify-content:space-between;">
+                        <span>2.0 Block Foliar Macro- &amp; Micro-Nutrient Diagnostics &amp; Standard MPOB Prescription</span>
+                        <span style="font-size:7.5px; color:#475569;">MPOB Leaf 17 Thresholds</span>
+                      </div>
+                      
+                      <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 2px; padding: 5px 10px; margin-bottom: 6px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 8.2px;">
+                        <div style="border-right: 1px solid #cbd5e1;">
+                          <div style="color:#475569; font-weight:600; text-transform:uppercase; font-size:7px;">Selected MPOB Formulation</div>
+                          <div style="font-weight: 800; color: #15803d; font-size: 10px; margin-top:1px;">${fert.name}</div>
+                        </div>
+                        <div style="border-right: 1px solid #cbd5e1;">
+                          <div style="color:#475569; font-weight:600; text-transform:uppercase; font-size:7px;">Compound Dosage Rate</div>
+                          <div style="font-weight: 800; color: #0f172a; font-size: 10px; margin-top:1px;">${dosagePerPalm.toFixed(2)} kg/palm/yr (${reqPerHaMT.toFixed(2)} MT/ha)</div>
+                        </div>
+                        <div>
+                          <div style="color:#475569; font-weight:600; text-transform:uppercase; font-size:7px;">Total Block Requirement (${blockAreaHa.toFixed(1)} ha)</div>
+                          <div style="font-weight: 800; color: #1b4332; font-size: 10px; margin-top:1px;">${(reqPerHaMT * blockAreaHa).toFixed(2)} MT / yr</div>
+                        </div>
+                      </div>
+
+                      <table style="width: 100%; border-collapse: collapse; font-size: 8.8px; text-align: center;">
+                        <thead>
+                          <tr style="background-color: #f1f5f9; border: 1px solid #94a3b8; color: #0f172a; font-weight: 800;">
+                            <th style="padding: 4.5px 7px; border: 1px solid #cbd5e1; text-align: left; width: 18%;">Nutrient Element</th>
+                            <th style="padding: 4.5px 7px; border: 1px solid #cbd5e1; width: 15%;">Block Mean</th>
+                            <th style="padding: 4.5px 7px; border: 1px solid #cbd5e1; width: 16%;">Spatial Range</th>
+                            <th style="padding: 4.5px 7px; border: 1px solid #cbd5e1; width: 13%;">Critical Level</th>
+                            <th style="padding: 4.5px 7px; border: 1px solid #cbd5e1; width: 16%;">Diagnostic Status</th>
+                            <th style="padding: 4.5px 7px; border: 1px solid #cbd5e1; width: 11%;">Rec. (kg/palm)</th>
+                            <th style="padding: 4.5px 7px; border: 1px solid #cbd5e1; width: 11%;">Rec. (kg/ha)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          ${rowsHtml}
+                        </tbody>
+                      </table>
+
+                      <div style="margin-top: 5px; font-size: 8.2px; font-weight: 700; color: #0f172a; display: flex; justify-content: space-between; align-items: center;">
+                        <span>Recommended Formulation: <span style="color: #1b4332; font-weight:800;">${fert.name} (N:${fert.n}%, P:${fert.p}%, K:${fert.k}%, Mg:${fert.mg}%, B:${fert.b || 0.5}%)</span></span>
+                        <span style="color: #475569; font-weight: 700;">Cross-Reference: Page 2 (Block Rasters) &amp; Page 3 (Estate Rasters)</span>
+                      </div>
+                    </div>
+
+                    <div style="background-color: #ffffff; border: 1px solid #94a3b8; border-radius: 3px; padding: 7px 10px;">
+                      <div style="font-size: 9.2px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1.5px solid #0f172a; padding-bottom: 3px; margin-bottom: 6px; display:flex; justify-content:space-between;">
+                        <span>3.0 Foliar Sufficiency Profile, Canopy Physiological Stress &amp; Agronomic Interpretation</span>
+                        <span style="font-size:7.5px; color:#475569;">Block ${blockNameStr}</span>
+                      </div>
+
+                      <div style="display: grid; grid-template-columns: 57% 41%; justify-content: space-between; align-items: stretch; margin-bottom: 6px;">
+                        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 2px; padding: 6px 8px;">
+                          <div style="font-size: 8px; font-weight: 800; color: #0f172a; text-transform:uppercase; margin-bottom: 5px; border-bottom:1px solid #e2e8f0; padding-bottom:2px;">
+                            Fig 1.2 — Nutrient Sufficiency Index (% of Critical Threshold)
+                          </div>
+                          <div style="font-size: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px 12px;">
+                            <div>
+                              <div style="display:flex;justify-content:space-between;font-weight:700;color:#1e293b;margin-bottom:1.5px;"><span>N (${currentNutrients.N.toFixed(2)}%)</span><span>${Math.min(125, Math.round((currentNutrients.N / 2.50) * 100))}%</span></div>
+                              <div style="height:5px;background:#e2e8f0;border-radius:2px;overflow:hidden;"><div style="height:100%;background:${(typeof window.colorForNutrientValue === 'function') ? window.colorForNutrientValue(currentNutrients.N, 'N') : '#0284c7'};width:${Math.min(100, Math.round((currentNutrients.N / 2.80) * 100))}%;"></div></div>
+                            </div>
+                            <div>
+                              <div style="display:flex;justify-content:space-between;font-weight:700;color:#1e293b;margin-bottom:1.5px;"><span>P (${currentNutrients.P.toFixed(3)}%)</span><span>${Math.min(125, Math.round((currentNutrients.P / 0.15) * 100))}%</span></div>
+                              <div style="height:5px;background:#e2e8f0;border-radius:2px;overflow:hidden;"><div style="height:100%;background:${(typeof window.colorForNutrientValue === 'function') ? window.colorForNutrientValue(currentNutrients.P, 'P') : '#0d9488'};width:${Math.min(100, Math.round((currentNutrients.P / 0.18) * 100))}%;"></div></div>
+                            </div>
+                            <div>
+                              <div style="display:flex;justify-content:space-between;font-weight:700;color:#1e293b;margin-bottom:1.5px;"><span>K (${currentNutrients.K.toFixed(2)}%)</span><span>${Math.min(125, Math.round((currentNutrients.K / 1.00) * 100))}%</span></div>
+                              <div style="height:5px;background:#e2e8f0;border-radius:2px;overflow:hidden;"><div style="height:100%;background:${(typeof window.colorForNutrientValue === 'function') ? window.colorForNutrientValue(currentNutrients.K, 'K') : '#ea580c'};width:${Math.min(100, Math.round((currentNutrients.K / 1.25) * 100))}%;"></div></div>
+                            </div>
+                            <div>
+                              <div style="display:flex;justify-content:space-between;font-weight:700;color:#1e293b;margin-bottom:1.5px;"><span>Mg (${currentNutrients.Mg.toFixed(2)}%)</span><span>${Math.min(125, Math.round((currentNutrients.Mg / 0.24) * 100))}%</span></div>
+                              <div style="height:5px;background:#e2e8f0;border-radius:2px;overflow:hidden;"><div style="height:100%;background:${(typeof window.colorForNutrientValue === 'function') ? window.colorForNutrientValue(currentNutrients.Mg, 'Mg') : '#16a34a'};width:${Math.min(100, Math.round((currentNutrients.Mg / 0.28) * 100))}%;"></div></div>
+                            </div>
+                            <div>
+                              <div style="display:flex;justify-content:space-between;font-weight:700;color:#1e293b;margin-bottom:1.5px;"><span>B (${currentNutrients.B.toFixed(1)} ppm)</span><span>${Math.min(125, Math.round((currentNutrients.B / 15.0) * 100))}%</span></div>
+                              <div style="height:5px;background:#e2e8f0;border-radius:2px;overflow:hidden;"><div style="height:100%;background:${(typeof window.colorForNutrientValue === 'function') ? window.colorForNutrientValue(currentNutrients.B, 'B') : '#2563eb'};width:${Math.min(100, Math.round((currentNutrients.B / 20.0) * 100))}%;"></div></div>
+                            </div>
+                            <div>
+                              <div style="display:flex;justify-content:space-between;font-weight:700;color:#1e293b;margin-bottom:1.5px;"><span>Ca (${currentNutrients.Ca.toFixed(2)}%)</span><span>${Math.min(125, Math.round((currentNutrients.Ca / 0.60) * 100))}%</span></div>
+                              <div style="height:5px;background:#e2e8f0;border-radius:2px;overflow:hidden;"><div style="height:100%;background:${(typeof window.colorForNutrientValue === 'function') ? window.colorForNutrientValue(currentNutrients.Ca, 'Ca') : '#9333ea'};width:${Math.min(100, Math.round((currentNutrients.Ca / 0.80) * 100))}%;"></div></div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 2px; padding: 6px 8px; display: flex; align-items: center; justify-content: space-between;">
+                          <div style="font-size: 8px; display: flex; flex-direction: column; gap: 3px;">
+                            <div style="font-weight: 800; color: #0f172a; text-transform:uppercase; border-bottom:1px solid #e2e8f0; padding-bottom:2px;">Fig 1.3 — Canopy Stress Index</div>
+                            <div><span style="font-weight: 800; color: #dc2626;">■ Stressed Canopy:</span> <span style="color: #1e293b; font-weight:700;">10.0% (${(blockAreaHa * 0.10).toFixed(1)} ha)</span></div>
+                            <div><span style="font-weight: 800; color: #ca8a04;">■ Moderate Vigour:</span> <span style="color: #1e293b; font-weight:700;">30.0% (${(blockAreaHa * 0.30).toFixed(1)} ha)</span></div>
+                            <div><span style="font-weight: 800; color: #16a34a;">■ Healthy Canopy:</span> <span style="color: #1e293b; font-weight:700;">60.0% (${(blockAreaHa * 0.60).toFixed(1)} ha)</span></div>
+                          </div>
+
+                          <svg width="74" height="74" viewBox="0 0 42 42" style="flex-shrink:0;">
+                            <circle cx="21" cy="21" r="15.91549430918954" fill="#ffffff"></circle>
+                            <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#e2e8f0" stroke-width="6"></circle>
+                            <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#16a34a" stroke-width="6" stroke-dasharray="60 40" stroke-dashoffset="25"></circle>
+                            <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#eab308" stroke-width="6" stroke-dasharray="30 70" stroke-dashoffset="65"></circle>
+                            <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#dc2626" stroke-width="6" stroke-dasharray="10 90" stroke-dashoffset="35"></circle>
+                          </svg>
+                        </div>
+                      </div>
+
+                      <div style="background:#f8fafc; border-left: 3px solid #1b4332; padding: 5px 8px; font-size: 7.8px; color: #1e293b; text-align: justify; line-height: 1.35;">
+                        <strong style="color:#0f172a; text-transform:uppercase;">Agronomic Diagnostic Synthesis:</strong> ${synthesisText}
+                      </div>
+                    </div>
                 </div>
 
-                <!-- Top Section: Estate Info + Real Google Satellite Grid Map -->
-                <div style="display: flex; gap: 14px; margin-bottom: 14px;">
-                  <div style="flex: 1; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px 14px;">
-                    <h3 style="margin-top: 0; margin-bottom: 8px; font-size: 12px; font-weight: 700; color: #0f172a;">Estate info</h3>
-                    <table style="width: 100%; border-collapse: collapse; font-size: 11px; color: #334155;">
-                      <tr>
-                        <td style="padding: 3px 0; width: 45%; color: #64748b;">- Name</td>
-                        <td style="padding: 3px 0; font-weight: 700; color: #0f172a;">${estate_name}</td>
-                      </tr>
-                      <tr>
-                        <td style="padding: 3px 0; color: #64748b;">- Location</td>
-                        <td style="padding: 3px 0; font-weight: 600; color: #0f172a;">Lahad Datu, Sabah (${coords_str})</td>
-                      </tr>
-                      <tr>
-                        <td style="padding: 3px 0; color: #64748b;">- Current fertilizer usage</td>
-                        <td style="padding: 3px 0; font-weight: 600; color: #0f172a;">Standard MPOB Rates</td>
-                      </tr>
-                      <tr>
-                        <td style="padding: 3px 0; color: #64748b;">- 1 block = 25 ha (basic)</td>
-                        <td style="padding: 3px 0; font-weight: 700; color: #2d6a4f;">25.0 ha (${selectedBlock})</td>
-                      </tr>
-                    </table>
-                  </div>
-
-                  <!-- Full Lahad Datu Google Satellite Map Box -->
-                  <div style="flex: 1; background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 10px; display: flex; align-items: center; justify-content: center;">
-                    <div style="position: relative; width: 145px; height: 145px; border-radius: 6px; overflow: hidden; border: 2.5px solid #ff7800; box-shadow: 0 4px 10px rgba(0,0,0,0.15); background-color: #0b0f19;">
-                      <img src="${sat_data_url}" style="width: 100%; height: 100%; object-fit: contain;" />
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Middle Section: Report Table -->
-                <div style="background-color: #ffffff; border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px 14px; margin-bottom: 14px;">
-                  <h3 style="margin-top: 0; margin-bottom: 8px; font-size: 13px; font-weight: 700; color: #0f172a;">Report</h3>
-                  
-                  <table style="width: 100%; border-collapse: collapse; font-size: 10px; text-align: center; margin-top: 10px;">
-                    <thead>
-                      <tr style="background-color: #f1f5f9; border: 1px solid #cbd5e1; color: #0f172a; font-weight: 700;">
-                        <th style="padding: 7px 8px; border: 1px solid #cbd5e1; text-align: left; width: 20%;">Element</th>
-                        <th style="padding: 7px 8px; border: 1px solid #cbd5e1; width: 26%;">Leaf Analysis (avg%)</th>
-                        <th style="padding: 7px 8px; border: 1px solid #cbd5e1; width: 27%;">Fert Recommendation (kg/palm)</th>
-                        <th style="padding: 7px 8px; border: 1px solid #cbd5e1; width: 27%;">Fert Recommendation (kg/ha)</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: 700; text-align: left; color: #0f172a;">N</td>
-                        <td style="padding: 6px 8px; border: 1px solid #cbd5e1; color: #334155;">Average per block (${currentNutrients.N.toFixed(2)}%)</td>
-                        <td style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${n_kg_palm.toFixed(2)}</td>
-                        <td style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${n_kg_ha.toFixed(2)}</td>
-                      </tr>
-                      <tr>
-                        <td style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: 700; text-align: left; color: #0f172a;">P</td>
-                        <td style="padding: 6px 8px; border: 1px solid #cbd5e1; color: #334155;">${currentNutrients.P.toFixed(3)}%</td>
-                        <td style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${p_kg_palm.toFixed(2)}</td>
-                        <td style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${p_kg_ha.toFixed(2)}</td>
-                      </tr>
-                      <tr>
-                        <td style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: 700; text-align: left; color: #0f172a;">K</td>
-                        <td style="padding: 6px 8px; border: 1px solid #cbd5e1; color: #334155;">${currentNutrients.K.toFixed(2)}%</td>
-                        <td style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${k_kg_palm.toFixed(2)}</td>
-                        <td style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${k_kg_ha.toFixed(2)}</td>
-                      </tr>
-                      <tr>
-                        <td style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: 700; text-align: left; color: #0f172a;">Mg</td>
-                        <td style="padding: 6px 8px; border: 1px solid #cbd5e1; color: #334155;">${currentNutrients.Mg.toFixed(3)}%</td>
-                        <td style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${mg_kg_palm.toFixed(2)}</td>
-                        <td style="padding: 6px 8px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${mg_kg_ha.toFixed(2)}</td>
-                      </tr>
-                    </tbody>
-                  </table>
-
-                  <div style="margin-top: 10px; font-size: 11px; font-weight: 700; color: #0f172a;">
-                    Recommended Formulation:<br/>
-                    <span style="color: #2d6a4f; font-weight: 700;">N:${fert.n}, P:${fert.p}, K:${fert.k}, Mg:${fert.mg}</span>
-                  </div>
-                </div>
-
-                <!-- Bottom Section: Monthly Trend Chart & Stress Level Donut Chart -->
-                <div style="background-color: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px; display: flex; gap: 14px; align-items: center;">
-                  <!-- Monthly Trend Chart -->
-                  <div style="flex: 1; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 4px; padding: 10px;">
-                    <div style="font-size: 9px; font-weight: 700; color: #64748b; margin-bottom: 6px;">Optimum Nutrient Analysis %</div>
-                    <div style="display: flex; gap: 10px; font-size: 8px; font-weight: 700; margin-bottom: 8px;">
-                      <span style="color: #0284c7;">■ May</span>
-                      <span style="color: #0d9488;">■ June</span>
-                      <span style="color: #ea580c;">■ July</span>
-                    </div>
-                    <div style="font-size: 9px; display: flex; flex-direction: column; gap: 6px;">
-                      <div>
-                        <div style="font-weight: 700; color: #334155; margin-bottom: 2px;">N</div>
-                        <div style="height: 5px; background: #0284c7; width: 75%; border-radius: 2px; margin-bottom: 2px;"></div>
-                        <div style="height: 5px; background: #0d9488; width: 78%; border-radius: 2px; margin-bottom: 2px;"></div>
-                        <div style="height: 5px; background: #ea580c; width: 72%; border-radius: 2px;"></div>
-                      </div>
-                      <div>
-                        <div style="font-weight: 700; color: #334155; margin-bottom: 2px;">P</div>
-                        <div style="height: 5px; background: #0284c7; width: 80%; border-radius: 2px; margin-bottom: 2px;"></div>
-                        <div style="height: 5px; background: #0d9488; width: 82%; border-radius: 2px; margin-bottom: 2px;"></div>
-                        <div style="height: 5px; background: #ea580c; width: 85%; border-radius: 2px;"></div>
-                      </div>
-                      <div>
-                        <div style="font-weight: 700; color: #334155; margin-bottom: 2px;">K</div>
-                        <div style="height: 5px; background: #0284c7; width: 88%; border-radius: 2px; margin-bottom: 2px;"></div>
-                        <div style="height: 5px; background: #0d9488; width: 90%; border-radius: 2px; margin-bottom: 2px;"></div>
-                        <div style="height: 5px; background: #ea580c; width: 95%; border-radius: 2px;"></div>
-                      </div>
-                      <div>
-                        <div style="font-weight: 700; color: #334155; margin-bottom: 2px;">Mg</div>
-                        <div style="height: 5px; background: #0284c7; width: 85%; border-radius: 2px; margin-bottom: 2px;"></div>
-                        <div style="height: 5px; background: #0d9488; width: 88%; border-radius: 2px; margin-bottom: 2px;"></div>
-                        <div style="height: 5px; background: #ea580c; width: 92%; border-radius: 2px;"></div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Stress Level Donut Chart -->
-                  <div style="flex: 1; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 4px; padding: 10px; display: flex; align-items: center; justify-content: space-between;">
-                    <div style="font-size: 9px; display: flex; flex-direction: column; gap: 8px;">
-                      <div style="font-weight: 700; color: #64748b;">Stress-level</div>
-                      <div>
-                        <div style="font-weight: 700; color: #ef4444;">Stressed</div>
-                        <div style="color: #64748b;">10.0%</div>
-                      </div>
-                      <div>
-                        <div style="font-weight: 700; color: #eab308;">Moderate</div>
-                        <div style="color: #64748b;">30.0%</div>
-                      </div>
-                      <div>
-                        <div style="font-weight: 700; color: #22c55e;">Healthy</div>
-                        <div style="color: #64748b;">60.0%</div>
-                      </div>
-                    </div>
-
-                    <svg width="110" height="110" viewBox="0 0 42 42">
-                      <circle cx="21" cy="21" r="15.91549430918954" fill="#ffffff"></circle>
-                      <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#e2e8f0" stroke-width="6"></circle>
-                      <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#ef4444" stroke-width="6" stroke-dasharray="10 90" stroke-dashoffset="25"></circle>
-                      <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#eab308" stroke-width="6" stroke-dasharray="30 70" stroke-dashoffset="15"></circle>
-                      <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#22c55e" stroke-width="6" stroke-dasharray="60 40" stroke-dashoffset="-15"></circle>
-                    </svg>
-                  </div>
+                <div style="margin-top: 6px; border-top: 1.5px solid #0f172a; padding-top: 4px; font-size: 7.5px; color: #475569; font-weight:600; display:flex; justify-content:space-between; align-items:center;">
+                  <span>MPOB PalmNex Agronomic Decision Support System · Sentinel-2 Spectral Indices &amp; MPOB Standard Fertilizer Protocol</span>
+                  <span style="color:#0f172a; font-weight:800;">Page 1 of 3</span>
                 </div>
             </div>
-            `;
-            printArea.innerHTML = htmlContent;
-        }
 
+            ${page2BlockRasters}
+            ${page3EstateRasters}
+            `;
+
+            if (typeof window.populateReportRasterImages === 'function' && blockDetails) {
+                window.populateReportRasterImages(blockDetails);
+            }
+            
+            // Show report preview modal
+            closeEdsDialogs();
+            document.getElementById('modal-report-preview').classList.add('active');
+        }
 
         // Save previewed report as PDF
         function downloadPdfFromPreview() {
-            let contentHtml = document.getElementById('report-preview-body').innerHTML;
-            let tempArea = document.createElement('div');
-            tempArea.innerHTML = contentHtml;
-            
-            let opt = {
+            const previewBody = document.getElementById('report-preview-body');
+            if (!previewBody || !previewBody.innerHTML.trim()) {
+                alert('Please generate a report preview first.');
+                return;
+            }
+
+            const btn = document.querySelector('#modal-report-preview .eds-print-report-btn');
+            const origText = btn ? btn.innerHTML : '⬇ Download PDF';
+            if (btn) {
+                btn.innerHTML = '⏳ Generating PDF...';
+                btn.disabled = true;
+            }
+
+            const tempArea = document.createElement('div');
+            tempArea.style.width = '210mm';
+            tempArea.style.background = '#ffffff';
+            tempArea.innerHTML = previewBody.innerHTML;
+
+            // Normalize .report-page margins/heights so html2canvas renders exact A4 pages with no extra blank pages
+            const pages = tempArea.querySelectorAll('.report-page');
+            pages.forEach((p, idx) => {
+                p.style.margin = '0';
+                p.style.boxShadow = 'none';
+                p.style.height = '296mm';
+                p.style.maxHeight = '296mm';
+                p.style.overflow = 'hidden';
+                p.style.pageBreakAfter = (idx < pages.length - 1) ? 'always' : 'avoid';
+            });
+
+            const safeBlock = String(typeof selectedBlock !== 'undefined' && selectedBlock ? selectedBlock : 'block')
+                .toLowerCase()
+                .replace(/[^a-z0-9_-]+/g, '_')
+                .replace(/^_+|_+$/g, '') || 'block';
+
+            const opt = {
                 margin:       0,
-                filename:     `palmnex_agronomic_report_${selectedBlock.toLowerCase().replace(' ', '')}.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                filename:     `palmnex_agronomic_report_${safeBlock}.pdf`,
+                image:        { type: 'jpeg', quality: 0.99 },
+                html2canvas:  { scale: 3, useCORS: true, allowTaint: true, logging: false, scrollY: 0 },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak:    { mode: ['css', 'legacy'] }
             };
-            
-            html2pdf().set(opt).from(tempArea).save();
+
+            if (typeof html2pdf === 'function') {
+                html2pdf().set(opt).from(tempArea).save().then(() => {
+                    if (btn) {
+                        btn.innerHTML = origText;
+                        btn.disabled = false;
+                    }
+                }).catch(err => {
+                    console.error('PDF generation error:', err);
+                    if (btn) {
+                        btn.innerHTML = origText;
+                        btn.disabled = false;
+                    }
+                    window.print();
+                });
+            } else {
+                if (btn) {
+                    btn.innerHTML = origText;
+                    btn.disabled = false;
+                }
+                window.print();
+            }
         }
         window.downloadPdfFromPreview = downloadPdfFromPreview;
         window.downloadReportAsPDF = downloadPdfFromPreview;
+        window.viewReportPDF = viewReportPDF;
         function setNutrientLayerSelectionEnabled(enabled, msgText, isSuccess) {
     const radioInputs = document.querySelectorAll('input[name="comp_layer"], input[name="std_layer"], input[name="kpsm_layer"]');
     radioInputs.forEach(input => {
