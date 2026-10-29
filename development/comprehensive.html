@@ -4326,16 +4326,25 @@ function lockEnteredSatDate() {
             
             let sampled = sampleRastersOrFallback(latlng.lat, latlng.lng);
             if (typeof window.computeSelectedBlockDetailsAndNutrients === 'function') {
-                const blockDetails = window.computeSelectedBlockDetailsAndNutrients(feature, latlng);
-                if (blockDetails && blockDetails.nutrients) {
-                    sampled = {
-                        n: blockDetails.nutrients.N.avg,
-                        p: blockDetails.nutrients.P.avg,
-                        k: blockDetails.nutrients.K.avg,
-                        mg: blockDetails.nutrients.Mg.avg,
-                        ca: blockDetails.nutrients.Ca.avg,
-                        b: blockDetails.nutrients.B.avg
-                    };
+                try {
+                    const blockDetails = window.computeSelectedBlockDetailsAndNutrients(feature, latlng);
+                    if (blockDetails && blockDetails.nutrients) {
+                        const _val = (v, def) => {
+                            const raw = (v && typeof v === 'object' && v.avg !== undefined) ? v.avg : v;
+                            const n = parseFloat(raw);
+                            return (!isNaN(n) && n > 0) ? n : def;
+                        };
+                        sampled = {
+                            n: _val(blockDetails.nutrients.N, sampled.n || 2.45),
+                            p: _val(blockDetails.nutrients.P, sampled.p || 0.145),
+                            k: _val(blockDetails.nutrients.K, sampled.k || 1.02),
+                            mg: _val(blockDetails.nutrients.Mg, sampled.mg || 0.23),
+                            ca: _val(blockDetails.nutrients.Ca, sampled.ca || 0.62),
+                            b: _val(blockDetails.nutrients.B, sampled.b || 15.2)
+                        };
+                    }
+                } catch (err) {
+                    console.warn('computeSelectedBlockDetailsAndNutrients warning in handleBlockClick:', err);
                 }
             } else if ((sampled.n === null || sampled.n === undefined) && feature && feature.properties) {
                 const p = feature.properties;
@@ -5752,11 +5761,25 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
         function viewReportPDF(soilMode) {
             const selectEl = document.getElementById('map-select-comp') || document.getElementById('map-select-std') || document.getElementById('map-select-kpsm');
             const hasSelectedDropdown = Boolean(selectEl && selectEl.value && selectEl.value.trim() !== '');
-            const hasUploadedBoundary = Boolean((typeof compBoundaryLayer !== 'undefined' && compBoundaryLayer) || (typeof stdBoundaryLayer !== 'undefined' && stdBoundaryLayer) || window._UPLOADED_SHP_BUFFER);
+            const activeBoundary = (typeof compBoundaryLayer !== 'undefined' && compBoundaryLayer) || (typeof stdBoundaryLayer !== 'undefined' && stdBoundaryLayer) || window.compBoundaryLayer || window.stdBoundaryLayer || null;
+            const hasUploadedBoundary = Boolean(activeBoundary || window._UPLOADED_SHP_BUFFER);
 
             if (!hasSelectedDropdown && !hasUploadedBoundary) {
                 showNoMapSelectedModal('report');
                 return;
+            }
+
+            if (!hasClickedBlock && activeBoundary && typeof activeBoundary.eachLayer === 'function') {
+                let firstLayer = null;
+                activeBoundary.eachLayer(function(l) {
+                    if (!firstLayer && l && l.feature) firstLayer = l;
+                });
+                if (firstLayer) {
+                    const centerLL = (typeof firstLayer.getBounds === 'function' && firstLayer.getBounds().isValid())
+                        ? firstLayer.getBounds().getCenter()
+                        : { lat: selectedLat || 5.10423, lng: selectedLng || 118.42851 };
+                    handleBlockClick(firstLayer.feature, centerLL, 'comp');
+                }
             }
 
             if (!hasClickedBlock) {
@@ -5769,23 +5792,43 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
             printArea.style.fontFamily = 'unset';
             printArea.style.color = 'unset';
 
-            const blockDetails = (typeof window.computeSelectedBlockDetailsAndNutrients === 'function')
-                ? window.computeSelectedBlockDetailsAndNutrients(selectedBlockFeature, { lat: selectedLat, lng: selectedLng })
-                : null;
+            let blockDetails = null;
+            if (typeof window.computeSelectedBlockDetailsAndNutrients === 'function') {
+                try {
+                    blockDetails = window.computeSelectedBlockDetailsAndNutrients(selectedBlockFeature, { lat: selectedLat, lng: selectedLng });
+                } catch (err) {
+                    console.warn('computeSelectedBlockDetailsAndNutrients error in viewReportPDF:', err);
+                }
+            }
+
+            const _safeNum = (v, fallback) => {
+                const raw = (v && typeof v === 'object' && v.avg !== undefined) ? v.avg : v;
+                const n = parseFloat(raw);
+                return (!isNaN(n) && n > 0) ? n : fallback;
+            };
 
             if (blockDetails && blockDetails.nutrients) {
                 currentNutrients = {
-                    N: blockDetails.nutrients.N.avg,
-                    P: blockDetails.nutrients.P.avg,
-                    K: blockDetails.nutrients.K.avg,
-                    Mg: blockDetails.nutrients.Mg.avg,
-                    Ca: blockDetails.nutrients.Ca.avg,
-                    B: blockDetails.nutrients.B.avg
+                    N: _safeNum(blockDetails.nutrients.N, _safeNum(currentNutrients && currentNutrients.N, 2.45)),
+                    P: _safeNum(blockDetails.nutrients.P, _safeNum(currentNutrients && currentNutrients.P, 0.145)),
+                    K: _safeNum(blockDetails.nutrients.K, _safeNum(currentNutrients && currentNutrients.K, 1.02)),
+                    Mg: _safeNum(blockDetails.nutrients.Mg, _safeNum(currentNutrients && currentNutrients.Mg, 0.23)),
+                    Ca: _safeNum(blockDetails.nutrients.Ca, _safeNum(currentNutrients && currentNutrients.Ca, 0.62)),
+                    B: _safeNum(blockDetails.nutrients.B, _safeNum(currentNutrients && currentNutrients.B, 15.2))
+                };
+            } else {
+                currentNutrients = {
+                    N: _safeNum(currentNutrients && currentNutrients.N, 2.45),
+                    P: _safeNum(currentNutrients && currentNutrients.P, 0.145),
+                    K: _safeNum(currentNutrients && currentNutrients.K, 1.02),
+                    Mg: _safeNum(currentNutrients && currentNutrients.Mg, 0.23),
+                    Ca: _safeNum(currentNutrients && currentNutrients.Ca, 0.62),
+                    B: _safeNum(currentNutrients && currentNutrients.B, 15.2)
                 };
             }
 
             const blockNameStr = (blockDetails && blockDetails.blockName) ? blockDetails.blockName : (selectedBlock || 'Selected Block');
-            const blockAreaHa = (blockDetails && blockDetails.areaHa) ? blockDetails.areaHa : 25.0;
+            const blockAreaHa = (blockDetails && blockDetails.areaHa) ? Number(blockDetails.areaHa) : 25.0;
             const soilTypeIdentified = (blockDetails && blockDetails.soilType) ? blockDetails.soilType : ((document.getElementById('identified-soil-type-val') || {}).textContent || (soilMode + ' Soil'));
             const soilSeriesIdentified = (blockDetails && blockDetails.soilSeries) ? blockDetails.soilSeries : '';
             const phaseIdentified = (blockDetails && blockDetails.phase) ? blockDetails.phase : '';

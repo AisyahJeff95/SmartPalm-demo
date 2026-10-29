@@ -27,17 +27,19 @@
     ];
 
     function colorForValue(val, panelKeyOrBreaks) {
-        if (val === null || val === undefined || isNaN(val) || val <= 0 || val === -9999) return null;
+        if (val && typeof val === 'object' && val.avg !== undefined) val = val.avg;
+        const numVal = Number(val);
+        if (val === null || val === undefined || isNaN(numVal) || numVal <= 0 || numVal === -9999) return null;
         let breaks = Array.isArray(panelKeyOrBreaks) ? panelKeyOrBreaks : null;
         if (!breaks) {
             const p = NUTRIENT_PANELS.find(item => item.key.toLowerCase() === String(panelKeyOrBreaks).toLowerCase());
             breaks = p ? p.breaks : [2.1, 2.3, 2.5, 2.7, 2.9];
         }
-        if (val <= breaks[0]) return CLASS_COLORS[0];
-        if (val <= breaks[1]) return CLASS_COLORS[1];
-        if (val <= breaks[2]) return CLASS_COLORS[2];
-        if (val <= breaks[3]) return CLASS_COLORS[3];
-        if (val <= breaks[4]) return CLASS_COLORS[4];
+        if (numVal <= breaks[0]) return CLASS_COLORS[0];
+        if (numVal <= breaks[1]) return CLASS_COLORS[1];
+        if (numVal <= breaks[2]) return CLASS_COLORS[2];
+        if (numVal <= breaks[3]) return CLASS_COLORS[3];
+        if (numVal <= breaks[4]) return CLASS_COLORS[4];
         return CLASS_COLORS[5];
     }
 
@@ -612,9 +614,19 @@
                 min = mean * 0.94;
                 max = mean * 1.06;
             }
-            blockStats[key] = { mean, min: min || mean, max: max || mean, count: values.length };
+            const statObj = {
+                avg: mean,
+                mean: mean,
+                min: min || mean,
+                max: max || mean,
+                count: values.length,
+                valueOf: function() { return mean; },
+                toString: function() { return String(mean); },
+                toFixed: function(dp) { return Number(mean).toFixed(dp); }
+            };
+            blockStats[key] = statObj;
             avgNutrients[lowKey] = mean;
-            avgNutrients[key] = mean;
+            avgNutrients[key] = statObj;
         });
 
         // Identify soil type & series from DOM or feature properties
@@ -629,8 +641,10 @@
 
         const phase = props.Peringkat || props.PERINGKAT || props.Phase || props.TreatCode || props.LAND_TYPE || '';
         const blockCode = props.No_Block || props.PlotCode || props.block || props.BLOCK || props.LOT_NO || props.name || 'Selected Block';
+        const activeMapInfo = getActiveMap();
 
         return {
+            estateName: (activeMapInfo && activeMapInfo.name) ? activeMapInfo.name : 'Estate Boundary',
             blockName: props.name || String(blockCode),
             blockCode: String(blockCode),
             areaHa: areaHa,
