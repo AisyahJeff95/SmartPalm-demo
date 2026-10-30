@@ -2018,32 +2018,133 @@ function toggleLockInput(checkboxEl, targetInputId) {
 
 
 const MPOB_FERTILIZER_SPECS = {
-    'mpob_f2_super_k': { n: 7.0,  p: 3.0, k: 30.0, mg: 0.0 },
-    'mpob_f1':         { n: 10.0, p: 5.4, k: 16.2, mg: 2.7 },
-    'mpob_f1_xtra_k':   { n: 10.0, p: 5.0, k: 20.0, mg: 2.0 },
-    'mpob_f2':         { n: 10.7, p: 9.1, k: 17.3, mg: 1.4 },
-    'mpob_f3':         { n: 10.0, p: 7.0, k: 19.0, mg: 1.5 },
-    'mpob_f4':         { n: 9.0,  p: 6.0, k: 18.0, mg: 2.0 },
-    'mpob_f4_premium': { n: 9.0,  p: 6.0, k: 18.0, mg: 2.0 },
-    'mpob_f5':         { n: 6.0,  p: 6.0, k: 11.0, mg: 1.0 },
-    'mpob_f5_super':   { n: 10.0, p: 6.0, k: 19.0, mg: 2.5 },
-    'mpob_f6':         { n: 10.0, p: 7.0, k: 18.0, mg: 2.5 },
-    'mpob_f7':         { n: 19.0, p: 8.0, k: 13.0, mg: 2.5 }
+    'mpob_f2_super_k': { name: 'MPOB F2 Super K', n: 7.0,  p: 3.0, k: 30.0, mg: 0.0, b: 0.5, idx: 3 },
+    'mpob_f1':         { name: 'MPOB F1',         n: 10.0, p: 5.4, k: 16.2, mg: 2.7, b: 0.5, idx: 0 },
+    'mpob_f1_xtra_k':   { name: 'MPOB F1 Xtra K',  n: 10.0, p: 5.0, k: 20.0, mg: 2.0, b: 0.5, idx: 1 },
+    'mpob_f2':         { name: 'MPOB F2',         n: 10.7, p: 9.1, k: 17.3, mg: 1.4, b: 0.5, idx: 2 },
+    'mpob_f3':         { name: 'MPOB F3',         n: 10.0, p: 7.0, k: 19.0, mg: 1.5, b: 0.5, idx: 4 },
+    'mpob_f4':         { name: 'MPOB F4',         n: 9.0,  p: 6.0, k: 18.0, mg: 2.0, b: 0.5, idx: 5 },
+    'mpob_f4_premium': { name: 'MPOB F4 Premium', n: 9.0,  p: 6.0, k: 18.0, mg: 2.0, b: 0.5, idx: 6 },
+    'mpob_f5':         { name: 'MPOB F5',         n: 6.0,  p: 6.0, k: 11.0, mg: 1.0, b: 0.0, idx: 7 },
+    'mpob_f5_super':   { name: 'MPOB F5 Super',   n: 10.0, p: 6.0, k: 19.0, mg: 2.5, b: 0.5, idx: 8 },
+    'mpob_f6':         { name: 'MPOB F6',         n: 10.0, p: 7.0, k: 18.0, mg: 2.5, b: 0.5, idx: 9 },
+    'mpob_f7':         { name: 'MPOB F7',         n: 19.0, p: 8.0, k: 13.0, mg: 2.5, b: 0.4, idx: 10 }
 };
+
+function onManualFertilizerRatioInput() {
+    const ratioChk = document.getElementById('fert-ratio-lock-chk');
+    const listChk = document.getElementById('fert-list-lock-chk');
+    if (ratioChk) ratioChk.checked = true;
+    if (listChk) listChk.checked = false;
+}
 
 function onFertilizerSelectChanged(val) {
     const spec = MPOB_FERTILIZER_SPECS[val];
+    const ratioChk = document.getElementById('fert-ratio-lock-chk');
+    const listChk = document.getElementById('fert-list-lock-chk');
     if (spec) {
         const nInput = document.getElementById('fert-n-input');
         const pInput = document.getElementById('fert-p-input');
         const kInput = document.getElementById('fert-k-input');
         const mgInput = document.getElementById('fert-mg-input');
+        const bInput = document.getElementById('fert-b-input');
 
         if (nInput) nInput.value = spec.n;
         if (pInput) pInput.value = spec.p;
         if (kInput) kInput.value = spec.k;
         if (mgInput) mgInput.value = spec.mg;
+        if (bInput) bInput.value = spec.b;
+        if (typeof selectedFertilizerIndex !== 'undefined' && spec.idx !== undefined) {
+            selectedFertilizerIndex = spec.idx;
+        }
+        if (listChk) listChk.checked = true;
+        if (ratioChk) ratioChk.checked = false;
+    } else if (listChk) {
+        listChk.checked = false;
     }
+}
+
+function onFertilizerModeCheckboxChanged(mode, checkboxEl) {
+    const ratioChk = document.getElementById('fert-ratio-lock-chk');
+    const listChk = document.getElementById('fert-list-lock-chk');
+    if (mode === 'manual') {
+        if (checkboxEl.checked && listChk) {
+            listChk.checked = false;
+        }
+    } else if (mode === 'list') {
+        if (checkboxEl.checked) {
+            if (ratioChk) ratioChk.checked = false;
+            const listSelect = document.getElementById('fert-list-input');
+            if (listSelect && listSelect.value) {
+                onFertilizerSelectChanged(listSelect.value);
+            }
+        }
+    }
+}
+
+function getResolvedFertilizerRatio(nutrients) {
+    const ratioChk = document.getElementById('fert-ratio-lock-chk');
+    const listChk = document.getElementById('fert-list-lock-chk');
+    const listSelect = document.getElementById('fert-list-input');
+    const nVal = parseFloat((document.getElementById('fert-n-input') || {}).value);
+    const pVal = parseFloat((document.getElementById('fert-p-input') || {}).value);
+    const kVal = parseFloat((document.getElementById('fert-k-input') || {}).value);
+    const mgVal = parseFloat((document.getElementById('fert-mg-input') || {}).value);
+    const bVal = parseFloat((document.getElementById('fert-b-input') || {}).value);
+
+    const hasListVal = listSelect && listSelect.value && MPOB_FERTILIZER_SPECS[listSelect.value];
+    const hasManualInput = [nVal, pVal, kVal, mgVal, bVal].some(v => Number.isFinite(v));
+
+    if ((listChk && listChk.checked && hasListVal) || (!(ratioChk && ratioChk.checked) && hasListVal)) {
+        const sp = MPOB_FERTILIZER_SPECS[listSelect.value];
+        return {
+            name: sp.name,
+            n: sp.n,
+            p: sp.p,
+            k: sp.k,
+            mg: sp.mg,
+            b: sp.b,
+            isPreChosen: true,
+            sourceLabel: 'Pre-Selected MPOB Formulation (' + sp.name + ')'
+        };
+    }
+
+    if ((ratioChk && ratioChk.checked && hasManualInput) || hasManualInput) {
+        const n = Number.isFinite(nVal) ? nVal : 10.0;
+        const p = Number.isFinite(pVal) ? pVal : 5.4;
+        const k = Number.isFinite(kVal) ? kVal : 16.2;
+        const mg = Number.isFinite(mgVal) ? mgVal : 2.7;
+        const b = Number.isFinite(bVal) ? bVal : 0.5;
+        return {
+            name: 'Custom Ratio Formulation',
+            n: n,
+            p: p,
+            k: k,
+            mg: mg,
+            b: b,
+            isPreChosen: true,
+            sourceLabel: 'Pre-Selected Custom Fertilizer Ratio'
+        };
+    }
+
+    const nut = nutrients || {};
+    const N = Number(nut.N) || 2.45;
+    const P = Number(nut.P) || 0.145;
+    const K = Number(nut.K) || 1.02;
+    const Mg = Number(nut.Mg) || 0.23;
+
+    if (K < 0.95 && Mg >= 0.24) {
+        return { name: 'MPOB F2 Super K', n: 7.0, p: 3.0, k: 30.0, mg: 0.0, b: 0.5, isPreChosen: false, sourceLabel: 'Suggested Formulation (MPOB F2 Super K)' };
+    } else if (K < 1.00) {
+        return { name: 'MPOB F1 Xtra K', n: 10.0, p: 5.0, k: 20.0, mg: 2.0, b: 0.5, isPreChosen: false, sourceLabel: 'Suggested Formulation (MPOB F1 Xtra K)' };
+    } else if (N < 2.35) {
+        return { name: 'MPOB F7', n: 19.0, p: 8.0, k: 13.0, mg: 2.5, b: 0.4, isPreChosen: false, sourceLabel: 'Suggested Formulation (MPOB F7)' };
+    } else if (P < 0.145) {
+        return { name: 'MPOB F2', n: 10.7, p: 9.1, k: 17.3, mg: 1.4, b: 0.5, isPreChosen: false, sourceLabel: 'Suggested Formulation (MPOB F2)' };
+    } else if (Mg < 0.22) {
+        return { name: 'MPOB F1', n: 10.0, p: 5.4, k: 16.2, mg: 2.7, b: 0.5, isPreChosen: false, sourceLabel: 'Suggested Formulation (MPOB F1)' };
+    }
+    return { name: 'MPOB F4', n: 9.0, p: 6.0, k: 18.0, mg: 2.0, b: 0.5, isPreChosen: false, sourceLabel: 'Suggested Formulation (MPOB F4)' };
 }
 
 function toggleLockInputs(checkboxEl, targetInputIds) {
@@ -2952,51 +3053,6 @@ function toggleSatDataMode(mode) {
                 </div>
             </div>
 
-            <!-- Card 3: Optional -->
-            <div class="ui-card" id="card-drone-upload">
-                <div class="ui-card-label" style="margin-bottom: 10px;">Optional:</div>
-                
-                <div style="margin-bottom: 8px;">
-                    <div class="ui-field-row-between">
-                        <span class="ui-sub-label">Drone Image (.tif / .png / .jpg):</span>
-                        <button class="ui-upload-outline-btn" onclick="document.getElementById('drone-file-input').click()">Upload Drone</button>
-                        <input type="file" id="drone-file-input" accept="image/*,.tif,.tiff" style="display:none;" onchange="handleDroneImageUpload(event)">
-                    </div>
-                    <div id="drone-status-log" style="font-size: 11px; margin-top: 4px; display: none;">
-                        <div id="drone-msg-upload" style="color: #00802b; font-weight: 600; display: none;">* successfully uploaded</div>
-                        <div id="drone-msg-converting" style="color: #d97706; font-weight: 600; display: none; margin-top: 2px;">* converting into PNG...</div>
-                        <div id="drone-msg-converted" style="color: #00802b; font-weight: 600; display: none; margin-top: 2px;">* successfully converted to PNG</div>
-                    </div>
-                </div>
-
-                <div class="ui-field-row" style="margin-top: 6px;">
-                    <span class="ui-sub-label" style="font-weight: 600; white-space: nowrap;">Date Taken:</span>
-                    <input type="date" class="ui-date-input" id="drone-date-input" style="flex: 1;" onchange="updateDroneImageOverlay()">
-                </div>
-
-                <!-- Show Uploaded Drone Overlay Checkbox -->
-                <div style="border-top: 1px solid #f2f2f7; padding-top: 8px; margin-top: 8px;">
-                    <label class="ui-checkbox-label" style="font-weight: 600; color: #2563eb;">
-                        <input type="checkbox" id="comp-show-drone-chk" onchange="updateDroneImageOverlay()"> Show Uploaded Drone Overlay
-                    </label>
-                </div>
-
-                <div class="ui-hint-text" id="drone-status-hint" style="margin-top: 4px;">* Upload high-resolution drone orthomosaic image to overlay on active map boundary.</div>
-            </div>
-
-            <!-- Card 5: Soil Data -->
-            <div class="ui-card flex-row-between" style="align-items: center;">
-                <div class="ui-card-label">Soil Data</div>
-                <div class="ui-inline-checkboxes">
-                    <label class="ui-checkbox-label">
-                        <input type="checkbox" id="chk-eds-inland"> Inland
-                    </label>
-                    <label class="ui-checkbox-label">
-                        <input type="checkbox" id="chk-eds-alluvial"> Alluvial / Coastal
-                    </label>
-                </div>
-            </div>
-
             <!-- Card 6: Nutrient Detection -->
             <div class="ui-card">
                 <div class="ui-card-label" style="margin-bottom: 12px;">Nutrient Detection</div>
@@ -3038,15 +3094,59 @@ function toggleSatDataMode(mode) {
                 </div>
             </div>
 
+            <!-- Card 3: Optional -->
+            <div class="ui-card" id="card-drone-upload">
+                <div class="ui-card-label" style="margin-bottom: 10px;">Optional:</div>
+                
+                <div style="margin-bottom: 10px;">
+                    <div class="ui-sub-label" style="font-weight: 600; margin-bottom: 6px;">Estate Name (for report):</div>
+                    <div class="ui-field-row">
+                        <input type="text" id="estate-name-input" class="ui-pill-input" placeholder="">
+                        <input type="checkbox" id="estate-name-lock-chk" class="ui-accent-checkbox" onchange="toggleLockInput(this, 'estate-name-input')" title="Lock / Unlock input">
+                    </div>
+                </div>
+
+                <div style="border-top: 1px solid #f2f2f7; padding-top: 8px; margin-bottom: 8px;">
+                    <div class="ui-field-row-between">
+                        <span class="ui-sub-label">Drone Image (.tif / .png / .jpg):</span>
+                        <button class="ui-upload-outline-btn" onclick="document.getElementById('drone-file-input').click()">Upload Drone</button>
+                        <input type="file" id="drone-file-input" accept="image/*,.tif,.tiff" style="display:none;" onchange="handleDroneImageUpload(event)">
+                    </div>
+                    <div id="drone-status-log" style="font-size: 11px; margin-top: 4px; display: none;">
+                        <div id="drone-msg-upload" style="color: #00802b; font-weight: 600; display: none;">* successfully uploaded</div>
+                        <div id="drone-msg-converting" style="color: #d97706; font-weight: 600; display: none; margin-top: 2px;">* converting into PNG...</div>
+                        <div id="drone-msg-converted" style="color: #00802b; font-weight: 600; display: none; margin-top: 2px;">* successfully converted to PNG</div>
+                    </div>
+                </div>
+
+                <div class="ui-field-row" style="margin-top: 6px;">
+                    <span class="ui-sub-label" style="font-weight: 600; white-space: nowrap;">Date Taken:</span>
+                    <input type="date" class="ui-date-input" id="drone-date-input" style="flex: 1;" onchange="updateDroneImageOverlay()">
+                </div>
+
+                <!-- Show Uploaded Drone Overlay Checkbox -->
+                <div style="border-top: 1px solid #f2f2f7; padding-top: 8px; margin-top: 8px;">
+                    <label class="ui-checkbox-label" style="font-weight: 600; color: #2563eb;">
+                        <input type="checkbox" id="comp-show-drone-chk" onchange="updateDroneImageOverlay()"> Show Uploaded Drone Overlay
+                    </label>
+                </div>
+
+                <div class="ui-hint-text" id="drone-status-hint" style="margin-top: 4px;">* Upload high-resolution drone orthomosaic image to overlay on active map boundary.</div>
+            </div>
+
             <!-- Section 2 Header: Fertilizer Recommendation -->
             <div class="ui-section-title" style="margin-top: 10px;">Fertilizer Recommendation</div>
 
-            <!-- Card: Estate Name (for report) -->
-            <div class="ui-card">
-                <div class="ui-card-label" style="margin-bottom: 8px;">Estate Name (for report):</div>
-                <div class="ui-field-row">
-                    <input type="text" id="estate-name-input" class="ui-pill-input" placeholder="">
-                    <input type="checkbox" id="estate-name-lock-chk" class="ui-accent-checkbox" onchange="toggleLockInput(this, 'estate-name-input')" title="Lock / Unlock input">
+            <!-- Card 5: Soil Data Entry -->
+            <div class="ui-card flex-row-between" style="align-items: center;">
+                <div class="ui-card-label">Soil Data Entry</div>
+                <div class="ui-inline-checkboxes">
+                    <label class="ui-checkbox-label">
+                        <input type="checkbox" id="chk-eds-inland"> Inland
+                    </label>
+                    <label class="ui-checkbox-label">
+                        <input type="checkbox" id="chk-eds-alluvial"> Alluvial / Coastal
+                    </label>
                 </div>
             </div>
 
@@ -3054,35 +3154,37 @@ function toggleSatDataMode(mode) {
             <div class="ui-card">
                 <div class="ui-card-label" style="margin-bottom: 10px;">Enter Fertilizer Used/ To Use [<span style="font-weight: 700;">Ratio</span>]</div>
                 
-                <div class="ui-fert-row" style="margin-bottom: 12px;">
+                <div class="ui-fert-row" style="margin-bottom: 12px; gap: 4px;">
                     <span class="ui-fert-label">N :</span>
-                    <input type="text" class="ui-fert-box" id="fert-n-input" placeholder="">
+                    <input type="text" class="ui-fert-box" id="fert-n-input" placeholder="" oninput="onManualFertilizerRatioInput()">
                     <span class="ui-fert-label">P :</span>
-                    <input type="text" class="ui-fert-box" id="fert-p-input" placeholder="">
+                    <input type="text" class="ui-fert-box" id="fert-p-input" placeholder="" oninput="onManualFertilizerRatioInput()">
                     <span class="ui-fert-label">K :</span>
-                    <input type="text" class="ui-fert-box" id="fert-k-input" placeholder="">
+                    <input type="text" class="ui-fert-box" id="fert-k-input" placeholder="" oninput="onManualFertilizerRatioInput()">
                     <span class="ui-fert-label">Mg :</span>
-                    <input type="text" class="ui-fert-box" id="fert-mg-input" placeholder="">
-                    <input type="checkbox" id="fert-ratio-lock-chk" class="ui-accent-checkbox" style="margin-left: auto;" onchange="toggleLockInputs(this, ['fert-n-input', 'fert-p-input', 'fert-k-input', 'fert-mg-input'])" title="Lock / Unlock ratio inputs">
+                    <input type="text" class="ui-fert-box" id="fert-mg-input" placeholder="" oninput="onManualFertilizerRatioInput()">
+                    <span class="ui-fert-label">B :</span>
+                    <input type="text" class="ui-fert-box" id="fert-b-input" placeholder="" oninput="onManualFertilizerRatioInput()">
+                    <input type="checkbox" id="fert-ratio-lock-chk" class="ui-accent-checkbox" style="margin-left: auto;" onchange="onFertilizerModeCheckboxChanged('manual', this)" title="Select manual fertilizer ratio (N:P:K:Mg:B) for report">
                 </div>
 
                 <div class="ui-field-row">
                     <span class="ui-sub-label" style="line-height: 1.2; width: 75px; flex-shrink: 0;">Or select<br>from list:</span>
                     <select class="ui-select-input" id="fert-list-input" style="flex: 1;" onchange="onFertilizerSelectChanged(this.value)">
                         <option value="">-- Select MPOB Fertilizer --</option>
-                        <option value="mpob_f2_super_k">MPOB F2 Super K (7:3:30)</option>
-                        <option value="mpob_f1">MPOB F1 (10:5.4:16.2:2.7)</option>
-                        <option value="mpob_f1_xtra_k">MPOB F1 Xtra K (10:5:20:2)</option>
-                        <option value="mpob_f2">MPOB F2 (10.7:9.1:17.3:1.4)</option>
-                        <option value="mpob_f3">MPOB F3 (10:7:19:1.5)</option>
-                        <option value="mpob_f4">MPOB F4 (9:6:18:2)</option>
-                        <option value="mpob_f4_premium">MPOB F4 Premium (9:6:18:2)</option>
-                        <option value="mpob_f5">MPOB F5 (6:6:11:1)</option>
-                        <option value="mpob_f5_super">MPOB F5 Super (10:6:19:2.5)</option>
-                        <option value="mpob_f6">MPOB F6 (10:7:18:2.5)</option>
-                        <option value="mpob_f7">MPOB F7 (19:8:13:2.5)</option>
+                        <option value="mpob_f2_super_k">MPOB F2 Super K (7:3:30:0:0.5)</option>
+                        <option value="mpob_f1">MPOB F1 (10:5.4:16.2:2.7:0.5)</option>
+                        <option value="mpob_f1_xtra_k">MPOB F1 Xtra K (10:5:20:2:0.5)</option>
+                        <option value="mpob_f2">MPOB F2 (10.7:9.1:17.3:1.4:0.5)</option>
+                        <option value="mpob_f3">MPOB F3 (10:7:19:1.5:0.5)</option>
+                        <option value="mpob_f4">MPOB F4 (9:6:18:2:0.5)</option>
+                        <option value="mpob_f4_premium">MPOB F4 Premium (9:6:18:2:0.5)</option>
+                        <option value="mpob_f5">MPOB F5 (6:6:11:1:0)</option>
+                        <option value="mpob_f5_super">MPOB F5 Super (10:6:19:2.5:0.5)</option>
+                        <option value="mpob_f6">MPOB F6 (10:7:18:2.5:0.5)</option>
+                        <option value="mpob_f7">MPOB F7 (19:8:13:2.5:0.4)</option>
                     </select>
-                    <input type="checkbox" id="fert-list-lock-chk" class="ui-accent-checkbox" onchange="toggleLockInput(this, 'fert-list-input')" title="Lock / Unlock input">
+                    <input type="checkbox" id="fert-list-lock-chk" class="ui-accent-checkbox" onchange="onFertilizerModeCheckboxChanged('list', this)" title="Select MPOB fertilizer formulation from list for report">
                 </div>
             </div>
 
@@ -5102,8 +5204,8 @@ window.toggleNutrientLayerStd = toggleNutrientLayerStd;
             document.querySelectorAll('.modal-overlay').forEach(el => el.classList.remove('active'));
             let chkInland = document.getElementById('chk-eds-inland');
             let chkAlluvial = document.getElementById('chk-eds-alluvial');
-            if (chkInland) chkInland.checked = false;
-            if (chkAlluvial) chkAlluvial.checked = false;
+            if (chkInland) chkInland.checked = (window.appliedEdsSoilType === 'Inland');
+            if (chkAlluvial) chkAlluvial.checked = (window.appliedEdsSoilType === 'Alluvial' || window.appliedEdsSoilType === 'Coastal');
         }
 
         window.openEdsInlandDialog = openEdsInlandDialog;
@@ -5663,14 +5765,14 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
             const chkInland = document.getElementById('chk-eds-inland');
             if (chkInland) {
                 chkInland.addEventListener('change', function() {
-                    if (this.checked) { openEdsInlandDialog(); } else { closeEdsDialogs(); }
+                    openEdsInlandDialog();
                 });
             }
 
             const chkAlluvial = document.getElementById('chk-eds-alluvial');
             if (chkAlluvial) {
                 chkAlluvial.addEventListener('change', function() {
-                    if (this.checked) { openEdsAlluvialDialog(); } else { closeEdsDialogs(); }
+                    openEdsAlluvialDialog();
                 });
             }
         });
@@ -5794,14 +5896,14 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
             let data = activeOutputData[tabType];
             
             let html = `<div class="matrix-layout-container">
-                <div class="matrix-x-label">K Fertilizer (kg/palm)</div>
+                <div class="matrix-x-label">KCI Fertilizer (kg/palm)</div>
                 <div class="matrix-middle-row">
-                    <div class="matrix-y-label">N Fertilizer (kg/palm)</div>
+                    <div class="matrix-y-label">SOA Fertilizer (kg/palm)</div>
                     <div class="matrix-table-wrapper">
                         <table class="matrix-table">
                             <thead>
                                 <tr>
-                                    <th>N \\ K</th>`;
+                                    <th>SOA \\ KCI</th>`;
             for (let k of k_rates) {
                 html += `<th data-col-header="${k.toFixed(1)}">${k.toFixed(1)}</th>`;
             }
@@ -5858,7 +5960,7 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
             tempSelectedCell.yield = activeOutputData.yield[n][k];
             tempSelectedCell.crr = activeOutputData.crr[n][k];
 
-            document.getElementById('selected-cell-lbl').innerText = `Selected treatment: N=${n.toFixed(1)} K=${k.toFixed(1)} (Yield: ${tempSelectedCell.yield} t/ha, CRR: ${tempSelectedCell.crr})`;
+            document.getElementById('selected-cell-lbl').innerText = `Selected treatment: SOA=${n.toFixed(1)} KCI=${k.toFixed(1)} (Yield: ${tempSelectedCell.yield} t/ha, CRR: ${tempSelectedCell.crr})`;
         }
 
         // Apply selections into global state
@@ -5869,9 +5971,14 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
             reportData.crrVal = tempSelectedCell.crr;
             reportData.revenueVal = activeOutputData.rev[reportData.nRate][reportData.kRate];
             reportData.blockName = selectedBlock;
+            window.appliedEdsSoilType = reportData.soilType;
 
             closeEdsDialogs();
-            alert(`Treatment successfully applied to ${selectedBlock}!\nN Rate: ${reportData.nRate} kg/palm\nK Rate: ${reportData.kRate} kg/palm\nYield Prediction: ${reportData.yieldVal} t/ha`);
+            let chkInland = document.getElementById('chk-eds-inland');
+            let chkAlluvial = document.getElementById('chk-eds-alluvial');
+            if (chkInland) chkInland.checked = (reportData.soilType === 'Inland');
+            if (chkAlluvial) chkAlluvial.checked = (reportData.soilType === 'Alluvial' || reportData.soilType === 'Coastal');
+            alert(`Treatment successfully applied to ${selectedBlock}!\nSOA Rate: ${reportData.nRate} kg/palm\nKCI Rate: ${reportData.kRate} kg/palm\nYield Prediction: ${reportData.yieldVal} t/ha`);
         }
 
         // Output modal tabs Router
@@ -6009,7 +6116,7 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
             };
 
             if (soilMode === 'Standard') {
-                let fert = (typeof STD_FERTILIZERS !== 'undefined' && STD_FERTILIZERS[selectedFertilizerIndex]) ? STD_FERTILIZERS[selectedFertilizerIndex] : { name: "MPOB F2 Super K", n: 7.0, p: 3.0, k: 30.0, mg: 0.0, b: 0.5, weight: 50 };
+                let fert = getResolvedFertilizerRatio(currentNutrients);
                 let nPct = fert.n / 100;
                 let dosagePerPalm = (nPct > 0) ? (0.622 / nPct) : 8.89;
                 let reqPerHaKg = dosagePerPalm * 143;
@@ -6019,9 +6126,12 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                     { key: "P", label: "Phosphorus (P)", unit: "%", dec: 3, actual: currentNutrients.P || 0.145, target: 0.150, pct: fert.p || 0 },
                     { key: "K", label: "Potassium (K)", unit: "%", dec: 2, actual: currentNutrients.K || 1.02, target: 1.00, pct: fert.k || 0 },
                     { key: "Mg", label: "Magnesium (Mg)", unit: "%", dec: 2, actual: currentNutrients.Mg || 0.23, target: 0.24, pct: fert.mg || 0 },
-                    { key: "B", label: "Boron (B)", unit: " ppm", dec: 1, actual: currentNutrients.B || 15.2, target: 15.0, pct: fert.b || 0.5 },
+                    { key: "B", label: "Boron (B)", unit: " ppm", dec: 1, actual: currentNutrients.B || 15.2, target: 15.0, pct: (fert.b !== undefined ? fert.b : 0.5) },
                     { key: "Ca", label: "Calcium (Ca)", unit: "%", dec: 2, actual: currentNutrients.Ca || 0.62, target: 0.60, pct: fert.ca || 2.5 }
                 ];
+
+                let stdNPalm = dosagePerPalm * ((fert.n || 7) / 100);
+                let stdKPalm = dosagePerPalm * ((fert.k || 18) / 100);
 
                 let rowsHtml = nutrients.map(function(nut) {
                     let nutPct = nut.pct / 100;
@@ -6170,9 +6280,51 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                             </tbody>
                           </table>
                           <div style="margin-top: 6px; font-size: 8.5px; font-weight: 700; color: #0f172a; display: flex; justify-content: space-between;">
-                            <span>Selected Formulation: <span style="color: #15803d;">${fert.name} (N:${fert.n}%, P:${fert.p}%, K:${fert.k}%, Mg:${fert.mg}%, B:${fert.b || 0.5}%)</span></span>
+                            <span>${fert.source === 'suggested' ? 'Suggested' : 'Selected'} Formulation: <span style="color: #15803d;">${fert.name} (N:${fert.n}%, P:${fert.p}%, K:${fert.k}%, Mg:${fert.mg}%, B:${fert.b !== undefined ? fert.b : 0.5}%)</span></span>
                             <span style="color: #475569;">Cross-Reference: See Page 2 (Block Rasters) &amp; Page 3 (Estate Rasters)</span>
                           </div>
+                        </div>
+
+                        <!-- Section 4.0: Field Split-Application Schedule -->
+                        <div style="background-color: #ffffff; border: 1px solid #94a3b8; border-radius: 3px; padding: 7px 10px;">
+                          <div style="font-size: 9px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1.5px solid #0f172a; padding-bottom: 2.5px; margin-bottom: 5px; display:flex; justify-content:space-between; align-items:center;">
+                            <span>4.0 Recommended Split-Application Schedule</span>
+                            <span style="font-size:7.4px; color:#475569;">MPOB Best Management Practice · Block ${blockNameStr}</span>
+                          </div>
+                          <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:2px; padding:4px 8px; margin-bottom:5px; display:flex; justify-content:space-between; align-items:center; font-size:8px;">
+                            <span style="font-weight:800; color:#0f172a;">Recommended Fertilizer Ratio (N : P : K : Mg : B) <span style="font-weight:600; color:#475569;">[${fert.source === 'suggested' ? 'Suggested — ' + fert.name : 'Pre-selected — ' + fert.name}]</span></span>
+                            <span style="font-weight:800; color:#15803d; letter-spacing:0.3px;">N: ${fert.n} &nbsp;|&nbsp; P: ${fert.p} &nbsp;|&nbsp; K: ${fert.k} &nbsp;|&nbsp; Mg: ${fert.mg} &nbsp;|&nbsp; B: ${fert.b !== undefined ? fert.b : 0.5}</span>
+                          </div>
+                          <table style="width:100%; border-collapse:collapse; font-size:8.2px; text-align:center;">
+                            <thead>
+                              <tr style="background:#f1f5f9; border:1px solid #cbd5e1; color:#0f172a; font-weight:800;">
+                                <th style="padding:3.5px 6px; border:1px solid #cbd5e1; text-align:left; width:34%;">Application Window</th>
+                                <th style="padding:3.5px 6px; border:1px solid #cbd5e1; width:18%;">N Rate (kg/palm)</th>
+                                <th style="padding:3.5px 6px; border:1px solid #cbd5e1; width:18%;">K Rate (kg/palm)</th>
+                                <th style="padding:3.5px 6px; border:1px solid #cbd5e1; width:30%;">Recommended Placement Zone</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; text-align:left; font-weight:700;">Round 1 (Mar–Apr · Post-Monsoon)</td>
+                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; font-weight:700; color:#15803d;">${(stdNPalm * 0.40).toFixed(2)}</td>
+                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; font-weight:700; color:#15803d;">${(stdKPalm * 0.40).toFixed(2)}</td>
+                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; color:#475569;">Weed Circle / Frond Pile</td>
+                              </tr>
+                              <tr>
+                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; text-align:left; font-weight:700;">Round 2 (Jul–Aug · Mid-Year)</td>
+                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; font-weight:700; color:#15803d;">${(stdNPalm * 0.35).toFixed(2)}</td>
+                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; font-weight:700; color:#15803d;">${(stdKPalm * 0.35).toFixed(2)}</td>
+                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; color:#475569;">Inter-Row Frond Stack</td>
+                              </tr>
+                              <tr>
+                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; text-align:left; font-weight:700;">Round 3 (Oct–Nov · Pre-Monsoon)</td>
+                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; font-weight:700; color:#15803d;">${(stdNPalm * 0.25).toFixed(2)}</td>
+                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; font-weight:700; color:#15803d;">${(stdKPalm * 0.25).toFixed(2)}</td>
+                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; color:#475569;">Outer Harvester Path</td>
+                              </tr>
+                            </tbody>
+                          </table>
                         </div>
                     </div>
 
@@ -6359,24 +6511,24 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                           ${tableCode} — ${titleLabel} <span style="font-weight:600; color:#475569; text-transform:none;">(${unitLabel})</span>
                         </div>
                         <div style="display:flex; align-items:center; gap:10px; font-size:7.4px; font-weight:700; color:#334155;">
-                          <span><span style="display:inline-block;width:8px;height:8px;background:#2563eb;border-radius:1.5px;vertical-align:middle;margin-right:3px;"></span>Selected Treatment (N=${selectedN.toFixed(1)}, K=${selectedK.toFixed(1)})</span>
+                          <span><span style="display:inline-block;width:8px;height:8px;background:#2563eb;border-radius:1.5px;vertical-align:middle;margin-right:3px;"></span>Selected Treatment (SOA=${selectedN.toFixed(1)}, KCI=${selectedK.toFixed(1)})</span>
                           <span><span style="display:inline-block;width:8px;height:8px;background:#cbd5e1;border:1px solid #64748b;border-radius:1.5px;vertical-align:middle;margin-right:3px;"></span>Optimal CRR = 0.30 Zone</span>
                         </div>
                       </div>
                       <div style="font-size: 7.8px; font-weight: 800; color: #1e293b; text-align: center; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.4px;">
-                        Potassium (K) Fertilizer Rate (kg/palm/yr) &rarr;
+                        KCI Fertilizer Rate (kg/palm/yr) &rarr;
                       </div>
                       <table style="width: 100%; border-collapse: collapse; font-size: 7.8px; text-align: center; border: 1px solid #94a3b8;">
                         <thead>
                           <tr style="background-color: #f1f5f9; border-bottom: 1.5px solid #64748b; color: #0f172a;">
-                            <th style="border: 1px solid #94a3b8; padding: 3px 4px; font-weight: 800; background:#e2e8f0; width: 11%;">N \\ K (kg)</th>`;
+                            <th style="border: 1px solid #94a3b8; padding: 3px 4px; font-weight: 800; background:#e2e8f0; width: 11%;">SOA \\ KCI (kg)</th>`;
                     for (let k of kRates) {
                         html += `<th style="border: 1px solid #cbd5e1; padding: 3px 2px; font-weight: 800;">${k.toFixed(1)}</th>`;
                     }
                     html += `</tr></thead><tbody>`;
 
                     for (let n of nRates) {
-                        html += `<tr style="border-bottom: 1px solid #e2e8f0;"><td style="border: 1px solid #94a3b8; padding: 2.8px 4px; background-color: #f1f5f9; font-weight: 800; color: #0f172a;">N = ${n.toFixed(1)}</td>`;
+                        html += `<tr style="border-bottom: 1px solid #e2e8f0;"><td style="border: 1px solid #94a3b8; padding: 2.8px 4px; background-color: #f1f5f9; font-weight: 800; color: #0f172a;">SOA = ${n.toFixed(1)}</td>`;
                         for (let k of kRates) {
                             let val = (gridData && gridData[n] && gridData[n][k] !== undefined) ? gridData[n][k] : 0;
                             let isSelected = (Math.abs(n - selectedN) < 0.005) && (Math.abs(k - selectedK) < 0.005);
@@ -6464,6 +6616,9 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                         </tr>
                     `;
                 }).join('');
+
+                const chosenFert = getResolvedFertilizerRatio(currentNutrients);
+                const chosenFertB = (chosenFert.b !== undefined) ? chosenFert.b : 0.5;
 
                 const deficientList = nutTableMeta.filter(n => n.val < n.crit).map(n => n.label);
                 const sufficientList = nutTableMeta.filter(n => n.val >= n.crit).map(n => n.label);
@@ -6616,7 +6771,7 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                           </table>
 
                           <div style="margin-top: 6px; font-size: 8.2px; font-weight: 700; color: #0f172a; display: flex; justify-content: space-between; align-items:center;">
-                            <span>Recommended Compound Formulation: <span style="color: #1b4332; font-weight: 800;">MPOB F2 Super K (N:7, P:3, K:30, Mg:0, B:0.5)</span></span>
+                            <span>${chosenFert.source === 'suggested' ? 'Suggested' : 'Selected'} Compound Formulation: <span style="color: #1b4332; font-weight: 800;">${chosenFert.name} (N:${chosenFert.n}, P:${chosenFert.p}, K:${chosenFert.k}, Mg:${chosenFert.mg}, B:${chosenFertB})</span></span>
                             <span style="color: #475569; font-weight: 700;">Cross-Reference: Page 2 (OPENS Matrices) · Page 3 (Block Rasters) · Page 4 (Estate Rasters)</span>
                           </div>
                         </div>
@@ -6688,38 +6843,38 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
 
                         <!-- Section 4.0: Field Split-Application Schedule (Full Width) -->
                         <div style="background-color: #ffffff; border: 1px solid #94a3b8; border-radius: 3px; padding: 7px 10px;">
-                          <div style="font-size: 9px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1.5px solid #0f172a; padding-bottom: 2.5px; margin-bottom: 5px; display:flex; justify-content:space-between;">
+                          <div style="font-size: 9px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1.5px solid #0f172a; padding-bottom: 2.5px; margin-bottom: 5px; display:flex; justify-content:space-between; align-items:center;">
                             <span>4.0 Recommended Split-Application Schedule</span>
                             <span style="font-size:7.4px; color:#475569;">MPOB Best Management Practice · Block ${blockNameStr}</span>
+                          </div>
+                          <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:2px; padding:4px 8px; margin-bottom:5px; display:flex; justify-content:space-between; align-items:center; font-size:8px;">
+                            <span style="font-weight:800; color:#0f172a;">Recommended Fertilizer Ratio (N : P : K : Mg : B) <span style="font-weight:600; color:#475569;">[${chosenFert.source === 'suggested' ? 'Suggested — ' + chosenFert.name : 'Pre-selected — ' + chosenFert.name}]</span></span>
+                            <span style="font-weight:800; color:#15803d; letter-spacing:0.3px;">N: ${chosenFert.n} &nbsp;|&nbsp; P: ${chosenFert.p} &nbsp;|&nbsp; K: ${chosenFert.k} &nbsp;|&nbsp; Mg: ${chosenFert.mg} &nbsp;|&nbsp; B: ${chosenFertB}</span>
                           </div>
                           <table style="width:100%; border-collapse:collapse; font-size:8.2px; text-align:center;">
                             <thead>
                               <tr style="background:#f1f5f9; border:1px solid #cbd5e1; color:#0f172a; font-weight:800;">
-                                <th style="padding:3.5px 6px; border:1px solid #cbd5e1; text-align:left; width:28%;">Application Window</th>
-                                <th style="padding:3.5px 6px; border:1px solid #cbd5e1; width:12%;">Split Share</th>
-                                <th style="padding:3.5px 6px; border:1px solid #cbd5e1; width:15%;">N Rate (kg/palm)</th>
-                                <th style="padding:3.5px 6px; border:1px solid #cbd5e1; width:15%;">K Rate (kg/palm)</th>
+                                <th style="padding:3.5px 6px; border:1px solid #cbd5e1; text-align:left; width:34%;">Application Window</th>
+                                <th style="padding:3.5px 6px; border:1px solid #cbd5e1; width:18%;">N Rate (kg/palm)</th>
+                                <th style="padding:3.5px 6px; border:1px solid #cbd5e1; width:18%;">K Rate (kg/palm)</th>
                                 <th style="padding:3.5px 6px; border:1px solid #cbd5e1; width:30%;">Recommended Placement Zone</th>
                               </tr>
                             </thead>
                             <tbody>
                               <tr>
                                 <td style="padding:3.5px 6px; border:1px solid #cbd5e1; text-align:left; font-weight:700;">Round 1 (Mar–Apr · Post-Monsoon)</td>
-                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; font-weight:700;">40%</td>
                                 <td style="padding:3.5px 6px; border:1px solid #cbd5e1; font-weight:700; color:#15803d;">${(n_kg_palm * 0.40).toFixed(2)}</td>
                                 <td style="padding:3.5px 6px; border:1px solid #cbd5e1; font-weight:700; color:#15803d;">${(k_kg_palm * 0.40).toFixed(2)}</td>
                                 <td style="padding:3.5px 6px; border:1px solid #cbd5e1; color:#475569;">Weed Circle / Frond Pile</td>
                               </tr>
                               <tr>
                                 <td style="padding:3.5px 6px; border:1px solid #cbd5e1; text-align:left; font-weight:700;">Round 2 (Jul–Aug · Mid-Year)</td>
-                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; font-weight:700;">35%</td>
                                 <td style="padding:3.5px 6px; border:1px solid #cbd5e1; font-weight:700; color:#15803d;">${(n_kg_palm * 0.35).toFixed(2)}</td>
                                 <td style="padding:3.5px 6px; border:1px solid #cbd5e1; font-weight:700; color:#15803d;">${(k_kg_palm * 0.35).toFixed(2)}</td>
                                 <td style="padding:3.5px 6px; border:1px solid #cbd5e1; color:#475569;">Inter-Row Frond Stack</td>
                               </tr>
                               <tr>
                                 <td style="padding:3.5px 6px; border:1px solid #cbd5e1; text-align:left; font-weight:700;">Round 3 (Oct–Nov · Pre-Monsoon)</td>
-                                <td style="padding:3.5px 6px; border:1px solid #cbd5e1; font-weight:700;">25%</td>
                                 <td style="padding:3.5px 6px; border:1px solid #cbd5e1; font-weight:700; color:#15803d;">${(n_kg_palm * 0.25).toFixed(2)}</td>
                                 <td style="padding:3.5px 6px; border:1px solid #cbd5e1; font-weight:700; color:#15803d;">${(k_kg_palm * 0.25).toFixed(2)}</td>
                                 <td style="padding:3.5px 6px; border:1px solid #cbd5e1; color:#475569;">Outer Harvester Path</td>
@@ -7222,8 +7377,8 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
             <div class="modal-body">
                 <!-- Tabs -->
                 <div class="output-tabs">
-                    <button class="output-tab-btn active" onclick="switchOutputTab('yield')">Predicted Yield</button>
-                    <button class="output-tab-btn" onclick="switchOutputTab('rev')">Revenue Response</button>
+                    <button class="output-tab-btn active" onclick="switchOutputTab('yield')">Predicted Yield (t/ha)</button>
+                    <button class="output-tab-btn" onclick="switchOutputTab('rev')">Revenue Response (RM)</button>
                     <button class="output-tab-btn" onclick="switchOutputTab('crr')">CRR</button>
                 </div>
                 <!-- Tab Panels -->
@@ -7242,7 +7397,6 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="eds-print-report-btn" onclick="viewPdfReportFromOutputModal()">📄 View Report</button>
                 <button class="modal-calc-btn" style="width:auto; margin-top:0;" onclick="applySelectedTreatment()">✔ Apply Treatment</button>
                 <button class="modal-calc-btn" style="width:auto; margin-top:0;" onclick="closeEdsDialogs()">Cancel</button>
             </div>
