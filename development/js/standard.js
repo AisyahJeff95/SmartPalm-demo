@@ -323,7 +323,7 @@ function calculateStandardCorrectiveDosage() {
             tempSelectedCell.yield = activeOutputData.yield[n][k];
             tempSelectedCell.crr = activeOutputData.crr[n][k];
 
-            document.getElementById('selected-cell-lbl').innerText = `Selected treatment: N=${n.toFixed(1)} K=${k.toFixed(1)} (Yield: ${tempSelectedCell.yield} t/ha, CRR: ${tempSelectedCell.crr})`;
+            document.getElementById('selected-cell-lbl').innerText = `Selected treatment: N=${n.toFixed(1)} K=${k.toFixed(1)} (Yield: ${tempSelectedCell.yield} t/ha/year, CRR: ${tempSelectedCell.crr})`;
         }
 
         // Apply selections into global state
@@ -336,7 +336,7 @@ function calculateStandardCorrectiveDosage() {
             reportData.blockName = selectedBlock;
 
             closeEdsDialogs();
-            alert(`Treatment successfully applied to ${selectedBlock}!\nN Rate: ${reportData.nRate} kg/palm\nK Rate: ${reportData.kRate} kg/palm\nYield Prediction: ${reportData.yieldVal} t/ha`);
+            alert(`Treatment successfully applied to ${selectedBlock}!\nN Rate: ${reportData.nRate} kg/palm\nK Rate: ${reportData.kRate} kg/palm\nYield Prediction: ${reportData.yieldVal} t/ha/year`);
         }
 
         // Output modal tabs Router
@@ -479,20 +479,17 @@ function calculateStandardCorrectiveDosage() {
                 { key: "Ca", label: "Calcium (Ca)", unit: "%", dec: 2, actual: currentNutrients.Ca || 0.62, target: 0.60, pct: fert.ca || 2.5 }
             ];
 
+            let stdNPalm = dosagePerPalm * ((fert.n || 10) / 100);
+            let stdKPalm = dosagePerPalm * ((fert.k || 18) / 100);
+
             let rowsHtml = nutrients.map(function(nut) {
-                let nutPct = nut.pct / 100;
-                let baseSupplied = dosagePerPalm * (nutPct > 0 ? nutPct : 0.02);
-                let deficitRatio = (nut.actual < nut.target && nut.actual > 0) ? (nut.target / nut.actual) : 1.0;
-                let recPalm = baseSupplied * deficitRatio;
-                let recHa = recPalm * 143;
                 let dotColor = (typeof window.colorForNutrientValue === 'function')
                     ? window.colorForNutrientValue(nut.actual, nut.key)
                     : getNutrientColorComp(nut.actual, nut.key);
-                let suff = Math.round((nut.actual / nut.target) * 100);
                 let isOpt = nut.actual >= nut.target;
                 let badge = isOpt
-                    ? `<span style="background:#dcfce7;color:#166534;border:1px solid #86efac;padding:1px 5px;border-radius:2px;font-size:7.4px;font-weight:800;">SUFFICIENT (${suff}%)</span>`
-                    : `<span style="background:#fef2f2;color:#991b1b;border:1px solid #fecaca;padding:1px 5px;border-radius:2px;font-size:7.4px;font-weight:800;">DEFICIENT (${suff}%)</span>`;
+                    ? `<span style="color:#166534;font-weight:400;">Sufficient</span>`
+                    : `<span style="color:#991b1b;font-weight:400;">Deficient</span>`;
 
                 return `
                   <tr>
@@ -504,8 +501,8 @@ function calculateStandardCorrectiveDosage() {
                     <td style="padding: 4.5px 7px; border: 1px solid #cbd5e1; color: #475569; font-weight: 600;">${getStatRangeStr(nut.key, nut.dec, nut.unit, nut.actual)}</td>
                     <td style="padding: 4.5px 7px; border: 1px solid #cbd5e1; color: #b91c1c; font-weight: 700;">${nut.target.toFixed(nut.dec)}${nut.unit}</td>
                     <td style="padding: 4.5px 7px; border: 1px solid #cbd5e1;">${badge}</td>
-                    <td style="padding: 4.5px 7px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${recPalm.toFixed(2)}</td>
-                    <td style="padding: 4.5px 7px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${recHa.toFixed(2)}</td>
+                    <td style="padding: 4.5px 7px; border: 1px solid #cbd5e1;"></td>
+                    <td style="padding: 4.5px 7px; border: 1px solid #cbd5e1;"></td>
                   </tr>
                 `;
             }).join('');
@@ -530,18 +527,45 @@ function calculateStandardCorrectiveDosage() {
                     2,
                     `Selected Block Spatial Foliar Nutrient Analysis (N, P, K, Mg, Ca, B)`,
                     `BLOCK-LEVEL FOLIAR DISTRIBUTION & MPOB LEAF 17 CRITICAL THRESHOLDS`,
-                    `Page 2 of 3 • Block: ${blockNameStr}`,
+                    `Page 2 of 4 • Block: ${blockNameStr}`,
                     blockDetails,
                     'block'
                 )
                 : '';
 
-            const page3EstateRasters = (typeof window.buildSixPanelRasterPageHtml === 'function' && blockDetails)
+            const page3BlockStress = `
+            <!-- PAGE 3: Stress Areas Detection for Selected Block -->
+            <div class="report-page">
+                <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-start;">
+                    <div style="border-bottom: 2px solid #0f172a; padding-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+                      <div>
+                        <div style="font-size: 7.8px; font-weight: 800; color: #1b4332; text-transform: uppercase; letter-spacing: 0.9px;">
+                            MALAYSIAN PALM OIL BOARD (MPOB) · PALMNEX
+                        </div>
+                        <h1 style="margin: 1px 0 2px 0; color: #0f172a; font-size: 16px; font-weight: 800; letter-spacing: -0.2px; text-transform: uppercase;">
+                            Stress Areas Detection
+                        </h1>
+                        <div style="font-size: 8px; color: #475569; font-weight: 600; letter-spacing: 0.3px;">
+                            SELECTED BLOCK CANOPY PHYSIOLOGICAL STRESS DETECTION &nbsp;|&nbsp; BLOCK ${blockNameStr}
+                        </div>
+                      </div>
+                      ${compassSvgHtml}
+                    </div>
+                </div>
+
+                <!-- Formal Research Footer -->
+                <div style="margin-top: 6px; border-top: 1.5px solid #0f172a; padding-top: 4px; font-size: 7.5px; color: #475569; font-weight:600; display:flex; justify-content:space-between; align-items:center;">
+                  <span>MPOB PalmNex Agronomic Decision Support System · Sentinel-2 Spectral Indices &amp; Canopy Stress Detection</span>
+                  <span style="color:#0f172a; font-weight:800;">Page 3 of 4</span>
+                </div>
+            </div>`;
+
+            const page4EstateRasters = (typeof window.buildSixPanelRasterPageHtml === 'function' && blockDetails)
                 ? window.buildSixPanelRasterPageHtml(
-                    3,
+                    4,
                     `Whole Estate Spatial Foliar Nutrient Analysis (N, P, K, Mg, Ca, B)`,
                     `ESTATE-WIDE FOLIAR DISTRIBUTION & MPOB LEAF 17 CRITICAL THRESHOLDS`,
-                    `Page 3 of 3 • Estate: ${estate_name}`,
+                    `Page 4 of 4 • Estate: ${estate_name}`,
                     blockDetails,
                     'estate'
                 )
@@ -574,27 +598,29 @@ function calculateStandardCorrectiveDosage() {
             </style>
             <!-- PAGE 1: Executive Agronomic & Spatial Foliar Diagnostic Summary (Standard Mode) -->
             <div class="report-page">
-                <div>
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; padding-bottom: 4px; border-bottom: 1px solid #cbd5e1;">
-                        <img src="MPOB-3-all-black-fonts.png" alt="MPOB PalmNex Logo" style="height: 34px; width: auto; object-fit: contain; display: block;" />
-                        <img src="reada-logo-final.png" alt="READA Logo" style="height: 40px; width: 40px; object-fit: contain; border-radius: 50%; display: block;" />
-                    </div>
-                    <div style="border-bottom: 2px solid #0f172a; padding-bottom: 5px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-                      <div>
-                        <div style="font-size: 7.8px; font-weight: 800; color: #1b4332; text-transform: uppercase; letter-spacing: 0.9px;">
-                            MALAYSIAN PALM OIL BOARD (MPOB) · PALMNEX
+                <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; padding-bottom: 4px; border-bottom: 1px solid #cbd5e1;">
+                            <img src="MPOB-3-all-black-fonts.png" alt="MPOB PalmNex Logo" style="height: 34px; width: auto; object-fit: contain; display: block;" />
+                            <img src="reada-logo-final.png" alt="READA Logo" style="height: 40px; width: 40px; object-fit: contain; border-radius: 50%; display: block;" />
                         </div>
-                        <h1 style="margin: 1px 0 2px 0; color: #0f172a; font-size: 16.5px; font-weight: 800; letter-spacing: -0.2px; text-transform: uppercase;">
-                            Executive Agronomic &amp; Spatial Foliar Diagnostic Report
-                        </h1>
-                        <div style="font-size: 8px; color: #475569; font-weight: 600; letter-spacing: 0.3px;">
-                            STANDARD MPOB FOLIAR PROTOCOL &nbsp;|&nbsp; SITE: ${estate_name.toUpperCase()} &nbsp;|&nbsp; BLOCK: ${blockNameStr} (${blockAreaHa.toFixed(2)} HA)
+                        <div style="border-bottom: 2px solid #0f172a; padding-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+                          <div>
+                            <div style="font-size: 7.8px; font-weight: 800; color: #1b4332; text-transform: uppercase; letter-spacing: 0.9px;">
+                                MALAYSIAN PALM OIL BOARD (MPOB) · PALMNEX
+                            </div>
+                            <h1 style="margin: 1px 0 2px 0; color: #0f172a; font-size: 16.5px; font-weight: 800; letter-spacing: -0.2px; text-transform: uppercase;">
+                                Executive Agronomic &amp; Spatial Foliar Diagnostic Report
+                            </h1>
+                            <div style="font-size: 8px; color: #475569; font-weight: 600; letter-spacing: 0.3px;">
+                                STANDARD MPOB FOLIAR PROTOCOL &nbsp;|&nbsp; SITE: ${estate_name.toUpperCase()} &nbsp;|&nbsp; BLOCK: ${blockNameStr} (${blockAreaHa.toFixed(2)} HA)
+                            </div>
+                          </div>
+                          ${compassSvgHtml}
                         </div>
-                      </div>
-                      ${compassSvgHtml}
                     </div>
 
-                    <div style="display: grid; grid-template-columns: 53% 45%; justify-content: space-between; margin-bottom: 8px;">
+                    <div style="display: grid; grid-template-columns: 53% 45%; justify-content: space-between;">
                       <div style="background-color: #ffffff; border: 1px solid #94a3b8; border-radius: 3px; padding: 7px 10px;">
                         <div style="font-size: 9.2px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1.5px solid #0f172a; padding-bottom: 3px; margin-bottom: 5px;">
                             1.0 Estate &amp; Block Geoinformation
@@ -614,13 +640,13 @@ function calculateStandardCorrectiveDosage() {
                         <div style="font-size: 9.2px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1.5px solid #0f172a; padding-bottom: 3px; margin-bottom: 4px; display:flex; justify-content:space-between;">
                             <span>Fig 1.1 — Selected Block Spatial Context</span>
                         </div>
-                        <div id="report-selected-block-portion-container" style="width: 100%; height: 172px; background-color: #ffffff; border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                        <div id="report-selected-block-portion-container" style="width: 100%; height: 162px; background-color: #ffffff; border: 1px solid #cbd5e1; display: flex; align-items: center; justify-content: center; overflow: hidden;">
                           <img id="report-selected-block-portion-img" alt="Selected Block Portion" style="width: 100%; height: 100%; object-fit: contain; display: block;" />
                         </div>
                       </div>
                     </div>
 
-                    <div style="background-color: #ffffff; border: 1px solid #94a3b8; border-radius: 3px; padding: 7px 10px; margin-bottom: 8px;">
+                    <div style="background-color: #ffffff; border: 1px solid #94a3b8; border-radius: 3px; padding: 7px 10px;">
                       <div style="font-size: 9.2px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1.5px solid #0f172a; padding-bottom: 3px; margin-bottom: 6px; display:flex; justify-content:space-between;">
                         <span>2.0 Block Foliar Macro- &amp; Micro-Nutrient Diagnostics &amp; Standard MPOB Prescription</span>
                         <span style="font-size:7.5px; color:#475569;">MPOB Leaf 17 Thresholds</span>
@@ -657,49 +683,63 @@ function calculateStandardCorrectiveDosage() {
                           ${rowsHtml}
                         </tbody>
                       </table>
+                    </div>
 
-                      <div style="margin-top: 5px; font-size: 8.2px; font-weight: 700; color: #0f172a; display: flex; justify-content: space-between; align-items: center;">
-                        <span>Recommended Formulation: <span style="color: #1b4332; font-weight:800;">${fert.name} (N:${fert.n}%, P:${fert.p}%, K:${fert.k}%, Mg:${fert.mg}%, B:${fert.b || 0.5}%)</span></span>
-                        <span style="color: #475569; font-weight: 700;">Cross-Reference: Page 2 (Block Rasters) &amp; Page 3 (Estate Rasters)</span>
+                    <!-- Section 3.0: Field Split-Application Schedule -->
+                    <div style="background-color: #ffffff; border: 1px solid #94a3b8; border-radius: 3px; padding: 6px 10px;">
+                      <div style="font-size: 9px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1.5px solid #0f172a; padding-bottom: 2.5px; margin-bottom: 4px; display:flex; justify-content:space-between; align-items:center;">
+                        <span>3.0 Recommended Split-Application Schedule</span>
+                        <span style="font-size:7.4px; color:#475569;">MPOB Best Management Practice · Block ${blockNameStr}</span>
                       </div>
+                      <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:2px; padding:3.5px 8px; margin-bottom:4px; display:flex; justify-content:space-between; align-items:center; font-size:8px;">
+                        <span style="font-weight:800; color:#0f172a;">Recommended Fertilizer Ratio (N : P : K : Mg : B) <span style="font-weight:600; color:#475569;">[${fert.source === 'suggested' ? 'Suggested — ' + fert.name : 'Pre-selected — ' + fert.name}]</span></span>
+                        <span style="font-weight:800; color:#15803d; letter-spacing:0.3px;">N: ${fert.n} &nbsp;|&nbsp; P: ${fert.p} &nbsp;|&nbsp; K: ${fert.k} &nbsp;|&nbsp; Mg: ${fert.mg} &nbsp;|&nbsp; B: ${fert.b !== undefined ? fert.b : 0.5}</span>
+                      </div>
+                      <table style="width:100%; border-collapse:collapse; font-size:8px; text-align:center;">
+                        <thead>
+                          <tr style="background:#f1f5f9; border:1px solid #cbd5e1; color:#0f172a; font-weight:800;">
+                            <th style="padding:3px 6px; border:1px solid #cbd5e1; text-align:left; width:34%;">Application Window</th>
+                            <th style="padding:3px 6px; border:1px solid #cbd5e1; width:18%;">N Rate (kg/palm)</th>
+                            <th style="padding:3px 6px; border:1px solid #cbd5e1; width:18%;">K Rate (kg/palm)</th>
+                            <th style="padding:3px 6px; border:1px solid #cbd5e1; width:30%;">Recommended Placement Zone</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td style="padding:3px 6px; border:1px solid #cbd5e1; text-align:left; font-weight:700;">Round 1 (Mar–Apr · Post-Monsoon)</td>
+                            <td style="padding:3px 6px; border:1px solid #cbd5e1; font-weight:700; color:#15803d;">${(stdNPalm * 0.40).toFixed(2)}</td>
+                            <td style="padding:3px 6px; border:1px solid #cbd5e1; font-weight:700; color:#15803d;">${(stdKPalm * 0.40).toFixed(2)}</td>
+                            <td style="padding:3px 6px; border:1px solid #cbd5e1; color:#475569;">Weed Circle / Frond Pile</td>
+                          </tr>
+                          <tr>
+                            <td style="padding:3px 6px; border:1px solid #cbd5e1; text-align:left; font-weight:700;">Round 2 (Jul–Aug · Mid-Year)</td>
+                            <td style="padding:3px 6px; border:1px solid #cbd5e1; font-weight:700; color:#15803d;">${(stdNPalm * 0.35).toFixed(2)}</td>
+                            <td style="padding:3px 6px; border:1px solid #cbd5e1; font-weight:700; color:#15803d;">${(stdKPalm * 0.35).toFixed(2)}</td>
+                            <td style="padding:3px 6px; border:1px solid #cbd5e1; color:#475569;">Inter-Row Frond Stack</td>
+                          </tr>
+                          <tr>
+                            <td style="padding:3px 6px; border:1px solid #cbd5e1; text-align:left; font-weight:700;">Round 3 (Oct–Nov · Pre-Monsoon)</td>
+                            <td style="padding:3px 6px; border:1px solid #cbd5e1; font-weight:700; color:#15803d;">${(stdNPalm * 0.25).toFixed(2)}</td>
+                            <td style="padding:3px 6px; border:1px solid #cbd5e1; font-weight:700; color:#15803d;">${(stdKPalm * 0.25).toFixed(2)}</td>
+                            <td style="padding:3px 6px; border:1px solid #cbd5e1; color:#475569;">Outer Harvester Path</td>
+                          </tr>
+                        </tbody>
+                      </table>
                     </div>
 
                     <div style="background-color: #ffffff; border: 1px solid #94a3b8; border-radius: 3px; padding: 7px 10px;">
                       <div style="font-size: 9.2px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1.5px solid #0f172a; padding-bottom: 3px; margin-bottom: 6px; display:flex; justify-content:space-between;">
-                        <span>3.0 Foliar Sufficiency Profile, Canopy Physiological Stress &amp; Agronomic Interpretation</span>
+                        <span>4.0 Foliar Sufficiency Profile, Canopy Physiological Stress &amp; Agronomic Interpretation</span>
                         <span style="font-size:7.5px; color:#475569;">Block ${blockNameStr}</span>
                       </div>
 
                       <div style="display: grid; grid-template-columns: 57% 41%; justify-content: space-between; align-items: stretch; margin-bottom: 6px;">
-                        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 2px; padding: 6px 8px;">
+                        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 2px; padding: 6px 8px; display: flex; flex-direction: column; justify-content: space-between;">
                           <div style="font-size: 8px; font-weight: 800; color: #0f172a; text-transform:uppercase; margin-bottom: 5px; border-bottom:1px solid #e2e8f0; padding-bottom:2px;">
-                            Fig 1.2 — Nutrient Sufficiency Index (% of Critical Threshold)
+                            Fig 1.2 — 3-Year Historical Foliar Readings (N, P, K, Mg, B, Ca)
                           </div>
-                          <div style="font-size: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 5px 12px;">
-                            <div>
-                              <div style="display:flex;justify-content:space-between;font-weight:700;color:#1e293b;margin-bottom:1.5px;"><span>N (${currentNutrients.N.toFixed(2)}%)</span><span>${Math.min(125, Math.round((currentNutrients.N / 2.50) * 100))}%</span></div>
-                              <div style="height:5px;background:#e2e8f0;border-radius:2px;overflow:hidden;"><div style="height:100%;background:${(typeof window.colorForNutrientValue === 'function') ? window.colorForNutrientValue(currentNutrients.N, 'N') : '#0284c7'};width:${Math.min(100, Math.round((currentNutrients.N / 2.80) * 100))}%;"></div></div>
-                            </div>
-                            <div>
-                              <div style="display:flex;justify-content:space-between;font-weight:700;color:#1e293b;margin-bottom:1.5px;"><span>P (${currentNutrients.P.toFixed(3)}%)</span><span>${Math.min(125, Math.round((currentNutrients.P / 0.15) * 100))}%</span></div>
-                              <div style="height:5px;background:#e2e8f0;border-radius:2px;overflow:hidden;"><div style="height:100%;background:${(typeof window.colorForNutrientValue === 'function') ? window.colorForNutrientValue(currentNutrients.P, 'P') : '#0d9488'};width:${Math.min(100, Math.round((currentNutrients.P / 0.18) * 100))}%;"></div></div>
-                            </div>
-                            <div>
-                              <div style="display:flex;justify-content:space-between;font-weight:700;color:#1e293b;margin-bottom:1.5px;"><span>K (${currentNutrients.K.toFixed(2)}%)</span><span>${Math.min(125, Math.round((currentNutrients.K / 1.00) * 100))}%</span></div>
-                              <div style="height:5px;background:#e2e8f0;border-radius:2px;overflow:hidden;"><div style="height:100%;background:${(typeof window.colorForNutrientValue === 'function') ? window.colorForNutrientValue(currentNutrients.K, 'K') : '#ea580c'};width:${Math.min(100, Math.round((currentNutrients.K / 1.25) * 100))}%;"></div></div>
-                            </div>
-                            <div>
-                              <div style="display:flex;justify-content:space-between;font-weight:700;color:#1e293b;margin-bottom:1.5px;"><span>Mg (${currentNutrients.Mg.toFixed(2)}%)</span><span>${Math.min(125, Math.round((currentNutrients.Mg / 0.24) * 100))}%</span></div>
-                              <div style="height:5px;background:#e2e8f0;border-radius:2px;overflow:hidden;"><div style="height:100%;background:${(typeof window.colorForNutrientValue === 'function') ? window.colorForNutrientValue(currentNutrients.Mg, 'Mg') : '#16a34a'};width:${Math.min(100, Math.round((currentNutrients.Mg / 0.28) * 100))}%;"></div></div>
-                            </div>
-                            <div>
-                              <div style="display:flex;justify-content:space-between;font-weight:700;color:#1e293b;margin-bottom:1.5px;"><span>B (${currentNutrients.B.toFixed(1)} ppm)</span><span>${Math.min(125, Math.round((currentNutrients.B / 15.0) * 100))}%</span></div>
-                              <div style="height:5px;background:#e2e8f0;border-radius:2px;overflow:hidden;"><div style="height:100%;background:${(typeof window.colorForNutrientValue === 'function') ? window.colorForNutrientValue(currentNutrients.B, 'B') : '#2563eb'};width:${Math.min(100, Math.round((currentNutrients.B / 20.0) * 100))}%;"></div></div>
-                            </div>
-                            <div>
-                              <div style="display:flex;justify-content:space-between;font-weight:700;color:#1e293b;margin-bottom:1.5px;"><span>Ca (${currentNutrients.Ca.toFixed(2)}%)</span><span>${Math.min(125, Math.round((currentNutrients.Ca / 0.60) * 100))}%</span></div>
-                              <div style="height:5px;background:#e2e8f0;border-radius:2px;overflow:hidden;"><div style="height:100%;background:${(typeof window.colorForNutrientValue === 'function') ? window.colorForNutrientValue(currentNutrients.Ca, 'Ca') : '#9333ea'};width:${Math.min(100, Math.round((currentNutrients.Ca / 0.80) * 100))}%;"></div></div>
-                            </div>
+                          <div style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 10px 8px; text-align: center; font-size: 8.5px; color: #475569; font-style: italic; background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 2px;">
+                            Please run nutrient detection for previous 3 years for the same month, to view this data
                           </div>
                         </div>
 
@@ -729,12 +769,13 @@ function calculateStandardCorrectiveDosage() {
 
                 <div style="margin-top: 6px; border-top: 1.5px solid #0f172a; padding-top: 4px; font-size: 7.5px; color: #475569; font-weight:600; display:flex; justify-content:space-between; align-items:center;">
                   <span>MPOB PalmNex Agronomic Decision Support System · Sentinel-2 Spectral Indices &amp; MPOB Standard Fertilizer Protocol</span>
-                  <span style="color:#0f172a; font-weight:800;">Page 1 of 3</span>
+                  <span style="color:#0f172a; font-weight:800;">Page 1 of 4</span>
                 </div>
             </div>
 
             ${page2BlockRasters}
-            ${page3EstateRasters}
+            ${page3BlockStress}
+            ${page4EstateRasters}
             `;
 
             if (typeof window.populateReportRasterImages === 'function' && blockDetails) {

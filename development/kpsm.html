@@ -5960,7 +5960,7 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
             tempSelectedCell.yield = activeOutputData.yield[n][k];
             tempSelectedCell.crr = activeOutputData.crr[n][k];
 
-            document.getElementById('selected-cell-lbl').innerText = `Selected treatment: SOA=${n.toFixed(1)} KCI=${k.toFixed(1)} (Yield: ${tempSelectedCell.yield} t/ha, CRR: ${tempSelectedCell.crr})`;
+            document.getElementById('selected-cell-lbl').innerText = `Selected treatment: SOA=${n.toFixed(1)} KCI=${k.toFixed(1)} (Yield: ${tempSelectedCell.yield} t/ha/year, CRR: ${tempSelectedCell.crr})`;
         }
 
         // Apply selections into global state
@@ -5978,7 +5978,7 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
             let chkAlluvial = document.getElementById('chk-eds-alluvial');
             if (chkInland) chkInland.checked = (reportData.soilType === 'Inland');
             if (chkAlluvial) chkAlluvial.checked = (reportData.soilType === 'Alluvial' || reportData.soilType === 'Coastal');
-            alert(`Treatment successfully applied to ${selectedBlock}!\nSOA Rate: ${reportData.nRate} kg/palm\nKCI Rate: ${reportData.kRate} kg/palm\nYield Prediction: ${reportData.yieldVal} t/ha`);
+            alert(`Treatment successfully applied to ${selectedBlock}!\nSOA Rate: ${reportData.nRate} kg/palm\nKCI Rate: ${reportData.kRate} kg/palm\nYield Prediction: ${reportData.yieldVal} t/ha/year`);
         }
 
         // Output modal tabs Router
@@ -6134,17 +6134,11 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                 let stdKPalm = dosagePerPalm * ((fert.k || 18) / 100);
 
                 let rowsHtml = nutrients.map(function(nut) {
-                    let nutPct = nut.pct / 100;
-                    let baseSupplied = dosagePerPalm * (nutPct > 0 ? nutPct : 0.02);
-                    let deficitRatio = (nut.actual < nut.target && nut.actual > 0) ? (nut.target / nut.actual) : 1.0;
-                    let recPalm = baseSupplied * deficitRatio;
-                    let recHa = recPalm * 143;
                     let dotColor = (typeof window.colorForNutrientValue === 'function') ? window.colorForNutrientValue(nut.actual, nut.key) : getNutrientColorComp(nut.actual, nut.key);
-                    let suffPct = Math.round((nut.actual / nut.target) * 100);
                     let isOpt = nut.actual >= nut.target;
                     let statusBadge = isOpt
-                        ? `<span style="background:#dcfce7;color:#166534;border:1px solid #86efac;padding:1px 5px;border-radius:2px;font-size:7.5px;font-weight:800;">SUFFICIENT (${suffPct}%)</span>`
-                        : `<span style="background:#fef2f2;color:#991b1b;border:1px solid #fecaca;padding:1px 5px;border-radius:2px;font-size:7.5px;font-weight:800;">SUB-OPTIMAL (${suffPct}%)</span>`;
+                        ? `<span style="color:#166534;font-weight:400;">Sufficient</span>`
+                        : `<span style="color:#991b1b;font-weight:400;">Deficient</span>`;
 
                     return `
                       <tr>
@@ -6156,8 +6150,8 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                         <td style="padding: 5px 7px; border: 1px solid #cbd5e1; color: #475569; font-weight: 600;">${getStatRangeStr(nut.key, nut.dec, nut.unit, nut.actual)}</td>
                         <td style="padding: 5px 7px; border: 1px solid #cbd5e1; color: #b91c1c; font-weight: 700;">${nut.target.toFixed(nut.dec)}${nut.unit}</td>
                         <td style="padding: 5px 7px; border: 1px solid #cbd5e1;">${statusBadge}</td>
-                        <td style="padding: 5px 7px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${recPalm.toFixed(2)}</td>
-                        <td style="padding: 5px 7px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${recHa.toFixed(2)}</td>
+                        <td style="padding: 5px 7px; border: 1px solid #cbd5e1;"></td>
+                        <td style="padding: 5px 7px; border: 1px solid #cbd5e1;"></td>
                       </tr>
                     `;
                 }).join('');
@@ -6170,18 +6164,41 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                         2,
                         `Selected Block Spatial Foliar Nutrient Analysis (N, P, K, Mg, Ca, B)`,
                         `BLOCK-LEVEL FOLIAR DISTRIBUTION & MPOB LEAF 17 CRITICAL THRESHOLDS`,
-                        `Page 2 of 3 • Block: ${blockNameStr}`,
+                        `Page 2 of 4 • Block: ${blockNameStr}`,
                         blockDetails,
                         'block'
                     )
                     : '';
 
-                const page3EstateRasters = (typeof window.buildSixPanelRasterPageHtml === 'function' && blockDetails)
+                const page3BlockStress = `
+                <div class="report-page">
+                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-start;">
+                        <div style="border-bottom: 2px solid #0f172a; padding-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+                          <div>
+                            <div style="font-size: 7.8px; font-weight: 800; color: #1b4332; text-transform: uppercase; letter-spacing: 0.9px;">
+                                MALAYSIAN PALM OIL BOARD (MPOB) · PALMNEX
+                            </div>
+                            <h1 style="margin: 1px 0 2px 0; color: #0f172a; font-size: 16px; font-weight: 800; letter-spacing: -0.2px; text-transform: uppercase;">
+                                Stress Areas Detection
+                            </h1>
+                            <div style="font-size: 8px; color: #475569; font-weight: 600; letter-spacing: 0.3px;">
+                                SELECTED BLOCK CANOPY PHYSIOLOGICAL STRESS DETECTION &nbsp;|&nbsp; BLOCK ${blockNameStr}
+                            </div>
+                          </div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 6px; border-top: 1.5px solid #0f172a; padding-top: 4px; font-size: 7.5px; color: #475569; font-weight:600; display:flex; justify-content:space-between; align-items:center;">
+                      <span>MPOB PalmNex Agronomic Decision Support System · Sentinel-2 Spectral Indices &amp; Canopy Stress Detection</span>
+                      <span style="color:#0f172a; font-weight:800;">Page 3 of 4</span>
+                    </div>
+                </div>`;
+
+                const page4EstateRasters = (typeof window.buildSixPanelRasterPageHtml === 'function' && blockDetails)
                     ? window.buildSixPanelRasterPageHtml(
-                        3,
+                        4,
                         `Whole Estate Spatial Foliar Nutrient Analysis (N, P, K, Mg, Ca, B)`,
                         `ESTATE-WIDE FOLIAR DISTRIBUTION & MPOB LEAF 17 CRITICAL THRESHOLDS`,
-                        `Page 3 of 3 • Estate: ${estateName}`,
+                        `Page 4 of 4 • Estate: ${estateName}`,
                         blockDetails,
                         'estate'
                     )
@@ -6271,24 +6288,20 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                                 <th style="padding: 5px 7px; border: 1px solid #cbd5e1;">Spatial Range</th>
                                 <th style="padding: 5px 7px; border: 1px solid #cbd5e1;">Critical Level</th>
                                 <th style="padding: 5px 7px; border: 1px solid #cbd5e1;">Diagnostic Status</th>
-                                <th style="padding: 5px 7px; border: 1px solid #cbd5e1;">Rate (kg/palm/yr)</th>
-                                <th style="padding: 5px 7px; border: 1px solid #cbd5e1;">Field Req. (kg/ha/yr)</th>
+                                <th style="padding: 5px 7px; border: 1px solid #cbd5e1;">Rec. (kg/palm)</th>
+                                <th style="padding: 5px 7px; border: 1px solid #cbd5e1;">Rec. (kg/ha)</th>
                               </tr>
                             </thead>
                             <tbody>
                               ${rowsHtml}
                             </tbody>
                           </table>
-                          <div style="margin-top: 6px; font-size: 8.5px; font-weight: 700; color: #0f172a; display: flex; justify-content: space-between;">
-                            <span>${fert.source === 'suggested' ? 'Suggested' : 'Selected'} Formulation: <span style="color: #15803d;">${fert.name} (N:${fert.n}%, P:${fert.p}%, K:${fert.k}%, Mg:${fert.mg}%, B:${fert.b !== undefined ? fert.b : 0.5}%)</span></span>
-                            <span style="color: #475569;">Cross-Reference: See Page 2 (Block Rasters) &amp; Page 3 (Estate Rasters)</span>
-                          </div>
                         </div>
 
-                        <!-- Section 4.0: Field Split-Application Schedule -->
+                        <!-- Section 3.0: Field Split-Application Schedule -->
                         <div style="background-color: #ffffff; border: 1px solid #94a3b8; border-radius: 3px; padding: 7px 10px;">
                           <div style="font-size: 9px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1.5px solid #0f172a; padding-bottom: 2.5px; margin-bottom: 5px; display:flex; justify-content:space-between; align-items:center;">
-                            <span>4.0 Recommended Split-Application Schedule</span>
+                            <span>3.0 Recommended Split-Application Schedule</span>
                             <span style="font-size:7.4px; color:#475569;">MPOB Best Management Practice · Block ${blockNameStr}</span>
                           </div>
                           <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:2px; padding:4px 8px; margin-bottom:5px; display:flex; justify-content:space-between; align-items:center; font-size:8px;">
@@ -6330,11 +6343,12 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
 
                     <div style="margin-top: 6px; border-top: 1.5px solid #0f172a; padding-top: 4px; font-size: 7.5px; color: #475569; font-weight:600; display:flex; justify-content:space-between; align-items:center;">
                       <span>MPOB PalmNex Agronomic Decision Support System · Sentinel-2 Foliar Nutrient Diagnostics</span>
-                      <span style="color:#0f172a; font-weight:800;">Page 1</span>
+                      <span style="color:#0f172a; font-weight:800;">Page 1 of 4</span>
                     </div>
                 </div>
                 ${page2BlockRasters}
-                ${page3EstateRasters}
+                ${page3BlockStress}
+                ${page4EstateRasters}
                 `;
 
                 if (typeof window.populateReportRasterImages === 'function' && blockDetails) {
@@ -6498,7 +6512,7 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                   </div>
                   <div>
                     <div style="color:#475569; font-weight:600; text-transform:uppercase; font-size:7px;">Predicted Yield</div>
-                    <div style="color:#1b4332; font-weight:800; font-size:9.5px; margin-top:1px;">${reportData.yieldVal.toFixed(2)} t/ha/yr</div>
+                    <div style="color:#1b4332; font-weight:800; font-size:9.5px; margin-top:1px;">${reportData.yieldVal.toFixed(2)} t/ha/year</div>
                   </div>
                 </div>
                 `;
@@ -6579,7 +6593,7 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                     return html;
                 }
 
-                let yield_table_html = generateGridHtmlForPdf(n_rates, k_rates, activeOutputData.yield, reportData.nRate, reportData.kRate, false, activeOutputData.crr, "OPENS Response Surface Matrix: Predicted FFB Yield", "Table 2.3", "tonnes/ha/yr");
+                let yield_table_html = generateGridHtmlForPdf(n_rates, k_rates, activeOutputData.yield, reportData.nRate, reportData.kRate, false, activeOutputData.crr, "OPENS Response Surface Matrix: Predicted FFB Yield", "Table 2.3", "t/ha/year");
                 let revenue_table_html = generateGridHtmlForPdf(n_rates, k_rates, activeOutputData.rev, reportData.nRate, reportData.kRate, false, activeOutputData.crr, "OPENS Response Surface Matrix: Gross Revenue Gain", "Table 2.4", "RM/ha/yr");
 
                 const dotColorFn = (val, key) => (typeof window.colorForNutrientValue === 'function')
@@ -6596,11 +6610,10 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                 ];
 
                 const compRowsHtml = nutTableMeta.map(item => {
-                    const suff = Math.round((item.val / item.crit) * 100);
                     const isOpt = item.val >= item.crit;
                     const badge = isOpt
-                        ? `<span style="background:#dcfce7;color:#166534;border:1px solid #86efac;padding:1.5px 6px;border-radius:2px;font-size:7.4px;font-weight:800;">SUFFICIENT (${suff}%)</span>`
-                        : `<span style="background:#fef2f2;color:#991b1b;border:1px solid #fecaca;padding:1.5px 6px;border-radius:2px;font-size:7.4px;font-weight:800;">DEFICIENT (${suff}%)</span>`;
+                        ? `<span style="color:#166534;font-weight:400;">Sufficient</span>`
+                        : `<span style="color:#991b1b;font-weight:400;">Deficient</span>`;
                     return `
                         <tr>
                             <td style="padding: 5.5px 7px; border: 1px solid #cbd5e1; font-weight: 700; text-align: left; color: #0f172a;">${item.label}</td>
@@ -6611,8 +6624,8 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                             <td style="padding: 5.5px 7px; border: 1px solid #cbd5e1; color: #475569; font-weight: 600;">${getStatRangeStr(item.key, item.dec, item.unit, item.val)}</td>
                             <td style="padding: 5.5px 7px; border: 1px solid #cbd5e1; color: #b91c1c; font-weight: 700;">${item.critStr}</td>
                             <td style="padding: 5.5px 7px; border: 1px solid #cbd5e1;">${badge}</td>
-                            <td style="padding: 5.5px 7px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${item.recP.toFixed(2)}</td>
-                            <td style="padding: 5.5px 7px; border: 1px solid #cbd5e1; font-weight: 700; color: #15803d;">${item.recH.toFixed(2)}</td>
+                            <td style="padding: 5.5px 7px; border: 1px solid #cbd5e1;"></td>
+                            <td style="padding: 5.5px 7px; border: 1px solid #cbd5e1;"></td>
                         </tr>
                     `;
                 }).join('');
@@ -6623,28 +6636,56 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                 const deficientList = nutTableMeta.filter(n => n.val < n.crit).map(n => n.label);
                 const sufficientList = nutTableMeta.filter(n => n.val >= n.crit).map(n => n.label);
                 const synthesisText = deficientList.length > 0
-                    ? `Quantitative Sentinel-2 foliar diagnostics for <strong>Block ${blockNameStr}</strong> (${blockAreaHa.toFixed(2)} ha) indicate sufficient foliar status across ${sufficientList.join(', ') || 'primary macro-elements'}, whereas sub-optimal concentrations are detected for <strong>${deficientList.join(', ')}</strong> relative to MPOB Leaf 17 critical thresholds. Based on the ${soilMode} OPENS econometric model (Page 2) at a target Cost/Revenue Ratio (CRR) of <strong>${reportData.crrVal.toFixed(2)}</strong>, an annual prescription of <strong>${n_kg_palm.toFixed(2)} kg N/palm</strong> (${n_kg_ha.toFixed(1)} kg/ha) and <strong>${k_kg_palm.toFixed(2)} kg K/palm</strong> (${k_kg_ha.toFixed(1)} kg/ha) is recommended to achieve a predicted FFB yield of <strong>${reportData.yieldVal.toFixed(2)} t/ha/yr</strong>.`
-                    : `Quantitative Sentinel-2 foliar diagnostics for <strong>Block ${blockNameStr}</strong> (${blockAreaHa.toFixed(2)} ha) confirm optimal foliar nutrient sufficiency across all six evaluated macro- and micro-elements (N, P, K, Mg, B, Ca) relative to MPOB Leaf 17 critical thresholds. Based on the ${soilMode} OPENS econometric model (Page 2) at a target Cost/Revenue Ratio (CRR) of <strong>${reportData.crrVal.toFixed(2)}</strong>, a maintenance regime of <strong>${n_kg_palm.toFixed(2)} kg N/palm</strong> and <strong>${k_kg_palm.toFixed(2)} kg K/palm</strong> sustains a predicted FFB yield of <strong>${reportData.yieldVal.toFixed(2)} t/ha/yr</strong>.`;
+                    ? `Quantitative Sentinel-2 foliar diagnostics for <strong>Block ${blockNameStr}</strong> (${blockAreaHa.toFixed(2)} ha) indicate sufficient foliar status across ${sufficientList.join(', ') || 'primary macro-elements'}, whereas sub-optimal concentrations are detected for <strong>${deficientList.join(', ')}</strong> relative to MPOB Leaf 17 critical thresholds. Based on the ${soilMode} OPENS econometric model (Page 2) at a target Cost/Revenue Ratio (CRR) of <strong>${reportData.crrVal.toFixed(2)}</strong>, an annual prescription of <strong>${n_kg_palm.toFixed(2)} kg N/palm</strong> (${n_kg_ha.toFixed(1)} kg/ha) and <strong>${k_kg_palm.toFixed(2)} kg K/palm</strong> (${k_kg_ha.toFixed(1)} kg/ha) is recommended to achieve a predicted FFB yield of <strong>${reportData.yieldVal.toFixed(2)} t/ha/year</strong>.`
+                    : `Quantitative Sentinel-2 foliar diagnostics for <strong>Block ${blockNameStr}</strong> (${blockAreaHa.toFixed(2)} ha) confirm optimal foliar nutrient sufficiency across all six evaluated macro- and micro-elements (N, P, K, Mg, B, Ca) relative to MPOB Leaf 17 critical thresholds. Based on the ${soilMode} OPENS econometric model (Page 2) at a target Cost/Revenue Ratio (CRR) of <strong>${reportData.crrVal.toFixed(2)}</strong>, a maintenance regime of <strong>${n_kg_palm.toFixed(2)} kg N/palm</strong> and <strong>${k_kg_palm.toFixed(2)} kg K/palm</strong> sustains a predicted FFB yield of <strong>${reportData.yieldVal.toFixed(2)} t/ha/year</strong>.`;
 
-                // Page 3: Selected Block Nutrient Rasters (pushed to Page 3)
+                // Page 3: Selected Block Nutrient Rasters
                 const page3BlockRasters = (typeof window.buildSixPanelRasterPageHtml === 'function' && blockDetails)
                     ? window.buildSixPanelRasterPageHtml(
                         3,
                         `Selected Block Spatial Foliar Nutrient Analysis (N, P, K, Mg, Ca, B)`,
                         `BLOCK-LEVEL FOLIAR DISTRIBUTION & MPOB LEAF 17 CRITICAL THRESHOLDS`,
-                        `Page 3 of 4 • Block ${blockNameStr}`,
+                        `Page 3 of 5 • Block ${blockNameStr}`,
                         blockDetails,
                         'block'
                     )
                     : '';
 
-                // Page 4: Whole Estate Nutrient Rasters (pushed to Page 4)
-                const page4EstateRasters = (typeof window.buildSixPanelRasterPageHtml === 'function' && blockDetails)
+                // Page 4: Stress Areas Detection for the Selected Block
+                const page4BlockStress = `
+                <!-- PAGE 4: Stress Areas Detection for Selected Block -->
+                <div class="report-page">
+                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: flex-start;">
+                        <div style="border-bottom: 2px solid #0f172a; padding-bottom: 5px; display: flex; justify-content: space-between; align-items: center;">
+                          <div>
+                            <div style="font-size: 7.8px; font-weight: 800; color: #1b4332; text-transform: uppercase; letter-spacing: 0.9px;">
+                                MALAYSIAN PALM OIL BOARD (MPOB) · PALMNEX
+                            </div>
+                            <h1 style="margin: 1px 0 2px 0; color: #0f172a; font-size: 16px; font-weight: 800; letter-spacing: -0.2px; text-transform: uppercase;">
+                                Stress Areas Detection
+                            </h1>
+                            <div style="font-size: 8px; color: #475569; font-weight: 600; letter-spacing: 0.3px;">
+                                SELECTED BLOCK CANOPY PHYSIOLOGICAL STRESS DETECTION &nbsp;|&nbsp; BLOCK ${blockNameStr}
+                            </div>
+                          </div>
+                          ${compassSvgHtml}
+                        </div>
+                    </div>
+
+                    <!-- Formal Research Footer -->
+                    <div style="margin-top: 6px; border-top: 1.5px solid #0f172a; padding-top: 4px; font-size: 7.5px; color: #475569; font-weight:600; display:flex; justify-content:space-between; align-items:center;">
+                      <span>MPOB PalmNex Agronomic Decision Support System · Sentinel-2 Spectral Indices &amp; Canopy Stress Detection</span>
+                      <span style="color:#0f172a; font-weight:800;">Page 4 of 5</span>
+                    </div>
+                </div>`;
+
+                // Page 5: Whole Estate Nutrient Rasters
+                const page5EstateRasters = (typeof window.buildSixPanelRasterPageHtml === 'function' && blockDetails)
                     ? window.buildSixPanelRasterPageHtml(
-                        4,
+                        5,
                         `Whole Estate Spatial Foliar Nutrient Analysis (N, P, K, Mg, Ca, B)`,
                         `ESTATE-WIDE FOLIAR DISTRIBUTION & MPOB LEAF 17 CRITICAL THRESHOLDS`,
-                        `Page 4 of 4 • Estate: ${estate_name}`,
+                        `Page 5 of 5 • Estate: ${estate_name}`,
                         blockDetails,
                         'estate'
                     )
@@ -6741,7 +6782,7 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                             </div>
                             <div style="border-right: 1px solid #cbd5e1;">
                               <div style="color:#475569; font-weight:600; text-transform:uppercase; font-size:7px;">Predicted FFB Yield</div>
-                              <div style="font-weight: 800; color: #0f172a; font-size: 10.5px; margin-top:1px;">${reportData.yieldVal.toFixed(2)} t/ha/yr</div>
+                              <div style="font-weight: 800; color: #0f172a; font-size: 10.5px; margin-top:1px;">${reportData.yieldVal.toFixed(2)} t/ha/year</div>
                             </div>
                             <div style="border-right: 1px solid #cbd5e1;">
                               <div style="color:#475569; font-weight:600; text-transform:uppercase; font-size:7px;">Projected Gross Revenue</div>
@@ -6769,82 +6810,12 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                               ${compRowsHtml}
                             </tbody>
                           </table>
-
-                          <div style="margin-top: 6px; font-size: 8.2px; font-weight: 700; color: #0f172a; display: flex; justify-content: space-between; align-items:center;">
-                            <span>${chosenFert.source === 'suggested' ? 'Suggested' : 'Selected'} Compound Formulation: <span style="color: #1b4332; font-weight: 800;">${chosenFert.name} (N:${chosenFert.n}, P:${chosenFert.p}, K:${chosenFert.k}, Mg:${chosenFert.mg}, B:${chosenFertB})</span></span>
-                            <span style="color: #475569; font-weight: 700;">Cross-Reference: Page 2 (OPENS Matrices) · Page 3 (Block Rasters) · Page 4 (Estate Rasters)</span>
-                          </div>
                         </div>
 
-                        <!-- Section 3.0: Foliar Sufficiency Profile, Canopy Physiological Stress & Agronomic Synthesis -->
-                        <div style="background-color: #ffffff; border: 1px solid #94a3b8; border-radius: 3px; padding: 8px 10px;">
-                          <div style="font-size: 9.2px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1.5px solid #0f172a; padding-bottom: 3px; margin-bottom: 6px; display:flex; justify-content:space-between;">
-                            <span>3.0 Foliar Sufficiency Profile, Canopy Physiological Stress &amp; Agronomic Interpretation</span>
-                            <span style="font-size:7.5px; color:#475569;">Block ${blockNameStr}</span>
-                          </div>
-
-                          <div style="display: grid; grid-template-columns: 57% 41%; justify-content: space-between; align-items: stretch; margin-bottom: 7px;">
-                            <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 2px; padding: 7px 9px;">
-                              <div style="font-size: 8px; font-weight: 800; color: #0f172a; text-transform:uppercase; margin-bottom: 5px; border-bottom:1px solid #e2e8f0; padding-bottom:2px;">
-                                Fig 1.2 — Nutrient Sufficiency Index (% of Critical Threshold)
-                              </div>
-                              <div style="font-size: 8px; display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px;">
-                                <div>
-                                  <div style="display:flex;justify-content:space-between;font-weight:700;color:#1e293b;margin-bottom:1.5px;"><span>N (${currentNutrients.N.toFixed(2)}%)</span><span>${Math.min(125, Math.round((currentNutrients.N / 2.50) * 100))}%</span></div>
-                                  <div style="height:5.5px;background:#e2e8f0;border-radius:2px;overflow:hidden;"><div style="height:100%;background:${dotColorFn(currentNutrients.N, 'N')};width:${Math.min(100, Math.round((currentNutrients.N / 2.80) * 100))}%;"></div></div>
-                                </div>
-                                <div>
-                                  <div style="display:flex;justify-content:space-between;font-weight:700;color:#1e293b;margin-bottom:1.5px;"><span>P (${currentNutrients.P.toFixed(3)}%)</span><span>${Math.min(125, Math.round((currentNutrients.P / 0.15) * 100))}%</span></div>
-                                  <div style="height:5.5px;background:#e2e8f0;border-radius:2px;overflow:hidden;"><div style="height:100%;background:${dotColorFn(currentNutrients.P, 'P')};width:${Math.min(100, Math.round((currentNutrients.P / 0.18) * 100))}%;"></div></div>
-                                </div>
-                                <div>
-                                  <div style="display:flex;justify-content:space-between;font-weight:700;color:#1e293b;margin-bottom:1.5px;"><span>K (${currentNutrients.K.toFixed(2)}%)</span><span>${Math.min(125, Math.round((currentNutrients.K / 1.00) * 100))}%</span></div>
-                                  <div style="height:5.5px;background:#e2e8f0;border-radius:2px;overflow:hidden;"><div style="height:100%;background:${dotColorFn(currentNutrients.K, 'K')};width:${Math.min(100, Math.round((currentNutrients.K / 1.25) * 100))}%;"></div></div>
-                                </div>
-                                <div>
-                                  <div style="display:flex;justify-content:space-between;font-weight:700;color:#1e293b;margin-bottom:1.5px;"><span>Mg (${currentNutrients.Mg.toFixed(2)}%)</span><span>${Math.min(125, Math.round((currentNutrients.Mg / 0.24) * 100))}%</span></div>
-                                  <div style="height:5.5px;background:#e2e8f0;border-radius:2px;overflow:hidden;"><div style="height:100%;background:${dotColorFn(currentNutrients.Mg, 'Mg')};width:${Math.min(100, Math.round((currentNutrients.Mg / 0.28) * 100))}%;"></div></div>
-                                </div>
-                                <div>
-                                  <div style="display:flex;justify-content:space-between;font-weight:700;color:#1e293b;margin-bottom:1.5px;"><span>B (${currentNutrients.B.toFixed(1)} ppm)</span><span>${Math.min(125, Math.round((currentNutrients.B / 15.0) * 100))}%</span></div>
-                                  <div style="height:5.5px;background:#e2e8f0;border-radius:2px;overflow:hidden;"><div style="height:100%;background:${dotColorFn(currentNutrients.B, 'B')};width:${Math.min(100, Math.round((currentNutrients.B / 20.0) * 100))}%;"></div></div>
-                                </div>
-                                <div>
-                                  <div style="display:flex;justify-content:space-between;font-weight:700;color:#1e293b;margin-bottom:1.5px;"><span>Ca (${currentNutrients.Ca.toFixed(2)}%)</span><span>${Math.min(125, Math.round((currentNutrients.Ca / 0.60) * 100))}%</span></div>
-                                  <div style="height:5.5px;background:#e2e8f0;border-radius:2px;overflow:hidden;"><div style="height:100%;background:${dotColorFn(currentNutrients.Ca, 'Ca')};width:${Math.min(100, Math.round((currentNutrients.Ca / 0.80) * 100))}%;"></div></div>
-                                </div>
-                              </div>
-                            </div>
-
-                            <!-- Stress Level Donut Chart -->
-                            <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 2px; padding: 7px 9px; display: flex; align-items: center; justify-content: space-between;">
-                              <div style="font-size: 8px; display: flex; flex-direction: column; gap: 4px;">
-                                <div style="font-weight: 800; color: #0f172a; text-transform:uppercase; border-bottom:1px solid #e2e8f0; padding-bottom:2px;">Fig 1.3 — Canopy Stress Index</div>
-                                <div><span style="font-weight: 800; color: #dc2626;">■ Stressed Canopy:</span> <span style="color: #1e293b; font-weight:700;">10.0% (${(blockAreaHa * 0.10).toFixed(1)} ha)</span></div>
-                                <div><span style="font-weight: 800; color: #ca8a04;">■ Moderate Vigour:</span> <span style="color: #1e293b; font-weight:700;">30.0% (${(blockAreaHa * 0.30).toFixed(1)} ha)</span></div>
-                                <div><span style="font-weight: 800; color: #16a34a;">■ Healthy Canopy:</span> <span style="color: #1e293b; font-weight:700;">60.0% (${(blockAreaHa * 0.60).toFixed(1)} ha)</span></div>
-                              </div>
-
-                              <svg width="78" height="78" viewBox="0 0 42 42" style="flex-shrink:0;">
-                                <circle cx="21" cy="21" r="15.91549430918954" fill="#ffffff"></circle>
-                                <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#e2e8f0" stroke-width="6"></circle>
-                                <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#16a34a" stroke-width="6" stroke-dasharray="60 40" stroke-dashoffset="25"></circle>
-                                <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#eab308" stroke-width="6" stroke-dasharray="30 70" stroke-dashoffset="65"></circle>
-                                <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#dc2626" stroke-width="6" stroke-dasharray="10 90" stroke-dashoffset="35"></circle>
-                              </svg>
-                            </div>
-                          </div>
-
-                          <!-- Formal Agronomic Research Synthesis Paragraph -->
-                          <div style="background:#f8fafc; border-left: 3px solid #1b4332; padding: 6px 9px; font-size: 7.9px; color: #1e293b; text-align: justify; line-height: 1.38;">
-                            <strong style="color:#0f172a; text-transform:uppercase;">Agronomic Diagnostic Synthesis:</strong> ${synthesisText}
-                          </div>
-                        </div>
-
-                        <!-- Section 4.0: Field Split-Application Schedule (Full Width) -->
+                        <!-- Section 3.0: Field Split-Application Schedule (Full Width) -->
                         <div style="background-color: #ffffff; border: 1px solid #94a3b8; border-radius: 3px; padding: 7px 10px;">
                           <div style="font-size: 9px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1.5px solid #0f172a; padding-bottom: 2.5px; margin-bottom: 5px; display:flex; justify-content:space-between; align-items:center;">
-                            <span>4.0 Recommended Split-Application Schedule</span>
+                            <span>3.0 Recommended Split-Application Schedule</span>
                             <span style="font-size:7.4px; color:#475569;">MPOB Best Management Practice · Block ${blockNameStr}</span>
                           </div>
                           <div style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:2px; padding:4px 8px; margin-bottom:5px; display:flex; justify-content:space-between; align-items:center; font-size:8px;">
@@ -6882,12 +6853,54 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                             </tbody>
                           </table>
                         </div>
+
+                        <!-- Section 4.0: Foliar Sufficiency Profile, Canopy Physiological Stress & Agronomic Synthesis -->
+                        <div style="background-color: #ffffff; border: 1px solid #94a3b8; border-radius: 3px; padding: 8px 10px;">
+                          <div style="font-size: 9.2px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.3px; border-bottom: 1.5px solid #0f172a; padding-bottom: 3px; margin-bottom: 6px; display:flex; justify-content:space-between;">
+                            <span>4.0 Foliar Sufficiency Profile, Canopy Physiological Stress &amp; Agronomic Interpretation</span>
+                            <span style="font-size:7.5px; color:#475569;">Block ${blockNameStr}</span>
+                          </div>
+
+                          <div style="display: grid; grid-template-columns: 57% 41%; justify-content: space-between; align-items: stretch; margin-bottom: 7px;">
+                            <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 2px; padding: 7px 9px; display: flex; flex-direction: column; justify-content: space-between;">
+                              <div style="font-size: 8px; font-weight: 800; color: #0f172a; text-transform:uppercase; margin-bottom: 5px; border-bottom:1px solid #e2e8f0; padding-bottom:2px;">
+                                Fig 1.2 — 3-Year Historical Foliar Readings (N, P, K, Mg, B, Ca)
+                              </div>
+                              <div style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 10px 8px; text-align: center; font-size: 8.5px; color: #475569; font-style: italic; background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 2px;">
+                                Please run nutrient detection for previous 3 years for the same month, to view this data
+                              </div>
+                            </div>
+
+                            <!-- Stress Level Donut Chart -->
+                            <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 2px; padding: 7px 9px; display: flex; align-items: center; justify-content: space-between;">
+                              <div style="font-size: 8px; display: flex; flex-direction: column; gap: 4px;">
+                                <div style="font-weight: 800; color: #0f172a; text-transform:uppercase; border-bottom:1px solid #e2e8f0; padding-bottom:2px;">Fig 1.3 — Canopy Stress Index</div>
+                                <div><span style="font-weight: 800; color: #dc2626;">■ Stressed Canopy:</span> <span style="color: #1e293b; font-weight:700;">10.0% (${(blockAreaHa * 0.10).toFixed(1)} ha)</span></div>
+                                <div><span style="font-weight: 800; color: #ca8a04;">■ Moderate Vigour:</span> <span style="color: #1e293b; font-weight:700;">30.0% (${(blockAreaHa * 0.30).toFixed(1)} ha)</span></div>
+                                <div><span style="font-weight: 800; color: #16a34a;">■ Healthy Canopy:</span> <span style="color: #1e293b; font-weight:700;">60.0% (${(blockAreaHa * 0.60).toFixed(1)} ha)</span></div>
+                              </div>
+
+                              <svg width="78" height="78" viewBox="0 0 42 42" style="flex-shrink:0;">
+                                <circle cx="21" cy="21" r="15.91549430918954" fill="#ffffff"></circle>
+                                <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#e2e8f0" stroke-width="6"></circle>
+                                <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#16a34a" stroke-width="6" stroke-dasharray="60 40" stroke-dashoffset="25"></circle>
+                                <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#eab308" stroke-width="6" stroke-dasharray="30 70" stroke-dashoffset="65"></circle>
+                                <circle cx="21" cy="21" r="15.91549430918954" fill="transparent" stroke="#dc2626" stroke-width="6" stroke-dasharray="10 90" stroke-dashoffset="35"></circle>
+                              </svg>
+                            </div>
+                          </div>
+
+                          <!-- Formal Agronomic Research Synthesis Paragraph -->
+                          <div style="background:#f8fafc; border-left: 3px solid #1b4332; padding: 6px 9px; font-size: 7.9px; color: #1e293b; text-align: justify; line-height: 1.38;">
+                            <strong style="color:#0f172a; text-transform:uppercase;">Agronomic Diagnostic Synthesis:</strong> ${synthesisText}
+                          </div>
+                        </div>
                     </div>
 
                     <!-- Formal Research Footer -->
                     <div style="margin-top: 6px; border-top: 1.5px solid #0f172a; padding-top: 4px; font-size: 7.5px; color: #475569; font-weight:600; display:flex; justify-content:space-between; align-items:center;">
                       <span>MPOB PalmNex Agronomic Decision Support System · Sentinel-2 Spectral Indices &amp; OPENS Econometric Yield Model</span>
-                      <span style="color:#0f172a; font-weight:800;">Page 1 of 4</span>
+                      <span style="color:#0f172a; font-weight:800;">Page 1 of 5</span>
                     </div>
                 </div>
 
@@ -6930,15 +6943,18 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                     <!-- Formal Research Footer -->
                     <div style="margin-top: 6px; border-top: 1.5px solid #0f172a; padding-top: 4px; font-size: 7.5px; color: #475569; font-weight:600; display:flex; justify-content:space-between; align-items:center;">
                       <span>MPOB PalmNex Research Report · OPENS Pedological &amp; Bio-Economic Response Surface Analysis</span>
-                      <span style="color:#0f172a; font-weight:800;">Page 2 of 4</span>
+                      <span style="color:#0f172a; font-weight:800;">Page 2 of 5</span>
                     </div>
                 </div>
 
                 <!-- PAGE 3: Selected Block Spatial Foliar Nutrient Analysis (6-Panel Uncompressed Rasters) -->
                 ${page3BlockRasters}
 
-                <!-- PAGE 4: Whole Estate Spatial Foliar Nutrient Analysis (6-Panel Uncompressed Rasters) -->
-                ${page4EstateRasters}
+                <!-- PAGE 4: Stress Areas Detection for Selected Block -->
+                ${page4BlockStress}
+
+                <!-- PAGE 5: Whole Estate Spatial Foliar Nutrient Analysis (6-Panel Uncompressed Rasters) -->
+                ${page5EstateRasters}
                 `;
 
                 if (typeof window.populateReportRasterImages === 'function' && blockDetails) {
@@ -7377,7 +7393,7 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
             <div class="modal-body">
                 <!-- Tabs -->
                 <div class="output-tabs">
-                    <button class="output-tab-btn active" onclick="switchOutputTab('yield')">Predicted Yield (t/ha)</button>
+                    <button class="output-tab-btn active" onclick="switchOutputTab('yield')">Predicted Yield (t/ha/year)</button>
                     <button class="output-tab-btn" onclick="switchOutputTab('rev')">Revenue Response (RM)</button>
                     <button class="output-tab-btn" onclick="switchOutputTab('crr')">CRR</button>
                 </div>
