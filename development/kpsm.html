@@ -3084,9 +3084,91 @@ function toggleSatDataMode(mode) {
                     </div>
                 </div>
 
-                <!-- Run Prediction Button inside Satellite Data Card -->
-                <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid #f2f2f7;">
-                    <button id="btn-run-prediction" onclick="runRfrPredictionFlow()" style="width: 100%; padding: 11px 18px; border-radius: 999px; border: 2px solid transparent; background: linear-gradient(#0a0a0f, #0a0a0f) padding-box, linear-gradient(90deg, #0ea5e9 0%, #8b5cf6 50%, #f97316 100%) border-box; color: #ffffff; font-weight: 700; font-size: 14px; letter-spacing: 0.3px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 0 18px rgba(139, 92, 246, 0.35), 0 4px 12px rgba(0, 0, 0, 0.25); transition: all 0.25s ease;" onmouseover="this.style.boxShadow='0 0 25px rgba(139, 92, 246, 0.65), 0 0 12px rgba(249, 115, 22, 0.45)'; this.style.transform='translateY(-1px)';" onmouseout="this.style.boxShadow='0 0 18px rgba(139, 92, 246, 0.35), 0 4px 12px rgba(0, 0, 0, 0.25)'; this.style.transform='translateY(0)';">
+                <!-- Run Prediction Button (Glow & Crack Style) -->
+                <style>
+                    #btn-run-prediction.glow-crack-btn {
+                        position: relative;
+                        width: 100%;
+                        padding: 12px 20px;
+                        border-radius: 12px;
+                        border: 1px solid rgba(255, 255, 255, 0.28);
+                        background: radial-gradient(110% 140% at 50% 105%, rgba(255, 255, 255, 0.20) 0%, rgba(28, 32, 42, 0.96) 46%, #0a0c10 100%);
+                        color: #ffffff;
+                        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+                        font-weight: 700;
+                        font-size: 14px;
+                        letter-spacing: 0.3px;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 10px;
+                        overflow: hidden;
+                        box-shadow:
+                            inset 0 1px 1px rgba(255, 255, 255, 0.42),
+                            inset 0 -8px 18px rgba(255, 255, 255, 0.10),
+                            0 8px 24px rgba(0, 0, 0, 0.7),
+                            0 0 18px rgba(255, 255, 255, 0.08);
+                        transition: all 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+                    }
+                    #btn-run-prediction.glow-crack-btn::before {
+                        content: "";
+                        position: absolute;
+                        inset: 0;
+                        background:
+                            radial-gradient(55% 95% at 50% 110%, rgba(255, 255, 255, 0.42) 0%, rgba(186, 230, 253, 0.16) 42%, transparent 75%),
+                            linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.12) 50%, transparent 100%);
+                        opacity: 0.65;
+                        transition: opacity 0.28s ease, transform 0.35s ease;
+                        pointer-events: none;
+                        z-index: 0;
+                    }
+                    #btn-run-prediction.glow-crack-btn::after {
+                        content: "";
+                        position: absolute;
+                        inset: 0;
+                        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 48' preserveAspectRatio='none'%3E%3Cg fill='none' stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M18 48 L28 33 L23 24 L37 13 L33 4' stroke-width='1.25' stroke-opacity='0.75'/%3E%3Cpath d='M28 33 L42 36 L51 28' stroke-width='0.9' stroke-opacity='0.55'/%3E%3Cpath d='M23 24 L11 19 L5 9' stroke-width='0.85' stroke-opacity='0.5'/%3E%3Cpath d='M152 48 L158 35 L149 25 L163 14 L159 0' stroke-width='1.35' stroke-opacity='0.85'/%3E%3Cpath d='M158 35 L174 30 L185 37' stroke-width='0.95' stroke-opacity='0.6'/%3E%3Cpath d='M149 25 L134 21 L126 11' stroke-width='0.9' stroke-opacity='0.55'/%3E%3Cpath d='M292 48 L281 32 L288 21 L273 10 L278 0' stroke-width='1.25' stroke-opacity='0.75'/%3E%3Cpath d='M281 32 L264 35 L254 26' stroke-width='0.9' stroke-opacity='0.55'/%3E%3Cpath d='M288 21 L304 16 L313 6' stroke-width='0.85' stroke-opacity='0.5'/%3E%3C/g%3E%3C/svg%3E");
+                        background-size: 100% 100%;
+                        opacity: 0.35;
+                        filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.85)) drop-shadow(0 0 8px rgba(186, 230, 253, 0.65));
+                        transition: opacity 0.28s ease, transform 0.32s ease, filter 0.28s ease;
+                        pointer-events: none;
+                        z-index: 1;
+                    }
+                    #btn-run-prediction.glow-crack-btn > span {
+                        position: relative;
+                        z-index: 2;
+                        text-shadow: 0 0 12px rgba(255, 255, 255, 0.45);
+                        transition: transform 0.25s ease;
+                    }
+                    #btn-run-prediction.glow-crack-btn:hover {
+                        border-color: rgba(255, 255, 255, 0.72);
+                        transform: translateY(-1.5px);
+                        box-shadow:
+                            inset 0 1px 2px rgba(255, 255, 255, 0.75),
+                            inset 0 -10px 24px rgba(255, 255, 255, 0.24),
+                            0 10px 28px rgba(0, 0, 0, 0.8),
+                            0 0 24px rgba(255, 255, 255, 0.26),
+                            0 0 42px rgba(186, 230, 253, 0.18);
+                    }
+                    #btn-run-prediction.glow-crack-btn:hover::before {
+                        opacity: 1;
+                        transform: scale(1.04);
+                    }
+                    #btn-run-prediction.glow-crack-btn:hover::after {
+                        opacity: 0.95;
+                        transform: scale(1.02);
+                        filter: drop-shadow(0 0 6px rgba(255, 255, 255, 1)) drop-shadow(0 0 12px rgba(186, 230, 253, 0.9));
+                    }
+                    #btn-run-prediction.glow-crack-btn:hover > span:last-child {
+                        transform: translateX(4px);
+                    }
+                    #btn-run-prediction.glow-crack-btn:active {
+                        transform: translateY(0.5px) scale(0.99);
+                    }
+                </style>
+                <div style="margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+                    <button id="btn-run-prediction" class="glow-crack-btn" onclick="runRfrPredictionFlow()">
                         <span>Run Prediction</span>
                         <span style="font-size: 17px; line-height: 1;">→</span>
                     </button>
@@ -6798,13 +6880,12 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                             </div>
                             <table style="width: 100%; border-collapse: collapse; font-size: 8.8px; color: #1e293b;">
                               <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="padding: 3.4px 0; width: 44%; color: #475569; font-weight:600;">Estate / Plantation Name</td><td style="padding: 3.4px 0; font-weight: 700; color: #0f172a;">${estate_name}</td></tr>
-                              <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="padding: 3.4px 0; color: #475569; font-weight:600;">Selected Block Identifier</td><td style="padding: 3.4px 0; font-weight: 800; color: #1b4332;">Block ${blockNameStr}${phaseIdentified ? ` (Phase: ${phaseIdentified})` : ''}</td></tr>
-                              <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="padding: 3.4px 0; color: #475569; font-weight:600;">Geodetic Planted Area</td><td style="padding: 3.4px 0; font-weight: 700; color: #0f172a;">${blockAreaHa.toFixed(2)} ha (${Math.round(blockAreaHa * (parseInt(inputs.density, 10) || 148)).toLocaleString()} palms)</td></tr>
+                              <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="padding: 3.4px 0; color: #475569; font-weight:600;">Selected Block</td><td style="padding: 3.4px 0; font-weight: 800; color: #1b4332;">Block ${blockNameStr}${phaseIdentified ? ` (Phase: ${phaseIdentified})` : ''}</td></tr>
+                              <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="padding: 3.4px 0; color: #475569; font-weight:600;">Planted Area</td><td style="padding: 3.4px 0; font-weight: 700; color: #0f172a;">${blockAreaHa.toFixed(2)} ha (${Math.round(blockAreaHa * (parseInt(inputs.density, 10) || 148)).toLocaleString()} palms)</td></tr>
                               <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="padding: 3.4px 0; color: #475569; font-weight:600;">Centroid Coordinates (WGS84)</td><td style="padding: 3.4px 0; font-weight: 700; color: #0f172a; font-family: monospace;">${coords_str}</td></tr>
-                              <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="padding: 3.4px 0; color: #475569; font-weight:600;">Pedological Soil Unit &amp; Series</td><td style="padding: 3.4px 0; font-weight: 700; color: #1e293b;">${soilTypeIdentified}${soilSeriesIdentified ? ` (${soilSeriesIdentified})` : ''}</td></tr>
-                              <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="padding: 3.4px 0; color: #475569; font-weight:600;">Stand Age &amp; Planting Density</td><td style="padding: 3.4px 0; font-weight: 700; color: #0f172a;">${inputs.age || '12'} Years · ${inputs.density || 148} palms/ha</td></tr>
-                              <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="padding: 3.4px 0; color: #475569; font-weight:600;">Satellite Sensor &amp; Resolution</td><td style="padding: 3.4px 0; font-weight: 700; color: #0f172a;">Sentinel-1 SAR &amp; Sentinel-2 MSI (10m)</td></tr>
-                              <tr><td style="padding: 3.4px 0; color: #475569; font-weight:600;">Agronomic Decision Framework</td><td style="padding: 3.4px 0; font-weight: 700; color: #15803d;">MPOB Leaf 17 &amp; OPENS Response Matrix</td></tr>
+                              <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="padding: 3.4px 0; color: #475569; font-weight:600;">Soil Unit &amp; Series</td><td style="padding: 3.4px 0; font-weight: 700; color: #1e293b;">${soilTypeIdentified}${soilSeriesIdentified ? ` (${soilSeriesIdentified})` : ''}</td></tr>
+                              <tr style="border-bottom: 0.5px dotted #cbd5e1;"><td style="padding: 3.4px 0; color: #475569; font-weight:600;">Palm Age &amp; Planting Density</td><td style="padding: 3.4px 0; font-weight: 700; color: #0f172a;">${inputs.age || '12'} Years · ${inputs.density || 148} palms/ha</td></tr>
+                              <tr><td style="padding: 3.4px 0; color: #475569; font-weight:600;">Satellite Sensor &amp; Resolution</td><td style="padding: 3.4px 0; font-weight: 700; color: #0f172a;">Sentinel-1 SAR &amp; Sentinel-2 MSI (10m Proximity)</td></tr>
                             </table>
                           </div>
 
