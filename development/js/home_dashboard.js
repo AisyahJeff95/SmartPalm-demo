@@ -30,6 +30,8 @@
             id: 'benta_wawasan',
             filterGroup: 'benta_wawasan',
             ownerName: 'Benta Wawasan Sdn Bhd',
+            dateAdded: '12 Jan 2026',
+            lastManaged: '28 Oct 2026',
             regionLabel: 'Sabah (Tawau & Kalabakan)',
             estateKeys: ['agathis', 'belian', 'binuang', 'gaharu', 'kapur', 'keruing', 'menggaris', 'merbau', 'ramin', 'selanganbatu', 'seraya'],
             estateNamesList: 'Agathis, Belian, Binuang, Gaharu, Kapur, Keruing, Menggaris, Merbau, Ramin, Selangan Batu, Seraya'
@@ -38,6 +40,8 @@
             id: 'fgv',
             filterGroup: 'fgv',
             ownerName: 'FGV Holdings Berhad',
+            dateAdded: '04 Feb 2026',
+            lastManaged: '25 Oct 2026',
             regionLabel: 'Pahang (Jengka & Jerantut)',
             estateKeys: ['jengka24', 'jengka25', 'kota_gelanggi5', 'ppptar'],
             estateNamesList: 'Ladang Jengka 24, Ladang Jengka 25, Ladang Kota Gelanggi 5, Ladang PPPTAR'
@@ -46,6 +50,8 @@
             id: 'mpob_spoc',
             filterGroup: 'mpob',
             ownerName: 'MPOB SPOC A7 & Smallholders',
+            dateAdded: '19 Mar 2026',
+            lastManaged: '22 Oct 2026',
             regionLabel: 'Perak & Selangor',
             estateKeys: ['geolocation_ish', 'polygon_ish', 'soil_series', 'sekinchan1poly'],
             estateNamesList: 'Geolocation ISH SPOC A7, Polygon ISH SPOC A7, Soil Series SPOC A7, Sekinchan 1 Poly'
@@ -54,6 +60,8 @@
             id: 'mpob_research',
             filterGroup: 'mpob',
             ownerName: 'MPOB Research Station (Lahad Datu)',
+            dateAdded: '08 Jan 2026',
+            lastManaged: '30 Oct 2026',
             regionLabel: 'Sabah (Lahad Datu)',
             estateKeys: ['lahad_datu_combined'],
             estateNamesList: 'Lahad Datu Boundary & 36 Trial Plots'
@@ -423,8 +431,12 @@
                 <div class="sp-estate-row-item ${isSel ? 'active' : ''}" data-owner-id="${cluster.id}" onclick="selectOwnerCluster('${cluster.id}', true)">
                     <div class="sp-estate-row-left" style="align-items:flex-start;">
                         <span class="sp-estate-dot" style="background:#ffffff;box-shadow:none;margin-top:4px;"></span>
-                        <div style="min-width:0;display:flex;flex-direction:column;gap:3px;">
-                            <div class="sp-estate-row-name">${cluster.ownerName}</div>
+                        <div style="min-width:0;width:100%;display:flex;flex-direction:column;gap:3px;">
+                            <div style="display:flex;align-items:baseline;justify-content:space-between;gap:8px;width:100%;">
+                                <div class="sp-estate-row-name">${cluster.ownerName}</div>
+                                <span class="sp-estate-row-meta" style="white-space:nowrap;flex-shrink:0;">Added: ${cluster.dateAdded}</span>
+                            </div>
+                            <div class="sp-estate-row-meta">Last managed: ${cluster.lastManaged}</div>
                             <div class="sp-estate-row-meta">${cluster.regionLabel} • ${estateCountLabel} • ${clusterBlocks.toLocaleString()} blk • ${Math.round(clusterArea).toLocaleString()} Ha</div>
                             <div class="sp-estate-owner-sublist">${cluster.estateNamesList}</div>
                         </div>

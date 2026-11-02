@@ -710,7 +710,7 @@ body.sp-dark-home .cms-main-content {
 
 /* Estate Directory Card */
 .sp-estate-directory-card {
-    flex: 1;
+    flex: 0 1 auto;
     min-height: 0;
     padding: 14px;
     display: flex;
@@ -719,7 +719,7 @@ body.sp-dark-home .cms-main-content {
 }
 
 .sp-estate-list-scroll {
-    flex: 1;
+    flex: 0 1 auto;
     min-height: 0;
     overflow-y: auto;
     display: flex;
@@ -772,6 +772,7 @@ body.sp-dark-home .cms-main-content {
     align-items: center;
     gap: 10px;
     min-width: 0;
+    width: 100%;
 }
 
 .sp-estate-dot {
@@ -792,15 +793,16 @@ body.sp-dark-home .cms-main-content {
 
 .sp-estate-row-meta {
     font-size: 10.5px;
+    font-weight: 400;
     color: var(--sp-text-secondary);
 }
 
 .sp-estate-owner-sublist {
     font-size: 10.5px;
-    color: #cbd5e1;
+    font-weight: 400;
+    color: var(--sp-text-secondary);
     line-height: 1.45;
     margin-top: 2px;
-    opacity: 0.85;
 }
 
 .sp-estate-row-right {
