@@ -91,18 +91,6 @@
                     <div id="sp-search-results-dropdown" class="sp-search-results-dropdown"></div>
                 </div>
 
-                <!-- Live WiFi Speed Connection Indicator -->
-                <div class="sp-wifi-pill" onclick="spMeasureWifiSpeed()" title="Live Network Connection Speed (Click to re-test)">
-                    <span id="sp-wifi-dot" class="sp-wifi-dot"></span>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M5 12.55a11 11 0 0 1 14.08 0"/>
-                        <path d="M1.42 9a16 16 0 0 1 21.16 0"/>
-                        <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
-                        <line x1="12" y1="20" x2="12.01" y2="20"/>
-                    </svg>
-                    <span id="sp-wifi-speed-label">84 Mbps • 12ms</span>
-                </div>
-
                 <!-- System Settings & Quota Config Button -->
                 <button type="button" class="sp-icon-btn" onclick="document.getElementById('sp-settings-modal').style.display='flex'" title="System Settings & Prediction Quota">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -225,38 +213,18 @@
                         </div>
                     </div>
 
-                    <!-- Estate Directory & Quick Module Access -->
+                    <!-- Estate Directory -->
                     <div class="sp-glass-panel sp-estate-directory-card">
                         <div class="sp-card-header-row" style="margin-bottom: 2px;">
                             <span class="sp-card-title">Comprehensive Map Boundaries</span>
                             <span class="sp-card-subtitle">Click to zoom</span>
                         </div>
                         <div id="sp-left-estate-list" class="sp-estate-list-scroll"></div>
-
-                        <!-- Quick Module Shortcuts -->
-                        <div class="sp-module-shortcuts">
-                            <a href="comprehensive.html" class="sp-module-mini-btn">
-                                <img src="comp-logo-final.png" alt="Comp" />
-                                <span>Comprehensive</span>
-                            </a>
-                            <a href="standard.html" class="sp-module-mini-btn">
-                                <img src="std-logo-final.png" alt="Std" />
-                                <span>Standard Fert</span>
-                            </a>
-                            <a href="https://www.palmnex.com.my" target="_blank" class="sp-module-mini-btn">
-                                <img src="reada-logo-final.png" alt="ReaDS" />
-                                <span>PalmNexReaDS</span>
-                            </a>
-                            <a href="kpsm.html" class="sp-module-mini-btn">
-                                <img src="kpsm-logo-final.png" alt="KPSM" />
-                                <span>KPSM System</span>
-                            </a>
-                        </div>
                     </div>
                 </div>
 
                 <!-- ---------------------------------------------------------
-                     CENTER MAP HUD: Title, All-20-Maps Dropdown, Focus Callout, Zoom Controls
+                     CENTER MAP HUD: Welcome Banner, All-20-Maps Dropdown, Focus Callout, Zoom Controls
                      --------------------------------------------------------- -->
                 <div class="sp-center-hud">
                     <div class="sp-map-top-hud">
@@ -264,7 +232,6 @@
                             <span class="sp-welcome-dot"></span>
                             <span id="sp-welcome-text">Welcome, <b>Admin</b>, from <b>Palmnex Sdn Bhd</b>!</span>
                         </div>
-                        <h1 class="sp-map-hero-title">SmartPalm Estate Management</h1>
                         <div class="sp-map-Hud-controls">
                             <select id="sp-hud-estate-select" class="sp-hud-pill-select" onchange="selectEstate(this.value, true)"></select>
                             <button type="button" id="sp-btn-basemap-sat" class="sp-hud-pill-btn active" onclick="spToggleBasemap('sat')">🛰️ Google Earth Hybrid</button>
@@ -298,121 +265,6 @@
                             <button type="button" class="sp-zoom-circle-btn" onclick="spZoomMap('out')" title="Zoom Out">−</button>
                         </div>
                     </div>
-                </div>
-
-                <!-- ---------------------------------------------------------
-                     RIGHT FLOATING COLUMN:
-                     1. How many runs left for this week
-                     2. Fertilizer Application Schedule -> Notifications to run predictions
-                     3. Notifications & Prediction Run History
-                     --------------------------------------------------------- -->
-                <div class="sp-glass-panel sp-right-column">
-                    <div class="sp-card-header-row" style="margin-bottom: 0;">
-                        <span class="sp-card-title">Notifications &amp; Schedule</span>
-                        <button type="button" onclick="var f=document.getElementById('sp-schedule-builder-form'); f.style.display=(f.style.display==='none'?'flex':'none');" style="background:rgba(16,185,129,0.16);border:1px solid rgba(16,185,129,0.4);color:#34d399;border-radius:999px;padding:3px 9px;font-size:10.5px;font-weight:700;cursor:pointer;">
-                            + Schedule Fertilizer
-                        </button>
-                    </div>
-
-                    <!-- 1. Weekly Prediction Runs Left -->
-                    <div class="sp-weekly-quota-box">
-                        <div class="sp-quota-top">
-                            <span class="sp-quota-title">⚡ Weekly Prediction Quota</span>
-                            <span id="sp-quota-left-text" class="sp-quota-count">14 / 20 Runs Left</span>
-                        </div>
-                        <div class="sp-quota-bar-track">
-                            <div id="sp-quota-bar-fill" class="sp-quota-bar-fill" style="width: 70%;"></div>
-                        </div>
-                        <div class="sp-quota-meta">
-                            <span id="sp-quota-used-text">6 prediction runs executed this week</span>
-                            <span>Resets Mon</span>
-                        </div>
-                    </div>
-
-                    <!-- Interactive Fertilizer Schedule Input Form (Collapsible) -->
-                    <form id="sp-schedule-builder-form" class="sp-schedule-builder" style="display: none;" onsubmit="spSaveFertilizerSchedule(event)">
-                        <div style="font-size:11px;font-weight:700;color:#34d399;display:flex;justify-content:space-between;">
-                            <span>Set Fertilizer Application Schedule</span>
-                            <span style="cursor:pointer;color:#94a3b8;" onclick="document.getElementById('sp-schedule-builder-form').style.display='none'">✕</span>
-                        </div>
-                        <select id="sp-sched-estate" class="sp-sched-select"></select>
-                        <div class="sp-sched-row">
-                            <div>
-                                <label style="font-size:9.5px;color:#94a3b8;display:block;margin-bottom:2px;">Fertilizer Applied Date</label>
-                                <input type="date" id="sp-sched-date" class="sp-sched-input" value="2026-10-01" required />
-                            </div>
-                            <div>
-                                <label style="font-size:9.5px;color:#94a3b8;display:block;margin-bottom:2px;">Next Prediction Check</label>
-                                <select id="sp-sched-interval" class="sp-sched-select">
-                                    <option value="30">+30 Days Post-Fert</option>
-                                    <option value="45" selected>+45 Days (Leaf 17 Uptake)</option>
-                                    <option value="60">+60 Days Post-Fert</option>
-                                    <option value="90">+90 Days Next Round</option>
-                                </select>
-                            </div>
-                        </div>
-                        <input type="text" id="sp-sched-type" class="sp-sched-input" placeholder="e.g. Round 3 — NPK 12:12:17:2 + Kieserite" value="Round 3 • NPK Compound + Boron" />
-                        <button type="submit" class="sp-sched-btn">Save Schedule &amp; Enable Reminder</button>
-                    </form>
-
-                    <!-- Scrollable Feed: Scheduled Fertilizer Prediction Alerts + Run History -->
-                    <div class="sp-notif-scroll">
-                        <div class="sp-section-divider-label">
-                            <span>🗓️ Scheduled Fertilizer Predictions</span>
-                            <span style="color:#f59e0b;">Next Prediction Due</span>
-                        </div>
-                        <div id="sp-scheduled-runs-list" style="display:flex;flex-direction:column;gap:7px;"></div>
-
-                        <div class="sp-section-divider-label" style="margin-top: 4px;">
-                            <span>🕒 Recent Prediction Run History</span>
-                            <a href="comprehensive.html" style="color:#34d399;text-decoration:none;font-size:10.5px;">Open All →</a>
-                        </div>
-                        <div id="sp-run-history-list" style="display:flex;flex-direction:column;gap:7px;"></div>
-                    </div>
-                </div>
-
-                <!-- ---------------------------------------------------------
-                     BOTTOM-LEFT FLOATING PANEL:
-                     Stress Level for All Estates & Highest Stress Level Ratings
-                     --------------------------------------------------------- -->
-                <div class="sp-glass-panel sp-bottom-left-panel">
-                    <div class="sp-stress-top-row">
-                        <div>
-                            <div class="sp-card-title">Stress Level Ratings — All 20 Estates</div>
-                            <div class="sp-stress-headline-box" style="margin-top: 3px;">
-                                <span id="sp-stress-highest-val" class="sp-stress-big-val">81.4%</span>
-                                <span id="sp-stress-highest-estate-tag" class="sp-highest-estate-tag">
-                                    ⚠️ Highest: Geolocation ISH SPOC A7 (Critical)
-                                </span>
-                            </div>
-                        </div>
-                        <div style="display:flex;gap:8px;align-items:center;font-size:10.5px;color:#94a3b8;">
-                            <span><b style="color:#ef4444;">●</b> Critical (&ge;65%)</span>
-                            <span><b style="color:#f97316;">●</b> High (45–64%)</span>
-                            <span><b style="color:#eab308;">●</b> Moderate (28–44%)</span>
-                            <span><b style="color:#10b981;">●</b> Optimal (&lt;28%)</span>
-                        </div>
-                    </div>
-
-                    <!-- Scrollable All-Estate Stress Rating Leaderboard Bars -->
-                    <div id="sp-stress-bars-container" class="sp-stress-bars-scroll"></div>
-                </div>
-
-                <!-- ---------------------------------------------------------
-                     BOTTOM-RIGHT FLOATING PANEL:
-                     3 Months Back N, P, K, Mg, Ca, B Values for Each Estate
-                     --------------------------------------------------------- -->
-                <div class="sp-glass-panel sp-bottom-right-panel">
-                    <div class="sp-card-header-row" style="margin-bottom: 0;">
-                        <div>
-                            <div class="sp-card-title">3-Month Foliar N, P, K, Mg, Ca, B</div>
-                            <div id="sp-nut3m-period-label" class="sp-card-subtitle">Aug 2026 → Sep 2026 → Oct 2026</div>
-                        </div>
-                        <select id="sp-nut3m-estate-select" class="sp-sched-select" style="width: 148px; font-weight: 600;" onchange="selectEstate(this.value, true)"></select>
-                    </div>
-
-                    <!-- 6 Nutrient Cards showing Latest + M-2 and M-1 values -->
-                    <div id="sp-nut-3m-grid" class="sp-nut-3m-grid"></div>
                 </div>
             </div>
         </main>
