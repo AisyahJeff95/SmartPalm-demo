@@ -125,13 +125,11 @@
 
             // Add floating interactive Estate Pin at estate center so all 20 maps are visible at Malaysia-wide zoom
             if (est.center && est.center.length === 2) {
-                const shortName = est.name.replace('Estate', '').replace('Ladang ', '').replace(' (36 Trial Plots)', '').trim();
                 const pinIcon = L.divIcon({
                     className: '',
                     html: `
-                        <div class="sp-estate-pin" style="border-color:${isSelected ? '#ffffff' : 'rgba(255,255,255,0.25)'};background:${isSelected ? 'rgba(42,48,60,0.95)' : 'rgba(14,18,24,0.9)'};">
+                        <div class="sp-estate-pin" style="border-color:${isSelected ? '#ffffff' : 'rgba(255,255,255,0.28)'};background:${isSelected ? 'rgba(42,48,60,0.95)' : 'rgba(14,18,24,0.9)'};">
                             <span class="sp-estate-pin-dot" style="background:#ffffff;box-shadow:none;"></span>
-                            <span>${shortName}</span>
                         </div>
                     `,
                     iconSize: [0, 0]

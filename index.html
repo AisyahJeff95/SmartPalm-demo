@@ -35,7 +35,7 @@
                 <!-- Keep our MPOB / PalmNex Logo -->
                 <a href="index.html" class="sp-brand-box" title="MPOB PalmNex Home">
                     <div class="sp-brand-logo-wrap">
-                        <img src="MPOB-3-white-transparent.png" alt="MPOB Logo" />
+                        <img src="MPOB-3.png" alt="MPOB Logo" />
                     </div>
                 </a>
 
@@ -178,7 +178,6 @@
 
                 <!-- ---------------------------------------------------------
                      LEFT FLOATING COLUMN: Total Estate Summary + Estate List
-                     (Omits "Operational Efficiency" & "Bus" cards marked "No need")
                      --------------------------------------------------------- -->
                 <div class="sp-left-column">
                     <!-- Top Region Filter Strip -->
@@ -217,20 +216,25 @@
                 </div>
 
                 <!-- ---------------------------------------------------------
-                     CENTER MAP HUD: Welcome Banner, All-20-Maps Dropdown, Zoom Controls
+                     CENTER MAP HUD: Welcome Card, All-20-Maps Dropdown, Zoom Controls
                      --------------------------------------------------------- -->
                 <div class="sp-center-hud">
                     <div class="sp-map-top-hud">
                         <div id="sp-welcome-banner" class="sp-welcome-banner" onclick="openAuthModal('signin')" title="Synced with Supabase user profile (Click to switch account)">
-                            <span class="sp-welcome-dot"></span>
-                            <span id="sp-welcome-text">Welcome, <b>Admin</b>, from <b>Palmnex Sdn Bhd</b>!</span>
+                            <div class="sp-welcome-header-row">
+                                <span class="sp-welcome-dot"></span>
+                                <span id="sp-welcome-text" class="sp-welcome-title">Welcome, <b>Admin</b>, from <b>Palmnex Sdn Bhd</b>!</span>
+                            </div>
+                            <p class="sp-welcome-desc">
+                                Your session is active. You have full access to MPOB oil palm estate maps, satellite foliar nutrient predictions, and block-level fertilization analytics.
+                            </p>
                         </div>
                         <div class="sp-map-Hud-controls">
                             <select id="sp-hud-estate-select" class="sp-hud-pill-select" onchange="selectEstate(this.value, true)"></select>
                             <button type="button" id="sp-btn-basemap-sat" class="sp-hud-pill-btn active" onclick="spToggleBasemap('sat')">🛰️ Google Earth Hybrid</button>
                             <button type="button" id="sp-btn-basemap-vec" class="sp-hud-pill-btn" onclick="spToggleBasemap('vec')">🌍 Google Satellite</button>
                             <button type="button" class="sp-hud-pill-btn" onclick="spJumpRegion('Sabah')">Sabah Cluster</button>
-                            <button type="button" class="sp-hud-pill-btn" onclick="spJumpRegion('Pahang')">Pahang Cluster</button>
+                            <button type="button" id="sp-hud-pill-btn" onclick="spJumpRegion('Pahang')">Pahang Cluster</button>
                         </div>
                     </div>
 
