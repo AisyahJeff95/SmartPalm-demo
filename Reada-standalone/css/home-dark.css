@@ -404,7 +404,7 @@ body.sp-dark-home .cms-top-panel {
 body.sp-dark-home .cms-sidebar {
     top: 60px;
     height: calc(100vh - 60px);
-    width: 82px;
+    width: 84px;
     background: rgba(11, 14, 18, 0.86) !important;
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
@@ -419,20 +419,32 @@ body.sp-dark-home .cms-sidebar:hover {
 
 body.sp-dark-home .cms-nav-item {
     color: var(--sp-text-secondary);
-    padding: 12px 18px;
+    padding: 10px 14px;
     margin: 0 8px;
+    box-sizing: border-box;
+}
+
+body.sp-dark-home .cms-nav-item .icon {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    margin-right: 14px;
+    flex-shrink: 0;
+    object-fit: contain;
+    display: block;
 }
 
 body.sp-dark-home .cms-nav-item:hover {
     background: rgba(255, 255, 255, 0.07);
     color: #ffffff;
+    transform: none;
 }
 
 body.sp-dark-home .cms-nav-item.active {
     background: rgba(255, 255, 255, 0.14) !important;
     color: #ffffff !important;
-    border-left: 4px solid #ffffff !important;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5) !important;
+    border-left: none !important;
+    box-shadow: inset 3.5px 0 0 #ffffff, 0 4px 14px rgba(0, 0, 0, 0.5) !important;
 }
 
 body.sp-dark-home .cms-sub-nav-item {
@@ -448,7 +460,7 @@ body.sp-dark-home .cms-sub-nav-item:hover {
    3. MAIN COMMAND CENTER WORKSPACE & MAP LAYER
    -------------------------------------------------------------------------- */
 body.sp-dark-home .cms-main-content {
-    padding-left: 82px;
+    padding-left: 84px;
     padding-top: 60px;
     height: 100vh;
     width: 100vw;

@@ -4,7 +4,8 @@
 body {
     margin: 0;
     padding: 0;
-    background-color: #f4f7f6; /* Soft gray CMS background */
+    background-color: #080a0e;
+    color: #f8fafc;
 }
 
 /* Base Layout Wrapper */
@@ -14,8 +15,8 @@ body {
     width: 100vw;
     overflow: hidden;
     font-family: 'Inter', sans-serif;
-    color: #334155;
-    background-color: #f4f7f6;
+    color: #f8fafc;
+    background-color: #080a0e;
 }
 
 /* Top Panel */
@@ -24,17 +25,18 @@ body {
     top: 0;
     left: 0;
     width: 100vw;
-    height: 64px;
-    background: rgba(255, 255, 255, 0.4);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    height: 60px;
+    background: rgba(11, 14, 18, 0.88);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.09);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 24px;
+    padding: 0 20px;
     z-index: 9999999;
     box-sizing: border-box;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
 }
 
 .cms-top-panel .cms-sidebar-brand {
@@ -45,36 +47,36 @@ body {
 
 /* Sidebar */
 .cms-sidebar {
-    width: 90px;
+    width: 84px;
     position: fixed;
-    height: calc(100vh - 64px);
+    height: calc(100vh - 60px);
     left: 0;
-    top: 64px;
-    background: rgba(255, 255, 255, 0.4);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border-right: 1px solid rgba(255, 255, 255, 0.3);
+    top: 60px;
+    background: rgba(11, 14, 18, 0.86);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-right: 1px solid rgba(255, 255, 255, 0.09);
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
     z-index: 9999998;
     transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), background 0.3s ease;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
+    box-shadow: 6px 0 28px rgba(0, 0, 0, 0.45);
     overflow: hidden;
     white-space: nowrap;
 }
 
 .cms-sidebar:hover {
-    width: 260px;
-    background: rgba(255, 255, 255, 0.7);
+    width: 255px;
+    background: rgba(14, 18, 24, 0.96);
 }
 
 .cms-sidebar-brand {
     padding: 24px;
-    border-bottom: 1px solid #f1f5f9;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
     align-items: center;
-    width: 260px;
+    width: 255px;
     box-sizing: border-box;
 }
 
@@ -83,12 +85,12 @@ body {
     font-family: 'Outfit', sans-serif;
     font-size: 22px;
     font-weight: 700;
-    color: #0f172a;
+    color: #f8fafc;
     letter-spacing: -0.5px;
 }
 
 .cms-sidebar-brand span {
-    color: #10b981; /* Accent green for MPOB */
+    color: #e2e8f0;
 }
 
 .cms-nav {
@@ -104,9 +106,11 @@ body {
 .cms-nav-item {
     display: flex;
     align-items: center;
-    padding: 14px 24px;
+    padding: 10px 14px;
+    margin: 0 8px;
+    box-sizing: border-box;
     text-decoration: none;
-    color: #64748b;
+    color: #a1a1aa;
     font-size: 15px;
     font-weight: 500;
     border-radius: 10px;
@@ -125,25 +129,28 @@ body {
 
 .cms-nav-item .icon {
     margin-right: 14px;
-    width: 48px;
-    height: 48px;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    flex-shrink: 0;
     object-fit: contain;
     vertical-align: middle;
+    display: block;
     opacity: 0.9;
 }
 
 .cms-nav-item:hover {
-    background-color: #f8fafc;
-    color: #0f172a;
-    transform: translateX(4px);
+    background-color: rgba(255, 255, 255, 0.07);
+    color: #ffffff;
+    transform: none;
 }
 
 .cms-nav-item.active {
-    background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
+    background: rgba(255, 255, 255, 0.14) !important;
     color: #ffffff !important;
     font-weight: 700 !important;
-    box-shadow: 0 6px 18px rgba(16, 185, 129, 0.4) !important;
-    border-left: 5px solid #34d399 !important;
+    border-left: none !important;
+    box-shadow: inset 3.5px 0 0 #ffffff, 0 4px 14px rgba(0, 0, 0, 0.5) !important;
 }
 
 .cms-nav-item.active .nav-label {
@@ -153,7 +160,7 @@ body {
 
 .cms-nav-item.active .icon {
     opacity: 1 !important;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2)) !important;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4)) !important;
 }
 
 /* Main Content Area */
@@ -165,8 +172,8 @@ body {
     overflow: hidden; /* Must be hidden so Leaflet maps can measure their container height */
     position: relative;
     background-color: transparent;
-    padding-left: 85px;
-    padding-top: 64px;
+    padding-left: 84px;
+    padding-top: 60px;
     box-sizing: border-box;
 }
 
@@ -414,20 +421,20 @@ body {
     padding: 8px 12px;
     font-size: 13px;
     font-weight: 500;
-    color: #475569;
+    color: #a1a1aa;
     text-decoration: none;
     border-radius: 8px;
     transition: all 0.2s ease;
 }
 
 .cms-sub-nav-item:hover {
-    background: #f1f5f9;
-    color: #059669;
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
 }
 
 .cms-sub-nav-item.active {
-    background: rgba(16, 185, 129, 0.12);
-    color: #059669;
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
     font-weight: 700;
-    border-left: 3px solid #10b981;
+    border-left: 3px solid #ffffff;
 }
