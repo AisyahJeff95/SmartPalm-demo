@@ -5036,9 +5036,20 @@ window.toggleNutrientLayerStd = toggleNutrientLayerStd;
             if (chkAlluvial) chkAlluvial.checked = (window.appliedEdsSoilType === 'Alluvial' || window.appliedEdsSoilType === 'Coastal');
         }
 
+        function backToEdsInputDialog() {
+            const outModal = document.getElementById('modal-eds-output');
+            if (outModal) outModal.classList.remove('active');
+            if (reportData && (reportData.soilType === 'Alluvial' || reportData.soilType === 'Coastal')) {
+                openEdsAlluvialDialog();
+            } else {
+                openEdsInlandDialog();
+            }
+        }
+
         window.openEdsInlandDialog = openEdsInlandDialog;
         window.openEdsAlluvialDialog = openEdsAlluvialDialog;
         window.closeEdsDialogs = closeEdsDialogs;
+        window.backToEdsInputDialog = backToEdsInputDialog;
 
                 function setNutrientLayerSelectionEnabled(enabled, msgText, isSuccess) {
     const radioInputs = document.querySelectorAll('input[name="comp_layer"], input[name="std_layer"], input[name="kpsm_layer"]');
@@ -6740,6 +6751,7 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                 </div>
             </div>
             <div class="modal-footer">
+                <button class="modal-cancel-btn" onclick="backToEdsInputDialog()">← Back</button>
                 <button class="modal-calc-btn" style="width:auto; margin-top:0;" onclick="applySelectedTreatment()">✔ Apply Treatment</button>
                 <button class="modal-cancel-btn" onclick="closeEdsDialogs()">Cancel</button>
             </div>
