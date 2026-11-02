@@ -3508,11 +3508,53 @@ function toggleSatDataMode(mode) {
         let clickedMarkerComp = null;
         let clickedMarkerStd = null;
 
+        function isBlockFeatureSelected(feature) {
+            if (!feature || !Array.isArray(selectedBlockSlots) || selectedBlockSlots.length === 0) return false;
+            const featName = feature.properties && (feature.properties.name || feature.properties.BLOCK || feature.properties.Block);
+            return selectedBlockSlots.some(s => {
+                if (!s || !s.feature) return false;
+                if (s.feature === feature) return true;
+                if (featName !== undefined && featName !== null && s.name && String(s.name).trim() === String(featName).trim()) return true;
+                return false;
+            });
+        }
+
+        function updateBoundaryLayersSelectionStyles() {
+            const applyGroupStyles = (groupLayer, defaultStrokeColor) => {
+                if (!groupLayer || typeof groupLayer.eachLayer !== 'function') return;
+                groupLayer.eachLayer(layer => {
+                    if (!layer || typeof layer.setStyle !== 'function') return;
+                    const feat = layer.feature;
+                    if (isBlockFeatureSelected(feat)) {
+                        layer.setStyle({
+                            color: "#fde047",
+                            weight: 2.5,
+                            fillColor: "#fde047",
+                            fillOpacity: 0.28
+                        });
+                        if (typeof layer.bringToFront === 'function') {
+                            try { layer.bringToFront(); } catch (e) {}
+                        }
+                    } else {
+                        layer.setStyle({
+                            color: defaultStrokeColor,
+                            weight: 1.5,
+                            fillColor: "transparent",
+                            fillOpacity: 0.001
+                        });
+                    }
+                });
+            };
+            applyGroupStyles(compBoundaryLayer, "#ff7800");
+            applyGroupStyles(stdBoundaryLayer, "#12b886");
+        }
+
         function resetSelectedBlockSlots() {
             selectedBlockSlots = [];
             activeBlockSlotIndex = 0;
             hasClickedBlock = false;
             selectedBlockFeature = null;
+            updateBoundaryLayersSelectionStyles();
         }
 
         function buildCombinedSelectedBlockFeature(filledSlots) {
@@ -3553,6 +3595,7 @@ function toggleSatDataMode(mode) {
             if (filledSlots.length === 0) {
                 hasClickedBlock = false;
                 selectedBlockFeature = null;
+                updateBoundaryLayersSelectionStyles();
                 return;
             }
             hasClickedBlock = true;
@@ -3563,6 +3606,7 @@ function toggleSatDataMode(mode) {
             });
             selectedBlock = names.join(', ') || filledSlots[0].name || "Selected Block";
             selectedBlockFeature = buildCombinedSelectedBlockFeature(filledSlots);
+            updateBoundaryLayersSelectionStyles();
         }
 
         function refreshCombinedBlockNutrientsAndDisplays() {
@@ -4351,10 +4395,18 @@ function toggleSatDataMode(mode) {
                         const _tipHtmlC = `<div style="font-family:sans-serif;font-size:12px;max-width:300px"><b style="font-size:13px">${feature.properties.name}</b>${_tipRowsC ? `<table style="margin-top:4px;border-collapse:collapse">${_tipRowsC}</table>` : ''}</div>`;
                         layer.bindTooltip(_tipHtmlC, { sticky: true, className: 'block-tooltip', direction: 'top' });
                         layer.on('mouseover', function() {
-                            this.setStyle({ weight: 2.5, fillOpacity: 0.20, fillColor: "#ff7800" });
+                            if (isBlockFeatureSelected(feature)) {
+                                this.setStyle({ color: "#fef08a", weight: 3.0, fillOpacity: 0.36, fillColor: "#fde047" });
+                            } else {
+                                this.setStyle({ color: "#ff7800", weight: 2.5, fillOpacity: 0.20, fillColor: "#ff7800" });
+                            }
                         });
                         layer.on('mouseout', function() {
-                            this.setStyle({ weight: 1.5, fillOpacity: 0.001, fillColor: "transparent" });
+                            if (isBlockFeatureSelected(feature)) {
+                                this.setStyle({ color: "#fde047", weight: 2.5, fillOpacity: 0.28, fillColor: "#fde047" });
+                            } else {
+                                this.setStyle({ color: "#ff7800", weight: 1.5, fillOpacity: 0.001, fillColor: "transparent" });
+                            }
                         });
                         layer.on('click', (e) => {
                             L.DomEvent.stopPropagation(e);
@@ -4377,10 +4429,18 @@ function toggleSatDataMode(mode) {
                         const _tipHtmlS = `<div style="font-family:sans-serif;font-size:12px;max-width:300px"><b style="font-size:13px">${feature.properties.name}</b>${_tipRowsS ? `<table style="margin-top:4px;border-collapse:collapse">${_tipRowsS}</table>` : ''}</div>`;
                         layer.bindTooltip(_tipHtmlS, { sticky: true, direction: 'top' });
                         layer.on('mouseover', function() {
-                            this.setStyle({ weight: 2.5, fillOpacity: 0.20, fillColor: "#12b886" });
+                            if (isBlockFeatureSelected(feature)) {
+                                this.setStyle({ color: "#fef08a", weight: 3.0, fillOpacity: 0.36, fillColor: "#fde047" });
+                            } else {
+                                this.setStyle({ color: "#12b886", weight: 2.5, fillOpacity: 0.20, fillColor: "#12b886" });
+                            }
                         });
                         layer.on('mouseout', function() {
-                            this.setStyle({ weight: 1.5, fillOpacity: 0.001, fillColor: "transparent" });
+                            if (isBlockFeatureSelected(feature)) {
+                                this.setStyle({ color: "#fde047", weight: 2.5, fillOpacity: 0.28, fillColor: "#fde047" });
+                            } else {
+                                this.setStyle({ color: "#12b886", weight: 1.5, fillOpacity: 0.001, fillColor: "transparent" });
+                            }
                         });
                         layer.on('click', (e) => {
                             L.DomEvent.stopPropagation(e);
@@ -5165,6 +5225,7 @@ function toggleNutrientLayerComp(layerValue) {
             window.compRasterOverlay = createContinuousNutrientRaster(bLayer, layerValue, targetMap);
         }
     }
+    if (typeof updateBoundaryLayersSelectionStyles === 'function') updateBoundaryLayersSelectionStyles();
 }
 window.toggleNutrientLayerComp = toggleNutrientLayerComp;
 
@@ -5212,6 +5273,7 @@ function toggleNutrientLayerStd(layerValue) {
             window.stdRasterOverlay = createContinuousNutrientRaster(bLayer, layerValue, targetMap);
         }
     }
+    if (typeof updateBoundaryLayersSelectionStyles === 'function') updateBoundaryLayersSelectionStyles();
 }
 window.toggleNutrientLayerStd = toggleNutrientLayerStd;
 

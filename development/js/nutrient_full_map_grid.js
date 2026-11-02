@@ -1253,11 +1253,23 @@
             ctx.restore();
         }
 
-        // 2. Highlight Selected Block Boundary (pure Google Earth satellite inside, no text labels)
+        // 2. Highlight Selected Block Boundary (semi-transparent yellow highlight + gold border, no text labels)
         const blockRings = (details.blockRings && details.blockRings.length) ? details.blockRings : details.allRings;
         if (blockRings && blockRings.length) {
             ctx.save();
             ctx.lineJoin = 'round';
+
+            // Semi-transparent yellow highlight fill inside selected block(s)
+            ctx.fillStyle = 'rgba(253, 224, 71, 0.24)';
+            blockRings.forEach(ring => {
+                ctx.beginPath();
+                ring.forEach((pt, i) => {
+                    const x = toX(pt[0]), y = toY(pt[1]);
+                    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                });
+                ctx.closePath();
+                ctx.fill();
+            });
 
             // Outer dark contrast halo so boundary stands out against any satellite texture
             ctx.strokeStyle = 'rgba(15, 23, 42, 0.85)';
