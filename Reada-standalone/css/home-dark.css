@@ -79,17 +79,17 @@ body.sp-dark-home .cms-top-panel {
 }
 
 .sp-brand-logo-wrap {
-    background: rgba(255, 255, 255, 0.92);
-    padding: 4px 10px;
-    border-radius: 10px;
+    background: transparent;
+    padding: 0;
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+    box-shadow: none;
 }
 
 .sp-brand-logo-wrap img {
-    height: 32px;
+    height: 34px;
     width: auto;
     display: block;
 }
@@ -179,11 +179,11 @@ body.sp-dark-home .cms-top-panel {
 }
 
 .sp-top-dropdown-item:hover {
-    background: rgba(16, 185, 129, 0.15);
+    background: rgba(255, 255, 255, 0.1);
     color: #ffffff;
 }
 
-/* Top Right Controls (Search, WiFi Speed, Settings, Notifications, Profile) */
+/* Top Right Controls (Search, Settings, Notifications, Profile) */
 .sp-top-right-controls {
     display: flex;
     align-items: center;
@@ -204,7 +204,7 @@ body.sp-dark-home .cms-top-panel {
 }
 
 .sp-search-box:focus-within {
-    border-color: rgba(16, 185, 129, 0.55);
+    border-color: rgba(255, 255, 255, 0.35);
     background: rgba(255, 255, 255, 0.1);
     width: 265px;
 }
@@ -268,7 +268,7 @@ body.sp-dark-home .cms-top-panel {
 }
 
 .sp-search-result-item:hover {
-    background: rgba(16, 185, 129, 0.18);
+    background: rgba(255, 255, 255, 0.12);
 }
 
 /* WiFi Speed Connection Pill */
@@ -279,9 +279,9 @@ body.sp-dark-home .cms-top-panel {
     height: 34px;
     padding: 0 12px;
     border-radius: 999px;
-    background: rgba(16, 185, 129, 0.1);
-    border: 1px solid rgba(16, 185, 129, 0.28);
-    color: #34d399;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e2e8f0;
     font-size: 11.5px;
     font-weight: 600;
     cursor: pointer;
@@ -290,7 +290,7 @@ body.sp-dark-home .cms-top-panel {
 }
 
 .sp-wifi-pill:hover {
-    background: rgba(16, 185, 129, 0.18);
+    background: rgba(255, 255, 255, 0.14);
 }
 
 .sp-wifi-pill svg {
@@ -302,8 +302,7 @@ body.sp-dark-home .cms-top-panel {
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #10b981;
-    box-shadow: 0 0 8px #10b981;
+    background: #ffffff;
 }
 
 /* Top Icon Buttons */
@@ -341,7 +340,7 @@ body.sp-dark-home .cms-top-panel {
     height: 15px;
     padding: 0 4px;
     border-radius: 999px;
-    background: #ef4444;
+    background: #52525b;
     color: #ffffff;
     font-size: 9.5px;
     font-weight: 700;
@@ -377,7 +376,8 @@ body.sp-dark-home .cms-top-panel {
     width: 26px;
     height: 26px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    background: #27272a;
+    border: 1px solid rgba(255, 255, 255, 0.25);
     color: #ffffff;
     display: flex;
     align-items: center;
@@ -394,12 +394,12 @@ body.sp-dark-home .cms-top-panel {
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: #10b981;
+    background: #ffffff;
     border: 1.5px solid #0b0e12;
 }
 
 /* --------------------------------------------------------------------------
-   2. LEFT SIDEBAR (Kept as-is functionally, styled in dark glass)
+   2. LEFT SIDEBAR (Kept as-is functionally, styled in dark glass monochrome)
    -------------------------------------------------------------------------- */
 body.sp-dark-home .cms-sidebar {
     top: 60px;
@@ -428,13 +428,20 @@ body.sp-dark-home .cms-nav-item:hover {
     color: #ffffff;
 }
 
+body.sp-dark-home .cms-nav-item.active {
+    background: rgba(255, 255, 255, 0.14) !important;
+    color: #ffffff !important;
+    border-left: 4px solid #ffffff !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5) !important;
+}
+
 body.sp-dark-home .cms-sub-nav-item {
     color: var(--sp-text-secondary);
 }
 
 body.sp-dark-home .cms-sub-nav-item:hover {
-    background: rgba(16, 185, 129, 0.14);
-    color: #34d399;
+    background: rgba(255, 255, 255, 0.08);
+    color: #ffffff;
 }
 
 /* --------------------------------------------------------------------------
@@ -531,7 +538,7 @@ body.sp-dark-home .cms-main-content {
 
 .sp-estate-pin:hover {
     transform: translate(-50%, -50%) scale(1.08);
-    border-color: #10b981;
+    border-color: #ffffff;
     z-index: 9999 !important;
 }
 
@@ -543,7 +550,7 @@ body.sp-dark-home .cms-main-content {
 }
 
 /* --------------------------------------------------------------------------
-   4. FLOATING GLASS PANELS (Left, Center Map HUD, Right, Bottom-Left, Bottom-Right)
+   4. FLOATING GLASS PANELS (Left, Center Map HUD)
    -------------------------------------------------------------------------- */
 .sp-glass-panel {
     position: relative;
@@ -570,7 +577,7 @@ body.sp-dark-home .cms-main-content {
     min-height: 0;
 }
 
-/* Region filter pills at top of Left Column (like 24 Bus / 100 Taxi / 12 Trains / 13 Trams) */
+/* Region filter pills at top of Left Column */
 .sp-region-strip {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -608,7 +615,7 @@ body.sp-dark-home .cms-main-content {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
 }
 
-/* Total Estate KPI Card (Online vs Offline/Pending) */
+/* Total Estate KPI Card (Online Only) */
 .sp-total-estate-card {
     padding: 14px;
     flex-shrink: 0;
@@ -638,7 +645,7 @@ body.sp-dark-home .cms-main-content {
 
 .sp-status-duo-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 10px;
 }
 
@@ -671,15 +678,16 @@ body.sp-dark-home .cms-main-content {
 }
 
 .sp-status-icon-circle.online {
-    background: rgba(16, 185, 129, 0.18);
-    color: #10b981;
-    box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    box-shadow: none;
+    font-size: 10px;
 }
 
 .sp-status-icon-circle.offline {
-    background: rgba(239, 68, 68, 0.18);
-    color: #ef4444;
-    box-shadow: 0 0 12px rgba(239, 68, 68, 0.25);
+    background: rgba(255, 255, 255, 0.08);
+    color: #a1a1aa;
+    box-shadow: none;
 }
 
 .sp-status-bottom {
@@ -702,7 +710,7 @@ body.sp-dark-home .cms-main-content {
     line-height: 1;
 }
 
-/* Estate Directory & Module Quick-Launch Card (Replaces the "No need" Bus cards cleanly) */
+/* Estate Directory Card */
 .sp-estate-directory-card {
     flex: 1;
     min-height: 0;
@@ -718,7 +726,7 @@ body.sp-dark-home .cms-main-content {
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 6px;
+    gap: 8px;
     padding-right: 3px;
 }
 
@@ -737,10 +745,12 @@ body.sp-dark-home .cms-main-content {
 }
 
 .sp-estate-row-item {
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(255, 255, 255, 0.035);
     border: 1px solid var(--sp-border);
-    border-radius: 11px;
-    padding: 9px 11px;
+    border-radius: 12px;
+    padding: 15px 14px;
+    min-height: 58px;
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -751,18 +761,18 @@ body.sp-dark-home .cms-main-content {
 
 .sp-estate-row-item:hover {
     background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.22);
 }
 
 .sp-estate-row-item.active {
-    background: rgba(16, 185, 129, 0.14);
-    border-color: rgba(16, 185, 129, 0.45);
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(255, 255, 255, 0.38);
 }
 
 .sp-estate-row-left {
     display: flex;
     align-items: center;
-    gap: 9px;
+    gap: 10px;
     min-width: 0;
 }
 
@@ -828,8 +838,8 @@ body.sp-dark-home .cms-main-content {
 }
 
 .sp-module-mini-btn:hover {
-    background: rgba(16, 185, 129, 0.16);
-    border-color: rgba(16, 185, 129, 0.4);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.3);
 }
 
 .sp-module-mini-btn img {
@@ -865,13 +875,13 @@ body.sp-dark-home .cms-main-content {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 5px 13px;
+    padding: 6px 14px;
     border-radius: 999px;
-    background: rgba(16, 185, 129, 0.14);
+    background: rgba(24, 27, 34, 0.88);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
-    border: 1px solid rgba(16, 185, 129, 0.38);
-    color: #ecfdf5;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    color: #e2e8f0;
     font-size: 12.5px;
     font-weight: 500;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
@@ -880,21 +890,21 @@ body.sp-dark-home .cms-main-content {
 }
 
 .sp-welcome-banner:hover {
-    background: rgba(16, 185, 129, 0.22);
-    border-color: rgba(52, 211, 153, 0.6);
+    background: rgba(38, 43, 52, 0.92);
+    border-color: rgba(255, 255, 255, 0.34);
 }
 
 .sp-welcome-dot {
     width: 7px;
     height: 7px;
     border-radius: 50%;
-    background: #34d399;
-    box-shadow: 0 0 8px #34d399;
+    background: #ffffff;
+    box-shadow: none;
     flex-shrink: 0;
 }
 
 .sp-welcome-banner b {
-    color: #34d399;
+    color: #ffffff;
     font-weight: 700;
 }
 
@@ -954,12 +964,12 @@ body.sp-dark-home .cms-main-content {
 
 .sp-hud-pill-btn:hover,
 .sp-hud-pill-btn.active {
-    background: rgba(16, 185, 129, 0.22);
-    border-color: rgba(16, 185, 129, 0.5);
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.38);
     color: #ffffff;
 }
 
-/* Floating Estate Focus Callout on Map (like "Passenger Load 87%" in reference photo) */
+/* Floating Estate Focus Callout on Map */
 .sp-map-focus-callout {
     pointer-events: auto;
     align-self: flex-start;
@@ -1007,17 +1017,17 @@ body.sp-dark-home .cms-main-content {
 .sp-focus-open-link {
     font-size: 11px;
     font-weight: 600;
-    color: #34d399;
+    color: #ffffff;
     text-decoration: none;
-    padding: 4px 9px;
+    padding: 4px 10px;
     border-radius: 999px;
-    background: rgba(16, 185, 129, 0.15);
-    border: 1px solid rgba(16, 185, 129, 0.35);
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.28);
     transition: all 0.18s ease;
 }
 
 .sp-focus-open-link:hover {
-    background: #10b981;
+    background: #ffffff;
     color: #080a0e;
 }
 

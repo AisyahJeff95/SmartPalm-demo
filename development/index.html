@@ -35,7 +35,7 @@
                 <!-- Keep our MPOB / PalmNex Logo -->
                 <a href="index.html" class="sp-brand-box" title="MPOB PalmNex Home">
                     <div class="sp-brand-logo-wrap">
-                        <img src="MPOB-3-all-black-fonts.png" alt="MPOB Logo" />
+                        <img src="MPOB-3-white-transparent.png" alt="MPOB Logo" />
                     </div>
                 </a>
 
@@ -189,25 +189,18 @@
                         <button type="button" class="sp-region-chip" onclick="filterLeftEstatesByRegion('West', this)">4 West MY</button>
                     </div>
 
-                    <!-- Total Estate Status Card (Online vs Offline/Pending) -->
+                    <!-- Total Estate Status Card (Online Only with Point Symbol) -->
                     <div class="sp-glass-panel sp-total-estate-card">
                         <div class="sp-card-header-row">
                             <span class="sp-card-title">Total Estate Overview</span>
-                            <span class="sp-card-subtitle" id="sp-kpi-total-subtitle">20 Maps • 3,727 Blocks</span>
+                            <span class="sp-card-subtitle" id="sp-kpi-total-subtitle">20 Maps • 3,678 Blocks</span>
                         </div>
                         <div class="sp-status-duo-grid">
-                            <div class="sp-status-tile" onclick="filterLeftEstatesByRegion('ALL')" title="Estates with Active / Prebuilt Satellite Rasters Ready">
-                                <div class="sp-status-icon-circle online">✓</div>
+                            <div class="sp-status-tile" onclick="filterLeftEstatesByRegion('ALL')" title="Online Monitored Estates">
+                                <div class="sp-status-icon-circle online">●</div>
                                 <div class="sp-status-bottom">
                                     <span class="sp-status-label">Online</span>
-                                    <span class="sp-status-num" id="sp-kpi-online-count">17</span>
-                                </div>
-                            </div>
-                            <div class="sp-status-tile" onclick="filterLeftEstatesByRegion('West')" title="SPOC A7 Layers Pending Live Satellite Run">
-                                <div class="sp-status-icon-circle offline">▲</div>
-                                <div class="sp-status-bottom">
-                                    <span class="sp-status-label">Pending</span>
-                                    <span class="sp-status-num" id="sp-kpi-offline-count">3</span>
+                                    <span class="sp-status-num" id="sp-kpi-online-count">20</span>
                                 </div>
                             </div>
                         </div>

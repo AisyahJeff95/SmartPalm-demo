@@ -86,7 +86,7 @@
             if (!fc || !fc.features || !fc.features.length) return;
 
             const isSelected = est.key === selectedEstateKey;
-            const strokeColor = est.stressColor || '#10b981';
+            const strokeColor = isSelected ? '#ffffff' : '#d4d4d8';
 
             const layer = L.geoJSON(fc, {
                 pointToLayer: (feature, latlng) => {
@@ -99,7 +99,7 @@
                     });
                 },
                 style: () => ({
-                    color: isSelected ? '#34d399' : strokeColor,
+                    color: strokeColor,
                     weight: isSelected ? 2.2 : 1.4,
                     opacity: 0.92,
                     fillColor: strokeColor,
@@ -129,8 +129,8 @@
                 const pinIcon = L.divIcon({
                     className: '',
                     html: `
-                        <div class="sp-estate-pin" style="border-color:${isSelected ? '#10b981' : 'rgba(255,255,255,0.22)'};background:${isSelected ? 'rgba(16,185,129,0.25)' : 'rgba(14,18,24,0.9)'};">
-                            <span class="sp-estate-pin-dot" style="background:#10b981;box-shadow:0 0 6px #10b981;"></span>
+                        <div class="sp-estate-pin" style="border-color:${isSelected ? '#ffffff' : 'rgba(255,255,255,0.25)'};background:${isSelected ? 'rgba(42,48,60,0.95)' : 'rgba(14,18,24,0.9)'};">
+                            <span class="sp-estate-pin-dot" style="background:#ffffff;box-shadow:none;"></span>
                             <span>${shortName}</span>
                         </div>
                     `,
@@ -207,15 +207,14 @@
 
         // Highlight boundary styles
         Object.entries(boundaryLayersByKey).forEach(([k, layer]) => {
-            const eObj = getEstateByKey(k);
             const isSel = k === selectedEstateKey;
-            const c = eObj ? eObj.stressColor : '#10b981';
+            const c = isSel ? '#ffffff' : '#d4d4d8';
             if (layer.setStyle) {
                 layer.setStyle({
-                    color: isSel ? '#34d399' : c,
+                    color: c,
                     weight: isSel ? 2.6 : 1.3,
                     fillColor: c,
-                    fillOpacity: isSel ? 0.26 : 0.09
+                    fillOpacity: isSel ? 0.24 : 0.09
                 });
             }
         });
@@ -255,11 +254,11 @@
         if (subEl) subEl.textContent = `${est.zone} • ${est.totalBlocks} Blocks (${est.areaHa.toLocaleString()} Ha)`;
         if (pctEl) {
             pctEl.textContent = `${est.stressPct.toFixed(1)}%`;
-            pctEl.style.color = est.stressColor;
+            pctEl.style.color = '#ffffff';
         }
         if (badgeEl) {
             badgeEl.textContent = est.stressRating;
-            badgeEl.style.color = est.stressColor;
+            badgeEl.style.color = '#cbd5e1';
         }
     }
 
@@ -281,16 +280,12 @@
     function renderLeftEstateDirectory() {
         const data = getHomeData();
         const totalOnlineEl = document.getElementById('sp-kpi-online-count');
-        const totalOfflineEl = document.getElementById('sp-kpi-offline-count');
         const totalSubtitleEl = document.getElementById('sp-kpi-total-subtitle');
         const listEl = document.getElementById('sp-left-estate-list');
 
-        const onlineCount = data.estates.filter(e => e.online).length;
-        const offlineCount = data.estates.length - onlineCount;
         const totalBlocks = data.estates.reduce((acc, e) => acc + e.totalBlocks, 0);
 
-        if (totalOnlineEl) totalOnlineEl.textContent = onlineCount;
-        if (totalOfflineEl) totalOfflineEl.textContent = offlineCount;
+        if (totalOnlineEl) totalOnlineEl.textContent = data.estates.length;
         if (totalSubtitleEl) totalSubtitleEl.textContent = `${data.estates.length} Maps • ${totalBlocks.toLocaleString()} Blocks`;
 
         if (!listEl) return;
@@ -305,11 +300,10 @@
 
         listEl.innerHTML = filtered.map(est => {
             const isSel = est.key === selectedEstateKey;
-            const statusColor = est.online ? '#10b981' : '#f59e0b';
             return `
                 <div class="sp-estate-row-item ${isSel ? 'active' : ''}" data-estate-key="${est.key}" onclick="selectEstate('${est.key}', true)">
                     <div class="sp-estate-row-left">
-                        <span class="sp-estate-dot" style="background:${statusColor};box-shadow:0 0 6px ${statusColor};" title="${est.online ? 'Online & Prebuilt Ready' : 'Pending Live Run'}"></span>
+                        <span class="sp-estate-dot" style="background:#ffffff;box-shadow:none;"></span>
                         <div style="min-width:0;">
                             <div class="sp-estate-row-name">${est.name}</div>
                             <div class="sp-estate-row-meta">${est.region} • ${est.totalBlocks} blk • ${est.areaHa.toLocaleString()} Ha</div>
