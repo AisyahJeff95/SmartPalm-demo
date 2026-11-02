@@ -180,12 +180,12 @@
                      LEFT FLOATING COLUMN: Total Estate Summary + Estate List
                      --------------------------------------------------------- -->
                 <div class="sp-left-column">
-                    <!-- Top Region Filter Strip -->
+                    <!-- Top Estate Company Filter Strip -->
                     <div class="sp-region-strip">
-                        <button type="button" class="sp-region-chip active" onclick="filterLeftEstatesByRegion('ALL', this)">20 All</button>
-                        <button type="button" class="sp-region-chip" onclick="filterLeftEstatesByRegion('Sabah', this)">12 Sabah</button>
-                        <button type="button" class="sp-region-chip" onclick="filterLeftEstatesByRegion('Pahang', this)">4 Pahang</button>
-                        <button type="button" class="sp-region-chip" onclick="filterLeftEstatesByRegion('West', this)">4 West MY</button>
+                        <button type="button" class="sp-region-chip active" onclick="filterLeftEstatesByRegion('ALL', this)">All Owners</button>
+                        <button type="button" class="sp-region-chip" onclick="filterLeftEstatesByRegion('benta_wawasan', this)">Benta Wawasan</button>
+                        <button type="button" class="sp-region-chip" onclick="filterLeftEstatesByRegion('fgv', this)">FGV</button>
+                        <button type="button" class="sp-region-chip" onclick="filterLeftEstatesByRegion('mpob', this)">MPOB / SPOC</button>
                     </div>
 
                     <!-- Total Estate Status Card (Online Only with Point Symbol) -->
@@ -209,7 +209,7 @@
                     <div class="sp-glass-panel sp-estate-directory-card">
                         <div class="sp-card-header-row" style="margin-bottom: 4px;">
                             <span class="sp-card-title" style="font-size: 16px; font-weight: 700; letter-spacing: -0.2px;">Browse All Estate</span>
-                            <span class="sp-card-subtitle">Click to zoom</span>
+                            <span class="sp-card-subtitle">Click to view cluster</span>
                         </div>
                         <div id="sp-left-estate-list" class="sp-estate-list-scroll"></div>
                     </div>
@@ -230,11 +230,11 @@
                             </p>
                         </div>
                         <div class="sp-map-Hud-controls">
-                            <select id="sp-hud-estate-select" class="sp-hud-pill-select" onchange="selectEstate(this.value, true)"></select>
+                            <select id="sp-hud-estate-select" class="sp-hud-pill-select" onchange="selectOwnerClusterOrEstate(this.value, true)"></select>
                             <button type="button" id="sp-btn-basemap-sat" class="sp-hud-pill-btn active" onclick="spToggleBasemap('sat')">🛰️ Google Earth Hybrid</button>
                             <button type="button" id="sp-btn-basemap-vec" class="sp-hud-pill-btn" onclick="spToggleBasemap('vec')">🌍 Google Satellite</button>
-                            <button type="button" class="sp-hud-pill-btn" onclick="spJumpRegion('Sabah')">Sabah Cluster</button>
-                            <button type="button" id="sp-hud-pill-btn" onclick="spJumpRegion('Pahang')">Pahang Cluster</button>
+                            <button type="button" class="sp-hud-pill-btn" onclick="selectOwnerCluster('benta_wawasan', true)">Benta Wawasan Cluster</button>
+                            <button type="button" id="sp-hud-pill-btn" onclick="selectOwnerCluster('fgv', true)">FGV Cluster</button>
                         </div>
                     </div>
 

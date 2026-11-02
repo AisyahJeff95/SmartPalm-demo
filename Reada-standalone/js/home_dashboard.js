@@ -22,7 +22,43 @@
     let boundaryLayersByKey = {};
     let pinMarkersByKey = {};
     let selectedEstateKey = 'seraya';
+    let selectedOwnerClusterId = 'benta_wawasan';
     let activeRegionFilter = 'ALL';
+
+    const ESTATE_OWNER_CLUSTERS = [
+        {
+            id: 'benta_wawasan',
+            filterGroup: 'benta_wawasan',
+            ownerName: 'Benta Wawasan Sdn Bhd',
+            regionLabel: 'Sabah (Tawau & Kalabakan)',
+            estateKeys: ['agathis', 'belian', 'binuang', 'gaharu', 'kapur', 'keruing', 'menggaris', 'merbau', 'ramin', 'selanganbatu', 'seraya'],
+            estateNamesList: 'Agathis, Belian, Binuang, Gaharu, Kapur, Keruing, Menggaris, Merbau, Ramin, Selangan Batu, Seraya'
+        },
+        {
+            id: 'fgv',
+            filterGroup: 'fgv',
+            ownerName: 'FGV Holdings Berhad',
+            regionLabel: 'Pahang (Jengka & Jerantut)',
+            estateKeys: ['jengka24', 'jengka25', 'kota_gelanggi5', 'ppptar'],
+            estateNamesList: 'Ladang Jengka 24, Ladang Jengka 25, Ladang Kota Gelanggi 5, Ladang PPPTAR'
+        },
+        {
+            id: 'mpob_spoc',
+            filterGroup: 'mpob',
+            ownerName: 'MPOB SPOC A7 & Smallholders',
+            regionLabel: 'Perak & Selangor',
+            estateKeys: ['geolocation_ish', 'polygon_ish', 'soil_series', 'sekinchan1poly'],
+            estateNamesList: 'Geolocation ISH SPOC A7, Polygon ISH SPOC A7, Soil Series SPOC A7, Sekinchan 1 Poly'
+        },
+        {
+            id: 'mpob_research',
+            filterGroup: 'mpob',
+            ownerName: 'MPOB Research Station (Lahad Datu)',
+            regionLabel: 'Sabah (Lahad Datu)',
+            estateKeys: ['lahad_datu_combined'],
+            estateNamesList: 'Lahad Datu Boundary & 36 Trial Plots'
+        }
+    ];
 
     function getHomeData() {
         return window.SMARTPALM_HOME_DATA || { estates: [], boundaries: {}, defaultRunHistory: [] };
@@ -31,6 +67,10 @@
     function getEstateByKey(key) {
         const data = getHomeData();
         return data.estates.find(e => e.key === key) || data.estates[0] || null;
+    }
+
+    function getOwnerClusterById(clusterId) {
+        return ESTATE_OWNER_CLUSTERS.find(c => c.id === clusterId) || ESTATE_OWNER_CLUSTERS[0];
     }
 
     // -------------------------------------------------------------------------
@@ -75,6 +115,8 @@
     function renderAllBoundariesOnMap() {
         if (!homeMap) return;
         const data = getHomeData();
+        const activeCluster = getOwnerClusterById(selectedOwnerClusterId);
+        const activeKeysSet = new Set(activeCluster ? activeCluster.estateKeys : []);
 
         Object.values(boundaryLayersByKey).forEach(l => homeMap.removeLayer(l));
         Object.values(pinMarkersByKey).forEach(m => homeMap.removeLayer(m));
@@ -85,7 +127,7 @@
             const fc = data.boundaries[est.key];
             if (!fc || !fc.features || !fc.features.length) return;
 
-            const isSelected = est.key === selectedEstateKey;
+            const isSelected = activeKeysSet.has(est.key) || est.key === selectedEstateKey;
             const strokeColor = isSelected ? '#ffffff' : '#d4d4d8';
 
             const layer = L.geoJSON(fc, {
@@ -172,20 +214,91 @@
 
     window.spJumpRegion = function (region) {
         if (!homeMap) return;
-        if (region === 'Sabah') {
-            homeMap.flyTo([4.72, 117.65], 10, { duration: 1.1 });
-        } else if (region === 'Pahang') {
-            homeMap.flyTo([3.79, 102.53], 11, { duration: 1.1 });
-        } else if (region === 'West') {
-            homeMap.flyTo([3.68, 101.08], 10, { duration: 1.1 });
+        if (region === 'Sabah' || region === 'benta_wawasan') {
+            window.selectOwnerCluster('benta_wawasan', true);
+        } else if (region === 'Pahang' || region === 'fgv') {
+            window.selectOwnerCluster('fgv', true);
+        } else if (region === 'West' || region === 'mpob') {
+            window.selectOwnerCluster('mpob_spoc', true);
         } else {
             homeMap.flyTo([4.35, 109.2], 6, { duration: 1.1 });
         }
     };
 
     // -------------------------------------------------------------------------
-    // 2. SELECT ESTATE & SYNC ALL PANELS (Map, HUD Callout, Stress Bar, 3-Month Nutrients)
+    // 2. SELECT OWNER CLUSTER OR INDIVIDUAL ESTATE & ZOOM MAP TO CLUSTER
     // -------------------------------------------------------------------------
+    window.selectOwnerCluster = function (clusterId, zoomToCluster) {
+        const cluster = getOwnerClusterById(clusterId);
+        if (!cluster) return;
+
+        selectedOwnerClusterId = cluster.id;
+        selectedEstateKey = cluster.estateKeys[0] || selectedEstateKey;
+        const keySet = new Set(cluster.estateKeys);
+
+        // Sync top HUD dropdown
+        const hudSel = document.getElementById('sp-hud-estate-select');
+        if (hudSel) hudSel.value = 'CLUSTER:' + cluster.id;
+
+        // Highlight all boundaries in this owner's cluster
+        Object.entries(boundaryLayersByKey).forEach(([k, layer]) => {
+            const isSel = keySet.has(k);
+            const c = isSel ? '#ffffff' : '#a1a1aa';
+            if (layer.setStyle) {
+                layer.setStyle({
+                    color: c,
+                    weight: isSel ? 2.5 : 1.2,
+                    fillColor: c,
+                    fillOpacity: isSel ? 0.24 : 0.08
+                });
+            }
+        });
+
+        // Fly map to fit the entire owner estate cluster bounds
+        if (zoomToCluster && homeMap && typeof L !== 'undefined') {
+            let combinedBounds = null;
+            cluster.estateKeys.forEach(k => {
+                const lyr = boundaryLayersByKey[k];
+                if (lyr && lyr.getBounds) {
+                    const b = lyr.getBounds();
+                    if (b && b.isValid()) {
+                        if (!combinedBounds) {
+                            combinedBounds = L.latLngBounds(b.getSouthWest(), b.getNorthEast());
+                        } else {
+                            combinedBounds.extend(b);
+                        }
+                    }
+                }
+            });
+
+            if (combinedBounds && combinedBounds.isValid()) {
+                homeMap.flyToBounds(combinedBounds, { padding: [55, 55], maxZoom: 13, duration: 1.1 });
+            } else {
+                const firstEst = getEstateByKey(cluster.estateKeys[0]);
+                if (firstEst && firstEst.center) {
+                    homeMap.flyTo(firstEst.center, 11, { duration: 1.1 });
+                }
+            }
+        }
+
+        // Highlight active owner card in Left Directory
+        document.querySelectorAll('.sp-estate-row-item').forEach(el => {
+            el.classList.toggle('active', el.dataset.ownerId === cluster.id);
+        });
+    };
+
+    window.selectOwnerClusterOrEstate = function (val, zoom) {
+        if (!val || val === 'ALL') {
+            window.spZoomMap('reset');
+            return;
+        }
+        if (val.startsWith('CLUSTER:')) {
+            window.selectOwnerCluster(val.replace('CLUSTER:', ''), zoom);
+            return;
+        }
+        window.selectEstate(val, zoom);
+    };
+
     window.selectEstate = function (estateKey, zoomToEstate) {
         if (!estateKey || estateKey === 'ALL') {
             window.spZoomMap('reset');
@@ -195,6 +308,8 @@
         if (!est) return;
 
         selectedEstateKey = est.key;
+        const ownerCluster = ESTATE_OWNER_CLUSTERS.find(c => c.estateKeys.includes(est.key));
+        if (ownerCluster) selectedOwnerClusterId = ownerCluster.id;
 
         // Sync dropdowns
         const hudSel = document.getElementById('sp-hud-estate-select');
@@ -230,9 +345,9 @@
         // Update Map Focus Callout Card
         updateMapFocusCallout(est);
 
-        // Highlight active items in Left Directory & Bottom-Left Stress Bars
+        // Highlight active owner card in Left Directory
         document.querySelectorAll('.sp-estate-row-item').forEach(el => {
-            el.classList.toggle('active', el.dataset.estateKey === est.key);
+            el.classList.toggle('active', el.dataset.ownerId === selectedOwnerClusterId);
         });
         document.querySelectorAll('.sp-stress-col-item').forEach(el => {
             el.classList.toggle('active', el.dataset.estateKey === est.key);
@@ -261,15 +376,19 @@
     }
 
     // -------------------------------------------------------------------------
-    // 3. LEFT COLUMN: TOTAL ESTATE SUMMARY & FILTERABLE DIRECTORY
+    // 3. LEFT COLUMN: TOTAL ESTATE SUMMARY & ESTATE OWNER CLUSTER DIRECTORY
     // -------------------------------------------------------------------------
-    window.filterLeftEstatesByRegion = function (region, btnEl) {
-        activeRegionFilter = region;
+    window.filterLeftEstatesByRegion = function (filterGroup, btnEl) {
+        activeRegionFilter = filterGroup;
         document.querySelectorAll('.sp-region-chip').forEach(b => b.classList.remove('active'));
         if (btnEl) btnEl.classList.add('active');
         renderLeftEstateDirectory();
-        if (region !== 'ALL') {
-            window.spJumpRegion(region);
+        if (filterGroup === 'benta_wawasan') {
+            window.selectOwnerCluster('benta_wawasan', true);
+        } else if (filterGroup === 'fgv') {
+            window.selectOwnerCluster('fgv', true);
+        } else if (filterGroup === 'mpob') {
+            window.selectOwnerCluster('mpob_spoc', true);
         } else {
             window.spZoomMap('reset');
         }
@@ -288,23 +407,26 @@
 
         if (!listEl) return;
 
-        const filtered = data.estates.filter(e => {
+        const filteredClusters = ESTATE_OWNER_CLUSTERS.filter(c => {
             if (activeRegionFilter === 'ALL') return true;
-            if (activeRegionFilter === 'Sabah') return e.region === 'Sabah';
-            if (activeRegionFilter === 'Pahang') return e.region === 'Pahang';
-            if (activeRegionFilter === 'West') return e.region === 'Selangor' || e.region === 'Perak';
-            return true;
+            return c.filterGroup === activeRegionFilter;
         });
 
-        listEl.innerHTML = filtered.map(est => {
-            const isSel = est.key === selectedEstateKey;
+        listEl.innerHTML = filteredClusters.map(cluster => {
+            const isSel = cluster.id === selectedOwnerClusterId;
+            const clusterEstates = cluster.estateKeys.map(k => getEstateByKey(k)).filter(Boolean);
+            const clusterBlocks = clusterEstates.reduce((acc, e) => acc + (e.totalBlocks || 0), 0);
+            const clusterArea = clusterEstates.reduce((acc, e) => acc + (e.areaHa || 0), 0);
+            const estateCountLabel = `${cluster.estateKeys.length} ${cluster.estateKeys.length === 1 ? 'Estate' : 'Estates'}`;
+
             return `
-                <div class="sp-estate-row-item ${isSel ? 'active' : ''}" data-estate-key="${est.key}" onclick="selectEstate('${est.key}', true)">
-                    <div class="sp-estate-row-left">
-                        <span class="sp-estate-dot" style="background:#ffffff;box-shadow:none;"></span>
-                        <div style="min-width:0;">
-                            <div class="sp-estate-row-name">${est.name}</div>
-                            <div class="sp-estate-row-meta">${est.region} • ${est.totalBlocks} blk • ${est.areaHa.toLocaleString()} Ha</div>
+                <div class="sp-estate-row-item ${isSel ? 'active' : ''}" data-owner-id="${cluster.id}" onclick="selectOwnerCluster('${cluster.id}', true)">
+                    <div class="sp-estate-row-left" style="align-items:flex-start;">
+                        <span class="sp-estate-dot" style="background:#ffffff;box-shadow:none;margin-top:4px;"></span>
+                        <div style="min-width:0;display:flex;flex-direction:column;gap:3px;">
+                            <div class="sp-estate-row-name">${cluster.ownerName}</div>
+                            <div class="sp-estate-row-meta">${cluster.regionLabel} • ${estateCountLabel} • ${clusterBlocks.toLocaleString()} blk • ${Math.round(clusterArea).toLocaleString()} Ha</div>
+                            <div class="sp-estate-owner-sublist">${cluster.estateNamesList}</div>
                         </div>
                     </div>
                 </div>
@@ -743,8 +865,21 @@
         const schedSel = document.getElementById('sp-sched-estate');
 
         if (hudSel) {
-            hudSel.innerHTML = `<option value="ALL">🗺️ All 20 Maps (Comprehensive Boundaries)</option>` +
-                data.estates.map(e => `<option value="${e.key}">${e.name} (${e.region})</option>`).join('');
+            const clusterOpts = ESTATE_OWNER_CLUSTERS.map(c =>
+                `<option value="CLUSTER:${c.id}">🏢 ${c.ownerName} (${c.estateKeys.length} Estates)</option>`
+            ).join('');
+            const groupOpts = ESTATE_OWNER_CLUSTERS.map(c => {
+                const items = c.estateKeys
+                    .map(k => getEstateByKey(k))
+                    .filter(Boolean)
+                    .map(e => `<option value="${e.key}">${e.name} (${e.region})</option>`)
+                    .join('');
+                return `<optgroup label="${c.ownerName}">${items}</optgroup>`;
+            }).join('');
+            hudSel.innerHTML =
+                `<option value="ALL">🗺️ All 20 Maps (Malaysia Overview)</option>` +
+                `<optgroup label="Estate Owner Clusters">${clusterOpts}</optgroup>` +
+                groupOpts;
         }
         if (nutSel) {
             nutSel.innerHTML = data.estates.map(e => `<option value="${e.key}">${e.name}</option>`).join('');

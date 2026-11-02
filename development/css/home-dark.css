@@ -795,6 +795,14 @@ body.sp-dark-home .cms-main-content {
     color: var(--sp-text-secondary);
 }
 
+.sp-estate-owner-sublist {
+    font-size: 10.5px;
+    color: #cbd5e1;
+    line-height: 1.45;
+    margin-top: 2px;
+    opacity: 0.85;
+}
+
 .sp-estate-row-right {
     display: flex;
     flex-direction: column;
