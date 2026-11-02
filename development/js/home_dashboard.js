@@ -47,25 +47,27 @@
             attributionControl: false
         });
 
-        // Dark Satellite Hybrid (Esri World Imagery + dark CSS filter + CartoDB Dark Labels)
+        // Normal Google Earth Hybrid Satellite (with labels, same as comprehensive.html)
         darkSatLayer = L.tileLayer(
-            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-            { maxZoom: 19, className: 'sp-dark-satellite-tiles' }
+            'https://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}',
+            {
+                maxZoom: 20,
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+                attribution: '&copy; Google Maps'
+            }
         );
 
-        // Dark Vector Basemap (CartoDB Dark Matter)
+        // Google Earth Pure Satellite (without labels)
         darkVecLayer = L.tileLayer(
-            'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-            { maxZoom: 19, subdomains: 'abcd' }
-        );
-
-        labelsLayer = L.tileLayer(
-            'https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png',
-            { maxZoom: 19, subdomains: 'abcd', opacity: 0.75 }
+            'https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
+            {
+                maxZoom: 20,
+                subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+                attribution: '&copy; Google Maps'
+            }
         );
 
         darkSatLayer.addTo(homeMap);
-        labelsLayer.addTo(homeMap);
 
         renderAllBoundariesOnMap();
     }
@@ -155,14 +157,12 @@
         const btnVec = document.getElementById('sp-btn-basemap-vec');
         if (mode === 'vec') {
             if (homeMap.hasLayer(darkSatLayer)) homeMap.removeLayer(darkSatLayer);
-            if (homeMap.hasLayer(labelsLayer)) homeMap.removeLayer(labelsLayer);
             if (!homeMap.hasLayer(darkVecLayer)) darkVecLayer.addTo(homeMap);
             if (btnSat) btnSat.classList.remove('active');
             if (btnVec) btnVec.classList.add('active');
         } else {
             if (homeMap.hasLayer(darkVecLayer)) homeMap.removeLayer(darkVecLayer);
             if (!homeMap.hasLayer(darkSatLayer)) darkSatLayer.addTo(homeMap);
-            if (!homeMap.hasLayer(labelsLayer)) labelsLayer.addTo(homeMap);
             if (btnSat) btnSat.classList.add('active');
             if (btnVec) btnVec.classList.remove('active');
         }
