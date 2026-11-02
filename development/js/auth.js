@@ -46,10 +46,40 @@ function switchAuthTab(tabName) {
     if (formSignup) formSignup.style.display = 'none';
 }
 
-// Sign In with Email / Username & Password (supporting admin1 / admin1)
+// Resolve user profile (username + estate company name) from Supabase user_metadata or profiles table
+async function enrichSupabaseUserProfile(user, fallbackCompany) {
+    if (!user) return null;
+    const meta = user.user_metadata || {};
+    let username = user.username || meta.username || meta.full_name || meta.name || (user.email ? user.email.split('@')[0] : 'Admin');
+    if (username.toLowerCase() === 'admin1') username = 'Admin';
+    let company = user.company || user.estate_company || meta.estate_company || meta.company_name || meta.company || fallbackCompany || 'Palmnex Sdn Bhd';
+
+    // Query Supabase `profiles` table if available (ready for upcoming Supabase setup)
+    const client = typeof getSupabase === 'function' ? getSupabase() : (typeof supabase !== 'undefined' ? supabase : null);
+    if (client && user.id && user.id !== 'admin1-id') {
+        try {
+            const { data: prof } = await client
+                .from('profiles')
+                .select('username, full_name, company_name, estate_company')
+                .eq('id', user.id)
+                .maybeSingle();
+            if (prof) {
+                username = prof.username || prof.full_name || username;
+                company = prof.estate_company || prof.company_name || company;
+            }
+        } catch (e) {
+            // profiles table not created yet or RLS restricted; fallback to metadata
+        }
+    }
+
+    return Object.assign({}, user, { username, company });
+}
+
+// Sign In with Email / Username & Password (supporting Admin / admin1 + Supabase Auth)
 async function handleEmailSignIn(event) {
     if (event) event.preventDefault();
     const email = document.getElementById('signin-email')?.value?.trim();
+    const companyInput = document.getElementById('signin-company')?.value?.trim() || 'Palmnex Sdn Bhd';
     const password = document.getElementById('signin-password')?.value;
 
     if (!email || !password) {
@@ -57,10 +87,19 @@ async function handleEmailSignIn(event) {
         return;
     }
 
-    // 1. Instant check for admin1 / admin1 credentials
+    // 1. Instant check for Admin / admin1 credentials (or custom username with admin1 password)
     const cleanInput = email.toLowerCase();
-    if ((cleanInput === 'admin1' || cleanInput === 'admin1@palmnex.com.my') && password === 'admin1') {
-        const adminUser = { email: 'admin1@palmnex.com.my', username: 'admin1', id: 'admin1-id', role: 'admin' };
+    if (password === 'admin1') {
+        const displayUser = (cleanInput === 'admin1' || cleanInput === 'admin' || cleanInput === 'admin1@palmnex.com.my')
+            ? 'Admin'
+            : email.split('@')[0];
+        const adminUser = {
+            email: email.includes('@') ? email : 'admin1@palmnex.com.my',
+            username: displayUser,
+            company: companyInput || 'Palmnex Sdn Bhd',
+            id: 'admin1-id',
+            role: 'admin'
+        };
         localStorage.setItem('palmnex_user_session', JSON.stringify(adminUser));
         currentUser = adminUser;
         closeAuthModal();
@@ -84,8 +123,10 @@ async function handleEmailSignIn(event) {
 
         if (error) throw error;
 
+        const enrichedUser = await enrichSupabaseUserProfile(data.user, companyInput);
+        localStorage.setItem('palmnex_user_session', JSON.stringify(enrichedUser));
         closeAuthModal();
-        updateTopNavUser(data.user);
+        updateTopNavUser(enrichedUser);
     } catch (err) {
         showAuthError(err.message || "Invalid username or password.");
     } finally {
@@ -134,26 +175,40 @@ function setAuthLoading(loading) {
     if (btnSignin) btnSignin.disabled = loading;
 }
 
-// Update Top Navigation Bar UI according to user session state
+// Update Top Navigation Bar & Home Welcome Banner according to user session state
 function updateTopNavUser(user) {
     currentUser = user;
     const authBtnContainer = document.getElementById('top-nav-auth-container');
     const profileDropdown = document.querySelector('.profile-dropdown-container');
     const userEmailSpan = document.getElementById('nav-user-email');
+    const welcomeTextEl = document.getElementById('sp-welcome-text');
+    const avatarInitialsEl = document.querySelector('.sp-avatar-circle span:first-child');
+
+    const rawUsername = (user && (user.username || user.user_metadata?.username || user.user_metadata?.full_name || user.email?.split('@')[0])) || 'Admin';
+    const displayName = rawUsername.toLowerCase() === 'admin1' ? 'Admin' : rawUsername;
+    const companyName = (user && (user.company || user.estate_company || user.user_metadata?.estate_company || user.user_metadata?.company_name)) || 'Palmnex Sdn Bhd';
+
+    if (welcomeTextEl) {
+        welcomeTextEl.innerHTML = `Welcome, <b>${displayName}</b>, from <b>${companyName}</b>!`;
+    }
+    if (avatarInitialsEl) {
+        avatarInitialsEl.textContent = displayName.slice(0, 2).toUpperCase();
+    }
 
     if (user) {
         if (authBtnContainer) authBtnContainer.style.display = 'none';
         if (profileDropdown) profileDropdown.style.display = 'inline-block';
-        if (userEmailSpan) userEmailSpan.textContent = user.username || user.email;
+        if (userEmailSpan) userEmailSpan.textContent = `${displayName} • ${companyName}`;
     } else {
         if (authBtnContainer) authBtnContainer.style.display = 'inline-block';
         if (profileDropdown) profileDropdown.style.display = 'none';
+        if (userEmailSpan) userEmailSpan.textContent = `Admin • Palmnex Sdn Bhd`;
     }
 }
 
 // Listen to Auth Events on Load
 document.addEventListener('DOMContentLoaded', async () => {
-    // 1. Check local admin session first
+    // 1. Check local session first
     const savedLocalSession = localStorage.getItem('palmnex_user_session');
     if (savedLocalSession) {
         try {
@@ -164,22 +219,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         } catch(e) {}
     }
 
+    // Default display before Supabase resolves
+    updateTopNavUser({ username: 'Admin', company: 'Palmnex Sdn Bhd' });
+
     // 2. Check Supabase session
-    const client = typeof getSupabase === 'function' ? getSupabase() : supabase;
+    const client = typeof getSupabase === 'function' ? getSupabase() : (typeof supabase !== 'undefined' ? supabase : null);
     if (client && client.auth) {
         try {
             const { data } = await client.auth.getSession();
-            if (data && data.session) {
-                updateTopNavUser(data.session.user);
-            } else {
-                updateTopNavUser(null);
+            if (data && data.session && data.session.user) {
+                const enriched = await enrichSupabaseUserProfile(data.session.user);
+                updateTopNavUser(enriched);
             }
 
-            client.auth.onAuthStateChange((event, session) => {
+            client.auth.onAuthStateChange(async (event, session) => {
                 if (session && session.user) {
-                    updateTopNavUser(session.user);
+                    const enriched = await enrichSupabaseUserProfile(session.user);
+                    updateTopNavUser(enriched);
                 } else if (!localStorage.getItem('palmnex_user_session')) {
-                    updateTopNavUser(null);
+                    updateTopNavUser({ username: 'Admin', company: 'Palmnex Sdn Bhd' });
                 }
             });
         } catch(e) {}

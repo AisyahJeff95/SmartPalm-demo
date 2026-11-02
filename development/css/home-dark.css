@@ -1,0 +1,1478 @@
+/* ==========================================================================
+   SmartPalm Dark Command Center Theme — Home Dashboard (home-dark.css)
+   ========================================================================== */
+
+:root {
+    --sp-bg-deep: #080a0e;
+    --sp-bg-panel: rgba(18, 22, 28, 0.82);
+    --sp-bg-panel-solid: #12161c;
+    --sp-bg-card: rgba(26, 31, 40, 0.72);
+    --sp-bg-card-hover: rgba(36, 43, 55, 0.88);
+    --sp-border: rgba(255, 255, 255, 0.08);
+    --sp-border-bright: rgba(255, 255, 255, 0.16);
+    --sp-text-primary: #f8fafc;
+    --sp-text-secondary: #94a3b8;
+    --sp-text-muted: #64748b;
+    --sp-accent-green: #10b981;
+    --sp-accent-emerald: #34d399;
+    --sp-accent-amber: #f59e0b;
+    --sp-accent-orange: #f97316;
+    --sp-accent-red: #ef4444;
+    --sp-accent-cyan: #06b6d4;
+    --sp-radius-lg: 18px;
+    --sp-radius-md: 12px;
+    --sp-radius-sm: 8px;
+    --sp-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+}
+
+body.sp-dark-home {
+    margin: 0;
+    padding: 0;
+    background-color: var(--sp-bg-deep) !important;
+    color: var(--sp-text-primary) !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    overflow: hidden;
+    user-select: none;
+}
+
+body.sp-dark-home .cms-layout {
+    background: var(--sp-bg-deep) !important;
+    background-image: none !important;
+    color: var(--sp-text-primary);
+    height: 100vh;
+    width: 100vw;
+    overflow: hidden;
+    position: relative;
+}
+
+/* --------------------------------------------------------------------------
+   1. TOP NAVIGATION BAR (Matches reference image top bar + left panel links)
+   -------------------------------------------------------------------------- */
+body.sp-dark-home .cms-top-panel {
+    height: 60px;
+    background: rgba(11, 14, 18, 0.88) !important;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-bottom: 1px solid var(--sp-border) !important;
+    padding: 0 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    z-index: 9999999;
+}
+
+.sp-top-left-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    min-width: 0;
+}
+
+.sp-brand-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    padding-right: 12px;
+    border-right: 1px solid var(--sp-border);
+}
+
+.sp-brand-logo-wrap {
+    background: rgba(255, 255, 255, 0.92);
+    padding: 4px 10px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+.sp-brand-logo-wrap img {
+    height: 32px;
+    width: auto;
+    display: block;
+}
+
+/* Top Pill Navigation (Same items as Left Sidebar) */
+.sp-top-nav-pills {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.sp-top-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 14px;
+    border-radius: 999px;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--sp-text-secondary);
+    text-decoration: none;
+    background: transparent;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.sp-top-pill img.pill-icon {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    opacity: 0.85;
+}
+
+.sp-top-pill:hover {
+    color: var(--sp-text-primary);
+    background: rgba(255, 255, 255, 0.06);
+    border-color: var(--sp-border);
+}
+
+.sp-top-pill.active {
+    color: var(--sp-text-primary);
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.2);
+    font-weight: 600;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+/* KPSM Dropdown inside Top Bar */
+.sp-top-pill-dropdown {
+    position: relative;
+}
+
+.sp-top-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    min-width: 200px;
+    background: rgba(18, 22, 29, 0.96);
+    backdrop-filter: blur(16px);
+    border: 1px solid var(--sp-border-bright);
+    border-radius: 12px;
+    padding: 6px;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.65);
+    z-index: 10000000;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.sp-top-pill-dropdown.open .sp-top-dropdown-menu {
+    display: flex;
+}
+
+.sp-top-dropdown-item {
+    padding: 8px 12px;
+    border-radius: 8px;
+    color: var(--sp-text-secondary);
+    text-decoration: none;
+    font-size: 12.5px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.15s ease;
+}
+
+.sp-top-dropdown-item:hover {
+    background: rgba(16, 185, 129, 0.15);
+    color: #ffffff;
+}
+
+/* Top Right Controls (Search, WiFi Speed, Settings, Notifications, Profile) */
+.sp-top-right-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.sp-search-box {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--sp-border);
+    border-radius: 999px;
+    padding: 0 12px;
+    height: 34px;
+    width: 230px;
+    transition: all 0.2s ease;
+}
+
+.sp-search-box:focus-within {
+    border-color: rgba(16, 185, 129, 0.55);
+    background: rgba(255, 255, 255, 0.1);
+    width: 265px;
+}
+
+.sp-search-box input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--sp-text-primary);
+    font-size: 12px;
+    width: 100%;
+    font-family: inherit;
+}
+
+.sp-search-box input::placeholder {
+    color: var(--sp-text-muted);
+}
+
+.sp-search-box .search-shortcut {
+    font-size: 10px;
+    color: var(--sp-text-muted);
+    background: rgba(255, 255, 255, 0.06);
+    padding: 2px 5px;
+    border-radius: 4px;
+    margin-right: 6px;
+    white-space: nowrap;
+}
+
+.sp-search-box svg {
+    width: 14px;
+    height: 14px;
+    color: var(--sp-text-secondary);
+    flex-shrink: 0;
+}
+
+.sp-search-results-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    background: rgba(16, 20, 26, 0.98);
+    border: 1px solid var(--sp-border-bright);
+    border-radius: 12px;
+    max-height: 280px;
+    overflow-y: auto;
+    padding: 6px;
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.7);
+    z-index: 10000001;
+}
+
+.sp-search-result-item {
+    padding: 8px 10px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--sp-text-primary);
+    cursor: pointer;
+}
+
+.sp-search-result-item:hover {
+    background: rgba(16, 185, 129, 0.18);
+}
+
+/* WiFi Speed Connection Pill */
+.sp-wifi-pill {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    height: 34px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.28);
+    color: #34d399;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.sp-wifi-pill:hover {
+    background: rgba(16, 185, 129, 0.18);
+}
+
+.sp-wifi-pill svg {
+    width: 15px;
+    height: 15px;
+}
+
+.sp-wifi-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #10b981;
+    box-shadow: 0 0 8px #10b981;
+}
+
+/* Top Icon Buttons */
+.sp-icon-btn {
+    position: relative;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--sp-border);
+    color: var(--sp-text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sp-icon-btn:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.12);
+    border-color: var(--sp-border-bright);
+}
+
+.sp-icon-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.sp-notif-badge {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    min-width: 15px;
+    height: 15px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: #ef4444;
+    color: #ffffff;
+    font-size: 9.5px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid #0b0e12;
+}
+
+/* Profile Login Pill */
+.sp-profile-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 34px;
+    padding: 0 11px 0 4px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid var(--sp-border);
+    color: var(--sp-text-primary);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sp-profile-btn:hover {
+    background: rgba(255, 255, 255, 0.13);
+    border-color: var(--sp-border-bright);
+}
+
+.sp-avatar-circle {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+    position: relative;
+}
+
+.sp-avatar-status {
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #10b981;
+    border: 1.5px solid #0b0e12;
+}
+
+/* --------------------------------------------------------------------------
+   2. LEFT SIDEBAR (Kept as-is functionally, styled in dark glass)
+   -------------------------------------------------------------------------- */
+body.sp-dark-home .cms-sidebar {
+    top: 60px;
+    height: calc(100vh - 60px);
+    width: 82px;
+    background: rgba(11, 14, 18, 0.86) !important;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-right: 1px solid var(--sp-border) !important;
+    box-shadow: 6px 0 28px rgba(0, 0, 0, 0.45);
+}
+
+body.sp-dark-home .cms-sidebar:hover {
+    width: 255px;
+    background: rgba(14, 18, 24, 0.96) !important;
+}
+
+body.sp-dark-home .cms-nav-item {
+    color: var(--sp-text-secondary);
+    padding: 12px 18px;
+    margin: 0 8px;
+}
+
+body.sp-dark-home .cms-nav-item:hover {
+    background: rgba(255, 255, 255, 0.07);
+    color: #ffffff;
+}
+
+body.sp-dark-home .cms-sub-nav-item {
+    color: var(--sp-text-secondary);
+}
+
+body.sp-dark-home .cms-sub-nav-item:hover {
+    background: rgba(16, 185, 129, 0.14);
+    color: #34d399;
+}
+
+/* --------------------------------------------------------------------------
+   3. MAIN COMMAND CENTER WORKSPACE & MAP LAYER
+   -------------------------------------------------------------------------- */
+body.sp-dark-home .cms-main-content {
+    padding-left: 82px;
+    padding-top: 60px;
+    height: 100vh;
+    width: 100vw;
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+}
+
+.sp-command-stage {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 325px 1fr 345px;
+    grid-template-rows: 1fr 228px;
+    gap: 12px;
+    padding: 12px;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+/* Full-Bleed Background Map inside the Command Stage */
+.sp-map-backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background: #07090c;
+}
+
+#sp-home-map {
+    width: 100%;
+    height: 100%;
+    background: #07090c;
+}
+
+/* Dark vignette around map edges so floating panels pop like the reference photo */
+.sp-map-vignette {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    background:
+        radial-gradient(circle at 50% 42%, transparent 38%, rgba(6, 8, 12, 0.55) 100%),
+        linear-gradient(180deg, rgba(8, 10, 14, 0.45) 0%, transparent 16%, transparent 76%, rgba(8, 10, 14, 0.72) 100%);
+}
+
+/* Leaflet Dark Theme Overrides */
+.sp-dark-satellite-tiles {
+    filter: brightness(0.72) contrast(1.18) saturate(0.85);
+}
+
+.leaflet-container {
+    font-family: 'Inter', sans-serif !important;
+}
+
+.sp-map-tooltip {
+    background: rgba(14, 18, 24, 0.94) !important;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    border-radius: 10px !important;
+    color: #f8fafc !important;
+    padding: 8px 11px !important;
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.65) !important;
+}
+
+.sp-map-tooltip::before {
+    border-top-color: rgba(14, 18, 24, 0.94) !important;
+}
+
+/* Estate Pin Marker on Map */
+.sp-estate-pin {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: rgba(14, 18, 24, 0.9);
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+    transform: translate(-50%, -50%);
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.sp-estate-pin:hover {
+    transform: translate(-50%, -50%) scale(1.08);
+    border-color: #10b981;
+    z-index: 9999 !important;
+}
+
+.sp-estate-pin-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+/* --------------------------------------------------------------------------
+   4. FLOATING GLASS PANELS (Left, Center Map HUD, Right, Bottom-Left, Bottom-Right)
+   -------------------------------------------------------------------------- */
+.sp-glass-panel {
+    position: relative;
+    z-index: 5;
+    background: var(--sp-bg-panel);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--sp-border);
+    border-radius: var(--sp-radius-lg);
+    box-shadow: var(--sp-shadow);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* LEFT COLUMN: Total Estate Summary & Estate Quick-Jump Directory */
+.sp-left-column {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 5;
+    min-height: 0;
+}
+
+/* Region filter pills at top of Left Column (like 24 Bus / 100 Taxi / 12 Trains / 13 Trams) */
+.sp-region-strip {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    background: var(--sp-bg-panel);
+    backdrop-filter: blur(18px);
+    border: 1px solid var(--sp-border);
+    border-radius: 999px;
+    padding: 5px;
+    box-shadow: var(--sp-shadow);
+}
+
+.sp-region-chip {
+    background: transparent;
+    border: none;
+    color: var(--sp-text-secondary);
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 4px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.sp-region-chip:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.sp-region-chip.active {
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+/* Total Estate KPI Card (Online vs Offline/Pending) */
+.sp-total-estate-card {
+    padding: 14px;
+    flex-shrink: 0;
+}
+
+.sp-card-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.sp-card-title {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--sp-text-primary);
+    letter-spacing: -0.1px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.sp-card-subtitle {
+    font-size: 11px;
+    color: var(--sp-text-secondary);
+}
+
+.sp-status-duo-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.sp-status-tile {
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid var(--sp-border);
+    border-radius: 14px;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sp-status-tile:hover {
+    background: rgba(255, 255, 255, 0.07);
+    border-color: var(--sp-border-bright);
+}
+
+.sp-status-icon-circle {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.sp-status-icon-circle.online {
+    background: rgba(16, 185, 129, 0.18);
+    color: #10b981;
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+}
+
+.sp-status-icon-circle.offline {
+    background: rgba(239, 68, 68, 0.18);
+    color: #ef4444;
+    box-shadow: 0 0 12px rgba(239, 68, 68, 0.25);
+}
+
+.sp-status-bottom {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+}
+
+.sp-status-label {
+    font-size: 11.5px;
+    color: var(--sp-text-secondary);
+    font-weight: 500;
+}
+
+.sp-status-num {
+    font-family: 'Outfit', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--sp-text-primary);
+    line-height: 1;
+}
+
+/* Estate Directory & Module Quick-Launch Card (Replaces the "No need" Bus cards cleanly) */
+.sp-estate-directory-card {
+    flex: 1;
+    min-height: 0;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sp-estate-list-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-right: 3px;
+}
+
+.sp-estate-list-scroll::-webkit-scrollbar,
+.sp-notif-scroll::-webkit-scrollbar,
+.sp-stress-bars-scroll::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+.sp-estate-list-scroll::-webkit-scrollbar-thumb,
+.sp-notif-scroll::-webkit-scrollbar-thumb,
+.sp-stress-bars-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.16);
+    border-radius: 999px;
+}
+
+.sp-estate-row-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--sp-border);
+    border-radius: 11px;
+    padding: 9px 11px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+
+.sp-estate-row-item:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.18);
+}
+
+.sp-estate-row-item.active {
+    background: rgba(16, 185, 129, 0.14);
+    border-color: rgba(16, 185, 129, 0.45);
+}
+
+.sp-estate-row-left {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+}
+
+.sp-estate-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.sp-estate-row-name {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--sp-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sp-estate-row-meta {
+    font-size: 10.5px;
+    color: var(--sp-text-secondary);
+}
+
+.sp-estate-row-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    flex-shrink: 0;
+    gap: 2px;
+}
+
+.sp-stress-pill-mini {
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 999px;
+}
+
+/* Quick Module Launcher Footer inside Left Panel */
+.sp-module-shortcuts {
+    border-top: 1px solid var(--sp-border);
+    padding-top: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+.sp-module-mini-btn {
+    background: rgba(255, 255, 255, 0.045);
+    border: 1px solid var(--sp-border);
+    border-radius: 9px;
+    padding: 7px 9px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--sp-text-primary);
+    font-size: 11px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+
+.sp-module-mini-btn:hover {
+    background: rgba(16, 185, 129, 0.16);
+    border-color: rgba(16, 185, 129, 0.4);
+}
+
+.sp-module-mini-btn img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+}
+
+/* --------------------------------------------------------------------------
+   5. CENTER MAP HUD OVERLAYS (Header, Dropdowns, Callout Card, Zoom Buttons)
+   -------------------------------------------------------------------------- */
+.sp-center-hud {
+    grid-column: 2;
+    grid-row: 1;
+    position: relative;
+    z-index: 4;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 8px 10px;
+}
+
+.sp-map-top-hud {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+.sp-welcome-banner {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 13px;
+    border-radius: 999px;
+    background: rgba(16, 185, 129, 0.14);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 1px solid rgba(16, 185, 129, 0.38);
+    color: #ecfdf5;
+    font-size: 12.5px;
+    font-weight: 500;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sp-welcome-banner:hover {
+    background: rgba(16, 185, 129, 0.22);
+    border-color: rgba(52, 211, 153, 0.6);
+}
+
+.sp-welcome-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #34d399;
+    box-shadow: 0 0 8px #34d399;
+    flex-shrink: 0;
+}
+
+.sp-welcome-banner b {
+    color: #34d399;
+    font-weight: 700;
+}
+
+.sp-map-hero-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+    letter-spacing: -0.5px;
+    text-shadow: 0 4px 18px rgba(0, 0, 0, 0.75);
+}
+
+.sp-map-Hud-controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    pointer-events: auto;
+}
+
+.sp-hud-pill-select {
+    background: rgba(18, 22, 29, 0.86);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+    color: #f8fafc;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 7px 14px;
+    cursor: pointer;
+    outline: none;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    font-family: inherit;
+}
+
+.sp-hud-pill-select:hover {
+    border-color: rgba(255, 255, 255, 0.28);
+}
+
+.sp-hud-pill-btn {
+    background: rgba(18, 22, 29, 0.86);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+    color: #e2e8f0;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 7px 13px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    transition: all 0.18s ease;
+}
+
+.sp-hud-pill-btn:hover,
+.sp-hud-pill-btn.active {
+    background: rgba(16, 185, 129, 0.22);
+    border-color: rgba(16, 185, 129, 0.5);
+    color: #ffffff;
+}
+
+/* Floating Estate Focus Callout on Map (like "Passenger Load 87%" in reference photo) */
+.sp-map-focus-callout {
+    pointer-events: auto;
+    align-self: flex-start;
+    margin-left: 16px;
+    background: rgba(18, 22, 29, 0.86);
+    backdrop-filter: blur(18px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 16px;
+    padding: 13px 16px;
+    min-width: 215px;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.6);
+}
+
+.sp-focus-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--sp-text-primary);
+}
+
+.sp-focus-sub {
+    font-size: 11px;
+    color: var(--sp-text-secondary);
+    margin: 2px 0 8px 0;
+}
+
+.sp-focus-big-metric {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.sp-focus-pct {
+    font-family: 'Outfit', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1;
+}
+
+.sp-focus-open-link {
+    font-size: 11px;
+    font-weight: 600;
+    color: #34d399;
+    text-decoration: none;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.35);
+    transition: all 0.18s ease;
+}
+
+.sp-focus-open-link:hover {
+    background: #10b981;
+    color: #080a0e;
+}
+
+/* Bottom-Left Map Zoom Controls (+, Target, -) */
+.sp-map-bottom-hud {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    pointer-events: none;
+}
+
+.sp-map-zoom-cluster {
+    pointer-events: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sp-zoom-circle-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(18, 22, 29, 0.88);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #f8fafc;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+    transition: all 0.18s ease;
+}
+
+.sp-zoom-circle-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* --------------------------------------------------------------------------
+   6. RIGHT COLUMN: Notifications, Run History, Weekly Runs Left & Fertilizer Schedule
+   -------------------------------------------------------------------------- */
+.sp-right-column {
+    grid-column: 3;
+    grid-row: 1;
+    z-index: 5;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    min-height: 0;
+}
+
+/* Weekly Runs Quota Strip */
+.sp-weekly-quota-box {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.14) 0%, rgba(6, 182, 212, 0.08) 100%);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 13px;
+    padding: 10px 12px;
+    flex-shrink: 0;
+}
+
+.sp-quota-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+}
+
+.sp-quota-title {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #d1fae5;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.sp-quota-count {
+    font-family: 'Outfit', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #34d399;
+}
+
+.sp-quota-bar-track {
+    width: 100%;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    margin-bottom: 5px;
+}
+
+.sp-quota-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+    transition: width 0.3s ease;
+}
+
+.sp-quota-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10.5px;
+    color: var(--sp-text-secondary);
+}
+
+/* Scrollable Notifications + Fertilizer Schedule Feed */
+.sp-notif-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-right: 3px;
+}
+
+.sp-section-divider-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--sp-text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    letter-spacing: 0.2px;
+}
+
+.sp-alert-card {
+    background: rgba(239, 68, 68, 0.12);
+    border: 1px solid rgba(239, 68, 68, 0.28);
+    border-radius: 12px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sp-alert-card.amber {
+    background: rgba(245, 158, 11, 0.12);
+    border-color: rgba(245, 158, 11, 0.28);
+}
+
+.sp-alert-card.emerald {
+    background: rgba(16, 185, 129, 0.11);
+    border-color: rgba(16, 185, 129, 0.26);
+}
+
+.sp-alert-card.neutral {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: var(--sp-border);
+}
+
+.sp-alert-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.sp-alert-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #f8fafc;
+}
+
+.sp-alert-time {
+    font-size: 10px;
+    color: var(--sp-text-secondary);
+}
+
+.sp-alert-desc {
+    font-size: 11px;
+    color: #cbd5e1;
+    line-height: 1.4;
+}
+
+/* Fertilizer Schedule Builder Box inside Right Panel */
+.sp-schedule-builder {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sp-sched-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
+.sp-sched-input,
+.sp-sched-select {
+    background: rgba(10, 13, 18, 0.85);
+    border: 1px solid var(--sp-border-bright);
+    border-radius: 7px;
+    color: #f8fafc;
+    font-size: 11px;
+    padding: 6px 8px;
+    font-family: inherit;
+    outline: none;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.sp-sched-btn {
+    background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 7px 10px;
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.sp-sched-btn:hover {
+    opacity: 0.92;
+}
+
+/* --------------------------------------------------------------------------
+   7. BOTTOM-LEFT PANEL: Stress Level for All Estates & Highest Stress Ratings
+   -------------------------------------------------------------------------- */
+.sp-bottom-left-panel {
+    grid-column: 2;
+    grid-row: 2;
+    z-index: 5;
+    padding: 13px 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+}
+
+.sp-stress-top-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.sp-stress-headline-box {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.sp-stress-big-val {
+    font-family: 'Outfit', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1;
+}
+
+.sp-highest-estate-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(239, 68, 68, 0.16);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    color: #fca5a5;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Horizontal scrollable stress rating bars for all 20 estates */
+.sp-stress-bars-scroll {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    flex: 1;
+    min-height: 0;
+}
+
+.sp-stress-col-item {
+    min-width: 74px;
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--sp-border);
+    border-radius: 10px;
+    padding: 7px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+
+.sp-stress-col-item:hover,
+.sp-stress-col-item.active {
+    background: rgba(255, 255, 255, 0.09);
+    border-color: rgba(255, 255, 255, 0.28);
+    transform: translateY(-2px);
+}
+
+.sp-stress-col-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.sp-stress-track {
+    width: 100%;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+}
+
+.sp-stress-fill {
+    height: 100%;
+    border-radius: 999px;
+}
+
+.sp-stress-col-name {
+    font-size: 10.5px;
+    font-weight: 600;
+    color: var(--sp-text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sp-stress-col-rating {
+    font-size: 9.5px;
+    color: var(--sp-text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* --------------------------------------------------------------------------
+   8. BOTTOM-RIGHT PANEL: 3 Months Back N, P, K, Mg, Ca, B Values per Estate
+   -------------------------------------------------------------------------- */
+.sp-bottom-right-panel {
+    grid-column: 3;
+    grid-row: 2;
+    z-index: 5;
+    padding: 13px 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+}
+
+.sp-nut-3m-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    flex: 1;
+    min-height: 0;
+}
+
+.sp-nut-3m-card {
+    background: rgba(255, 255, 255, 0.035);
+    border: 1px solid var(--sp-border);
+    border-radius: 10px;
+    padding: 6px 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.sp-nut-3m-card:hover {
+    background: rgba(255, 255, 255, 0.075);
+    border-color: var(--sp-border-bright);
+}
+
+.sp-nut-3m-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sp-nut-symbol {
+    font-size: 11.5px;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.sp-nut-delta {
+    font-size: 9.5px;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 4px;
+}
+
+.sp-nut-delta.up {
+    color: #34d399;
+    background: rgba(16, 185, 129, 0.14);
+}
+
+.sp-nut-delta.down {
+    color: #f87171;
+    background: rgba(239, 68, 68, 0.14);
+}
+
+.sp-nut-latest-val {
+    font-family: 'Outfit', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: #f8fafc;
+    line-height: 1.1;
+    margin: 2px 0;
+}
+
+.sp-nut-history-mini {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 9.2px;
+    color: var(--sp-text-secondary);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 3px;
+}
+
+/* Dark Modals (User Manual / System Settings / 3-Month Detail Modal) */
+body.sp-dark-home .modal-content {
+    background: #141922 !important;
+    color: #f8fafc !important;
+    border: 1px solid rgba(255, 255, 255, 0.14) !important;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75) !important;
+}
+
+@media (max-width: 1280px) {
+    .sp-command-stage {
+        grid-template-columns: 280px 1fr 310px;
+    }
+    .sp-top-pill span.pill-text {
+        font-size: 11.5px;
+    }
+    .sp-search-box {
+        width: 170px;
+    }
+}

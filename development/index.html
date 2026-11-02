@@ -1,18 +1,16 @@
 <!DOCTYPE html>
-<!-- Live Vercel Deployment Trigger: 20260903_v2 -->
+<!-- Live Vercel Deployment Trigger: 20261030_dark_command_center -->
 <html lang="en">
 <head>
-    <title>PALMNEX - Home Launcher</title>
-<meta charset="utf-8" />
+    <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MPOB - PalmNex ReaDA Dashboard</title>
+    <title>MPOB - PalmNex SmartPalm Command Center</title>
     
     <!-- External CSS & Libraries -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet" />
     <link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     
-    <!-- Styling (Vanilla CSS) -->
     <!-- Custom CSS Modules -->
     <link rel="stylesheet" href="css/cms-layout.css" />
     <link rel="stylesheet" href="css/main.css" />
@@ -20,61 +18,147 @@
     <link rel="stylesheet" href="css/tables-forms.css" />
     <link rel="stylesheet" href="css/reada.css" />
     <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/home-dark.css" />
+
     <!-- Supabase JS Client & Auth Modules -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/auth.js"></script>
 </head>
-<body>
-    <div class="cms-layout" style="background-image: url('5c0a6e2d37d95a291dd40986ddbf6aee.jpg'); background-size: cover; background-position: center; background-repeat: no-repeat;">
-        <!-- Top Panel -->
+<body class="sp-dark-home">
+    <div class="cms-layout">
+        <!-- =================================================================
+             1. TOP PANEL (Our Logo + Same Navigation Links as Left Panel + Search, WiFi Speed, Settings, Profile)
+             ================================================================= -->
         <div class="cms-top-panel">
-            <div class="cms-sidebar-brand">
-                <img src="MPOB-3-all-black-fonts.png" alt="MPOB Logo" style="max-width: 100%; height: auto; max-height: 50px;" />
+            <div class="sp-top-left-group">
+                <!-- Keep our MPOB / PalmNex Logo -->
+                <a href="index.html" class="sp-brand-box" title="MPOB PalmNex Home">
+                    <div class="sp-brand-logo-wrap">
+                        <img src="MPOB-3-all-black-fonts.png" alt="MPOB Logo" />
+                    </div>
+                </a>
+
+                <!-- Top Panel Pill Navigation (Contents same as Left Panel) -->
+                <nav class="sp-top-nav-pills">
+                    <a href="index.html" class="sp-top-pill active">
+                        <img src="home-logo-final.png" class="pill-icon" alt="Home" />
+                        <span class="pill-text">Home</span>
+                    </a>
+                    <a href="comprehensive.html" class="sp-top-pill">
+                        <img src="comp-logo-final.png" class="pill-icon" alt="Comprehensive" />
+                        <span class="pill-text">Comprehensive Fert</span>
+                    </a>
+                    <a href="standard.html" class="sp-top-pill">
+                        <img src="std-logo-final.png" class="pill-icon" alt="Standard" />
+                        <span class="pill-text">Standard Fert</span>
+                    </a>
+                    <a href="https://www.palmnex.com.my" target="_blank" class="sp-top-pill">
+                        <img src="reada-logo-final.png" class="pill-icon" alt="PalmNexReaDS" />
+                        <span class="pill-text">PalmNexReaDS</span>
+                    </a>
+                    <div class="sp-top-pill-dropdown" id="sp-top-kpsm-dropdown">
+                        <button type="button" class="sp-top-pill" onclick="document.getElementById('sp-top-kpsm-dropdown').classList.toggle('open')">
+                            <img src="kpsm-logo-final.png" class="pill-icon" alt="KPSM" />
+                            <span class="pill-text">KPSM System</span>
+                            <span style="font-size: 9px; opacity: 0.7;">▼</span>
+                        </button>
+                        <div class="sp-top-dropdown-menu">
+                            <a href="kpsm-home.html" class="sp-top-dropdown-item">
+                                <span>KPSM Home</span>
+                                <span>→</span>
+                            </a>
+                            <a href="kpsm.html" class="sp-top-dropdown-item">
+                                <span>Monitoring Dashboard</span>
+                                <span>→</span>
+                            </a>
+                            <a href="kpsm-database.html" class="sp-top-dropdown-item">
+                                <span>Smallholder Database</span>
+                                <span>→</span>
+                            </a>
+                        </div>
+                    </div>
+                </nav>
             </div>
-            <!-- Global Top Right Actions -->
-            <div class="global-top-right-actions">
-                <div class="action-btn-container" onclick="document.getElementById('manual-modal').style.display='flex'">
-                    <div class="action-icon-box">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
-                    </div>
-                    <span class="action-label">User Manual</span>
-                </div>
-                
-                <div class="action-btn-container">
-                    <div class="action-icon-box">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.9 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2s.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2s.07-1.34.16-2h4.68c.09.66.16 1.32.16 2s-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.66-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2s-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z"/></svg>
-                    </div>
-                    <span class="action-label">Language</span>
+
+            <!-- Top Right System Controls: Search, WiFi Speed, Settings/Manual, Language, Notifications, Profile Login -->
+            <div class="sp-top-right-controls">
+                <!-- Search Bar -->
+                <div class="sp-search-box">
+                    <input type="text" id="sp-global-search-input" placeholder="Search estate..." autocomplete="off" />
+                    <span class="search-shortcut">Ctrl+Shift+F</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <div id="sp-search-results-dropdown" class="sp-search-results-dropdown"></div>
                 </div>
 
-                <div class="action-btn-container">
-                    <div class="action-icon-box">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-                    </div>
-                    <span class="action-label">Login / Sign Up</span>
+                <!-- Live WiFi Speed Connection Indicator -->
+                <div class="sp-wifi-pill" onclick="spMeasureWifiSpeed()" title="Live Network Connection Speed (Click to re-test)">
+                    <span id="sp-wifi-dot" class="sp-wifi-dot"></span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5 12.55a11 11 0 0 1 14.08 0"/>
+                        <path d="M1.42 9a16 16 0 0 1 21.16 0"/>
+                        <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+                        <line x1="12" y1="20" x2="12.01" y2="20"/>
+                    </svg>
+                    <span id="sp-wifi-speed-label">84 Mbps • 12ms</span>
                 </div>
+
+                <!-- System Settings & Quota Config Button -->
+                <button type="button" class="sp-icon-btn" onclick="document.getElementById('sp-settings-modal').style.display='flex'" title="System Settings & Prediction Quota">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                </button>
+
+                <!-- User Manual Button -->
+                <button type="button" class="sp-icon-btn" onclick="document.getElementById('manual-modal').style.display='flex'" title="User Manual">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                </button>
+
+                <!-- Notifications Bell Button -->
+                <button type="button" class="sp-icon-btn" onclick="document.getElementById('sp-schedule-builder-form').style.display='flex'" title="Notifications & Scheduled Predictions">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                    </svg>
+                    <span id="sp-top-notif-badge" class="sp-notif-badge">5</span>
+                </button>
+
+                <!-- Profile / Login Button -->
+                <button type="button" class="sp-profile-btn" onclick="openAuthModal('signin')" title="Account Login / Profile">
+                    <div class="sp-avatar-circle">
+                        <span>Dr</span>
+                        <span class="sp-avatar-status"></span>
+                    </div>
+                    <span id="nav-user-email">Login / Profile</span>
+                </button>
             </div>
         </div>
 
-        <!-- New Persistent Sidebar -->
+        <!-- =================================================================
+             2. LEFT PANEL (Left as-is per user instruction, styled in dark glass)
+             ================================================================= -->
         <aside class="cms-sidebar">
             <nav class="cms-nav">
                 <a href="index.html" class="cms-nav-item active">
-                    <img src="home-logo-final.png" class="icon" /> <span class="nav-label">Home</span>
+                    <img src="home-logo-final.png" class="icon" alt="Home" /> <span class="nav-label">Home</span>
                 </a>
                 <a href="comprehensive.html" class="cms-nav-item">
-                    <img src="comp-logo-final.png" class="icon" /> <span class="nav-label">Comprehensive Fert</span>
+                    <img src="comp-logo-final.png" class="icon" alt="Comprehensive" /> <span class="nav-label">Comprehensive Fert</span>
                 </a>
                 <a href="standard.html" class="cms-nav-item">
-                    <img src="std-logo-final.png" class="icon" /> <span class="nav-label">Standard Fert</span>
+                    <img src="std-logo-final.png" class="icon" alt="Standard" /> <span class="nav-label">Standard Fert</span>
                 </a>
                 <a href="https://www.palmnex.com.my" target="_blank" class="cms-nav-item">
-                    <img src="reada-logo-final.png" class="icon" style="transform: scale(0.75);" /> <span class="nav-label">PalmNexReaDS</span>
+                    <img src="reada-logo-final.png" class="icon" style="transform: scale(0.75);" alt="PalmNexReaDS" /> <span class="nav-label">PalmNexReaDS</span>
                 </a>
-                                <div class="cms-nav-group">
+                <div class="cms-nav-group">
                     <div class="cms-nav-item" style="cursor: pointer;" onclick="if(event.target.closest('.kpsm-caret')){var el=document.getElementById('kpsm-sub-menu'); if(el) el.style.display=(el.style.display==='none'?'flex':'none');}else{location.href='kpsm-home.html';}" title="KPSM Home">
-                        <img src="kpsm-logo-final.png" class="icon" /> 
+                        <img src="kpsm-logo-final.png" class="icon" alt="KPSM" /> 
                         <span class="nav-label">KPSM System</span>
                         <span class="kpsm-caret" title="Show / hide KPSM menu" style="margin-left: auto; font-size: 10px; padding: 4px 6px;">▼</span>
                     </div>
@@ -93,168 +177,329 @@
             </nav>
         </aside>
 
-        <!-- Main Content Area -->
+        <!-- =================================================================
+             3. MAIN DARK COMMAND CENTER CONTENT AREA
+             ================================================================= -->
         <main class="cms-main-content">
-
-
-        <!-- User Manual Modal -->
-        <div id="manual-modal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 9999999; position: fixed; inset: 0; background: rgba(0,0,0,0.5);">
-            <div class="modal-content" style="max-width: 600px; width: 90%; background: #ffffff; border-radius: 12px; padding: 24px; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
-                <button type="button" style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; color: #64748b; cursor: pointer;" onclick="document.getElementById('manual-modal').style.display='none'">✕</button>
-                <h3 style="margin-top: 0; font-family: 'Outfit', sans-serif; font-size: 20px; color: #1e293b;">User Manual</h3>
-                <div style="font-family: 'Inter', sans-serif; font-size: 14px; color: #475569; line-height: 1.6; max-height: 60vh; overflow-y: auto;">
-                    <h4>1. Getting Started</h4>
-                    <p>Welcome to PalmNex. Select a module from the sidebar to begin analyzing satellite and agronomy data.</p>
-                    <h4>2. Comprehensive Fertilizer</h4>
-                    <p>Allows input of real-time soil data (Inland or Coastal) to generate precise N, P, K, and Mg fertilizer block ratios.</p>
-                    <h4>3. Standard Fertilizer</h4>
-                    <p>Fast, boundary-based satellite analysis with standard MPOB generalized parameters.</p>
-                    <h4>4. PalmNexReaDS</h4>
-                    <p>The core research database for viewing existing trial yields, vegetative data, and agronomic historical trends.</p>
-                </div>
-            </div>
-        </div>
-            <div id="reada-tooltip-box" style="display:none; position:fixed; background-color:#ffffff; color:#000000; font-family:'Segoe UI', sans-serif; font-size:12px; font-weight:600; padding:6px 12px; border-radius:4px; border:1.5px solid #71717a; box-shadow:0 6px 20px rgba(0,0,0,0.3); z-index:999999; pointer-events:none; max-width:280px; line-height:1.35;"></div>
-            
-            <div id="page-launcher" class="cms-home-container active">
-                <div class="cms-home-header">
-                    <h1 class="cms-home-title">Welcome to PalmNex Dashboard</h1>
-                    <p class="cms-home-subtitle">Select a module to begin your agricultural analysis</p>
+            <div class="sp-command-stage">
+                <!-- Full-Bleed Interactive Dark Map Background (All 20 Comprehensive Boundaries) -->
+                <div class="sp-map-backdrop">
+                    <div id="sp-home-map"></div>
+                    <div class="sp-map-vignette"></div>
                 </div>
 
-                <div class="cms-cards-grid">
-                    <div class="cms-card comprehensive" onclick="location.href='comprehensive.html'">
-                        <div class="cms-card-icon-wrapper" style="background: transparent; width: 86px; height: 86px;">
-                            <img src="comp-logo-final.png" alt="Comprehensive Logo" style="width: 100%; height: 100%; object-fit: contain;" />
-                        </div>
-                        <h3 class="cms-card-title" data-i18n="card1Title">Comprehensive Fertilizer Recommendation</h3>
-                        <p class="cms-card-desc" data-i18n="card1Desc">Detailed fertilizer analysis with advanced agronomic rules.</p>
-                        <div class="cms-card-action">
-                            <span data-i18n="btnGetStarted">Get Started</span>
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                        </div>
+                <!-- ---------------------------------------------------------
+                     LEFT FLOATING COLUMN: Total Estate Summary + Estate List
+                     (Omits "Operational Efficiency" & "Bus" cards marked "No need")
+                     --------------------------------------------------------- -->
+                <div class="sp-left-column">
+                    <!-- Top Region Filter Strip -->
+                    <div class="sp-region-strip">
+                        <button type="button" class="sp-region-chip active" onclick="filterLeftEstatesByRegion('ALL', this)">20 All</button>
+                        <button type="button" class="sp-region-chip" onclick="filterLeftEstatesByRegion('Sabah', this)">12 Sabah</button>
+                        <button type="button" class="sp-region-chip" onclick="filterLeftEstatesByRegion('Pahang', this)">4 Pahang</button>
+                        <button type="button" class="sp-region-chip" onclick="filterLeftEstatesByRegion('West', this)">4 West MY</button>
                     </div>
-                    
-                    <div class="cms-card standard" onclick="location.href='standard.html'">
-                        <div class="cms-card-icon-wrapper" style="background: transparent; width: 86px; height: 86px;">
-                            <img src="std-logo-final.png" alt="Standard Logo" style="width: 100%; height: 100%; object-fit: contain;" />
+
+                    <!-- Total Estate Status Card (Online vs Offline/Pending) -->
+                    <div class="sp-glass-panel sp-total-estate-card">
+                        <div class="sp-card-header-row">
+                            <span class="sp-card-title">Total Estate Overview</span>
+                            <span class="sp-card-subtitle" id="sp-kpi-total-subtitle">20 Maps • 3,727 Blocks</span>
                         </div>
-                        <h3 class="cms-card-title" data-i18n="card2Title">Standard Fertilizer Recommendation</h3>
-                        <p class="cms-card-desc" data-i18n="card2Desc">Fast fertilizer analysis with essential recommendations.</p>
-                        <div class="cms-card-action">
-                            <span data-i18n="btnGetStarted">Get Started</span>
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        <div class="sp-status-duo-grid">
+                            <div class="sp-status-tile" onclick="filterLeftEstatesByRegion('ALL')" title="Estates with Active / Prebuilt Satellite Rasters Ready">
+                                <div class="sp-status-icon-circle online">✓</div>
+                                <div class="sp-status-bottom">
+                                    <span class="sp-status-label">Online</span>
+                                    <span class="sp-status-num" id="sp-kpi-online-count">17</span>
+                                </div>
+                            </div>
+                            <div class="sp-status-tile" onclick="filterLeftEstatesByRegion('West')" title="SPOC A7 Layers Pending Live Satellite Run">
+                                <div class="sp-status-icon-circle offline">▲</div>
+                                <div class="sp-status-bottom">
+                                    <span class="sp-status-label">Pending</span>
+                                    <span class="sp-status-num" id="sp-kpi-offline-count">3</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="cms-card reads" onclick="window.open('https://www.palmnex.com.my','_blank')">
-                        <div class="cms-card-icon-wrapper" style="background: transparent; width: 86px; height: 86px;">
-                            <img src="reada-logo-final.png" alt="PalmnexReaDS Logo" style="width: 100%; height: 100%; object-fit: contain; transform: scale(0.75);" />
+                    <!-- Estate Directory & Quick Module Access -->
+                    <div class="sp-glass-panel sp-estate-directory-card">
+                        <div class="sp-card-header-row" style="margin-bottom: 2px;">
+                            <span class="sp-card-title">Comprehensive Map Boundaries</span>
+                            <span class="sp-card-subtitle">Click to zoom</span>
                         </div>
-                        <h3 class="cms-card-title" data-i18n="card3Title">PalmnexReaDS</h3>
-                        <p class="cms-card-desc" data-i18n="card3Desc">PalmnexReaDS Software V2.0 2026 by Palmnex<br>MPOB Oil Palm Agronomic Research & Database Engine</p>
-                        <div class="cms-card-action">
-                            <span data-i18n="btnGetStarted">Get Started</span>
-                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                        <div id="sp-left-estate-list" class="sp-estate-list-scroll"></div>
+
+                        <!-- Quick Module Shortcuts -->
+                        <div class="sp-module-shortcuts">
+                            <a href="comprehensive.html" class="sp-module-mini-btn">
+                                <img src="comp-logo-final.png" alt="Comp" />
+                                <span>Comprehensive</span>
+                            </a>
+                            <a href="standard.html" class="sp-module-mini-btn">
+                                <img src="std-logo-final.png" alt="Std" />
+                                <span>Standard Fert</span>
+                            </a>
+                            <a href="https://www.palmnex.com.my" target="_blank" class="sp-module-mini-btn">
+                                <img src="reada-logo-final.png" alt="ReaDS" />
+                                <span>PalmNexReaDS</span>
+                            </a>
+                            <a href="kpsm.html" class="sp-module-mini-btn">
+                                <img src="kpsm-logo-final.png" alt="KPSM" />
+                                <span>KPSM System</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ---------------------------------------------------------
+                     CENTER MAP HUD: Title, All-20-Maps Dropdown, Focus Callout, Zoom Controls
+                     --------------------------------------------------------- -->
+                <div class="sp-center-hud">
+                    <div class="sp-map-top-hud">
+                        <div id="sp-welcome-banner" class="sp-welcome-banner" onclick="openAuthModal('signin')" title="Synced with Supabase user profile (Click to switch account)">
+                            <span class="sp-welcome-dot"></span>
+                            <span id="sp-welcome-text">Welcome, <b>Admin</b>, from <b>Palmnex Sdn Bhd</b>!</span>
+                        </div>
+                        <h1 class="sp-map-hero-title">SmartPalm Estate Management</h1>
+                        <div class="sp-map-Hud-controls">
+                            <select id="sp-hud-estate-select" class="sp-hud-pill-select" onchange="selectEstate(this.value, true)"></select>
+                            <button type="button" id="sp-btn-basemap-sat" class="sp-hud-pill-btn active" onclick="spToggleBasemap('sat')">🛰️ Dark Satellite</button>
+                            <button type="button" id="sp-btn-basemap-vec" class="sp-hud-pill-btn" onclick="spToggleBasemap('vec')">🗺️ Dark Vector</button>
+                            <button type="button" class="sp-hud-pill-btn" onclick="spJumpRegion('Sabah')">Sabah Cluster</button>
+                            <button type="button" class="sp-hud-pill-btn" onclick="spJumpRegion('Pahang')">Pahang Cluster</button>
                         </div>
                     </div>
 
-                    <div class="cms-card kpsm">
-                        <div class="cms-card-icon-wrapper" style="background: transparent; width: 86px; height: 86px;">
-                            <img src="kpsm-logo-final.png" alt="KPSM Logo" style="width: 100%; height: 100%; object-fit: contain;" />
+                    <!-- Floating Callout Card on Map (Focused Estate Stress Level) -->
+                    <div class="sp-map-focus-callout">
+                        <div class="sp-focus-header">
+                            <span id="sp-focus-estate-name">Seraya Estate</span>
+                            <span id="sp-focus-stress-badge" style="font-size:11px;font-weight:800;color:#f97316;">High</span>
                         </div>
-                        <h3 class="cms-card-title">KPSM Smallholder Monitoring System</h3>
-                        <p class="cms-card-desc">Smallholder monitoring system, MSPO certification records, and fertilizer recommendations.</p>
-                        <div style="display: flex; gap: 8px; margin-top: auto; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.15);">
-                            <button type="button" id="kpsm-card-home-btn" onclick="location.href='kpsm-home.html'" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 12px; background: rgba(255,255,255,0.18); color: #ffffff; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
-                                Home →
-                            </button>
-                            <button type="button" onclick="location.href='kpsm.html'" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 12px; background: rgba(255,255,255,0.18); color: #ffffff; border: 1px solid rgba(255,255,255,0.3); border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
-                                Monitoring Dashboard →
-                            </button>
-                            <button type="button" onclick="location.href='kpsm-database.html'" style="flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 10px 12px; background: #ffffff; color: #1e1b4b; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: transform 0.2s;">
-                                Database →
-                            </button>
+                        <div id="sp-focus-estate-sub" class="sp-focus-sub">Benta Wawasan • Sabah • 57 Blocks</div>
+                        <div class="sp-focus-big-metric">
+                            <div>
+                                <div style="font-size:10px;color:#94a3b8;margin-bottom:2px;">Canopy &amp; Nutrient Stress</div>
+                                <span id="sp-focus-stress-pct" class="sp-focus-pct">54.2%</span>
+                            </div>
+                            <a href="comprehensive.html" class="sp-focus-open-link">Analyze →</a>
                         </div>
                     </div>
+
+                    <!-- Bottom-Left Map Zoom & Reset Cluster -->
+                    <div class="sp-map-bottom-hud">
+                        <div class="sp-map-zoom-cluster">
+                            <button type="button" class="sp-zoom-circle-btn" onclick="spZoomMap('in')" title="Zoom In">+</button>
+                            <button type="button" class="sp-zoom-circle-btn" onclick="spZoomMap('reset')" title="Show All Malaysia Boundaries">◎</button>
+                            <button type="button" class="sp-zoom-circle-btn" onclick="spZoomMap('out')" title="Zoom Out">−</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ---------------------------------------------------------
+                     RIGHT FLOATING COLUMN:
+                     1. How many runs left for this week
+                     2. Fertilizer Application Schedule -> Notifications to run predictions
+                     3. Notifications & Prediction Run History
+                     --------------------------------------------------------- -->
+                <div class="sp-glass-panel sp-right-column">
+                    <div class="sp-card-header-row" style="margin-bottom: 0;">
+                        <span class="sp-card-title">Notifications &amp; Schedule</span>
+                        <button type="button" onclick="var f=document.getElementById('sp-schedule-builder-form'); f.style.display=(f.style.display==='none'?'flex':'none');" style="background:rgba(16,185,129,0.16);border:1px solid rgba(16,185,129,0.4);color:#34d399;border-radius:999px;padding:3px 9px;font-size:10.5px;font-weight:700;cursor:pointer;">
+                            + Schedule Fertilizer
+                        </button>
+                    </div>
+
+                    <!-- 1. Weekly Prediction Runs Left -->
+                    <div class="sp-weekly-quota-box">
+                        <div class="sp-quota-top">
+                            <span class="sp-quota-title">⚡ Weekly Prediction Quota</span>
+                            <span id="sp-quota-left-text" class="sp-quota-count">14 / 20 Runs Left</span>
+                        </div>
+                        <div class="sp-quota-bar-track">
+                            <div id="sp-quota-bar-fill" class="sp-quota-bar-fill" style="width: 70%;"></div>
+                        </div>
+                        <div class="sp-quota-meta">
+                            <span id="sp-quota-used-text">6 prediction runs executed this week</span>
+                            <span>Resets Mon</span>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Fertilizer Schedule Input Form (Collapsible) -->
+                    <form id="sp-schedule-builder-form" class="sp-schedule-builder" style="display: none;" onsubmit="spSaveFertilizerSchedule(event)">
+                        <div style="font-size:11px;font-weight:700;color:#34d399;display:flex;justify-content:space-between;">
+                            <span>Set Fertilizer Application Schedule</span>
+                            <span style="cursor:pointer;color:#94a3b8;" onclick="document.getElementById('sp-schedule-builder-form').style.display='none'">✕</span>
+                        </div>
+                        <select id="sp-sched-estate" class="sp-sched-select"></select>
+                        <div class="sp-sched-row">
+                            <div>
+                                <label style="font-size:9.5px;color:#94a3b8;display:block;margin-bottom:2px;">Fertilizer Applied Date</label>
+                                <input type="date" id="sp-sched-date" class="sp-sched-input" value="2026-10-01" required />
+                            </div>
+                            <div>
+                                <label style="font-size:9.5px;color:#94a3b8;display:block;margin-bottom:2px;">Next Prediction Check</label>
+                                <select id="sp-sched-interval" class="sp-sched-select">
+                                    <option value="30">+30 Days Post-Fert</option>
+                                    <option value="45" selected>+45 Days (Leaf 17 Uptake)</option>
+                                    <option value="60">+60 Days Post-Fert</option>
+                                    <option value="90">+90 Days Next Round</option>
+                                </select>
+                            </div>
+                        </div>
+                        <input type="text" id="sp-sched-type" class="sp-sched-input" placeholder="e.g. Round 3 — NPK 12:12:17:2 + Kieserite" value="Round 3 • NPK Compound + Boron" />
+                        <button type="submit" class="sp-sched-btn">Save Schedule &amp; Enable Reminder</button>
+                    </form>
+
+                    <!-- Scrollable Feed: Scheduled Fertilizer Prediction Alerts + Run History -->
+                    <div class="sp-notif-scroll">
+                        <div class="sp-section-divider-label">
+                            <span>🗓️ Scheduled Fertilizer Predictions</span>
+                            <span style="color:#f59e0b;">Next Prediction Due</span>
+                        </div>
+                        <div id="sp-scheduled-runs-list" style="display:flex;flex-direction:column;gap:7px;"></div>
+
+                        <div class="sp-section-divider-label" style="margin-top: 4px;">
+                            <span>🕒 Recent Prediction Run History</span>
+                            <a href="comprehensive.html" style="color:#34d399;text-decoration:none;font-size:10.5px;">Open All →</a>
+                        </div>
+                        <div id="sp-run-history-list" style="display:flex;flex-direction:column;gap:7px;"></div>
+                    </div>
+                </div>
+
+                <!-- ---------------------------------------------------------
+                     BOTTOM-LEFT FLOATING PANEL:
+                     Stress Level for All Estates & Highest Stress Level Ratings
+                     --------------------------------------------------------- -->
+                <div class="sp-glass-panel sp-bottom-left-panel">
+                    <div class="sp-stress-top-row">
+                        <div>
+                            <div class="sp-card-title">Stress Level Ratings — All 20 Estates</div>
+                            <div class="sp-stress-headline-box" style="margin-top: 3px;">
+                                <span id="sp-stress-highest-val" class="sp-stress-big-val">81.4%</span>
+                                <span id="sp-stress-highest-estate-tag" class="sp-highest-estate-tag">
+                                    ⚠️ Highest: Geolocation ISH SPOC A7 (Critical)
+                                </span>
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:8px;align-items:center;font-size:10.5px;color:#94a3b8;">
+                            <span><b style="color:#ef4444;">●</b> Critical (&ge;65%)</span>
+                            <span><b style="color:#f97316;">●</b> High (45–64%)</span>
+                            <span><b style="color:#eab308;">●</b> Moderate (28–44%)</span>
+                            <span><b style="color:#10b981;">●</b> Optimal (&lt;28%)</span>
+                        </div>
+                    </div>
+
+                    <!-- Scrollable All-Estate Stress Rating Leaderboard Bars -->
+                    <div id="sp-stress-bars-container" class="sp-stress-bars-scroll"></div>
+                </div>
+
+                <!-- ---------------------------------------------------------
+                     BOTTOM-RIGHT FLOATING PANEL:
+                     3 Months Back N, P, K, Mg, Ca, B Values for Each Estate
+                     --------------------------------------------------------- -->
+                <div class="sp-glass-panel sp-bottom-right-panel">
+                    <div class="sp-card-header-row" style="margin-bottom: 0;">
+                        <div>
+                            <div class="sp-card-title">3-Month Foliar N, P, K, Mg, Ca, B</div>
+                            <div id="sp-nut3m-period-label" class="sp-card-subtitle">Aug 2026 → Sep 2026 → Oct 2026</div>
+                        </div>
+                        <select id="sp-nut3m-estate-select" class="sp-sched-select" style="width: 148px; font-weight: 600;" onchange="selectEstate(this.value, true)"></select>
+                    </div>
+
+                    <!-- 6 Nutrient Cards showing Latest + M-2 and M-1 values -->
+                    <div id="sp-nut-3m-grid" class="sp-nut-3m-grid"></div>
                 </div>
             </div>
         </main>
     </div>
 
-    <!-- External JS Libraries -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <script src="https://unpkg.com/proj4@latest/dist/proj4.js"></script>
-    <script src="https://unpkg.com/shpjs@latest/dist/shp.js"></script>
+    <!-- =====================================================================
+         MODALS: 3-Month Detailed Nutrient Table, System Settings, User Manual, Auth
+         ===================================================================== -->
+    <div id="sp-3month-modal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 9999999; position: fixed; inset: 0; background: rgba(0,0,0,0.68);">
+        <div class="modal-content" style="max-width: 720px; width: 92%; border-radius: 16px; padding: 24px; position: relative;">
+            <button type="button" style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; color: #94a3b8; cursor: pointer;" onclick="document.getElementById('sp-3month-modal').style.display='none'">✕</button>
+            <h3 id="sp-3month-modal-title" style="margin: 0 0 14px 0; font-family: 'Outfit', sans-serif; font-size: 19px; color: #ffffff;">3-Month Foliar Nutrient Trajectory</h3>
+            <div id="sp-3month-modal-body"></div>
+        </div>
+    </div>
 
-    <!-- App Modular JS Scripts -->
-    <script src="js/auth.js"></script>
-    <script src="js/i18n.js"></script>
-    <script src="js/nav.js"></script>
-    <script src="js/db.js"></script>
-    <script src="js/comprehensive.js"></script>
-    <script src="js/standard.js"></script>
-    <script src="js/reada.js"></script>
-    <script src="js/main.js"></script>
+    <!-- System Settings Modal -->
+    <div id="sp-settings-modal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 9999999; position: fixed; inset: 0; background: rgba(0,0,0,0.68);">
+        <div class="modal-content" style="max-width: 460px; width: 90%; border-radius: 16px; padding: 24px; position: relative;">
+            <button type="button" style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; color: #94a3b8; cursor: pointer;" onclick="document.getElementById('sp-settings-modal').style.display='none'">✕</button>
+            <h3 style="margin: 0 0 12px 0; font-family: 'Outfit', sans-serif; font-size: 19px; color: #ffffff;">System Settings</h3>
+            <div style="font-size: 13px; color: #cbd5e1; display: flex; flex-direction: column; gap: 14px;">
+                <div>
+                    <label style="display:block;font-weight:600;margin-bottom:4px;">Weekly Prediction Quota Limit</label>
+                    <input type="number" id="sp-setting-weekly-max" class="sp-sched-input" value="20" min="5" max="100" onchange="localStorage.setItem('smartpalm_weekly_quota_max_v1', this.value); location.reload();" />
+                </div>
+                <div>
+                    <label style="display:block;font-weight:600;margin-bottom:4px;">Default Map Basemap</label>
+                    <div style="display:flex;gap:8px;">
+                        <button type="button" class="sp-sched-btn" onclick="spToggleBasemap('sat'); document.getElementById('sp-settings-modal').style.display='none';">Dark Satellite</button>
+                        <button type="button" class="sp-sched-btn" style="background:#334155;" onclick="spToggleBasemap('vec'); document.getElementById('sp-settings-modal').style.display='none';">Dark Vector</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Manual Modal -->
+    <div id="manual-modal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 9999999; position: fixed; inset: 0; background: rgba(0,0,0,0.68);">
+        <div class="modal-content" style="max-width: 600px; width: 90%; border-radius: 16px; padding: 24px; position: relative;">
+            <button type="button" style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; color: #94a3b8; cursor: pointer;" onclick="document.getElementById('manual-modal').style.display='none'">✕</button>
+            <h3 style="margin-top: 0; font-family: 'Outfit', sans-serif; font-size: 20px; color: #ffffff;">User Manual — SmartPalm Command Center</h3>
+            <div style="font-family: 'Inter', sans-serif; font-size: 13.5px; color: #cbd5e1; line-height: 1.6; max-height: 60vh; overflow-y: auto;">
+                <h4>1. Command Center Map (All 20 Comprehensive Boundaries)</h4>
+                <p>Click any estate pin or boundary on the dark map (or select from the Left Panel / Top Dropdown) to zoom to its blocks and inspect its Stress Rating and 3-Month N, P, K, Mg, Ca, B trend.</p>
+                <h4>2. Fertilizer Application Schedule &amp; Prediction Reminders</h4>
+                <p>Click <b>+ Schedule Fertilizer</b> in the Right Panel to log your fertilizer application date. SmartPalm automatically schedules the follow-up satellite prediction (+30, +45, or +60 days post-application) and notifies you when the next prediction is due.</p>
+                <h4>3. Comprehensive &amp; Standard Fertilizer Modules</h4>
+                <p>Use the Top Panel pills or Left Sidebar to open Comprehensive Fertilizer, Standard Fertilizer, PalmNexReaDS, or KPSM Monitoring System.</p>
+            </div>
+        </div>
+    </div>
 
     <!-- Supabase Auth Modal Dialog -->
-    <div id="auth-modal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 999999;">
-        <div class="modal-content" style="max-width: 440px; width: 90%; background: #ffffff; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); padding: 24px; color: #0f172a; font-family: 'Inter', -apple-system, sans-serif; position: relative;">
-            <button type="button" style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; color: #64748b; cursor: pointer;" onclick="closeAuthModal()">✕</button>
-            
+    <div id="auth-modal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 9999999; position: fixed; inset: 0; background: rgba(0,0,0,0.68);">
+        <div class="modal-content" style="max-width: 440px; width: 90%; border-radius: 16px; padding: 24px; position: relative;">
+            <button type="button" style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; color: #94a3b8; cursor: pointer;" onclick="closeAuthModal()">✕</button>
             <div style="text-align: center; margin-bottom: 20px;">
-                <h3 style="margin: 0 0 6px 0; font-size: 20px; font-weight: 700; color: #112d2b;" data-i18n="authModalTitle">Account Access</h3>
-                <p style="margin: 0; font-size: 13px; color: #64748b;">Sign in or register to sync your PALMNEX data</p>
+                <h3 style="margin: 0 0 6px 0; font-size: 20px; font-weight: 700; color: #ffffff;" data-i18n="authModalTitle">Account Access</h3>
+                <p style="margin: 0; font-size: 13px; color: #94a3b8;">Sign in to sync your PALMNEX data</p>
             </div>
-
-            <!-- Tab Buttons -->
-            <div style="display: flex; gap: 8px; margin-bottom: 16px; background: #f1f5f9; padding: 4px; border-radius: 8px;">
-                <button type="button" id="auth-tab-signin" class="active" style="flex: 1; padding: 8px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; background: transparent; color: #64748b;" onclick="switchAuthTab('signin')" data-i18n="btnSignIn">Sign In</button>
-                <button type="button" id="auth-tab-signup" disabled style="flex: 1; padding: 8px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: not-allowed; opacity: 0.5; background: transparent; color: #94a3b8;" title="Registration is disabled" data-i18n="btnSignUp">Register</button>
-            </div>
-
-            <!-- Messages -->
-            <div id="auth-error-msg" style="display: none; background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; padding: 10px; border-radius: 6px; font-size: 12px; margin-bottom: 14px;"></div>
-            <div id="auth-success-msg" style="display: none; background: #f0fdf4; color: #166534; border: 1px solid #86efac; padding: 10px; border-radius: 6px; font-size: 12px; margin-bottom: 14px;"></div>
-
-            <!-- Form 1: Sign In -->
+            <div id="auth-error-msg" style="display: none; background: rgba(239,68,68,0.15); color: #fca5a5; border: 1px solid #ef4444; padding: 10px; border-radius: 6px; font-size: 12px; margin-bottom: 14px;"></div>
+            <div id="auth-success-msg" style="display: none; background: rgba(16,185,129,0.15); color: #6ee7b7; border: 1px solid #10b981; padding: 10px; border-radius: 6px; font-size: 12px; margin-bottom: 14px;"></div>
             <form id="auth-form-signin" onsubmit="handleEmailSignIn(event)">
                 <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #334155;">Username or Email</label>
-                    <input type="text" id="signin-email" required placeholder="admin1 or email@domain.com" style="width: 100%; height: 38px; padding: 0 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;" />
+                    <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #cbd5e1;">Username or Email</label>
+                    <input type="text" id="signin-email" required placeholder="Admin or email@domain.com" value="Admin" class="sp-sched-input" style="height: 38px; font-size: 13px;" />
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #cbd5e1;">Estate / Company Name <span style="font-weight:400;color:#94a3b8;">(Supabase Profile)</span></label>
+                    <input type="text" id="signin-company" placeholder="e.g. Palmnex Sdn Bhd / Benta Wawasan" value="Palmnex Sdn Bhd" class="sp-sched-input" style="height: 38px; font-size: 13px;" />
                 </div>
                 <div style="margin-bottom: 16px;">
-                    <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #334155;">Password</label>
-                    <input type="password" id="signin-password" required placeholder="••••••••" style="width: 100%; height: 38px; padding: 0 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;" />
+                    <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #cbd5e1;">Password</label>
+                    <input type="password" id="signin-password" required placeholder="••••••••" value="admin1" class="sp-sched-input" style="height: 38px; font-size: 13px;" />
                 </div>
-                <button type="submit" id="btn-auth-signin" style="width: 100%; height: 40px; background: #10b981; color: #ffffff; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;" data-i18n="btnSignIn">Sign In</button>
-            </form>
-
-            <!-- Form 2: Sign Up -->
-            <form id="auth-form-signup" style="display: none;" onsubmit="handleEmailSignUp(event)">
-                <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #334155;">Full Name</label>
-                    <input type="text" id="signup-name" placeholder="Dr. Siti Aisyah" style="width: 100%; height: 38px; padding: 0 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;" />
-                </div>
-                <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #334155;">Username or Email</label>
-                    <input type="email" id="signup-email" required placeholder="name@company.com" style="width: 100%; height: 38px; padding: 0 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;" />
-                </div>
-                <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #334155;">Password</label>
-                    <input type="password" id="signup-password" required placeholder="••••••••" style="width: 100%; height: 38px; padding: 0 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;" />
-                </div>
-                <div style="margin-bottom: 16px;">
-                    <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #334155;">Confirm Password</label>
-                    <input type="password" id="signup-confirm-password" required placeholder="••••••••" style="width: 100%; height: 38px; padding: 0 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; box-sizing: border-box;" />
-                </div>
-                <button type="submit" id="btn-auth-signup" style="width: 100%; height: 40px; background: #0284c7; color: #ffffff; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer;" data-i18n="btnSignUp">Register Account</button>
+                <button type="submit" id="btn-auth-signin" class="sp-sched-btn" style="width: 100%; height: 40px; font-size: 14px;">Sign In</button>
             </form>
         </div>
     </div>
 
+    <!-- External & Modular JS Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="js/i18n.js"></script>
+    <script src="js/nav.js"></script>
+    <script src="js/prediction_cache_history.js"></script>
+    <script src="js/home_dashboard_data.js"></script>
+    <script src="js/home_dashboard.js"></script>
 </body>
 </html>
