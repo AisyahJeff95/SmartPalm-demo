@@ -626,7 +626,7 @@
     }
 
     // Geodetic area of polygon rings in hectares (ha)
-    function computePolygonAreaHa(rings) {
+    function computePolygonAreaHa(rings, sumAllRings) {
         if (!rings || !rings.length || !rings[0] || rings[0].length < 3) return 25.0;
         let totalAreaM2 = 0;
         rings.forEach((ring, idx) => {
@@ -643,11 +643,21 @@
                 sum += (x1 * y2 - x2 * y1);
             }
             const ringArea = Math.abs(sum) * 0.5;
-            if (idx === 0) totalAreaM2 += ringArea;
+            if (idx === 0 || sumAllRings) totalAreaM2 += ringArea;
             else totalAreaM2 = Math.max(0, totalAreaM2 - ringArea);
         });
         const ha = totalAreaM2 / 10000.0;
         return ha > 0.01 ? ha : 25.0;
+    }
+
+    function computeSingleFeatureAreaHa(f) {
+        if (!f) return 0;
+        const p = f.properties || {};
+        const rawArea = p.Area_Ha || p.AREA_HA || p.Area || p.AREA || p.PLANTED_AR || p.LUAS_HEKTA || p.HECTARES;
+        const parsedArea = parseFloat(rawArea);
+        if (!isNaN(parsedArea) && parsedArea > 0) return parsedArea;
+        const fRings = extractFeatureRings(f);
+        return computePolygonAreaHa(fRings, false);
     }
 
     // Synthesize full estate raster source on-the-fly if an estate has no prebuilt overlays
@@ -739,7 +749,7 @@
         return src;
     }
 
-    // Compute comprehensive block details & average N, P, K, Mg, Ca, B for the selected block
+    // Compute comprehensive block details & average N, P, K, Mg, Ca, B for the selected block (or combined multi-block)
     function computeSelectedBlockDetailsAndNutrients(feature, fallbackLatLng, mapKey) {
         ensureLahadDatuCaAndB();
         const allRings = getBoundaryRings();
@@ -752,10 +762,20 @@
             : (fallbackLatLng || { lat: 5.10423, lng: 118.42851 });
 
         const props = (feature && feature.properties) ? feature.properties : {};
-        const rawArea = props.Area_Ha || props.AREA_HA || props.Area || props.AREA || props.PLANTED_AR || props.LUAS_HEKTA || props.HECTARES;
-        const parsedArea = parseFloat(rawArea);
-        const areaHa = (!isNaN(parsedArea) && parsedArea > 0) ? parsedArea : computePolygonAreaHa(blockRings);
-        const estateAreaHa = allRings && allRings.length ? Math.max(areaHa, computePolygonAreaHa(allRings)) : areaHa * 12;
+        const selectedFeaturesList = (feature && Array.isArray(feature._selectedFeatures) && feature._selectedFeatures.length > 0)
+            ? feature._selectedFeatures
+            : (feature ? [feature] : []);
+
+        let areaHa = 0;
+        if (selectedFeaturesList.length > 1) {
+            areaHa = selectedFeaturesList.reduce((acc, f) => acc + computeSingleFeatureAreaHa(f), 0);
+        } else {
+            areaHa = computeSingleFeatureAreaHa(feature);
+        }
+        if (!(areaHa > 0)) {
+            areaHa = computePolygonAreaHa(blockRings, selectedFeaturesList.length > 1);
+        }
+        const estateAreaHa = allRings && allRings.length ? Math.max(areaHa, computePolygonAreaHa(allRings, true)) : areaHa * 12;
 
         const blockStats = {};
         const avgNutrients = {};
@@ -763,8 +783,24 @@
         NUTRIENT_PANELS.forEach(panel => {
             const key = panel.key;
             const lowKey = key.toLowerCase();
-            const propMean = props[key + '_mean'] !== undefined ? parseFloat(props[key + '_mean'])
-                           : (props[lowKey] !== undefined ? parseFloat(props[lowKey]) : NaN);
+            let propMean = props[key + '_mean'] !== undefined ? parseFloat(props[key + '_mean'])
+                         : (props[lowKey] !== undefined ? parseFloat(props[lowKey]) : NaN);
+
+            if (isNaN(propMean) && selectedFeaturesList.length > 1) {
+                let weightedSum = 0;
+                let weightTotal = 0;
+                selectedFeaturesList.forEach(sf => {
+                    const sp = (sf && sf.properties) ? sf.properties : {};
+                    const v = sp[key + '_mean'] !== undefined ? parseFloat(sp[key + '_mean'])
+                            : (sp[lowKey] !== undefined ? parseFloat(sp[lowKey]) : NaN);
+                    if (!isNaN(v) && v > 0) {
+                        const w = Math.max(0.1, computeSingleFeatureAreaHa(sf));
+                        weightedSum += v * w;
+                        weightTotal += w;
+                    }
+                });
+                if (weightTotal > 0) propMean = weightedSum / weightTotal;
+            }
 
             const values = [];
             const grid = src && src.grids ? src.grids[key] : null;
@@ -788,8 +824,28 @@
                 }
             }
 
-            // If polygon is smaller than a single grid cell, sample 9 interior points
-            if (values.length === 0 && bBounds) {
+            // Ensure every selected block contributes interior samples if smaller than a grid cell
+            if (selectedFeaturesList.length > 0) {
+                selectedFeaturesList.forEach(sf => {
+                    const sfRings = extractFeatureRings(sf);
+                    const sfBounds = getRingsBounds(sfRings);
+                    if (!sfBounds) return;
+                    if (values.length === 0 || selectedFeaturesList.length > 1) {
+                        for (let ry = 0.2; ry <= 0.8; ry += 0.3) {
+                            for (let rx = 0.2; rx <= 0.8; rx += 0.3) {
+                                const lat = sfBounds.south + ry * (sfBounds.north - sfBounds.south);
+                                const lng = sfBounds.west + rx * (sfBounds.east - sfBounds.west);
+                                if (!sfRings.length || isPointInRings(lng, lat, sfRings)) {
+                                    if (typeof window.sampleRastersOrFallback === 'function') {
+                                        const s = window.sampleRastersOrFallback(lat, lng);
+                                        if (s && s[lowKey] > 0) values.push(s[lowKey]);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            } else if (values.length === 0 && bBounds) {
                 for (let ry = 0.2; ry <= 0.8; ry += 0.3) {
                     for (let rx = 0.2; rx <= 0.8; rx += 0.3) {
                         const lat = bBounds.south + ry * (bBounds.north - bBounds.south);
@@ -816,16 +872,36 @@
         });
 
         // Identify soil type & series from DOM or feature properties
+        const collectUniquePropValues = (keys) => {
+            const vals = [];
+            const list = selectedFeaturesList.length > 0 ? selectedFeaturesList : (feature ? [feature] : []);
+            list.forEach(sf => {
+                const sp = (sf && sf.properties) ? sf.properties : {};
+                for (const k of keys) {
+                    if (sp[k] !== undefined && sp[k] !== null && String(sp[k]).trim() !== '') {
+                        const vStr = String(sp[k]).trim();
+                        if (!vals.includes(vStr)) vals.push(vStr);
+                        break;
+                    }
+                }
+            });
+            return vals.join(', ');
+        };
+
         const soilTypeEl = document.getElementById('identified-soil-type-val');
         const soilSeriesEl = document.getElementById('identified-soil-series-val');
+        const combinedPropSoilType = collectUniquePropValues(['SOIL_TYPE', 'Soil_Type', 'soil_type']);
+        const combinedPropSoilSeries = collectUniquePropValues(['SOIL_SERIE', 'Soil_Series', 'DESCR', 'DESCRIPTIO']);
+        const combinedPhase = collectUniquePropValues(['Peringkat', 'PERINGKAT', 'Phase', 'TreatCode', 'LAND_TYPE']);
+
         let soilType = (soilTypeEl && soilTypeEl.textContent && soilTypeEl.textContent.trim() !== '--' && !soilTypeEl.textContent.includes('Not in current'))
             ? soilTypeEl.textContent.trim()
-            : (props.SOIL_TYPE || props.Soil_Type || props.soil_type || 'Inland (Mineral Soil)');
+            : (combinedPropSoilType || props.SOIL_TYPE || props.Soil_Type || props.soil_type || 'Inland (Mineral Soil)');
         let soilSeries = (soilSeriesEl && soilSeriesEl.textContent && soilSeriesEl.textContent.trim() !== '--')
             ? soilSeriesEl.textContent.trim()
-            : (props.SOIL_SERIE || props.Soil_Series || props.DESCR || props.DESCRIPTIO || '');
+            : (combinedPropSoilSeries || props.SOIL_SERIE || props.Soil_Series || props.DESCR || props.DESCRIPTIO || '');
 
-        const phase = props.Peringkat || props.PERINGKAT || props.Phase || props.TreatCode || props.LAND_TYPE || '';
+        const phase = combinedPhase || props.Peringkat || props.PERINGKAT || props.Phase || props.TreatCode || props.LAND_TYPE || '';
         const blockCode = props.No_Block || props.PlotCode || props.block || props.BLOCK || props.LOT_NO || props.BLOCK_ID || props.name || 'Selected Block';
         const cleanBlockName = String(props.name || blockCode).replace(/^block\s+/i, '').trim() || String(blockCode);
         const activeMapInfo = getActiveMap();
@@ -1361,54 +1437,54 @@
         const meanVal = (details.blockStats[key] && details.blockStats[key].mean) || details.nutrients[key] || panel.criticalVal;
         const fallbackHex = colorForValue(meanVal, panel.breaks) || '#00dc00';
 
-        // Clip strictly to the selected block polygon rings
+        // Clip strictly to each selected block polygon ring (keeping individual block boundaries intact)
         if (blockRings && blockRings.length) {
-            ctx.save();
-            ctx.beginPath();
+            const grid = details.rasterSource && details.rasterSource.grids ? details.rasterSource.grids[key] : null;
+            const overlay = details.rasterSource && details.rasterSource.overlays ? details.rasterSource.overlays[key] : null;
+
             blockRings.forEach(ring => {
+                ctx.save();
+                ctx.beginPath();
                 ring.forEach((pt, i) => {
                     const x = toX(pt[0]), y = toY(pt[1]);
                     if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
                 });
                 ctx.closePath();
-            });
-            ctx.clip('evenodd');
+                ctx.clip();
 
-            ctx.fillStyle = fallbackHex;
-            ctx.fillRect(0, 0, W, H);
+                ctx.fillStyle = fallbackHex;
+                ctx.fillRect(0, 0, W, H);
 
-            const grid = details.rasterSource && details.rasterSource.grids ? details.rasterSource.grids[key] : null;
-            const overlay = details.rasterSource && details.rasterSource.overlays ? details.rasterSource.overlays[key] : null;
-
-            // Use full-resolution 10m PNG overlay (identical to dashboard map); only fall back to downsampled grid if overlay is unavailable
-            if (loadedImg && overlay && overlay.bounds && overlay.bounds.length === 2) {
-                const bnd = overlay.bounds;
-                const ox1 = toX(bnd[0][1]), oy1 = toY(bnd[1][0]);
-                const ox2 = toX(bnd[1][1]), oy2 = toY(bnd[0][0]);
-                ctx.imageSmoothingEnabled = false;
-                ctx.drawImage(loadedImg, ox1, oy1, ox2 - ox1, oy2 - oy1);
-            } else if (grid && grid.bounds && Array.isArray(grid.data)) {
-                const gb = grid.bounds;
-                for (let r = 0; r < grid.height; r++) {
-                    const lat1 = gb.top - (r / grid.height) * (gb.top - gb.bottom);
-                    const lat2 = gb.top - ((r + 1) / grid.height) * (gb.top - gb.bottom);
-                    const y1 = toY(lat1), y2 = toY(lat2);
-                    if (y2 < 0 || y1 > H) continue;
-                    for (let c = 0; c < grid.width; c++) {
-                        const v = grid.data[r][c];
-                        if (v === -9999 || !(v > 0)) continue;
-                        const lng1 = gb.left + (c / grid.width) * (gb.right - gb.left);
-                        const lng2 = gb.left + ((c + 1) / grid.width) * (gb.right - gb.left);
-                        const x1 = toX(lng1), x2 = toX(lng2);
-                        if (x2 < 0 || x1 > W) continue;
-                        ctx.fillStyle = colorForValue(v, panel.breaks) || fallbackHex;
-                        ctx.fillRect(Math.floor(x1), Math.floor(y1), Math.ceil(x2 - x1) + 1, Math.ceil(y2 - y1) + 1);
+                // Use full-resolution 10m PNG overlay (identical to dashboard map); only fall back to downsampled grid if overlay is unavailable
+                if (loadedImg && overlay && overlay.bounds && overlay.bounds.length === 2) {
+                    const bnd = overlay.bounds;
+                    const ox1 = toX(bnd[0][1]), oy1 = toY(bnd[1][0]);
+                    const ox2 = toX(bnd[1][1]), oy2 = toY(bnd[0][0]);
+                    ctx.imageSmoothingEnabled = false;
+                    ctx.drawImage(loadedImg, ox1, oy1, ox2 - ox1, oy2 - oy1);
+                } else if (grid && grid.bounds && Array.isArray(grid.data)) {
+                    const gb = grid.bounds;
+                    for (let r = 0; r < grid.height; r++) {
+                        const lat1 = gb.top - (r / grid.height) * (gb.top - gb.bottom);
+                        const lat2 = gb.top - ((r + 1) / grid.height) * (gb.top - gb.bottom);
+                        const y1 = toY(lat1), y2 = toY(lat2);
+                        if (y2 < 0 || y1 > H) continue;
+                        for (let c = 0; c < grid.width; c++) {
+                            const v = grid.data[r][c];
+                            if (v === -9999 || !(v > 0)) continue;
+                            const lng1 = gb.left + (c / grid.width) * (gb.right - gb.left);
+                            const lng2 = gb.left + ((c + 1) / grid.width) * (gb.right - gb.left);
+                            const x1 = toX(lng1), x2 = toX(lng2);
+                            if (x2 < 0 || x1 > W) continue;
+                            ctx.fillStyle = colorForValue(v, panel.breaks) || fallbackHex;
+                            ctx.fillRect(Math.floor(x1), Math.floor(y1), Math.ceil(x2 - x1) + 1, Math.ceil(y2 - y1) + 1);
+                        }
                     }
                 }
-            }
-            ctx.restore();
+                ctx.restore();
+            });
 
-            // Crisp selected block boundary outline
+            // Crisp selected block boundary outline (keeps individual block boundaries as is)
             ctx.save();
             ctx.lineJoin = 'round';
             ctx.strokeStyle = '#ff7800';

@@ -3499,19 +3499,164 @@ function toggleSatDataMode(mode) {
         let selectedBlock = "Block 22";
         let hasClickedBlock = false;
         let selectedBlockFeature = null;
+        const MAX_SELECTED_BLOCKS = 10;
+        let selectedBlockSlots = []; // Array of { name, feature, latlng } or null (pending map click)
+        let activeBlockSlotIndex = 0;
         let uploadedShapefileName = "";  // set when user uploads a .shp file
         let selectedLat = 5.10423;
         let selectedLng = 118.42851;
         let clickedMarkerComp = null;
         let clickedMarkerStd = null;
 
+        function resetSelectedBlockSlots() {
+            selectedBlockSlots = [];
+            activeBlockSlotIndex = 0;
+            hasClickedBlock = false;
+            selectedBlockFeature = null;
+        }
+
+        function buildCombinedSelectedBlockFeature(filledSlots) {
+            if (!filledSlots || filledSlots.length === 0) return null;
+            if (filledSlots.length === 1) return filledSlots[0].feature;
+            const uniqueFeatures = [];
+            const multiCoords = [];
+            filledSlots.forEach(s => {
+                const f = s && s.feature;
+                if (!f || !f.geometry) return;
+                if (!uniqueFeatures.includes(f)) uniqueFeatures.push(f);
+                if (f.geometry.type === 'Polygon' && Array.isArray(f.geometry.coordinates)) {
+                    multiCoords.push(f.geometry.coordinates);
+                } else if (f.geometry.type === 'MultiPolygon' && Array.isArray(f.geometry.coordinates)) {
+                    f.geometry.coordinates.forEach(poly => multiCoords.push(poly));
+                }
+            });
+            const baseProps = Object.assign({}, (filledSlots[0].feature && filledSlots[0].feature.properties) || {});
+            const combinedNames = [];
+            filledSlots.forEach(s => {
+                const n = String((s && s.name) || '').trim();
+                if (n && !combinedNames.includes(n)) combinedNames.push(n);
+            });
+            baseProps.name = combinedNames.join(', ');
+            return {
+                type: 'Feature',
+                properties: baseProps,
+                geometry: {
+                    type: 'MultiPolygon',
+                    coordinates: multiCoords
+                },
+                _selectedFeatures: uniqueFeatures.length > 0 ? uniqueFeatures : filledSlots.map(s => s.feature)
+            };
+        }
+
+        function syncSelectedBlocksState() {
+            const filledSlots = selectedBlockSlots.filter(s => s && s.feature);
+            if (filledSlots.length === 0) {
+                hasClickedBlock = false;
+                selectedBlockFeature = null;
+                return;
+            }
+            hasClickedBlock = true;
+            const names = [];
+            filledSlots.forEach(s => {
+                const n = String(s.name || '').trim();
+                if (n && !names.includes(n)) names.push(n);
+            });
+            selectedBlock = names.join(', ') || filledSlots[0].name || "Selected Block";
+            selectedBlockFeature = buildCombinedSelectedBlockFeature(filledSlots);
+        }
+
+        function refreshCombinedBlockNutrientsAndDisplays() {
+            const filledSlots = selectedBlockSlots.filter(s => s && s.feature);
+            if (filledSlots.length === 0) return;
+            const refLatLng = filledSlots[filledSlots.length - 1].latlng || { lat: selectedLat, lng: selectedLng };
+            updateIdentifiedSoilTypeDisplay(null, refLatLng, selectedBlockFeature);
+            if (filledSlots.length > 1 && typeof window.computeSelectedBlockDetailsAndNutrients === 'function') {
+                try {
+                    const blockDetails = window.computeSelectedBlockDetailsAndNutrients(selectedBlockFeature, refLatLng);
+                    if (blockDetails && blockDetails.nutrients) {
+                        const _val = (v, def) => {
+                            const raw = (v && typeof v === 'object' && v.avg !== undefined) ? v.avg : v;
+                            const n = parseFloat(raw);
+                            return (!isNaN(n) && n > 0) ? n : def;
+                        };
+                        updateNutrientValues({
+                            n: _val(blockDetails.nutrients.N, 2.45),
+                            p: _val(blockDetails.nutrients.P, 0.145),
+                            k: _val(blockDetails.nutrients.K, 1.02),
+                            mg: _val(blockDetails.nutrients.Mg, 0.23),
+                            ca: _val(blockDetails.nutrients.Ca, 0.62),
+                            b: _val(blockDetails.nutrients.B, 15.2)
+                        });
+                    }
+                } catch (err) {
+                    console.warn('refreshCombinedBlockNutrientsAndDisplays error:', err);
+                }
+            }
+        }
+
+        window.addAnotherBlockSlot = function() {
+            if (selectedBlockSlots.length >= MAX_SELECTED_BLOCKS) return;
+            selectedBlockSlots.push(null);
+            const firstNull = selectedBlockSlots.findIndex(s => s === null);
+            activeBlockSlotIndex = firstNull !== -1 ? firstNull : (selectedBlockSlots.length - 1);
+            updateSelectedBlockReportHint();
+        };
+
+        window.setActiveBlockSlot = function(idx) {
+            if (idx >= 0 && idx < selectedBlockSlots.length) {
+                activeBlockSlotIndex = idx;
+                updateSelectedBlockReportHint();
+            }
+        };
+
+        window.removeBlockSlot = function(idx, ev) {
+            if (ev && typeof ev.stopPropagation === 'function') ev.stopPropagation();
+            if (idx <= 0 || idx >= selectedBlockSlots.length) return;
+            selectedBlockSlots.splice(idx, 1);
+            const firstNull = selectedBlockSlots.findIndex(s => s === null);
+            activeBlockSlotIndex = firstNull !== -1 ? firstNull : -1;
+            syncSelectedBlocksState();
+            updateSelectedBlockReportHint();
+            refreshCombinedBlockNutrientsAndDisplays();
+        };
+
         function updateSelectedBlockReportHint() {
             const hintEl = document.getElementById('selected-block-report-hint');
             if (!hintEl) return;
-            if (hasClickedBlock && selectedBlock) {
+            const filledSlots = selectedBlockSlots.filter(s => s && s.feature);
+            if (hasClickedBlock && selectedBlock && filledSlots.length > 0) {
                 hintEl.style.color = '#ffffff';
                 hintEl.style.fontWeight = '600';
-                hintEl.innerHTML = `✓ Selected Block for Report (Page 1): <strong>${selectedBlock}</strong>`;
+                const firstSlot = selectedBlockSlots[0];
+                const firstName = (firstSlot && firstSlot.name) ? firstSlot.name : selectedBlock;
+                let html = `<div>✓ Selected Block for Report (Page 1): <strong>${firstName}</strong></div>`;
+
+                for (let i = 1; i < selectedBlockSlots.length; i++) {
+                    const slot = selectedBlockSlots[i];
+                    const isPending = (slot === null);
+                    const isActive = (activeBlockSlotIndex === i);
+                    if (isPending) {
+                        html += `<div onclick="window.setActiveBlockSlot(${i})" style="margin-top: 3px; padding: 2px 6px; border-radius: 4px; background: ${isActive ? 'rgba(16, 185, 129, 0.18)' : 'rgba(255,255,255,0.05)'}; border: 1px dashed ${isActive ? '#10b981' : '#52525b'}; color: ${isActive ? '#34d399' : '#a1a1aa'}; font-size: 10.5px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+                            <span>${isActive ? '👉 Click another block on map...' : '+ Click to select block on map...'} (Block ${i + 1})</span>
+                            <span onclick="window.removeBlockSlot(${i}, event)" title="Remove slot" style="color: #9ca3af; font-weight: 700; padding: 0 4px; cursor: pointer;">×</span>
+                        </div>`;
+                    } else {
+                        html += `<div onclick="window.setActiveBlockSlot(${i})" title="Click to re-select Block ${i + 1} on map" style="margin-top: 3px; padding: 2px 6px; border-radius: 4px; background: ${isActive ? 'rgba(16, 185, 129, 0.18)' : 'rgba(255,255,255,0.04)'}; border: 1px solid ${isActive ? '#10b981' : 'rgba(255,255,255,0.1)'}; color: #e4e4e7; font-size: 10.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+                            <span>✓ Block ${i + 1}: <strong style="color: #34d399;">${slot.name}</strong></span>
+                            <span onclick="window.removeBlockSlot(${i}, event)" title="Remove block" style="color: #9ca3af; font-weight: 700; padding: 0 4px; cursor: pointer;">×</span>
+                        </div>`;
+                    }
+                }
+
+                if (selectedBlockSlots.length < MAX_SELECTED_BLOCKS) {
+                    html += `<div onclick="window.addAnotherBlockSlot()" style="margin-top: 4px; color: #10b981; font-size: 11px; font-weight: 600; cursor: pointer; display: inline-block; user-select: none;">+ add another block</div>`;
+                }
+
+                if (filledSlots.length > 1) {
+                    html += `<div style="margin-top: 3px; font-size: 10px; color: #a1a1aa; font-weight: 500;">Combined Report Block (${filledSlots.length}/${MAX_SELECTED_BLOCKS}): <strong style="color: #e4e4e7;">${selectedBlock}</strong></div>`;
+                }
+
+                hintEl.innerHTML = html;
             } else {
                 hintEl.style.color = '#a1a1aa';
                 hintEl.style.fontWeight = '400';
@@ -4246,8 +4391,7 @@ function toggleSatDataMode(mode) {
             }
 
             // Clean clicked markers safely
-            hasClickedBlock = false;
-            selectedBlockFeature = null;
+            resetSelectedBlockSlots();
             updateSelectedBlockReportHint();
             updateIdentifiedSoilTypeDisplay(blocksData, null, null);
             if (clickedMarkerComp && mapComp) {
@@ -4558,20 +4702,35 @@ function toggleSatDataMode(mode) {
 
         // Handle Click Event on block boundaries
         function handleBlockClick(feature, latlng, page, tipHtml) {
-            selectedBlock = feature.properties.name;
-            selectedBlockFeature = feature;
-            hasClickedBlock = true;
+            const clickedBlockName = (feature && feature.properties && (feature.properties.name || feature.properties.BLOCK || feature.properties.Block)) || "Selected Block";
+            const slotEntry = { name: clickedBlockName, feature: feature, latlng: latlng };
+            if (selectedBlockSlots.length === 0) {
+                selectedBlockSlots = [slotEntry];
+                activeBlockSlotIndex = -1;
+            } else {
+                const pendingIdx = (activeBlockSlotIndex >= 0 && activeBlockSlotIndex < selectedBlockSlots.length)
+                    ? activeBlockSlotIndex
+                    : selectedBlockSlots.findIndex(s => s === null);
+                if (pendingIdx !== -1) {
+                    selectedBlockSlots[pendingIdx] = slotEntry;
+                } else {
+                    selectedBlockSlots[selectedBlockSlots.length - 1] = slotEntry;
+                }
+                const nextNull = selectedBlockSlots.findIndex(s => s === null);
+                activeBlockSlotIndex = nextNull !== -1 ? nextNull : -1;
+            }
+            syncSelectedBlocksState();
+            updateSelectedBlockReportHint();
+            updateIdentifiedSoilTypeDisplay(null, latlng, selectedBlockFeature);
             selectedLat = latlng.lat;
             selectedLng = latlng.lng;
-            updateSelectedBlockReportHint();
-            updateIdentifiedSoilTypeDisplay(null, latlng, feature);
             
             let sampled = sampleRastersOrFallback(latlng.lat, latlng.lng);
             // Only fill missing nutrients (where raster pixel had no data) from block raster stats or feature properties
             if (sampled.n === null || sampled.p === null || sampled.k === null || sampled.mg === null || sampled.ca === null || sampled.b === null) {
                 if (typeof window.computeSelectedBlockDetailsAndNutrients === 'function') {
                     try {
-                        const blockDetails = window.computeSelectedBlockDetailsAndNutrients(feature, latlng);
+                        const blockDetails = window.computeSelectedBlockDetailsAndNutrients(selectedBlockFeature || feature, latlng);
                         if (blockDetails && blockDetails.nutrients) {
                             const _val = (v, def) => {
                                 const raw = (v && typeof v === 'object' && v.avg !== undefined) ? v.avg : v;
@@ -4599,6 +4758,9 @@ function toggleSatDataMode(mode) {
                 }
             }
             updateNutrientValues(sampled);
+            if (selectedBlockSlots.filter(s => s && s.feature).length > 1) {
+                refreshCombinedBlockNutrientsAndDisplays();
+            }
             
             // Update Coordinate Labels
             let coordStr = `Coordinates: Lat=${latlng.lat.toFixed(5)}, Lng=${latlng.lng.toFixed(5)}`;
@@ -4637,12 +4799,11 @@ function toggleSatDataMode(mode) {
         // Handle Direct Map Click Events (Outside Boundaries)
         function handleMapDirectClick(latlng, page) {
             selectedBlock = "Block 22";
-            selectedBlockFeature = null;
-            hasClickedBlock = false;
-            selectedLat = latlng.lat;
-            selectedLng = latlng.lng;
+            resetSelectedBlockSlots();
             updateSelectedBlockReportHint();
             updateIdentifiedSoilTypeDisplay(null, latlng, null);
+            selectedLat = latlng.lat;
+            selectedLng = latlng.lng;
             
             let sampled = sampleRastersOrFallback(latlng.lat, latlng.lng);
             updateNutrientValues(sampled);
@@ -4771,13 +4932,12 @@ function toggleSatDataMode(mode) {
         function onMapSelectChanged(val) {
             window.DYNAMIC_PREDICTION_RASTERS = null;
             window.DYNAMIC_PREDICTION_GRIDS = null;
+            resetSelectedBlockSlots();
+            updateSelectedBlockReportHint();
             setElementValue('map-select-comp', val);
             setElementValue('map-select-std', val);
 
             if (!val) {
-                hasClickedBlock = false;
-                selectedBlockFeature = null;
-                updateSelectedBlockReportHint();
                 updateIdentifiedSoilTypeDisplay(null, null, null);
                 // Clear boundaries & overlays and zoom to whole Malaysia map
                 if (compBoundaryLayer && mapComp) { mapComp.removeLayer(compBoundaryLayer); compBoundaryLayer = null; }
@@ -5196,6 +5356,25 @@ function clearPredictionLogTimers() {
         window._PREDICTION_LOG_TIMERS.forEach(t => clearTimeout(t));
     }
     window._PREDICTION_LOG_TIMERS = [];
+    if (window._PREDICTION_PROGRESS_INTERVAL) {
+        clearInterval(window._PREDICTION_PROGRESS_INTERVAL);
+        window._PREDICTION_PROGRESS_INTERVAL = null;
+    }
+}
+
+function setPredictionModalProgress(pct, state) {
+    const bar = document.getElementById('pred-modal-progress-bar');
+    if (!bar) return;
+    const clamped = Math.max(0, Math.min(100, Number(pct) || 0));
+    window._PREDICTION_CURRENT_PCT = clamped;
+    bar.style.width = clamped + '%';
+    if (state === 'complete') {
+        bar.style.background = 'linear-gradient(90deg, #10b981 0%, #34d399 100%)';
+        bar.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.55)';
+    } else if (state === 'error') {
+        bar.style.background = 'linear-gradient(90deg, #ef4444 0%, #f87171 100%)';
+        bar.style.boxShadow = '0 0 10px rgba(239, 68, 68, 0.45)';
+    }
 }
 
 function appendPredictionModalLog(lineText, color) {
@@ -5240,6 +5419,10 @@ function openPredictionProgressModal(estateLabel, shpDisplay, targetDate, isReal
                 </div>
             </div>
 
+            <div id="pred-modal-progress-track" style="width:100%; height:4px; background:#141821; overflow:hidden; position:relative; flex-shrink:0;">
+                <div id="pred-modal-progress-bar" style="width:4%; height:100%; background:linear-gradient(90deg, #0ea5e9 0%, #22d3ee 50%, #10b981 100%); box-shadow:0 0 10px rgba(34, 211, 238, 0.55); transition:width 0.35s ease-out, background 0.3s ease;"></div>
+            </div>
+
             <div id="prediction-terminal-log" style="padding:18px 22px; height:400px; overflow-y:auto; background:#07090d; color:#cbd5e1; font-family:'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size:12.5px; line-height:1.55; user-select:text;"></div>
 
             <div style="padding:14px 22px; background:linear-gradient(145deg, #14171e 0%, #0e1116 100%); border-top:1px solid rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:space-between; gap:12px;">
@@ -5247,7 +5430,7 @@ function openPredictionProgressModal(estateLabel, shpDisplay, targetDate, isReal
                     <span style="filter:grayscale(1);">🔒</span> Screen locked while processing to prevent duplicate runs. Click <strong style="color:#f4f4f5;">Cancel Prediction Run</strong> to abort and close.
                 </div>
                 <div style="display:flex; align-items:center; gap:10px; flex-shrink:0;">
-                    <button id="btn-view-prediction-map" onclick="closePredictionModalAfterComplete()" style="display:none; padding:10px 18px; background:linear-gradient(145deg, #2e323b 0%, #1d2026 100%); color:#ffffff; border:1px solid rgba(255,255,255,0.28); border-radius:10px; font-weight:700; font-size:13px; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,0.5);">
+                    <button id="btn-view-prediction-map" onclick="closePredictionModalAfterComplete()" style="display:none; padding:10px 18px; background:linear-gradient(145deg, #10b981 0%, #059669 100%); color:#ffffff; border:1px solid #34d399; border-radius:10px; font-weight:700; font-size:13px; cursor:pointer; box-shadow:0 4px 16px rgba(16, 185, 129, 0.45); transition:all 0.2s;" onmouseover="this.style.background='linear-gradient(145deg, #34d399 0%, #10b981 100%)'; this.style.boxShadow='0 6px 20px rgba(16, 185, 129, 0.65)'" onmouseout="this.style.background='linear-gradient(145deg, #10b981 0%, #059669 100%)'; this.style.boxShadow='0 4px 16px rgba(16, 185, 129, 0.45)'">
                         ✓ View Nutrient Map
                     </button>
                     <button id="btn-cancel-prediction-run" onclick="cancelPredictionRunAndClose()" style="padding:10px 18px; background:linear-gradient(145deg, #272a30 0%, #181a1f 100%); color:#f4f4f5; border:1px solid rgba(255,255,255,0.22); border-radius:10px; font-weight:700; font-size:13px; cursor:pointer; display:flex; align-items:center; gap:7px; box-shadow:0 4px 14px rgba(0,0,0,0.5); transition:all 0.2s;" onmouseover="this.style.background='linear-gradient(145deg, #32363e 0%, #22252b 100%)'; this.style.borderColor='rgba(255,255,255,0.38)'" onmouseout="this.style.background='linear-gradient(145deg, #272a30 0%, #181a1f 100%)'; this.style.borderColor='rgba(255,255,255,0.22)'">
@@ -5279,30 +5462,48 @@ function openPredictionProgressModal(estateLabel, shpDisplay, targetDate, isReal
     const maxLng = bounds && bounds[1] ? Number(bounds[1][1]).toFixed(5) : '117.81996';
 
     clearPredictionLogTimers();
+    setPredictionModalProgress(4, 'running');
 
     const stagedLogs = [
-        { delay: 100,  text: `STEP 1: Calling fetch_sentinel_for_shapefile() from fetch_sentinel_data.py...`, color: '#38bdf8' },
-        { delay: 450,  text: `- Target Shapefile: /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/map/${shpDisplay}.shp`, color: '#e2e8f0' },
-        { delay: 800,  text: `📅 Target Date     : ${targetDate} (±30 days window)`, color: '#fbbf24' },
-        { delay: 1300, text: `  ✓ Reprojecting Timbalai RSO (EPSG:29873) -> WGS84 (EPSG:4326)...`, color: '#a7f3d0' },
-        { delay: 1850, text: `  ✓ Shapefile WGS84 Bounds: Lng [${minLng}, ${maxLng}], Lat [${minLat}, ${maxLat}]`, color: '#a7f3d0' },
-        { delay: 2500, text: `  ✓ Generated 2,785,013 true 10m2 spatial grid points inside full estate map boundary (4503 cols x 3470 rows).\n`, color: '#a7f3d0' },
-        { delay: 3300, text: `--- Multi-Temporal SCL Cloud-Free Compositing (${winStart} to ${winEnd}, Cloud Filter: < 60%) ---`, color: '#c084fc' },
-        { delay: 4300, text: `  Pass S2B_MSIL2A_${p1Compact}T021529_R003_T50NNL_${p1Compact}T051621 (${p1Date}) | Added new clear pixels: 321,421 | Total clear composite: 321,421/2,785,013 (11.5%)`, color: '#cbd5e1' },
-        { delay: 5400, text: `  Pass S2B_MSIL2A_${p2Compact}T021559_R003_T50NNK_${p2Compact}T051842 (${p2Date}) | Added new clear pixels: 0 | Total clear composite: 468,730/2,785,013 (16.8%)`, color: '#cbd5e1' },
-        { delay: 6500, text: `  Pass S2C_MSIL2A_${p3Compact}T022531_R046_T50NNK_${p3Compact}T055310 (${p3Date}) | Added new clear pixels: 74,392 | Total clear composite: 1,940,025/2,785,013 (69.7%)\n`, color: '#cbd5e1' },
-        { delay: 7600, text: `✅ Sentinel Dataset Fetched Successfully: 2,785,013 cloud-free 10m grid records.\n`, color: '#4ade80' },
-        { delay: 8400, text: `STEP 2: Executing Random Forest predictions...`, color: '#38bdf8' }
+        { delay: 100,  pct: 8,  text: `STEP 1: Calling fetch_sentinel_for_shapefile() from fetch_sentinel_data.py...`, color: '#38bdf8' },
+        { delay: 450,  pct: 14, text: `- Target Shapefile: /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/map/${shpDisplay}.shp`, color: '#e2e8f0' },
+        { delay: 800,  pct: 20, text: `📅 Target Date     : ${targetDate} (±30 days window)`, color: '#fbbf24' },
+        { delay: 1300, pct: 27, text: `  ✓ Reprojecting Timbalai RSO (EPSG:29873) -> WGS84 (EPSG:4326)...`, color: '#a7f3d0' },
+        { delay: 1850, pct: 35, text: `  ✓ Shapefile WGS84 Bounds: Lng [${minLng}, ${maxLng}], Lat [${minLat}, ${maxLat}]`, color: '#a7f3d0' },
+        { delay: 2500, pct: 44, text: `  ✓ Generated 2,785,013 true 10m2 spatial grid points inside full estate map boundary (4503 cols x 3470 rows).\n`, color: '#a7f3d0' },
+        { delay: 3300, pct: 52, text: `--- Multi-Temporal SCL Cloud-Free Compositing (${winStart} to ${winEnd}, Cloud Filter: < 60%) ---`, color: '#c084fc' },
+        { delay: 4300, pct: 60, text: `  Pass S2B_MSIL2A_${p1Compact}T021529_R003_T50NNL_${p1Compact}T051621 (${p1Date}) | Added new clear pixels: 321,421 | Total clear composite: 321,421/2,785,013 (11.5%)`, color: '#cbd5e1' },
+        { delay: 5400, pct: 68, text: `  Pass S2B_MSIL2A_${p2Compact}T021559_R003_T50NNK_${p2Compact}T051842 (${p2Date}) | Added new clear pixels: 0 | Total clear composite: 468,730/2,785,013 (16.8%)`, color: '#cbd5e1' },
+        { delay: 6500, pct: 76, text: `  Pass S2C_MSIL2A_${p3Compact}T022531_R046_T50NNK_${p3Compact}T055310 (${p3Date}) | Added new clear pixels: 74,392 | Total clear composite: 1,940,025/2,785,013 (69.7%)\n`, color: '#cbd5e1' },
+        { delay: 7600, pct: 82, text: `✅ Sentinel Dataset Fetched Successfully: 2,785,013 cloud-free 10m grid records.\n`, color: '#4ade80' },
+        { delay: 8400, pct: 86, text: `STEP 2: Executing Random Forest predictions...`, color: '#38bdf8' }
     ];
 
     stagedLogs.forEach(item => {
         const tid = setTimeout(() => {
             if (window._PREDICTION_IS_RUNNING) {
                 appendPredictionModalLog(item.text, item.color);
+                setPredictionModalProgress(item.pct, 'running');
             }
         }, item.delay);
         window._PREDICTION_LOG_TIMERS.push(tid);
     });
+
+    const creepTimer = setTimeout(() => {
+        if (!window._PREDICTION_IS_RUNNING) return;
+        window._PREDICTION_PROGRESS_INTERVAL = setInterval(() => {
+            if (!window._PREDICTION_IS_RUNNING) {
+                clearInterval(window._PREDICTION_PROGRESS_INTERVAL);
+                window._PREDICTION_PROGRESS_INTERVAL = null;
+                return;
+            }
+            const cur = window._PREDICTION_CURRENT_PCT || 86;
+            if (cur < 96) {
+                setPredictionModalProgress(cur + Math.max(0.35, (96 - cur) * 0.08), 'running');
+            }
+        }, 450);
+    }, 8600);
+    window._PREDICTION_LOG_TIMERS.push(creepTimer);
 }
 
 function cancelPredictionRunAndClose() {
@@ -5651,6 +5852,7 @@ function runRfrPredictionFlow() {
             appendPredictionModalLog(`✅ REAL SENTINEL 10M PREDICTION COMPLETED IN ${elapsedSec}s!`, '#4ade80');
             appendPredictionModalLog(`📁 Output Directory: ${outDir}`, '#fbbf24');
 
+            setPredictionModalProgress(100, 'complete');
             const pill = document.getElementById('pred-modal-status-pill');
             if (pill) {
                 pill.textContent = '✓ COMPLETED';
@@ -5677,6 +5879,7 @@ function runRfrPredictionFlow() {
             if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd(activeVal);
             if (typeof toggleNutrientLayerKpsm === 'function') toggleNutrientLayerKpsm(activeVal);
         } else {
+            setPredictionModalProgress(100, 'error');
             const errMsg = lastErr ? (lastErr.message || 'Connection refused') : 'Server returned invalid response';
             appendPredictionModalLog(`\n❌ ERROR: Prediction server unreachable (${errMsg}).`, '#f87171');
             appendPredictionModalLog(`Ensure Hugging Face Space (https://aisyjeff95-smartpalm-demo.hf.space) or local prediction_server.py is running.`, '#fca5a5');
