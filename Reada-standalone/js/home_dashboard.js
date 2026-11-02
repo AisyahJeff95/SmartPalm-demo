@@ -107,16 +107,10 @@
                 }),
                 onEachFeature: (feature, lyr) => {
                     const bname = (feature.properties && feature.properties.name) || 'Block';
-                    const nVal = feature.properties && feature.properties.N_mean ? `${Number(feature.properties.N_mean).toFixed(2)}%` : `${est.currentNutrients.N}%`;
-                    const kVal = feature.properties && feature.properties.K_mean ? `${Number(feature.properties.K_mean).toFixed(2)}%` : `${est.currentNutrients.K}%`;
                     const tipHtml = `
-                        <div style="min-width:165px;">
+                        <div style="min-width:140px;">
                             <div style="font-weight:700;font-size:12px;color:#fff;margin-bottom:2px;">${est.name}</div>
-                            <div style="font-size:11px;color:#94a3b8;margin-bottom:5px;">${bname} • ${est.region}</div>
-                            <div style="display:flex;justify-content:space-between;font-size:11px;border-top:1px solid rgba(255,255,255,0.12);padding-top:4px;">
-                                <span>Stress: <b style="color:${est.stressColor}">${est.stressPct}% (${est.stressRating})</b></span>
-                            </div>
-                            <div style="font-size:10.5px;color:#cbd5e1;margin-top:2px;">N: ${nVal} &nbsp;|&nbsp; K: ${kVal}</div>
+                            <div style="font-size:11px;color:#94a3b8;">${bname} • ${est.region}</div>
                         </div>
                     `;
                     lyr.bindTooltip(tipHtml, { sticky: true, className: 'sp-map-tooltip', direction: 'top' });
@@ -136,9 +130,8 @@
                     className: '',
                     html: `
                         <div class="sp-estate-pin" style="border-color:${isSelected ? '#10b981' : 'rgba(255,255,255,0.22)'};background:${isSelected ? 'rgba(16,185,129,0.25)' : 'rgba(14,18,24,0.9)'};">
-                            <span class="sp-estate-pin-dot" style="background:${est.stressColor};box-shadow:0 0 6px ${est.stressColor};"></span>
+                            <span class="sp-estate-pin-dot" style="background:#10b981;box-shadow:0 0 6px #10b981;"></span>
                             <span>${shortName}</span>
-                            <span style="color:${est.stressColor};font-weight:800;">${est.stressPct}%</span>
                         </div>
                     `,
                     iconSize: [0, 0]
@@ -321,12 +314,6 @@
                             <div class="sp-estate-row-name">${est.name}</div>
                             <div class="sp-estate-row-meta">${est.region} • ${est.totalBlocks} blk • ${est.areaHa.toLocaleString()} Ha</div>
                         </div>
-                    </div>
-                    <div class="sp-estate-row-right">
-                        <span class="sp-stress-pill-mini" style="background:${est.stressColor}22;color:${est.stressColor};border:1px solid ${est.stressColor}55;">
-                            ${est.stressPct.toFixed(1)}%
-                        </span>
-                        <span style="font-size:9.5px;color:#94a3b8;">${est.stressRating}</span>
                     </div>
                 </div>
             `;
@@ -735,8 +722,8 @@
             } else {
                 dropdown.innerHTML = matches.map(m => `
                     <div class="sp-search-result-item" onclick="selectEstate('${m.key}', true); document.getElementById('sp-search-results-dropdown').style.display='none';">
-                        <span><b>${m.name}</b> <span style="color:#94a3b8;font-size:11px;">(${m.region})</span></span>
-                        <span style="color:${m.stressColor};font-weight:700;">${m.stressPct}%</span>
+                        <span><b>${m.name}</b></span>
+                        <span style="color:#94a3b8;font-size:11px;">${m.region}</span>
                     </div>
                 `).join('');
             }
