@@ -372,12 +372,12 @@
     };
 
     const COMPANY_BAR_SPECS = [
-        { key: 'N',  label: 'N',  unit: '%',   maxScale: 3.10, dp: 2 },
-        { key: 'P',  label: 'P',  unit: '%',   maxScale: 0.21, dp: 3 },
-        { key: 'K',  label: 'K',  unit: '%',   maxScale: 1.35, dp: 2 },
-        { key: 'Mg', label: 'Mg', unit: '%',   maxScale: 0.36, dp: 2 },
-        { key: 'B',  label: 'B',  unit: 'ppm', maxScale: 20.0, dp: 1 },
-        { key: 'Ca', label: 'Ca', unit: '%',   maxScale: 0.85, dp: 2 }
+        { key: 'N',  label: 'N',  unit: '%',   maxScale: 3.10, crit: 2.44,  opt: 2.50,  dp: 2 },
+        { key: 'P',  label: 'P',  unit: '%',   maxScale: 0.21, crit: 0.150, opt: 0.160, dp: 3 },
+        { key: 'K',  label: 'K',  unit: '%',   maxScale: 1.35, crit: 0.96,  opt: 1.01,  dp: 2 },
+        { key: 'Mg', label: 'Mg', unit: '%',   maxScale: 0.36, crit: 0.24,  opt: 0.265, dp: 2 },
+        { key: 'B',  label: 'B',  unit: 'ppm', maxScale: 20.0, crit: 13.0,  opt: 13.8,  dp: 1 },
+        { key: 'Ca', label: 'Ca', unit: '%',   maxScale: 0.85, crit: 0.605, opt: 0.635, dp: 2 }
     ];
 
     function renderCompanyStressCard(clusterId) {
@@ -397,7 +397,7 @@
         if (nameEl) nameEl.textContent = cluster.ownerName;
         if (countEl) countEl.textContent = `${estates.length} ${estates.length === 1 ? 'Estate' : 'Estates'}`;
 
-        // Compute average N, P, K, Mg, B, Ca across the chosen estate company
+        // Compute average N, P, K, Mg, B, Ca across the chosen estate company with Red - Yellow - Green status colors
         if (barsEl) {
             barsEl.innerHTML = COMPANY_BAR_SPECS.map(spec => {
                 const avgVal = estates.reduce((sum, e) => {
@@ -406,24 +406,56 @@
                 }, 0) / estates.length;
                 const fillPct = Math.max(12, Math.min(100, (avgVal / spec.maxScale) * 100));
                 const unitStr = spec.unit === 'ppm' ? ' ppm' : '%';
+
+                let barGradient = 'linear-gradient(90deg, #059669 0%, #10b981 100%)'; // Green (Optimal)
+                let valColor = '#34d399';
+                if (avgVal < spec.crit) {
+                    barGradient = 'linear-gradient(90deg, #dc2626 0%, #ef4444 100%)'; // Red (Critical)
+                    valColor = '#f87171';
+                } else if (avgVal < spec.opt) {
+                    barGradient = 'linear-gradient(90deg, #ca8a04 0%, #eab308 100%)'; // Yellow (Moderate)
+                    valColor = '#facc15';
+                }
+
                 return `
                     <div class="sp-comp-bar-row">
                         <span class="sp-comp-bar-label">${spec.label}</span>
                         <div class="sp-comp-bar-track">
-                            <div class="sp-comp-bar-fill" style="width:${fillPct.toFixed(1)}%;"></div>
+                            <div class="sp-comp-bar-fill" style="width:${fillPct.toFixed(1)}%;background:${barGradient};"></div>
                         </div>
-                        <span class="sp-comp-bar-val">${avgVal.toFixed(spec.dp)}${unitStr}</span>
+                        <span class="sp-comp-bar-val" style="color:${valColor};">${avgVal.toFixed(spec.dp)}${unitStr}</span>
                     </div>
                 `;
             }).join('');
         }
 
-        // Compute overall stress percentage & rating for the chosen estate company
+        // Compute overall stress percentage & rating for the chosen estate company (Red - Yellow - Green)
         const avgStress = estates.reduce((sum, e) => sum + Number(e.stressPct || 0), 0) / estates.length;
         let ratingLabel = 'Optimal';
-        if (avgStress >= 65) ratingLabel = 'Critical';
-        else if (avgStress >= 45) ratingLabel = 'High';
-        else if (avgStress >= 25) ratingLabel = 'Moderate';
+        let stressColor = '#10b981'; // Green
+        let badgeBg = 'rgba(16, 185, 129, 0.16)';
+        let badgeBorder = 'rgba(16, 185, 129, 0.42)';
+        let badgeText = '#6ee7b7';
+
+        if (avgStress >= 65) {
+            ratingLabel = 'Critical';
+            stressColor = '#ef4444'; // Red
+            badgeBg = 'rgba(239, 68, 68, 0.16)';
+            badgeBorder = 'rgba(239, 68, 68, 0.45)';
+            badgeText = '#fca5a5';
+        } else if (avgStress >= 45) {
+            ratingLabel = 'High';
+            stressColor = '#ef4444'; // Red
+            badgeBg = 'rgba(239, 68, 68, 0.16)';
+            badgeBorder = 'rgba(239, 68, 68, 0.45)';
+            badgeText = '#fca5a5';
+        } else if (avgStress >= 25) {
+            ratingLabel = 'Moderate';
+            stressColor = '#eab308'; // Yellow
+            badgeBg = 'rgba(234, 179, 8, 0.16)';
+            badgeBorder = 'rgba(234, 179, 8, 0.45)';
+            badgeText = '#fde047';
+        }
 
         const circumference = 2 * Math.PI * 35; // r = 35 -> 219.91
         const offset = circumference - (Math.max(0, Math.min(100, avgStress)) / 100) * circumference;
@@ -431,9 +463,18 @@
         if (ringProgEl) {
             ringProgEl.setAttribute('stroke-dasharray', circumference.toFixed(2));
             ringProgEl.setAttribute('stroke-dashoffset', offset.toFixed(2));
+            ringProgEl.style.stroke = stressColor;
         }
-        if (pctEl) pctEl.textContent = `${avgStress.toFixed(1)}%`;
-        if (ratingEl) ratingEl.textContent = ratingLabel;
+        if (pctEl) {
+            pctEl.textContent = `${avgStress.toFixed(1)}%`;
+            pctEl.style.color = stressColor;
+        }
+        if (ratingEl) {
+            ratingEl.textContent = ratingLabel;
+            ratingEl.style.background = badgeBg;
+            ratingEl.style.borderColor = badgeBorder;
+            ratingEl.style.color = badgeText;
+        }
 
         // Sync Estate Selector & Render Geospatial Stress Map under the circular stress chart
         const geoSel = document.getElementById('sp-comp-geo-select');
@@ -561,7 +602,7 @@
         const projX = (lng) => ( offsetX + (lng - minX) * scale ).toFixed(1);
         const projY = (lat) => ( svgH - offsetY - (lat - minY) * scale ).toFixed(1);
 
-        // Score each block so stressed areas (Red = High, Yellow = Moderate) reflect actual foliar deficiency + estate stressPct
+        // Score each block so stressed areas (Red = High, Yellow = Moderate, Green = Optimal) reflect actual foliar deficiency + estate stressPct
         const scored = features.map((f, idx) => {
             const p = f.properties || {};
             let deficiencyScore = 0;
@@ -594,8 +635,8 @@
                 colorByIdx[item.idx] = '#eab308';
                 statusByIdx[item.idx] = 'Moderate Stress';
             } else {
-                colorByIdx[item.idx] = '#475569';
-                statusByIdx[item.idx] = 'Normal';
+                colorByIdx[item.idx] = '#10b981';
+                statusByIdx[item.idx] = 'Optimal';
             }
         });
 
@@ -617,8 +658,8 @@
         for (let i = 0; i < features.length; i += step) {
             const f = features[i];
             const geom = f.geometry;
-            const fill = colorByIdx[i] || '#475569';
-            const status = statusByIdx[i] || 'Normal';
+            const fill = colorByIdx[i] || '#10b981';
+            const status = statusByIdx[i] || 'Optimal';
             const bname = ((f.properties && f.properties.name) || `Block ${i + 1}`).replace(/'/g, '');
             const tipText = `${bname} • ${status}`;
 
