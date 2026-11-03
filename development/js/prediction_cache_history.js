@@ -1051,8 +1051,8 @@
             pctx.fillText('MALAYSIAN PALM OIL BOARD (MPOB) · PALMNEX SMARTPALM', marginX, 68);
 
             pctx.fillStyle = '#0f172a';
-            pctx.font = '800 28px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
-            pctx.fillText(`10M SENTINEL-2 FOLIAR NUTRIENT RASTER — ${panel.name.toUpperCase()}`, marginX, 104);
+            pctx.font = '800 23px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
+            pctx.fillText(`10M SENTINEL-2 FOLIAR NUTRIENT RASTER — ${panel.name.toUpperCase()}`, marginX, 102);
 
             pctx.fillStyle = '#475569';
             pctx.font = '600 15px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
@@ -1556,7 +1556,7 @@
                     </button>
                 </div>
             </div>
-            <div id="sp-six-page-scroll-body" style="flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; align-items: center; gap: 22px;">
+            <div id="sp-six-page-scroll-body" style="flex: 1; min-height: 0; overflow-y: auto; padding: 28px 24px 60px 24px; display: block;">
                 <div style="padding: 60px 20px; text-align: center; color: #cbd5e1; font-size: 14px;">
                     ⏳ Rendering 6 high-resolution A4 colored raster pages...
                 </div>
@@ -1595,8 +1595,8 @@
         const scrollBody = document.getElementById('sp-six-page-scroll-body');
         if (scrollBody) {
             scrollBody.innerHTML = renderedPages.map((p, idx) => `
-                <div style="width: 100%; max-width: 790px; background: #ffffff; border-radius: 6px; overflow: hidden; box-shadow: 0 12px 32px rgba(0,0,0,0.5);">
-                    <img src="${p.dataUrl}" alt="Page ${idx + 1}" style="width: 100%; height: auto; display: block;" />
+                <div style="width: 100%; max-width: 820px; margin: 0 auto 28px auto; background: #ffffff; border-radius: 8px; box-shadow: 0 12px 32px rgba(0,0,0,0.55); padding: 4px;">
+                    <img src="${p.dataUrl}" alt="Page ${idx + 1}" style="width: 100%; height: auto; display: block; border-radius: 6px;" />
                 </div>
             `).join('');
         }
