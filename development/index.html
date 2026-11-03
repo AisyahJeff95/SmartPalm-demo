@@ -17,8 +17,8 @@
     <link rel="stylesheet" href="css/components.css" />
     <link rel="stylesheet" href="css/tables-forms.css" />
     <link rel="stylesheet" href="css/reada.css" />
-    <link rel="stylesheet" href="css/styles.css?v=20261103c" />
-    <link rel="stylesheet" href="css/home-dark.css?v=20261103c" />
+    <link rel="stylesheet" href="css/styles.css?v=20261103d" />
+    <link rel="stylesheet" href="css/home-dark.css?v=20261103d" />
 
     <!-- Supabase JS Client & Auth Modules -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -106,6 +106,14 @@
                         <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
                     </svg>
                 </button>
+
+                <!-- Run History Clock Button -->
+                <a href="notifications.html?filter=runs" target="_blank" class="sp-icon-btn" id="sp-top-history-btn" title="Run History" style="text-decoration: none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                </a>
 
                 <!-- Notifications Bell Button & Dropdown -->
                 <div class="sp-notif-dropdown-wrap" id="sp-notif-dropdown-wrap">
@@ -214,7 +222,7 @@
                                 <div class="sp-status-icon-circle online">●</div>
                                 <div class="sp-status-bottom">
                                     <span class="sp-status-label">Online</span>
-                                    <span class="sp-status-num" id="sp-kpi-company-count">4</span>
+                                    <span class="sp-status-num" id="sp-kpi-company-count" style="font-size: 33px;">4</span>
                                 </div>
                             </div>
                         </div>
@@ -248,7 +256,7 @@
                 </div>
 
                 <!-- ---------------------------------------------------------
-                     CENTER MAP HUD: Welcome Card (Top-Left), Company Nutrient & Stress Card (Top-Right), Zoom Controls
+                     CENTER MAP HUD: Welcome Card (Top-Left), 3 Separated Company Cards (Top-Right), Zoom Controls
                      --------------------------------------------------------- -->
                 <div class="sp-center-hud">
                     <div class="sp-map-top-hud">
@@ -262,54 +270,61 @@
                             </p>
                         </div>
 
-                        <!-- Top-Right Sleek Company Foliar Bar Chart (Top) & Overall Stress Circular Gauge (Bottom) -->
-                        <div id="sp-company-stress-card" class="sp-glass-panel sp-company-stress-card">
-                            <div class="sp-comp-card-header">
-                                <div class="sp-comp-card-title-wrap">
-                                    <span class="sp-comp-card-dot"></span>
-                                    <span id="sp-comp-card-name" class="sp-comp-card-name">Benta Wawasan Sdn Bhd</span>
+                        <!-- Top-Right 3 Separated Cards Stack: 1. Overall Nutrient Level, 2. Overall Stress Level, 3. Stress Areas -->
+                        <div id="sp-company-stress-card" class="sp-company-cards-stack">
+                            <!-- CARD 1: Overall Nutrient Level -->
+                            <div class="sp-glass-panel sp-company-subcard">
+                                <div class="sp-comp-card-header">
+                                    <div class="sp-comp-card-title-wrap">
+                                        <span class="sp-comp-card-dot"></span>
+                                        <span id="sp-comp-card-name" class="sp-comp-card-name">Benta Wawasan Sdn Bhd</span>
+                                    </div>
+                                    <span id="sp-comp-card-count" class="sp-comp-card-count">11 Estates</span>
                                 </div>
-                                <span id="sp-comp-card-count" class="sp-comp-card-count">11 Estates</span>
+                                <div class="sp-comp-section-label">Overall Nutrient Level</div>
+                                <div id="sp-comp-nutrient-bars" class="sp-comp-nutrient-bars"></div>
                             </div>
 
-                            <!-- Top: Horizontal Bar Chart for N, P, K, Mg, B, Ca -->
-                            <div id="sp-comp-nutrient-bars" class="sp-comp-nutrient-bars"></div>
-
-                            <div class="sp-comp-card-divider"></div>
-
-                            <!-- Bottom: Circular Graphic for Overall Stress -->
-                            <div class="sp-comp-stress-footer">
-                                <div class="sp-comp-circle-wrap">
-                                    <svg class="sp-comp-ring-svg" viewBox="0 0 88 88">
-                                        <circle class="sp-comp-ring-bg" cx="44" cy="44" r="35"></circle>
-                                        <circle id="sp-comp-ring-prog" class="sp-comp-ring-prog" cx="44" cy="44" r="35" stroke-dasharray="219.91" stroke-dashoffset="146" style="stroke:#eab308;"></circle>
-                                    </svg>
-                                    <div class="sp-comp-ring-center">
-                                        <span id="sp-comp-stress-pct" class="sp-comp-ring-val" style="color:#eab308;">33.5%</span>
+                            <!-- CARD 2: Overall Stress Level -->
+                            <div class="sp-glass-panel sp-company-subcard">
+                                <div class="sp-comp-section-label">Overall Stress Level</div>
+                                <div class="sp-comp-stress-footer">
+                                    <div class="sp-comp-circle-wrap">
+                                        <svg class="sp-comp-ring-svg" viewBox="0 0 88 88">
+                                            <circle class="sp-comp-ring-bg" cx="44" cy="44" r="35"></circle>
+                                            <circle id="sp-comp-ring-prog" class="sp-comp-ring-prog" cx="44" cy="44" r="35" stroke-dasharray="219.91" stroke-dashoffset="146" style="stroke:#eab308;"></circle>
+                                        </svg>
+                                        <div class="sp-comp-ring-center">
+                                            <span id="sp-comp-stress-pct" class="sp-comp-ring-val" style="color:#eab308;">33.5%</span>
+                                        </div>
+                                    </div>
+                                    <div class="sp-comp-stress-meta">
+                                        <span class="sp-comp-stress-label">Overall Stress</span>
+                                        <span id="sp-comp-stress-rating" class="sp-comp-stress-badge" style="background:rgba(234,179,8,0.16);border-color:rgba(234,179,8,0.45);color:#fde047;">Moderate</span>
                                     </div>
                                 </div>
-                                <div class="sp-comp-stress-meta">
-                                    <span class="sp-comp-stress-label">Overall Stress</span>
-                                    <span id="sp-comp-stress-rating" class="sp-comp-stress-badge" style="background:rgba(234,179,8,0.16);border-color:rgba(234,179,8,0.45);color:#fde047;">Moderate</span>
-                                </div>
                             </div>
 
-                            <div class="sp-comp-card-divider"></div>
-
-                            <!-- Under Stress Chart: Sleek Geospatial Stress Map (Yellow & Red Stress Areas) -->
-                            <div class="sp-comp-geo-section">
-                                <div class="sp-comp-geo-top">
-                                    <select id="sp-comp-geo-select" class="sp-comp-geo-select" onchange="selectEstate(this.value, true)" title="Select estate map"></select>
-                                    <button type="button" id="sp-comp-geo-mode-btn" class="sp-comp-geo-mode-btn" style="display:none;" onclick="toggleCompGeoRasterMode()" title="Toggle Block Choropleth / 10m Raster">10m</button>
-                                </div>
-                                <div id="sp-comp-geo-map-box" class="sp-comp-geo-map-box" onclick="selectEstate(document.getElementById('sp-comp-geo-select').value, true)" title="Click to zoom to estate on main map">
-                                    <div id="sp-comp-geo-svg-holder" class="sp-comp-geo-svg-holder"></div>
-                                    <div id="sp-comp-geo-tooltip" class="sp-comp-geo-tooltip" style="display:none;"></div>
-                                </div>
-                                <div class="sp-comp-geo-legend">
-                                    <span class="sp-comp-legend-item"><i style="background:#ef4444;"></i>High</span>
-                                    <span class="sp-comp-legend-item"><i style="background:#eab308;"></i>Moderate</span>
-                                    <span class="sp-comp-legend-item"><i style="background:#475569;"></i>Normal</span>
+                            <!-- CARD 3: Stress Areas (Translucent Cool Glass Card + Disclaimer) -->
+                            <div class="sp-glass-panel sp-company-subcard sp-stress-areas-card">
+                                <div class="sp-comp-geo-section">
+                                    <div class="sp-comp-section-label" style="margin-bottom: 2px;">Stress Areas</div>
+                                    <div class="sp-comp-geo-top">
+                                        <select id="sp-comp-geo-select" class="sp-comp-geo-select" onchange="selectEstate(this.value, true)" title="Select estate map"></select>
+                                        <button type="button" id="sp-comp-geo-mode-btn" class="sp-comp-geo-mode-btn" style="display:none;" onclick="toggleCompGeoRasterMode()" title="Toggle Block Choropleth / 10m Raster">10m</button>
+                                    </div>
+                                    <div id="sp-comp-geo-map-box" class="sp-comp-geo-map-box" onclick="selectEstate(document.getElementById('sp-comp-geo-select').value, true)" title="Click to zoom to estate on main map">
+                                        <div id="sp-comp-geo-svg-holder" class="sp-comp-geo-svg-holder"></div>
+                                        <div id="sp-comp-geo-tooltip" class="sp-comp-geo-tooltip" style="display:none;"></div>
+                                    </div>
+                                    <div class="sp-comp-geo-legend">
+                                        <span class="sp-comp-legend-item"><i style="background:#ef4444;"></i>High</span>
+                                        <span class="sp-comp-legend-item"><i style="background:#eab308;"></i>Moderate</span>
+                                        <span class="sp-comp-legend-item"><i style="background:#475569;"></i>Normal</span>
+                                    </div>
+                                    <div class="sp-comp-geo-disclaimer">
+                                        *This analysis is based on Sentinel-2 NDVI and multi-spectral canopy reflectance data for block-level stress and foliar nutrient evaluation.
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -406,10 +421,10 @@
 
     <!-- External & Modular JS Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="js/i18n.js?v=20261103c"></script>
-    <script src="js/nav.js?v=20261103c"></script>
-    <script src="js/prediction_cache_history.js?v=20261103c"></script>
-    <script src="js/home_dashboard_data.js?v=20261103c"></script>
-    <script src="js/home_dashboard.js?v=20261103c"></script>
+    <script src="js/i18n.js?v=20261103d"></script>
+    <script src="js/nav.js?v=20261103d"></script>
+    <script src="js/prediction_cache_history.js?v=20261103d"></script>
+    <script src="js/home_dashboard_data.js?v=20261103d"></script>
+    <script src="js/home_dashboard.js?v=20261103d"></script>
 </body>
 </html>

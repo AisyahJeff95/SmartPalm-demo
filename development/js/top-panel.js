@@ -38,56 +38,67 @@
             : FALLBACK_ESTATES;
     }
 
-    function getSeedRuns() {
-        return [
-            {
-                id: 'run-seed-1',
-                estateKey: 'BENTA_WAWASAN',
-                estateName: 'Benta Wawasan (Sabah)',
-                date: '2026-10-29',
-                time: '14:32',
-                model: 'Sentinel-2 L2A RF+SVR Ensemble',
-                storageLocation: 'Supabase Cloud • comprehensive_runs/Benta_Wawasan'
-            },
-            {
-                id: 'run-seed-2',
-                estateKey: 'MPOB_KERATONG',
-                estateName: 'MPOB Kratong',
-                date: '2026-10-28',
-                time: '09:15',
-                model: 'Sentinel-2 L2A RF+SVR Ensemble',
-                storageLocation: 'Supabase Cloud • comprehensive_runs/MPOB_Kratong'
-            },
-            {
-                id: 'run-seed-3',
-                estateKey: 'GOLD_HILL',
-                estateName: 'Gold Hill Estate',
-                date: '2026-10-25',
-                time: '16:48',
-                model: 'Sentinel-2 L2A RF+SVR Ensemble',
-                storageLocation: 'Supabase Cloud • comprehensive_runs/Gold_Hill'
-            },
-            {
-                id: 'run-seed-4',
-                estateKey: 'SEBERTAK',
-                estateName: 'Sebertak Estate',
-                date: '2026-10-21',
-                time: '11:05',
-                model: 'Sentinel-2 L2A RF+SVR Ensemble',
-                storageLocation: 'Local Cache • comprehensive_runs/Sebertak'
+    function formatTopPanelRunTime(tsStr, folderName, mtime) {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const toMYT = (d) => {
+            const myt = new Date(d.getTime() + 8 * 60 * 60 * 1000);
+            const day = String(myt.getUTCDate()).padStart(2, '0');
+            const mon = months[myt.getUTCMonth()];
+            const yr = myt.getUTCFullYear();
+            const hh = String(myt.getUTCHours()).padStart(2, '0');
+            const mm = String(myt.getUTCMinutes()).padStart(2, '0');
+            return { time: `${hh}:${mm}`, date: `${day} ${mon} ${yr}` };
+        };
+        const fnMatch = String(folderName || '').match(/(\d{4})-(\d{2})-(\d{2})_(\d{2})(\d{2})(\d{2})$/);
+        if (fnMatch) {
+            const d = new Date(Date.UTC(+fnMatch[1], +fnMatch[2] - 1, +fnMatch[3], +fnMatch[4], +fnMatch[5], +fnMatch[6]));
+            if (!isNaN(d.getTime())) return toMYT(d);
+        }
+        const raw = String(tsStr || '').trim();
+        if (raw) {
+            const iso = new Date(raw);
+            if (!isNaN(iso.getTime()) && (raw.endsWith('Z') || raw.includes('+'))) return toMYT(iso);
+            const m = raw.match(/^(\d{4})-(\d{2})-(\d{2})[_T\s](\d{2}):?(\d{2})(?::?(\d{2}))?/);
+            if (m) {
+                const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5], +(m[6] || 0)));
+                if (!isNaN(d.getTime())) return toMYT(d);
             }
-        ];
+        }
+        if (mtime && Number(mtime) > 1000000000) {
+            const d = new Date(Number(mtime) * 1000);
+            if (!isNaN(d.getTime())) return toMYT(d);
+        }
+        return { time: '—', date: 'Recent Run' };
     }
 
     function getRuns() {
+        const live = Array.isArray(window.PREDICTION_RUN_HISTORY) ? window.PREDICTION_RUN_HISTORY : [];
+        let lsV2 = [];
         try {
-            const raw = localStorage.getItem(LS_RUNS_KEY);
-            if (raw) {
-                const parsed = JSON.parse(raw);
-                if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-            }
+            const rawV2 = localStorage.getItem('smartpalm_prediction_history_meta_v2');
+            if (rawV2) lsV2 = JSON.parse(rawV2) || [];
         } catch (e) {}
-        return getSeedRuns();
+
+        const combined = [...live, ...lsV2];
+        const seen = new Set();
+        const result = [];
+        combined.forEach(r => {
+            if (!r) return;
+            const folder = r.folderName || r.folder_name;
+            if (!folder || seen.has(folder)) return;
+            seen.add(folder);
+            const dt = formatTopPanelRunTime(r.timestamp, folder, r.mtime);
+            result.push({
+                id: `run-${folder}`,
+                folderName: folder,
+                estateKey: r.shpKey || r.estate_key || r.estateName || '',
+                estateName: r.estateName || r.estate_name || folder,
+                date: dt.date,
+                time: dt.time,
+                storageLocation: `outputs/${folder}`
+            });
+        });
+        return result;
     }
 
     function getAllNotificationsShared() {
@@ -106,8 +117,8 @@
                 type: 'profile',
                 titleHtml: '<b>Please update your profile</b> — verify your estate organization details and contact email.',
                 estateName: 'Account Settings',
-                time: '09:00',
-                date: '2026-10-30',
+                time: 'Action Required',
+                date: 'Account Profile',
                 savedIn: 'Supabase Profile • Palmnex Sdn Bhd',
                 unread: readMap['notif-profile-update'] !== undefined ? !readMap['notif-profile-update'] : true,
                 actionType: 'profile'
@@ -115,18 +126,18 @@
         ];
 
         runs.forEach((r, idx) => {
-            const notifId = 'notif-' + (r.id || idx);
-            const whereSaved = r.storageLocation || (`Supabase Cloud • comprehensive_runs/${(r.estateKey || 'estate').toLowerCase()}`);
+            const notifId = 'notif-run-' + (r.folderName || r.id || idx);
+            const whereSaved = r.storageLocation || (`outputs/${r.folderName || 'prediction_run'}`);
             items.push({
                 id: notifId,
                 type: 'run',
                 runId: r.id,
                 estateKey: r.estateKey,
                 estateName: r.estateName,
-                time: r.time || '14:30',
-                date: r.date || '2026-10-29',
+                time: r.time || '—',
+                date: r.date || 'Recent Run',
                 savedIn: whereSaved,
-                titleHtml: `Run for <b>${r.estateName}</b> completed at <b>${r.time || '14:30'}</b>, <b>${r.date || '2026-10-29'}</b>, saved in <b>${whereSaved}</b>`,
+                titleHtml: `Run for <b>${r.estateName}</b> completed at <b>${r.time}</b>, <b>${r.date}</b>, saved in <b>${whereSaved}</b>`,
                 unread: readMap[notifId] !== undefined ? !readMap[notifId] : (idx < 4),
                 actionType: 'run'
             });
@@ -237,8 +248,26 @@
         };
     }
 
-    // Inject missing modals (#sp-settings-modal, #manual-modal, #auth-modal) so buttons work on every page
+    // Inject missing modals (#sp-settings-modal, #manual-modal, #auth-modal) and Clock History button so buttons work on every page
     function ensureTopPanelModals() {
+        const rightControls = document.querySelector('.sp-top-right-controls');
+        if (rightControls && !document.getElementById('sp-top-history-btn')) {
+            const histBtn = document.createElement('a');
+            histBtn.href = 'notifications.html?filter=runs';
+            histBtn.target = '_blank';
+            histBtn.className = 'sp-icon-btn';
+            histBtn.id = 'sp-top-history-btn';
+            histBtn.title = 'Run History';
+            histBtn.style.textDecoration = 'none';
+            histBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+            const notifWrap = document.getElementById('sp-notif-dropdown-wrap');
+            if (notifWrap && notifWrap.parentNode === rightControls) {
+                rightControls.insertBefore(histBtn, notifWrap);
+            } else {
+                rightControls.appendChild(histBtn);
+            }
+        }
+
         if (!document.getElementById('sp-settings-modal')) {
             const settingsDiv = document.createElement('div');
             settingsDiv.id = 'sp-settings-modal';

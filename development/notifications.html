@@ -187,6 +187,14 @@
                     </svg>
                 </button>
 
+                <!-- Run History Clock Button -->
+                <a href="notifications.html?filter=runs" target="_blank" class="sp-icon-btn" id="sp-top-history-btn" title="Run History" style="text-decoration: none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                </a>
+
                 <!-- Notifications Bell Button & Dropdown -->
                 <div class="sp-notif-dropdown-wrap" id="sp-notif-dropdown-wrap">
                     <button type="button" class="sp-icon-btn" id="sp-notif-bell-btn" onclick="toggleTopNotifDropdown(event)" title="Notifications">
@@ -269,11 +277,11 @@
                         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
                             <a href="index.html" style="color: #94a3b8; text-decoration: none; font-size: 13px; font-weight: 600;">← Back to Command Center</a>
                         </div>
-                        <h1 style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 26px; font-weight: 700; color: #ffffff; letter-spacing: -0.3px;">
+                        <h1 id="sp-notif-page-heading" style="margin: 0; font-family: 'Outfit', sans-serif; font-size: 26px; font-weight: 700; color: #ffffff; letter-spacing: -0.3px;">
                             All Notifications
                         </h1>
                         <div style="font-size: 13.5px; color: #94a3b8; margin-top: 3px;">
-                            Profile alerts &amp; completed satellite foliar prediction run logs (<span id="sp-notif-page-total-count">0</span> total • <span id="sp-notif-page-unread-count">0</span> unread)
+                            Completed satellite foliar prediction run logs (<span id="sp-notif-page-total-count">0</span> total)
                         </div>
                     </div>
                     <div style="display: flex; align-items: center; gap: 10px;">
@@ -285,10 +293,8 @@
 
                 <div class="sp-notif-page-toolbar">
                     <div class="sp-notif-page-tabs">
-                        <button type="button" class="sp-notif-page-tab active" onclick="filterFullNotificationsPage('all', this)">All Notifications</button>
-                        <button type="button" class="sp-notif-page-tab" onclick="filterFullNotificationsPage('unread', this)">Unread</button>
-                        <button type="button" class="sp-notif-page-tab" onclick="filterFullNotificationsPage('profile', this)">Profile &amp; Account</button>
-                        <button type="button" class="sp-notif-page-tab" onclick="filterFullNotificationsPage('runs', this)">Completed Runs</button>
+                        <button type="button" class="sp-notif-page-tab active" data-filter-mode="all" onclick="filterFullNotificationsPage('all', this)">All Notifications</button>
+                        <button type="button" class="sp-notif-page-tab" data-filter-mode="runs" onclick="filterFullNotificationsPage('runs', this)">Completed Runs</button>
                     </div>
                     <div style="min-width: 240px;">
                         <input type="text" id="sp-notif-page-search" class="sp-sched-input" placeholder="Filter by estate, date, or folder..." style="height: 34px; font-size: 12.5px;" oninput="filterFullNotificationsPage(window._activeNotifFilter || 'all')" />

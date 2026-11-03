@@ -1157,21 +1157,49 @@ body.sp-dark-home .cms-main-content {
     font-weight: 400;
 }
 
-/* Top-Right Sleek Company Foliar Bar Chart & Circular Stress Card */
-.sp-company-stress-card {
+#sp-kpi-company-count {
+    font-size: 33px;
+}
+
+/* Top-Right 3 Separated Cards Stack: 1. Overall Nutrient Level, 2. Overall Stress Level, 3. Stress Areas */
+.sp-company-cards-stack {
     pointer-events: auto;
-    width: 280px;
-    padding: 16px 18px;
+    width: 286px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.sp-company-subcard {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px 16px;
     border-radius: 16px;
-    background: rgba(18, 22, 28, 0.88);
+    background: rgba(18, 22, 28, 0.86);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.14);
-    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.58);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.52);
     display: flex;
     flex-direction: column;
-    gap: 13px;
-    flex-shrink: 0;
+    gap: 10px;
+}
+
+.sp-comp-section-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.65px;
+    color: #94a3b8;
+}
+
+.sp-stress-areas-card {
+    background: rgba(14, 19, 28, 0.42) !important;
+    backdrop-filter: blur(12px) saturate(140%) !important;
+    -webkit-backdrop-filter: blur(12px) saturate(140%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
 }
 
 .sp-comp-card-header {
@@ -1218,7 +1246,7 @@ body.sp-dark-home .cms-main-content {
 .sp-comp-nutrient-bars {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 7px;
 }
 
 .sp-comp-bar-row {
@@ -1265,19 +1293,19 @@ body.sp-dark-home .cms-main-content {
     width: 100%;
 }
 
-/* Bottom Circular Stress Graphic */
+/* Card 2: Circular Stress Graphic */
 .sp-comp-stress-footer {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 16px;
-    padding-top: 2px;
+    padding: 2px 0;
 }
 
 .sp-comp-circle-wrap {
     position: relative;
-    width: 78px;
-    height: 78px;
+    width: 74px;
+    height: 74px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1285,8 +1313,8 @@ body.sp-dark-home .cms-main-content {
 }
 
 .sp-comp-ring-svg {
-    width: 78px;
-    height: 78px;
+    width: 74px;
+    height: 74px;
     transform: rotate(-90deg);
 }
 
@@ -1315,7 +1343,7 @@ body.sp-dark-home .cms-main-content {
 
 .sp-comp-ring-val {
     font-family: 'Outfit', sans-serif;
-    font-size: 17px;
+    font-size: 16.5px;
     font-weight: 700;
     color: #ffffff;
     letter-spacing: -0.3px;
@@ -1346,11 +1374,11 @@ body.sp-dark-home .cms-main-content {
     border: 1px solid rgba(255, 255, 255, 0.18);
 }
 
-/* Under Stress Chart: Sleek Geospatial Stress Choropleth Map */
+/* Card 3: Sleek Translucent Geospatial Stress Choropleth Map */
 .sp-comp-geo-section {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 7px;
 }
 
 .sp-comp-geo-top {
@@ -1363,8 +1391,8 @@ body.sp-dark-home .cms-main-content {
 .sp-comp-geo-select {
     flex: 1;
     min-width: 0;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 8px;
     color: #f8fafc;
     font-size: 11.5px;
@@ -1407,10 +1435,11 @@ body.sp-dark-home .cms-main-content {
 .sp-comp-geo-map-box {
     position: relative;
     width: 100%;
-    height: 138px;
+    height: 132px;
     border-radius: 12px;
-    background: rgba(10, 13, 18, 0.65);
-    border: 1px solid rgba(255, 255, 255, 0.07);
+    background: rgba(8, 12, 18, 0.28);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: inset 0 0 22px rgba(0, 0, 0, 0.25);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1432,7 +1461,7 @@ body.sp-dark-home .cms-main-content {
     width: 100%;
     height: 100%;
     overflow: visible;
-    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.55));
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
 }
 
 .sp-comp-geo-svg-holder path,
@@ -1442,7 +1471,7 @@ body.sp-dark-home .cms-main-content {
 
 .sp-comp-geo-svg-holder path:hover,
 .sp-comp-geo-svg-holder circle:hover {
-    opacity: 0.92;
+    opacity: 0.96;
     stroke: #ffffff !important;
     stroke-width: 1.4px !important;
 }
@@ -1473,7 +1502,7 @@ body.sp-dark-home .cms-main-content {
     gap: 14px;
     font-size: 10.5px;
     font-weight: 500;
-    color: #94a3b8;
+    color: #cbd5e1;
 }
 
 .sp-comp-legend-item {
@@ -1487,6 +1516,16 @@ body.sp-dark-home .cms-main-content {
     height: 7px;
     border-radius: 2px;
     display: inline-block;
+}
+
+.sp-comp-geo-disclaimer {
+    font-size: 9.8px;
+    line-height: 1.38;
+    color: rgba(203, 213, 225, 0.78);
+    font-style: italic;
+    margin-top: 1px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .sp-map-hero-title {

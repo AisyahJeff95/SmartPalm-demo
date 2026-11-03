@@ -184,17 +184,21 @@
     function saveLocalHistoryMeta(list) {
         try {
             const slim = (list || []).slice(0, 60).map(item => {
-                const ym = parseDateYearMonth(item.targetDate || item.target_date);
+                const tDate = item.targetDate || item.target_date || item.acquisitionDate || item.acquisition_date || '';
+                const ym = parseDateYearMonth(tDate);
+                const blkCount = item.totalBlocks || item.total_blocks || (item.blockSummary && item.blockSummary.blocks ? Object.keys(item.blockSummary.blocks).length : null);
                 return {
                     folderName: item.folderName || item.folder_name,
-                    shpKey: item.shpKey || '',
+                    shpKey: item.shpKey || item.shp_key || item.estate_key || '',
                     estateName: item.estateName || item.estate_name || '',
-                    targetDate: item.targetDate || item.target_date || '',
+                    targetDate: tDate,
+                    acquisitionDate: tDate,
                     year: item.year || ym.year,
                     month: item.month || ym.month,
                     isRealtime: Boolean(item.isRealtime ?? item.is_realtime),
                     baseUrl: item.baseUrl || DEFAULT_HF_BASE,
                     executionTimeSec: item.executionTimeSec || item.execution_time_sec || null,
+                    totalBlocks: blkCount,
                     blockSummary: item.blockSummary || item.block_summary || null,
                     timestamp: item.timestamp || new Date().toISOString(),
                     mtime: item.mtime || Date.now() / 1000,
@@ -221,20 +225,37 @@
             const sb = typeof getSupabase === 'function' ? getSupabase() : (window.supabaseClient || null);
             if (!sb) return;
             const ym = parseDateYearMonth(record.targetDate);
-            await sb.from('prediction_runs').upsert([{
+            const blkCount = record.totalBlocks || (record.blockSummary && record.blockSummary.blocks ? Object.keys(record.blockSummary.blocks).length : null);
+            const res = await sb.from('prediction_runs').upsert([{
                 folder_name: record.folderName,
-                estate_key: record.shpKey || '',
+                shp_key: record.shpKey || '',
                 estate_name: record.estateName || '',
-                target_date: record.targetDate || '',
+                acquisition_date: record.targetDate || '',
                 year: record.year || ym.year,
                 month: record.month || ym.month,
-                is_realtime: Boolean(record.isRealtime),
-                base_url: record.baseUrl || DEFAULT_HF_BASE,
-                execution_time_sec: Number(record.executionTimeSec) || null,
+                timestamp: record.timestamp || new Date().toISOString(),
+                total_blocks: blkCount,
+                bounds: record.bounds || null,
                 block_summary: record.blockSummary || null,
                 overlays: record.overlays || null,
                 created_at: new Date().toISOString()
             }], { onConflict: 'folder_name' });
+            if (res && res.error) {
+                await sb.from('prediction_runs').upsert([{
+                    folder_name: record.folderName,
+                    estate_key: record.shpKey || '',
+                    estate_name: record.estateName || '',
+                    target_date: record.targetDate || '',
+                    year: record.year || ym.year,
+                    month: record.month || ym.month,
+                    is_realtime: Boolean(record.isRealtime),
+                    base_url: record.baseUrl || DEFAULT_HF_BASE,
+                    execution_time_sec: Number(record.executionTimeSec) || null,
+                    block_summary: record.blockSummary || null,
+                    overlays: record.overlays || null,
+                    created_at: new Date().toISOString()
+                }], { onConflict: 'folder_name' });
+            }
         } catch (e) {
             // Silent fallback if table does not exist or RLS restricts anonymous writes
         }
@@ -246,24 +267,28 @@
             if (!sb) return [];
             const { data, error } = await sb
                 .from('prediction_runs')
-                .select('folder_name, estate_key, estate_name, target_date, year, month, is_realtime, base_url, execution_time_sec, block_summary, created_at')
+                .select('*')
                 .order('created_at', { ascending: false })
                 .limit(60);
             if (error || !Array.isArray(data)) return [];
             return data.map(row => {
-                const ym = parseDateYearMonth(row.target_date);
+                const tDate = row.target_date || row.acquisition_date || '';
+                const ym = parseDateYearMonth(tDate);
+                const ts = row.timestamp || row.created_at || '';
                 return {
                     folderName: row.folder_name,
-                    shpKey: row.estate_key || '',
-                    estateName: row.estate_name || row.estate_key || row.folder_name,
-                    targetDate: row.target_date || '',
+                    shpKey: row.shp_key || row.estate_key || '',
+                    estateName: row.estate_name || row.shp_key || row.estate_key || row.folder_name,
+                    targetDate: tDate,
+                    acquisitionDate: tDate,
                     year: row.year || ym.year,
                     month: row.month || ym.month,
                     isRealtime: Boolean(row.is_realtime),
                     baseUrl: row.base_url || DEFAULT_HF_BASE,
-                    executionTimeSec: row.execution_time_sec,
+                    executionTimeSec: row.execution_time_sec || null,
+                    totalBlocks: row.total_blocks || (row.block_summary && row.block_summary.blocks ? Object.keys(row.block_summary.blocks).length : null),
                     blockSummary: row.block_summary || null,
-                    timestamp: row.created_at || '',
+                    timestamp: ts,
                     mtime: row.created_at ? (new Date(row.created_at).getTime() / 1000) : 0,
                     hasOverlays: true
                 };
@@ -373,11 +398,13 @@
         const folderName = entry.folderName || `predictions_${shpKey}_${targetDate}`;
         const normOverlays = normalizeOverlaysObject(entry.overlays, entry.bounds);
         const computedSummary = entry.blockSummary || computeEstateAndBlockSummary(shpKey, entry.estateName);
+        const computedBlocksCount = entry.totalBlocks || (computedSummary && computedSummary.blocks ? Object.keys(computedSummary.blocks).length : null);
 
         const record = {
             shpKey: shpKey,
             estateName: entry.estateName || shpKey,
             targetDate: targetDate,
+            acquisitionDate: targetDate,
             year: ym.year,
             month: ym.month,
             isRealtime: Boolean(entry.isRealtime),
@@ -388,6 +415,7 @@
             grids: entry.grids || null,
             bounds: entry.bounds || (normOverlays && normOverlays.bounds) || null,
             executionTimeSec: entry.executionTimeSec || null,
+            totalBlocks: computedBlocksCount,
             blockSummary: computedSummary,
             timestamp: new Date().toISOString(),
             mtime: Date.now() / 1000,
@@ -424,6 +452,9 @@
         await idbPut(STORE_HISTORY, record);
         syncRunToSupabase(record);
         updateHistoryUIBadge(shpKey);
+        if (typeof window.renderRightNotificationsAndSchedules === 'function') window.renderRightNotificationsAndSchedules();
+        if (typeof window.renderFullNotificationsPage === 'function') window.renderFullNotificationsPage();
+        if (typeof window.renderTopNotifDropdown === 'function') window.renderTopNotifDropdown();
     }
 
     /**
@@ -593,11 +624,17 @@
             const fn = item.folderName || item.folder_name;
             if (!fn) return;
             const existing = byFolder.get(fn) || {};
-            const ym = parseDateYearMonth(existing.targetDate || item.targetDate || item.target_date);
+            const tDate = existing.targetDate || item.targetDate || item.target_date || existing.acquisitionDate || item.acquisitionDate || '';
+            const ym = parseDateYearMonth(tDate);
+            const blkSummary = existing.blockSummary || item.blockSummary || item.block_summary || null;
+            const blkCount = existing.totalBlocks || item.totalBlocks || item.total_blocks || (blkSummary && blkSummary.blocks ? Object.keys(blkSummary.blocks).length : null);
             byFolder.set(fn, Object.assign({}, item, existing, {
+                targetDate: tDate,
+                acquisitionDate: tDate,
                 year: existing.year || item.year || ym.year,
                 month: existing.month || item.month || ym.month,
-                blockSummary: existing.blockSummary || item.blockSummary || item.block_summary || null,
+                totalBlocks: blkCount,
+                blockSummary: blkSummary,
                 overlays: existing.overlays || item.overlays || null,
                 hasOverlays: Boolean(existing.overlays || item.overlays || existing.hasOverlays || item.hasOverlays)
             }));
@@ -611,6 +648,9 @@
 
         const merged = Array.from(byFolder.values()).sort((a, b) => (b.mtime || 0) - (a.mtime || 0));
         window.PREDICTION_RUN_HISTORY = merged;
+        if (merged.length > 0) {
+            saveLocalHistoryMeta(merged);
+        }
 
         merged.forEach(r => {
             const k = r.shpKey || guessShpKeyFromEstateName(r.estateName || r.folderName);
@@ -622,6 +662,9 @@
 
         const selectEl = document.getElementById('map-select-comp') || document.getElementById('map-select-std') || document.getElementById('map-select-kpsm');
         updateHistoryUIBadge(selectEl ? selectEl.value : '');
+        if (typeof window.renderRightNotificationsAndSchedules === 'function') window.renderRightNotificationsAndSchedules();
+        if (typeof window.renderFullNotificationsPage === 'function') window.renderFullNotificationsPage();
+        if (typeof window.renderTopNotifDropdown === 'function') window.renderTopNotifDropdown();
         return merged;
     }
 

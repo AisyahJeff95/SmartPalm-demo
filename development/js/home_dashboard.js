@@ -372,12 +372,12 @@
     };
 
     const COMPANY_BAR_SPECS = [
-        { key: 'N',  label: 'N',  unit: '%',   maxScale: 3.10, crit: 2.46,  opt: 2.52,  dp: 2 },
-        { key: 'P',  label: 'P',  unit: '%',   maxScale: 0.21, crit: 0.155, opt: 0.163, dp: 3 },
-        { key: 'K',  label: 'K',  unit: '%',   maxScale: 1.35, crit: 0.98,  opt: 1.02,  dp: 2 },
-        { key: 'Mg', label: 'Mg', unit: '%',   maxScale: 0.36, crit: 0.25,  opt: 0.27,  dp: 2 },
-        { key: 'B',  label: 'B',  unit: 'ppm', maxScale: 20.0, crit: 13.5,  opt: 14.5,  dp: 1 },
-        { key: 'Ca', label: 'Ca', unit: '%',   maxScale: 0.85, crit: 0.61,  opt: 0.64,  dp: 2 }
+        { key: 'N',  label: 'N',  unit: '%',   minScale: 2.30, crit: 2.46,  opt: 2.52,  maxScale: 2.75, dp: 2 },
+        { key: 'P',  label: 'P',  unit: '%',   minScale: 0.140, crit: 0.155, opt: 0.163, maxScale: 0.185, dp: 3 },
+        { key: 'K',  label: 'K',  unit: '%',   minScale: 0.85, crit: 0.98,  opt: 1.02,  maxScale: 1.25, dp: 2 },
+        { key: 'Mg', label: 'Mg', unit: '%',   minScale: 0.21, crit: 0.25,  opt: 0.27,  maxScale: 0.34, dp: 2 },
+        { key: 'B',  label: 'B',  unit: 'ppm', minScale: 11.0, crit: 13.5,  opt: 14.5,  maxScale: 18.0, dp: 1 },
+        { key: 'Ca', label: 'Ca', unit: '%',   minScale: 0.52, crit: 0.61,  opt: 0.64,  maxScale: 0.78, dp: 2 }
     ];
 
     function renderCompanyStressCard(clusterId) {
@@ -398,23 +398,35 @@
         if (countEl) countEl.textContent = `${estates.length} ${estates.length === 1 ? 'Estate' : 'Estates'}`;
 
         // Compute average N, P, K, Mg, B, Ca across the chosen estate company with Red - Yellow - Green status colors
+        // and piecewise physiological bar widths so low/deficient averages show a visibly low bar
         if (barsEl) {
             barsEl.innerHTML = COMPANY_BAR_SPECS.map(spec => {
                 const avgVal = estates.reduce((sum, e) => {
                     const cn = e.currentNutrients || {};
                     return sum + Number(cn[spec.key] || 0);
                 }, 0) / estates.length;
-                const fillPct = Math.max(12, Math.min(100, (avgVal / spec.maxScale) * 100));
                 const unitStr = spec.unit === 'ppm' ? ' ppm' : '%';
 
-                let barGradient = 'linear-gradient(90deg, #059669 0%, #10b981 100%)'; // Green (Optimal)
+                let barGradient = 'linear-gradient(90deg, #059669 0%, #10b981 100%)'; // Green (Optimal / High)
                 let valColor = '#34d399';
+                let fillPct = 80;
+
                 if (avgVal < spec.crit) {
-                    barGradient = 'linear-gradient(90deg, #dc2626 0%, #ef4444 100%)'; // Red (Critical)
+                    // Red (Critical / Very Low): bar length is visibly low (18% - 32%)
+                    barGradient = 'linear-gradient(90deg, #dc2626 0%, #ef4444 100%)';
                     valColor = '#f87171';
+                    const ratio = Math.max(0, Math.min(1, (avgVal - spec.minScale) / Math.max(0.0001, spec.crit - spec.minScale)));
+                    fillPct = 18 + ratio * 14;
                 } else if (avgVal < spec.opt) {
-                    barGradient = 'linear-gradient(90deg, #ca8a04 0%, #eab308 100%)'; // Yellow (Moderate)
+                    // Yellow (Low / Marginal): bar length is visibly low-moderate (36% - 50%)
+                    barGradient = 'linear-gradient(90deg, #ca8a04 0%, #eab308 100%)';
                     valColor = '#facc15';
+                    const ratio = Math.max(0, Math.min(1, (avgVal - spec.crit) / Math.max(0.0001, spec.opt - spec.crit)));
+                    fillPct = 36 + ratio * 14;
+                } else {
+                    // Green (Optimal / Sufficient): bar length is high (74% - 94%)
+                    const ratio = Math.max(0, Math.min(1, (avgVal - spec.opt) / Math.max(0.0001, spec.maxScale - spec.opt)));
+                    fillPct = 74 + ratio * 20;
                 }
 
                 return `
@@ -1019,8 +1031,23 @@
         renderRightNotificationsAndSchedules();
     };
 
+    function resolveEstateBlockCount(shpKey, estateName, formattedName) {
+        const estates = (getHomeData() && Array.isArray(getHomeData().estates)) ? getHomeData().estates : [];
+        const candidates = [shpKey, estateName, formattedName]
+            .map(s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, ''))
+            .filter(Boolean);
+        for (const c of candidates) {
+            const match = estates.find(e => {
+                const ek = String(e.key || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                const en = String(e.name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                return ek === c || en === c || en.includes(c) || c.includes(ek);
+            });
+            if (match && match.totalBlocks) return match.totalBlocks;
+        }
+        return null;
+    }
+
     function getCombinedRunHistory() {
-        const data = getHomeData();
         const liveRuns = Array.isArray(window.PREDICTION_RUN_HISTORY) ? window.PREDICTION_RUN_HISTORY : [];
         let lsRunsV2 = [];
         let lsRunsV1 = [];
@@ -1036,17 +1063,35 @@
         const merged = [];
         const seen = new Set();
 
-        [...liveRuns, ...lsRunsV2, ...lsRunsV1, ...(data.defaultRunHistory || [])].forEach(r => {
-            const key = r.folderName || r.folder_name || `${r.estateName}_${r.timestamp}`;
+        [...liveRuns, ...lsRunsV2, ...lsRunsV1].forEach(r => {
+            if (!r) return;
+            const key = r.folderName || r.folder_name || (r.estateName && r.timestamp ? `${r.estateName}_${r.timestamp}` : '');
             if (!key || seen.has(key)) return;
             seen.add(key);
+
+            const shpKey = r.shpKey || r.shp_key || r.estate_key || '';
+            const rawEstateName = r.estateName || r.estate_name || shpKey || key;
+            const formattedName = formatEstateRunName(rawEstateName);
+
+            let acqDate = r.targetDate || r.target_date || r.acquisitionDate || r.acquisition_date || '';
+            if (!acqDate) {
+                const dm = String(key).match(/(\d{4}-\d{2}-\d{2})/);
+                if (dm) acqDate = dm[1];
+            }
+
+            const summaryBlocks = (r.blockSummary && r.blockSummary.blocks)
+                ? Object.keys(r.blockSummary.blocks).length
+                : ((r.block_summary && r.block_summary.blocks) ? Object.keys(r.block_summary.blocks).length : null);
+            const totalBlocks = r.totalBlocks || r.total_blocks || summaryBlocks || resolveEstateBlockCount(shpKey, rawEstateName, formattedName) || null;
+
             merged.push({
                 folderName: key,
-                shpKey: r.shpKey || r.shp_key || r.estateName || '',
-                estateName: r.estateName || r.estate_name || r.shpKey || 'Estate Run',
-                acquisitionDate: r.acquisitionDate || r.acquisition_date || '2026-10-07',
-                timestamp: r.timestamp || r.createdAt || '2026-10-14',
-                totalBlocks: r.totalBlocks || r.total_blocks || 55
+                shpKey: shpKey || rawEstateName,
+                estateName: rawEstateName,
+                acquisitionDate: acqDate,
+                timestamp: r.timestamp || r.createdAt || r.created_at || '',
+                mtime: r.mtime || 0,
+                totalBlocks: totalBlocks
             });
         });
         return merged;
@@ -1057,8 +1102,7 @@
         const schedules = loadSchedules();
         const maxWeekly = parseInt(localStorage.getItem(LS_QUOTA_MAX_KEY) || '20', 10);
 
-        // Calculate runs used this week (minimum 6 for realistic demo feedback if cache is fresh)
-        const usedThisWeek = Math.min(maxWeekly, Math.max(6, Math.min(runs.length, 6)));
+        const usedThisWeek = Math.min(maxWeekly, runs.length);
         const leftThisWeek = Math.max(0, maxWeekly - usedThisWeek);
         const pctLeft = Math.round((leftThisWeek / maxWeekly) * 100);
 
@@ -1068,7 +1112,7 @@
 
         if (quotaCountEl) quotaCountEl.textContent = `${leftThisWeek} / ${maxWeekly} Runs Left`;
         if (quotaFillEl) quotaFillEl.style.width = `${pctLeft}%`;
-        if (quotaUsedEl) quotaUsedEl.textContent = `${usedThisWeek} prediction runs executed this week`;
+        if (quotaUsedEl) quotaUsedEl.textContent = `${usedThisWeek} prediction runs executed`;
 
         // Render Scheduled Fertilizer Prediction Reminders
         const schedListEl = document.getElementById('sp-scheduled-runs-list');
@@ -1113,21 +1157,31 @@
         const historyListEl = document.getElementById('sp-run-history-list');
         if (historyListEl) {
             const topRuns = runs.slice(0, 8);
-            historyListEl.innerHTML = topRuns.map((r, i) => {
-                const cleanEstate = String(r.estateName).replace(/_/g, ' ');
-                const timeLabel = String(r.timestamp).replace('_', ' ');
-                return `
-                    <div class="sp-alert-card neutral" style="cursor:pointer;" onclick="location.href='comprehensive.html'">
-                        <div class="sp-alert-top">
-                            <span class="sp-alert-badge" style="color:#34d399;">✓ ${cleanEstate.toUpperCase()}</span>
-                            <span class="sp-alert-time">${i === 0 ? 'Latest Run' : timeLabel.slice(0, 10)}</span>
-                        </div>
-                        <div class="sp-alert-desc">
-                            Sentinel-2 10m N, P, K, Mg, Ca, B prediction completed • <b>${r.totalBlocks || 55} blocks</b> analyzed (Image: ${r.acquisitionDate}).
-                        </div>
+            if (topRuns.length === 0) {
+                historyListEl.innerHTML = `
+                    <div class="sp-alert-card neutral" style="color:#94a3b8;font-size:12px;">
+                        No completed prediction runs recorded yet.
                     </div>
                 `;
-            }).join('');
+            } else {
+                historyListEl.innerHTML = topRuns.map((r, i) => {
+                    const cleanEstate = formatEstateRunName(r.estateName);
+                    const { timeStr, dateStr } = parseRunTimestamp(r.timestamp, r.acquisitionDate, r.folderName, r.mtime);
+                    const blkText = r.totalBlocks ? `<b>${r.totalBlocks} blocks</b> analyzed • ` : '';
+                    const imgText = r.acquisitionDate ? `Image: ${r.acquisitionDate}` : `Saved in outputs/${r.folderName}`;
+                    return `
+                        <div class="sp-alert-card neutral" style="cursor:pointer;" onclick="location.href='comprehensive.html'">
+                            <div class="sp-alert-top">
+                                <span class="sp-alert-badge" style="color:#34d399;">✓ ${cleanEstate.toUpperCase()}</span>
+                                <span class="sp-alert-time">${i === 0 ? 'Latest Run' : `${dateStr}, ${timeStr}`}</span>
+                            </div>
+                            <div class="sp-alert-desc">
+                                Sentinel-2 10m N, P, K, Mg, Ca, B prediction completed • ${blkText}${imgText}.
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
         }
 
         const badgeCount = document.getElementById('sp-top-notif-badge');
@@ -1138,6 +1192,7 @@
         renderTopNotifDropdown();
         renderFullNotificationsPage();
     }
+    window.renderRightNotificationsAndSchedules = renderRightNotificationsAndSchedules;
 
     // -------------------------------------------------------------------------
     // 6B. TOP-RIGHT NOTIFICATION DROPDOWN & FULL NOTIFICATIONS PAGE ENGINE
@@ -1192,32 +1247,82 @@
         return s.replace(/_/g, ' ');
     }
 
-    function parseRunTimestamp(tsStr, fallbackDate) {
-        const raw = String(tsStr || '').trim();
+    function formatDateObjToMYT(dateObj) {
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        // Format: YYYY-MM-DD_HHMMSS
-        const m = raw.match(/^(\d{4})-(\d{2})-(\d{2})[_T\s](\d{2}):?(\d{2})(?::?(\d{2}))?/);
-        if (m) {
-            const year = m[1];
-            const monIdx = Math.max(0, Math.min(11, parseInt(m[2], 10) - 1));
-            const day = m[3];
-            const hh = m[4];
-            const mm = m[5];
-            return {
-                timeStr: `${hh}:${mm}`,
-                dateStr: `${day} ${months[monIdx]} ${year}`
-            };
+        // Convert to Malaysia Time (UTC+8)
+        const mytMs = dateObj.getTime() + (8 * 60 * 60 * 1000);
+        const myt = new Date(mytMs);
+        const year = myt.getUTCFullYear();
+        const monIdx = myt.getUTCMonth();
+        const day = String(myt.getUTCDate()).padStart(2, '0');
+        const hh = String(myt.getUTCHours()).padStart(2, '0');
+        const mm = String(myt.getUTCMinutes()).padStart(2, '0');
+        return {
+            timeStr: `${hh}:${mm}`,
+            dateStr: `${day} ${months[monIdx]} ${year}`
+        };
+    }
+
+    function parseRunTimestamp(tsStr, fallbackDate, folderName, mtime) {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        // 1. Check folderName suffix from HuggingFace server: predictions_<Estate>_YYYY-MM-DD_HHMMSS (UTC)
+        const fnMatch = String(folderName || '').match(/(\d{4})-(\d{2})-(\d{2})_(\d{2})(\d{2})(\d{2})$/);
+        if (fnMatch) {
+            const utcDate = new Date(Date.UTC(
+                parseInt(fnMatch[1], 10),
+                parseInt(fnMatch[2], 10) - 1,
+                parseInt(fnMatch[3], 10),
+                parseInt(fnMatch[4], 10),
+                parseInt(fnMatch[5], 10),
+                parseInt(fnMatch[6], 10)
+            ));
+            if (!isNaN(utcDate.getTime())) {
+                return formatDateObjToMYT(utcDate);
+            }
         }
-        // Fallback YYYY-MM-DD
+
+        // 2. Check ISO timestamp or YYYY-MM-DD_HH:MM:SS
+        const raw = String(tsStr || '').trim();
+        if (raw) {
+            const parsedIso = new Date(raw);
+            if (!isNaN(parsedIso.getTime()) && (raw.endsWith('Z') || raw.includes('+'))) {
+                return formatDateObjToMYT(parsedIso);
+            }
+            const m = raw.match(/^(\d{4})-(\d{2})-(\d{2})[_T\s](\d{2}):?(\d{2})(?::?(\d{2}))?/);
+            if (m) {
+                // Server /api/prediction_history returns UTC timestamp in YYYY-MM-DD HH:MM:SS
+                const utcDate = new Date(Date.UTC(
+                    parseInt(m[1], 10),
+                    parseInt(m[2], 10) - 1,
+                    parseInt(m[3], 10),
+                    parseInt(m[4], 10),
+                    parseInt(m[5], 10),
+                    parseInt(m[6] || '0', 10)
+                ));
+                if (!isNaN(utcDate.getTime())) {
+                    return formatDateObjToMYT(utcDate);
+                }
+            }
+        }
+
+        // 3. Check mtime (epoch seconds)
+        if (mtime && Number(mtime) > 1000000000) {
+            const d = new Date(Number(mtime) * 1000);
+            if (!isNaN(d.getTime())) {
+                return formatDateObjToMYT(d);
+            }
+        }
+
+        // 4. Fallback YYYY-MM-DD
         const dMatch = (raw || String(fallbackDate || '')).match(/^(\d{4})-(\d{2})-(\d{2})/);
         if (dMatch) {
             const monIdx = Math.max(0, Math.min(11, parseInt(dMatch[2], 10) - 1));
             return {
-                timeStr: '16:08',
+                timeStr: '—',
                 dateStr: `${dMatch[3]} ${months[monIdx]} ${dMatch[1]}`
             };
         }
-        return { timeStr: '14:15', dateStr: '30 Oct 2026' };
+        return { timeStr: '—', dateStr: 'Recent Run' };
     }
 
     window.getSmartPalmNotifications = function () {
@@ -1238,13 +1343,17 @@
             href: 'notifications.html?id=notif-profile-update'
         });
 
-        // 2. Completed prediction run notifications
+        // 2. Completed prediction run notifications (true history only)
         runs.forEach((r, idx) => {
             const id = `notif-run-${r.folderName}`;
             const estateLabel = formatEstateRunName(r.estateName);
-            const { timeStr, dateStr } = parseRunTimestamp(r.timestamp, r.acquisitionDate);
+            const { timeStr, dateStr } = parseRunTimestamp(r.timestamp, r.acquisitionDate, r.folderName, r.mtime);
             const whereStr = `outputs/${r.folderName}`;
             const isDefaultUnread = idx < 4 && !readSet.has(id);
+            const blkCount = r.totalBlocks || resolveEstateBlockCount(r.shpKey, r.estateName, estateLabel);
+            const acqDate = r.acquisitionDate || dateStr;
+            const blkPart = blkCount ? `${blkCount} blocks • ` : '';
+            const sentinelPart = acqDate ? `Sentinel-2 (${acqDate})` : 'Sentinel-2 10m';
 
             items.push({
                 id,
@@ -1256,11 +1365,11 @@
                 dateStr,
                 whereStr,
                 folderName: r.folderName,
-                totalBlocks: r.totalBlocks || 55,
-                acquisitionDate: r.acquisitionDate || '2026-10-07',
+                totalBlocks: blkCount,
+                acquisitionDate: acqDate,
                 htmlText: `Run for <b>${estateLabel}</b> completed at <b>${timeStr}</b>, <b>${dateStr}</b>, saved in <b>${whereStr}</b>`,
                 plainText: `Run for ${estateLabel} completed at ${timeStr}, ${dateStr}, saved in ${whereStr}`,
-                subText: `${r.totalBlocks || 55} blocks • Sentinel-2 (${r.acquisitionDate || '2026-10-07'})`,
+                subText: `${blkPart}${sentinelPart}`,
                 timeAgo: `${dateStr}, ${timeStr}`,
                 href: `notifications.html?id=${encodeURIComponent(id)}`
             });
@@ -1308,6 +1417,7 @@
             `;
         }).join('');
     }
+    window.renderTopNotifDropdown = renderTopNotifDropdown;
 
     window.toggleTopNotifDropdown = function (event) {
         if (event) event.stopPropagation();
@@ -1339,7 +1449,11 @@
         renderFullNotificationsPage();
     };
 
-    let activeNotifPageFilter = 'all';
+    const initialUrlFilter = (typeof window !== 'undefined' && window.location && window.location.search)
+        ? new URLSearchParams(window.location.search).get('filter')
+        : null;
+    let activeNotifPageFilter = (initialUrlFilter === 'runs') ? 'runs' : 'all';
+    window._activeNotifFilter = activeNotifPageFilter;
 
     window.filterFullNotificationsPage = function (filterMode, btnEl) {
         if (filterMode) activeNotifPageFilter = filterMode;
@@ -1347,6 +1461,15 @@
         if (btnEl) {
             document.querySelectorAll('.sp-notif-page-tab').forEach(b => b.classList.remove('active'));
             btnEl.classList.add('active');
+        } else {
+            document.querySelectorAll('.sp-notif-page-tab').forEach(b => {
+                const mode = b.getAttribute('data-filter-mode');
+                if (mode) b.classList.toggle('active', mode === activeNotifPageFilter);
+            });
+        }
+        const headingEl = document.getElementById('sp-notif-page-heading');
+        if (headingEl) {
+            headingEl.textContent = activeNotifPageFilter === 'runs' ? 'Run History' : 'All Notifications';
         }
         renderFullNotificationsPage();
     };
@@ -1354,6 +1477,16 @@
     function renderFullNotificationsPage() {
         const container = document.getElementById('sp-full-notifications-list');
         if (!container) return;
+
+        // Sync tab highlight and heading if opened with ?filter=runs
+        document.querySelectorAll('.sp-notif-page-tab').forEach(b => {
+            const mode = b.getAttribute('data-filter-mode');
+            if (mode) b.classList.toggle('active', mode === activeNotifPageFilter);
+        });
+        const headingEl = document.getElementById('sp-notif-page-heading');
+        if (headingEl) {
+            headingEl.textContent = activeNotifPageFilter === 'runs' ? 'Run History' : 'All Notifications';
+        }
 
         const searchInput = document.getElementById('sp-notif-page-search');
         const query = (searchInput ? searchInput.value : '').trim().toLowerCase();
@@ -1363,12 +1496,8 @@
         const allItems = window.getSmartPalmNotifications();
         const totalEl = document.getElementById('sp-notif-page-total-count');
         const unreadEl = document.getElementById('sp-notif-page-unread-count');
-        if (totalEl) totalEl.textContent = allItems.length;
-        if (unreadEl) unreadEl.textContent = allItems.filter(i => i.unread).length;
 
         const filtered = allItems.filter(item => {
-            if (activeNotifPageFilter === 'unread' && !item.unread) return false;
-            if (activeNotifPageFilter === 'profile' && item.type !== 'profile') return false;
             if (activeNotifPageFilter === 'runs' && item.type !== 'run') return false;
             if (query && !item.plainText.toLowerCase().includes(query) && !item.subText.toLowerCase().includes(query)) {
                 return false;
@@ -1376,10 +1505,13 @@
             return true;
         });
 
+        if (totalEl) totalEl.textContent = activeNotifPageFilter === 'runs' ? allItems.filter(i => i.type === 'run').length : allItems.length;
+        if (unreadEl) unreadEl.textContent = allItems.filter(i => i.unread).length;
+
         if (!filtered.length) {
             container.innerHTML = `
                 <div style="padding: 42px 20px; text-align: left; color: #94a3b8; font-size: 14px;">
-                    No notifications match the selected filter.
+                    ${activeNotifPageFilter === 'runs' ? 'No completed prediction runs found in history yet.' : 'No notifications match the selected filter.'}
                 </div>
             `;
             return;
@@ -1393,12 +1525,12 @@
 
             const safeFolder = String(item.folderName || '').replace(/'/g, "\\'");
             const safeEstate = String(item.estateLabel || '').replace(/'/g, "\\'");
-            const safeDate = String(item.acquisitionDate || '2026-10-07').replace(/'/g, "\\'");
+            const safeDate = String(item.acquisitionDate || '').replace(/'/g, "\\'");
             const safeKey = String(item.shpKey || item.estateLabel || '').replace(/'/g, "\\'");
 
             const actionBtnHtml = item.type === 'profile'
                 ? `<button type="button" class="sp-sched-btn" style="padding: 7px 14px; font-size: 12.5px;" onclick="openAuthModal('signin')">Update Profile</button>`
-                : `<button type="button" class="sp-sched-btn" style="padding: 7px 14px; font-size: 12.5px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;" onclick="if(window.downloadSavedRunSixPageRasters){window.downloadSavedRunSixPageRasters('${safeFolder}','${safeEstate}','${safeDate}','${safeKey}');}">⬇ Download Data</button>`;
+                : `<button type="button" class="sp-sched-btn" title="Download Data" aria-label="Download Data" style="width: 36px; height: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 9px;" onclick="if(window.downloadSavedRunSixPageRasters){window.downloadSavedRunSixPageRasters('${safeFolder}','${safeEstate}','${safeDate}','${safeKey}');}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>`;
 
             return `
                 <div id="${item.id}" class="sp-notif-page-row ${item.unread ? 'unread' : ''} ${isHighlighted ? 'highlighted' : ''}">
@@ -1422,6 +1554,7 @@
             `;
         }).join('');
     }
+    window.renderFullNotificationsPage = renderFullNotificationsPage;
 
     // -------------------------------------------------------------------------
     // 7. WIFI SPEED CONNECTION LIVE MONITOR & TOP BAR SEARCH (Ctrl+Shift+F)
