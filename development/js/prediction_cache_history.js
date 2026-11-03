@@ -96,7 +96,7 @@
     }
 
     function computeEstateAndBlockSummary(shpKey, estateName) {
-        const normKey = normalizeKey(shpKey || estateName);
+        const baseClean = normalizeKey(shpKey || estateName).replace(/(shp|estate|ladang)$/g, '') || normalizeKey(shpKey || estateName);
         const summary = {
             estateMean: { N: 2.48, P: 0.156, K: 1.01, Mg: 0.25, Ca: 0.63, B: 14.2 },
             blocks: {}
@@ -105,7 +105,11 @@
         try {
             const homeData = window.SMARTPALM_HOME_DATA || null;
             const estateMeta = (homeData && Array.isArray(homeData.estates))
-                ? homeData.estates.find(e => normalizeKey(e.key) === normKey || normalizeKey(e.name) === normKey || normKey.includes(normalizeKey(e.key)))
+                ? homeData.estates.find(e => {
+                    const ek = normalizeKey(e.key).replace(/(shp|estate|ladang)$/g, '');
+                    const en = normalizeKey(e.name).replace(/(shp|estate|ladang)$/g, '');
+                    return ek === baseClean || en === baseClean || baseClean.includes(ek) || ek.includes(baseClean);
+                })
                 : null;
             if (estateMeta && estateMeta.currentNutrients) {
                 const cn = estateMeta.currentNutrients;
@@ -121,10 +125,24 @@
 
             let geojson = null;
             if (typeof REAL_MAPS_DATA !== 'undefined' && REAL_MAPS_DATA) {
-                geojson = REAL_MAPS_DATA[shpKey] || REAL_MAPS_DATA[normKey];
+                geojson = REAL_MAPS_DATA[shpKey] || REAL_MAPS_DATA[baseClean];
+                if (!geojson) {
+                    const mKey = Object.keys(REAL_MAPS_DATA).find(k => {
+                        const nk = normalizeKey(k).replace(/shp$/, '');
+                        return nk === baseClean || nk.includes(baseClean) || baseClean.includes(nk);
+                    });
+                    if (mKey) geojson = REAL_MAPS_DATA[mKey];
+                }
             }
             if (!geojson && homeData && homeData.boundaries) {
-                geojson = homeData.boundaries[shpKey] || homeData.boundaries[normKey];
+                geojson = homeData.boundaries[shpKey] || homeData.boundaries[baseClean];
+                if (!geojson) {
+                    const bKey = Object.keys(homeData.boundaries).find(k => {
+                        const nk = normalizeKey(k).replace(/shp$/, '');
+                        return nk === baseClean || nk.includes(baseClean) || baseClean.includes(nk);
+                    });
+                    if (bKey) geojson = homeData.boundaries[bKey];
+                }
             }
 
             if (geojson && Array.isArray(geojson.features)) {
@@ -986,16 +1004,97 @@
         return false;
     }
 
-    function renderHighResSingleNutrientCanvas(panel, geojson, overlayObj, estateMeanVal, seedOffset) {
-        return new Promise((resolve) => {
-            const W = 820, H = 760;
-            const cvs = document.createElement('canvas');
-            cvs.width = W;
-            cvs.height = H;
-            const ctx = cvs.getContext('2d');
+    function resolveCanonicalShpKey(shpKey, estateName, folderName) {
+        const candidates = [shpKey, estateName, folderName].filter(Boolean);
+        for (const c of candidates) {
+            const guessed = guessShpKeyFromEstateName(c);
+            if (guessed) return guessed;
+        }
+        const raw = normalizeKey(shpKey || estateName || folderName)
+            .replace(/(estate|ladang|withblockboundary|combined|poly|shp)$/g, '');
+        return raw || normalizeKey(shpKey || estateName || folderName);
+    }
 
-            ctx.fillStyle = '#0c1622';
-            ctx.fillRect(0, 0, W, H);
+    function drawRoundedRect(ctx, x, y, w, h, r) {
+        ctx.beginPath();
+        ctx.moveTo(x + r, y);
+        ctx.lineTo(x + w - r, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+        ctx.lineTo(x + w, y + h - r);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        ctx.lineTo(x + r, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+        ctx.lineTo(x, y + r);
+        ctx.quadraticCurveTo(x, y, x + r, y);
+        ctx.closePath();
+    }
+
+    function renderFullA4NutrientPageJpeg(panel, pageIdx, estateName, targetDate, folderName, geojson, overlayObj, estateMeanVal, seedOffset) {
+        return new Promise((resolve) => {
+            // A4 Portrait @ 150 DPI: 1240 x 1754 px
+            const PW = 1240, PH = 1754;
+            const pageCvs = document.createElement('canvas');
+            pageCvs.width = PW;
+            pageCvs.height = PH;
+            const pctx = pageCvs.getContext('2d');
+
+            // 1. White Page Background
+            pctx.fillStyle = '#ffffff';
+            pctx.fillRect(0, 0, PW, PH);
+
+            const marginX = 68;
+            const contentW = PW - marginX * 2;
+
+            // 2. Top Institutional Header
+            pctx.fillStyle = '#1b4332';
+            pctx.font = '800 15px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
+            pctx.fillText('MALAYSIAN PALM OIL BOARD (MPOB) · PALMNEX SMARTPALM', marginX, 68);
+
+            pctx.fillStyle = '#0f172a';
+            pctx.font = '800 28px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
+            pctx.fillText(`10M SENTINEL-2 FOLIAR NUTRIENT RASTER — ${panel.name.toUpperCase()}`, marginX, 104);
+
+            pctx.fillStyle = '#475569';
+            pctx.font = '600 15px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
+            const runLabel = (folderName || 'CACHED_RUN').slice(0, 48);
+            pctx.fillText(`ESTATE: ${String(estateName).toUpperCase()}   |   ACQUISITION DATE: ${targetDate}   |   RUN: ${runLabel}`, marginX, 132);
+
+            // Right Status Pill
+            const meanVal = Number(estateMeanVal || panel.criticalVal);
+            const isSufficient = meanVal >= panel.criticalVal;
+            const badgeW = 240, badgeH = 34;
+            const badgeX = PW - marginX - badgeW, badgeY = 58;
+            pctx.fillStyle = isSufficient ? '#dcfce7' : '#fef2f2';
+            drawRoundedRect(pctx, badgeX, badgeY, badgeW, badgeH, 6);
+            pctx.fill();
+            pctx.strokeStyle = isSufficient ? '#86efac' : '#fecaca';
+            pctx.lineWidth = 1.5;
+            pctx.stroke();
+
+            pctx.fillStyle = isSufficient ? '#166534' : '#991b1b';
+            pctx.font = '800 13px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
+            pctx.textAlign = 'center';
+            pctx.fillText(isSufficient ? 'ESTATE MEAN SUFFICIENT' : 'ESTATE MEAN SUB-OPTIMAL', badgeX + badgeW / 2, badgeY + 22);
+
+            pctx.fillStyle = '#64748b';
+            pctx.font = '700 14px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
+            pctx.textAlign = 'right';
+            pctx.fillText(`Sheet ${pageIdx + 1} of 6 (${panel.key})`, PW - marginX, 122);
+            pctx.textAlign = 'left';
+
+            // Header Divider Line
+            pctx.strokeStyle = '#0f172a';
+            pctx.lineWidth = 3;
+            pctx.beginPath();
+            pctx.moveTo(marginX, 150);
+            pctx.lineTo(PW - marginX, 150);
+            pctx.stroke();
+
+            // 3. Main Map Frame (x: marginX, y: 172, w: contentW, h: 1210)
+            const mapX = marginX, mapY = 172, mapW = contentW, mapH = 1210;
+            pctx.fillStyle = '#0c1622';
+            drawRoundedRect(pctx, mapX, mapY, mapW, mapH, 10);
+            pctx.fill();
 
             const rings = extractAllRingsFromGeoJSON(geojson);
             let south = 4.56, west = 117.55, north = 4.65, east = 117.62;
@@ -1008,112 +1107,370 @@
                     if (pt[0] > east) east = pt[0];
                 }));
             } else if (overlayObj && Array.isArray(overlayObj.bounds) && overlayObj.bounds.length === 2) {
-                south = overlayObj.bounds[0][0];
-                west = overlayObj.bounds[0][1];
-                north = overlayObj.bounds[1][0];
-                east = overlayObj.bounds[1][1];
+                south = Number(overlayObj.bounds[0][0]);
+                west = Number(overlayObj.bounds[0][1]);
+                north = Number(overlayObj.bounds[1][0]);
+                east = Number(overlayObj.bounds[1][1]);
             }
 
-            const padLat = Math.max(1e-4, (north - south) * 0.10);
-            const padLng = Math.max(1e-4, (east - west) * 0.10);
-            const vSouth = south - padLat, vNorth = north + padLat;
-            const vWest = west - padLng, vEast = east + padLng;
+            // Preserve aspect ratio inside mapW x mapH
+            const latSpan = Math.max(1e-4, north - south);
+            const lngSpan = Math.max(1e-4, east - west);
+            const targetAspect = mapW / mapH;
+            const dataAspect = lngSpan / latSpan;
+            let vSouth = south - latSpan * 0.10, vNorth = north + latSpan * 0.10;
+            let vWest = west - lngSpan * 0.10, vEast = east + lngSpan * 0.10;
+            const paddedLat = vNorth - vSouth;
+            const paddedLng = vEast - vWest;
+            if (paddedLng / paddedLat > targetAspect) {
+                const neededLat = paddedLng / targetAspect;
+                const extra = (neededLat - paddedLat) / 2;
+                vSouth -= extra;
+                vNorth += extra;
+            } else {
+                const neededLng = paddedLat * targetAspect;
+                const extra = (neededLng - paddedLng) / 2;
+                vWest -= extra;
+                vEast += extra;
+            }
 
-            const toX = (lng) => ((lng - vWest) / (vEast - vWest)) * W;
-            const toY = (lat) => ((vNorth - lat) / (vNorth - vSouth)) * H;
+            const toX = (lng) => mapX + ((lng - vWest) / (vEast - vWest)) * mapW;
+            const toY = (lat) => mapY + ((vNorth - lat) / (vNorth - vSouth)) * mapH;
 
-            ctx.strokeStyle = 'rgba(148, 163, 184, 0.14)';
-            ctx.lineWidth = 1;
+            // Coordinate grid lines inside map
+            pctx.save();
+            drawRoundedRect(pctx, mapX, mapY, mapW, mapH, 10);
+            pctx.clip();
+
+            pctx.strokeStyle = 'rgba(148, 163, 184, 0.18)';
+            pctx.lineWidth = 1;
             for (let i = 1; i <= 4; i++) {
-                const gx = (W / 5) * i;
-                const gy = (H / 5) * i;
-                ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke();
-                ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke();
+                const gx = mapX + (mapW / 5) * i;
+                const gy = mapY + (mapH / 5) * i;
+                pctx.beginPath(); pctx.moveTo(gx, mapY); pctx.lineTo(gx, mapY + mapH); pctx.stroke();
+                pctx.beginPath(); pctx.moveTo(mapX, gy); pctx.lineTo(mapX + mapW, gy); pctx.stroke();
             }
 
-            const finishWithBoundariesAndAxes = () => {
+            const finishPageDrawing = () => {
+                // Draw estate & block boundary lines on top of raster
                 if (geojson && Array.isArray(geojson.features)) {
-                    ctx.save();
-                    ctx.strokeStyle = '#ff7800';
-                    ctx.lineWidth = 2.0;
-                    ctx.lineJoin = 'round';
+                    pctx.strokeStyle = '#ff7800';
+                    pctx.lineWidth = 2.6;
+                    pctx.lineJoin = 'round';
                     geojson.features.forEach(f => {
                         const fRings = extractAllRingsFromGeoJSON(f);
                         fRings.forEach(r => {
-                            ctx.beginPath();
+                            pctx.beginPath();
                             r.forEach((pt, idx) => {
                                 const x = toX(pt[0]), y = toY(pt[1]);
-                                if (idx === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+                                if (idx === 0) pctx.moveTo(x, y); else pctx.lineTo(x, y);
                             });
-                            ctx.closePath();
-                            ctx.stroke();
+                            pctx.closePath();
+                            pctx.stroke();
                         });
                     });
-                    ctx.restore();
                 }
 
-                ctx.fillStyle = 'rgba(226, 232, 240, 0.85)';
-                ctx.font = 'bold 11px Inter, monospace';
+                // Coordinate labels inside map frame
+                pctx.fillStyle = 'rgba(241, 245, 249, 0.9)';
+                pctx.font = 'bold 14px Inter, monospace';
                 for (let i = 1; i <= 4; i++) {
                     const lngVal = vWest + (i / 5) * (vEast - vWest);
                     const latVal = vNorth - (i / 5) * (vNorth - vSouth);
-                    ctx.fillText(`${lngVal.toFixed(4)}°E`, (W / 5) * i - 28, H - 8);
-                    ctx.fillText(`${latVal.toFixed(4)}°N`, 8, (H / 5) * i + 4);
+                    pctx.fillText(`${lngVal.toFixed(4)}°E`, mapX + (mapW / 5) * i - 38, mapY + mapH - 14);
+                    pctx.fillText(`${latVal.toFixed(4)}°N`, mapX + 14, mapY + (mapH / 5) * i + 5);
                 }
 
-                resolve(cvs.toDataURL('image/png'));
+                pctx.restore();
+
+                // Map Frame Border
+                pctx.strokeStyle = '#0f172a';
+                pctx.lineWidth = 2.5;
+                drawRoundedRect(pctx, mapX, mapY, mapW, mapH, 10);
+                pctx.stroke();
+
+                // 4. MPOB Leaf 17 Legend Box (y: 1404, h: 250)
+                const legX = marginX, legY = 1404, legW = contentW, legH = 250;
+                pctx.fillStyle = '#f8fafc';
+                drawRoundedRect(pctx, legX, legY, legW, legH, 8);
+                pctx.fill();
+                pctx.strokeStyle = '#94a3b8';
+                pctx.lineWidth = 1.5;
+                pctx.stroke();
+
+                pctx.fillStyle = '#0f172a';
+                pctx.font = '800 16px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
+                pctx.fillText(`${panel.name.toUpperCase()} — MPOB LEAF 17 CRITICAL THRESHOLD & 6-CLASS FOLIAR COLOR RAMP LEGEND`, legX + 20, legY + 34);
+
+                const minVal = (meanVal * 0.91).toFixed(panel.dp);
+                const maxVal = (meanVal * 1.09).toFixed(panel.dp);
+                pctx.textAlign = 'right';
+                pctx.font = '700 15px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
+                pctx.fillStyle = '#1e293b';
+                pctx.fillText(`Estate Mean: ${meanVal.toFixed(panel.dp)} ${panel.unit}   |   Range: ${minVal}–${maxVal} ${panel.unit}   |   Critical Threshold: ${panel.critical}`, legX + legW - 20, legY + 34);
+                pctx.textAlign = 'left';
+
+                pctx.strokeStyle = '#cbd5e1';
+                pctx.lineWidth = 1.5;
+                pctx.beginPath();
+                pctx.moveTo(legX + 20, legY + 48);
+                pctx.lineTo(legX + legW - 20, legY + 48);
+                pctx.stroke();
+
+                const b = panel.breaks, dp = panel.dp;
+                const ranges = [
+                    `<= ${b[0].toFixed(dp)} ${panel.unit}`,
+                    `${b[0].toFixed(dp)} - ${b[1].toFixed(dp)} ${panel.unit}`,
+                    `${b[1].toFixed(dp)} - ${b[2].toFixed(dp)} ${panel.unit}`,
+                    `${b[2].toFixed(dp)} - ${b[3].toFixed(dp)} ${panel.unit}`,
+                    `${b[3].toFixed(dp)} - ${b[4].toFixed(dp)} ${panel.unit}`,
+                    `> ${b[4].toFixed(dp)} ${panel.unit}`
+                ];
+
+                const boxGap = 12;
+                const innerW = legW - 40;
+                const cardW = (innerW - boxGap * 5) / 6;
+                const cardH = 166;
+                const cardY = legY + 64;
+
+                for (let cIdx = 0; cIdx < 6; cIdx++) {
+                    const cx = legX + 20 + cIdx * (cardW + boxGap);
+                    pctx.fillStyle = '#ffffff';
+                    drawRoundedRect(pctx, cx, cardY, cardW, cardH, 6);
+                    pctx.fill();
+                    pctx.strokeStyle = '#cbd5e1';
+                    pctx.lineWidth = 1.2;
+                    pctx.stroke();
+
+                    // Color bar swatch
+                    pctx.fillStyle = RAMP_COLORS[cIdx];
+                    drawRoundedRect(pctx, cx + 12, cardY + 14, cardW - 24, 38, 4);
+                    pctx.fill();
+                    pctx.strokeStyle = 'rgba(15,23,42,0.35)';
+                    pctx.lineWidth = 1;
+                    pctx.stroke();
+
+                    pctx.fillStyle = '#0f172a';
+                    pctx.font = '800 15px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
+                    pctx.fillText(RAMP_STATUS[cIdx], cx + 12, cardY + 84);
+
+                    pctx.fillStyle = '#475569';
+                    pctx.font = '700 13.5px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
+                    pctx.fillText(ranges[cIdx], cx + 12, cardY + 112);
+
+                    pctx.fillStyle = '#64748b';
+                    pctx.font = '600 12px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
+                    pctx.fillText(`Class ${cIdx + 1} of 6`, cx + 12, cardY + 142);
+                }
+
+                // 5. Institutional Footer
+                pctx.strokeStyle = '#0f172a';
+                pctx.lineWidth = 2;
+                pctx.beginPath();
+                pctx.moveTo(marginX, 1680);
+                pctx.lineTo(PW - marginX, 1680);
+                pctx.stroke();
+
+                pctx.fillStyle = '#475569';
+                pctx.font = '600 13.5px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
+                pctx.fillText('MPOB PalmNex Agronomic Decision Support System · 10m Sentinel-1 SAR & Sentinel-2 MSI Foliar Nutrient Raster', marginX, 1706);
+
+                pctx.fillStyle = '#0f172a';
+                pctx.font = '800 14px Inter, -apple-system, BlinkMacSystemFont, sans-serif';
+                pctx.textAlign = 'right';
+                pctx.fillText(`Page ${pageIdx + 1} of 6 — ${panel.name}`, PW - marginX, 1706);
+                pctx.textAlign = 'left';
+
+                resolve({
+                    dataUrl: pageCvs.toDataURL('image/jpeg', 0.92),
+                    width: PW,
+                    height: PH
+                });
             };
 
-            if (overlayObj && overlayObj.dataUrl) {
+            const drawSynthesizedGrid = () => {
+                const gridW = 220, gridH = 220;
+                const cellW = mapW / gridW, cellH = mapH / gridH;
+                const span = panel.breaks[4] - panel.breaks[0];
+                const baseVal = Number(estateMeanVal || panel.criticalVal);
+
+                for (let r = 0; r < gridH; r++) {
+                    const lat = vNorth - ((r + 0.5) / gridH) * (vNorth - vSouth);
+                    for (let c = 0; c < gridW; c++) {
+                        const lng = vWest + ((c + 0.5) / gridW) * (vEast - vWest);
+                        if (pointInAnyRing(lng, lat, rings)) {
+                            const wave = Math.sin((r + seedOffset) * 0.19 + c * 0.17) * 0.52
+                                       + Math.cos(r * 0.11 - (c + seedOffset) * 0.23) * 0.48;
+                            const val = baseVal + wave * (span * 0.34);
+                            pctx.fillStyle = colorForValRamp(val, panel.breaks);
+                            pctx.fillRect(
+                                Math.floor(mapX + c * cellW),
+                                Math.floor(mapY + r * cellH),
+                                Math.ceil(cellW) + 1,
+                                Math.ceil(cellH) + 1
+                            );
+                        }
+                    }
+                }
+                finishPageDrawing();
+            };
+
+            if (overlayObj && overlayObj.dataUrl && String(overlayObj.dataUrl).startsWith('data:image/')) {
                 const img = new Image();
                 img.onload = () => {
-                    const bnd = overlayObj.bounds || [[south, west], [north, east]];
-                    const ox1 = toX(bnd[0][1]), oy1 = toY(bnd[1][0]);
-                    const ox2 = toX(bnd[1][1]), oy2 = toY(bnd[0][0]);
-                    ctx.imageSmoothingEnabled = false;
-                    ctx.drawImage(img, ox1, oy1, ox2 - ox1, oy2 - oy1);
-                    finishWithBoundariesAndAxes();
+                    const bnd = (Array.isArray(overlayObj.bounds) && overlayObj.bounds.length === 2)
+                        ? overlayObj.bounds
+                        : [[south, west], [north, east]];
+                    const ox1 = toX(Number(bnd[0][1])), oy1 = toY(Number(bnd[1][0]));
+                    const ox2 = toX(Number(bnd[1][1])), oy2 = toY(Number(bnd[0][0]));
+                    pctx.imageSmoothingEnabled = false;
+                    pctx.drawImage(img, ox1, oy1, ox2 - ox1, oy2 - oy1);
+                    finishPageDrawing();
                 };
-                img.onerror = () => finishWithBoundariesAndAxes();
+                img.onerror = () => drawSynthesizedGrid();
                 img.src = overlayObj.dataUrl;
                 return;
             }
 
-            const gridW = 220, gridH = 200;
-            const cellW = W / gridW, cellH = H / gridH;
-            const span = panel.breaks[4] - panel.breaks[0];
-            const baseVal = Number(estateMeanVal || panel.criticalVal);
-
-            for (let r = 0; r < gridH; r++) {
-                const lat = vNorth - ((r + 0.5) / gridH) * (vNorth - vSouth);
-                for (let c = 0; c < gridW; c++) {
-                    const lng = vWest + ((c + 0.5) / gridW) * (vEast - vWest);
-                    if (pointInAnyRing(lng, lat, rings)) {
-                        const wave = Math.sin((r + seedOffset) * 0.19 + c * 0.17) * 0.52
-                                   + Math.cos(r * 0.11 - (c + seedOffset) * 0.23) * 0.48;
-                        const val = baseVal + wave * (span * 0.34);
-                        ctx.fillStyle = colorForValRamp(val, panel.breaks);
-                        ctx.fillRect(Math.floor(c * cellW), Math.floor(r * cellH), Math.ceil(cellW) + 1, Math.ceil(cellH) + 1);
-                    }
-                }
-            }
-
-            finishWithBoundariesAndAxes();
+            drawSynthesizedGrid();
         });
     }
 
+    function base64ToUint8Array(base64Str) {
+        const raw = atob(base64Str);
+        const out = new Uint8Array(raw.length);
+        for (let i = 0; i < raw.length; i++) {
+            out[i] = raw.charCodeAt(i) & 0xff;
+        }
+        return out;
+    }
+
+    function buildMultiPagePdfBlobFromJpegPages(pages) {
+        // Pure-JS PDF 1.4 writer embedding each JPEG page as a full A4 page (595.28 x 841.89 pt)
+        const enc = new TextEncoder();
+        const chunks = [];
+        let offset = 0;
+        const offsets = [0]; // 1-indexed object offsets
+
+        const pushStr = (s) => {
+            const b = enc.encode(s);
+            chunks.push(b);
+            offset += b.length;
+        };
+        const pushBytes = (b) => {
+            chunks.push(b);
+            offset += b.length;
+        };
+
+        pushStr('%PDF-1.4\n%\xFF\xFF\xFF\xFF\n');
+
+        const n = pages.length;
+        // Object IDs:
+        // 1: Catalog
+        // 2: Pages
+        // For page i (0..n-1):
+        //   pageObjId  = 3 + i * 3
+        //   contentId  = 4 + i * 3
+        //   imageObjId = 5 + i * 3
+        const pageObjIds = [];
+        for (let i = 0; i < n; i++) pageObjIds.push(3 + i * 3);
+
+        // Obj 1: Catalog
+        offsets[1] = offset;
+        pushStr('1 0 obj\n<< /Type /Catalog /Pages 2 0 R >>\nendobj\n');
+
+        // Obj 2: Pages
+        offsets[2] = offset;
+        pushStr(`2 0 obj\n<< /Type /Pages /Kids [${pageObjIds.map(id => `${id} 0 R`).join(' ')}] /Count ${n} >>\nendobj\n`);
+
+        for (let i = 0; i < n; i++) {
+            const p = pages[i];
+            const pageObjId = 3 + i * 3;
+            const contentId = 4 + i * 3;
+            const imageObjId = 5 + i * 3;
+            const b64 = p.dataUrl.split(',')[1] || '';
+            const jpgBytes = base64ToUint8Array(b64);
+
+            // Page object
+            offsets[pageObjId] = offset;
+            pushStr(
+                `${pageObjId} 0 obj\n` +
+                `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595.28 841.89] ` +
+                `/Resources << /XObject << /Im${i} ${imageObjId} 0 R >> >> ` +
+                `/Contents ${contentId} 0 R >>\n` +
+                `endobj\n`
+            );
+
+            // Content stream drawing image across full A4 page
+            const streamCmd = `q\n595.28 0 0 841.89 0 0 cm\n/Im${i} Do\nQ\n`;
+            const streamBytes = enc.encode(streamCmd);
+            offsets[contentId] = offset;
+            pushStr(`${contentId} 0 obj\n<< /Length ${streamBytes.length} >>\nstream\n`);
+            pushBytes(streamBytes);
+            pushStr('\nendstream\nendobj\n');
+
+            // Image XObject (DCTDecode raw JPEG)
+            offsets[imageObjId] = offset;
+            pushStr(
+                `${imageObjId} 0 obj\n` +
+                `<< /Type /XObject /Subtype /Image /Width ${p.width} /Height ${p.height} ` +
+                `/ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${jpgBytes.length} >>\n` +
+                `stream\n`
+            );
+            pushBytes(jpgBytes);
+            pushStr('\nendstream\nendobj\n');
+        }
+
+        const totalObjs = 2 + n * 3;
+        const xrefStart = offset;
+        pushStr(`xref\n0 ${totalObjs + 1}\n0000000000 65535 f \n`);
+        for (let objId = 1; objId <= totalObjs; objId++) {
+            const offStr = String(offsets[objId] || 0).padStart(10, '0');
+            pushStr(`${offStr} 00000 n \n`);
+        }
+        pushStr(`trailer\n<< /Size ${totalObjs + 1} /Root 1 0 R >>\nstartxref\n${xrefStart}\n%%EOF\n`);
+
+        return new Blob(chunks, { type: 'application/pdf' });
+    }
+
+    function triggerPdfBlobDownload(pdfBlob, fileName) {
+        const blobUrl = URL.createObjectURL(pdfBlob);
+        const a = document.createElement('a');
+        a.href = blobUrl;
+        a.download = fileName;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+            if (a.parentNode) a.parentNode.removeChild(a);
+            URL.revokeObjectURL(blobUrl);
+        }, 15000);
+    }
+
     async function downloadSavedRunSixPageRasters(folderName, estateName, targetDate, shpKey) {
-        const normKey = normalizeKey(shpKey || estateName || folderName);
-        const runs = Array.isArray(window.PREDICTION_RUN_HISTORY) && window.PREDICTION_RUN_HISTORY.length > 0
+        const canonicalKey = resolveCanonicalShpKey(shpKey, estateName, folderName);
+        const normKey = normalizeKey(canonicalKey);
+
+        // Merge memory history, localStorage history, and IndexedDB runs
+        const memRuns = Array.isArray(window.PREDICTION_RUN_HISTORY) && window.PREDICTION_RUN_HISTORY.length > 0
             ? window.PREDICTION_RUN_HISTORY
             : loadLocalHistoryMeta();
+        let idbRuns = [];
+        try {
+            idbRuns = await idbGetAllRuns();
+        } catch (e) {}
 
-        const histHit = runs.find(h =>
-            (folderName && (h.folderName === folderName || h.folder_name === folderName)) ||
-            (normKey && normalizeKey(h.shpKey || h.estateName) === normKey && (!targetDate || h.targetDate === targetDate))
-        );
+        const allKnownRuns = [...idbRuns, ...memRuns];
+        const histHit = allKnownRuns.find(h => {
+            const hFn = h.folderName || h.folder_name || '';
+            if (folderName && hFn && hFn === folderName) return true;
+            const hKey = normalizeKey(resolveCanonicalShpKey(h.shpKey, h.estateName || h.estate_name, hFn));
+            const hDate = h.targetDate || h.target_date || h.acquisitionDate || h.acquisition_date || '';
+            return Boolean(normKey && hKey === normKey && (!targetDate || !hDate || hDate === targetDate));
+        });
 
         let cached = (shpKey && window.PREDICTION_CACHE_BY_ESTATE[shpKey])
+                  || (canonicalKey && window.PREDICTION_CACHE_BY_ESTATE[canonicalKey])
                   || window.PREDICTION_CACHE_BY_ESTATE[normKey]
                   || histHit
                   || null;
@@ -1124,7 +1481,7 @@
                 if (sb) {
                     const { data } = await sb
                         .from('prediction_runs')
-                        .select('overlays, block_summary, estate_name, target_date, estate_key')
+                        .select('overlays, block_summary, estate_name, target_date, acquisition_date, estate_key, shp_key')
                         .eq('folder_name', folderName)
                         .maybeSingle();
                     if (data) {
@@ -1132,224 +1489,135 @@
                             overlays: normalizeOverlaysObject(data.overlays),
                             blockSummary: data.block_summary,
                             estateName: data.estate_name || estateName,
-                            targetDate: data.target_date || targetDate,
-                            shpKey: data.estate_key || shpKey
+                            targetDate: data.target_date || data.acquisition_date || targetDate,
+                            shpKey: data.estate_key || data.shp_key || canonicalKey
                         });
                     }
                 }
             } catch (e) {}
         }
 
-        const resolvedEstateName = (cached && cached.estateName) || estateName || 'Estate Boundary';
-        const resolvedDate = (cached && cached.targetDate) || targetDate || new Date().toISOString().slice(0, 10);
-        const resolvedSummary = (cached && (cached.blockSummary || cached.block_summary)) || computeEstateAndBlockSummary(normKey, resolvedEstateName);
-        const overlays = (cached && cached.overlays) || null;
+        const resolvedEstateName = (cached && (cached.estateName || cached.estate_name)) || estateName || canonicalKey || 'Estate Boundary';
+        const resolvedDate = (cached && (cached.targetDate || cached.target_date || cached.acquisitionDate || cached.acquisition_date))
+                          || targetDate
+                          || (() => {
+                              const m = String(folderName || '').match(/(\d{4}-\d{2}-\d{2})/);
+                              return m ? m[1] : '2026-10-07';
+                          })();
+        const resolvedSummary = (cached && (cached.blockSummary || cached.block_summary)) || computeEstateAndBlockSummary(canonicalKey, resolvedEstateName);
+        const overlays = (cached && cached.overlays) ? normalizeOverlaysObject(cached.overlays) : null;
 
         let geojson = null;
         const homeData = window.SMARTPALM_HOME_DATA || null;
         if (typeof REAL_MAPS_DATA !== 'undefined' && REAL_MAPS_DATA) {
-            geojson = REAL_MAPS_DATA[shpKey] || REAL_MAPS_DATA[normKey];
+            geojson = REAL_MAPS_DATA[shpKey] || REAL_MAPS_DATA[canonicalKey] || REAL_MAPS_DATA[normKey];
+            if (!geojson) {
+                const matchK = Object.keys(REAL_MAPS_DATA).find(k => normalizeKey(k).includes(normKey) || normKey.includes(normalizeKey(k).replace(/shp$/, '')));
+                if (matchK) geojson = REAL_MAPS_DATA[matchK];
+            }
         }
         if (!geojson && homeData && homeData.boundaries) {
-            if (homeData.boundaries[normKey]) {
+            if (homeData.boundaries[canonicalKey]) {
+                geojson = homeData.boundaries[canonicalKey];
+            } else if (homeData.boundaries[normKey]) {
                 geojson = homeData.boundaries[normKey];
             } else {
-                const foundBoundaryKey = Object.keys(homeData.boundaries).find(k => normKey.includes(normalizeKey(k)) || normalizeKey(k).includes(normKey));
+                const foundBoundaryKey = Object.keys(homeData.boundaries).find(k => {
+                    const nk = normalizeKey(k);
+                    return nk === normKey || normKey.includes(nk) || nk.includes(normKey);
+                });
                 if (foundBoundaryKey) geojson = homeData.boundaries[foundBoundaryKey];
             }
         }
 
-        const win = window.open('', '_blank');
-        if (!win) {
-            alert('Please allow pop-ups in your browser to view and download the 6-Page Colored Nutrient Raster Report.');
-            return;
-        }
+        // Open in-page 6-Page Raster Report Preview Modal (never blanks out in Safari!)
+        let modal = document.getElementById('sp-six-page-raster-modal');
+        if (modal) modal.remove();
 
-        win.document.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <title>Generating 6-Page Nutrient Raster Report — ${resolvedEstateName} (${resolvedDate})</title>
-                <style>
-                    body { margin: 0; font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; background: #0f172a; color: #f8fafc; display: flex; align-items: center; justify-content: center; height: 100vh; }
-                </style>
-            </head>
-            <body>
-                <div style="text-align: center;">
-                    <div style="font-size: 28px; margin-bottom: 10px;">🛰️</div>
-                    <div style="font-size: 16px; font-weight: 700;">Rendering 6-Page High-Resolution Nutrient Raster Report...</div>
-                    <div style="font-size: 13px; color: #94a3b8; margin-top: 6px;">${resolvedEstateName} • Acquisition Date: ${resolvedDate}</div>
+        modal = document.createElement('div');
+        modal.id = 'sp-six-page-raster-modal';
+        modal.style.cssText = 'position:fixed; inset:0; z-index:9999999; background:rgba(6, 10, 19, 0.85); backdrop-filter:blur(6px); display:flex; flex-direction:column; font-family:"Inter", -apple-system, BlinkMacSystemFont, sans-serif;';
+        modal.innerHTML = `
+            <div style="padding: 12px 24px; background: #0f172a; border-bottom: 1px solid rgba(148,163,184,0.25); display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-shrink: 0;">
+                <div>
+                    <div style="font-size: 15px; font-weight: 800; color: #f8fafc;">
+                        🛰️ 6-Page Colored Nutrient Raster Report — ${resolvedEstateName} (${resolvedDate})
+                    </div>
+                    <div id="sp-six-page-modal-sub" style="font-size: 12px; color: #94a3b8; margin-top: 2px;">
+                        Rendering 6 high-resolution A4 nutrient raster sheets (N, P, K, Mg, Ca, B)...
+                    </div>
                 </div>
-            </body>
-            </html>
-        `);
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <button type="button" id="sp-six-page-dl-btn" disabled style="padding: 8px 18px; border-radius: 8px; border: none; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; font-size: 13px; font-weight: 700; cursor: pointer; opacity: 0.6;">
+                        ⏳ Preparing 6-Page PDF...
+                    </button>
+                    <button type="button" onclick="document.getElementById('sp-six-page-raster-modal').remove()" style="padding: 8px 14px; border-radius: 8px; border: 1px solid #475569; background: #1e293b; color: #f8fafc; font-size: 13px; font-weight: 700; cursor: pointer;">
+                        ✕ Close
+                    </button>
+                </div>
+            </div>
+            <div id="sp-six-page-scroll-body" style="flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; align-items: center; gap: 22px;">
+                <div style="padding: 60px 20px; text-align: center; color: #cbd5e1; font-size: 14px;">
+                    ⏳ Rendering 6 high-resolution A4 colored raster pages...
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
 
         const ymSeed = parseDateYearMonth(resolvedDate);
         const seedBase = (ymSeed.year * 12 + ymSeed.month) % 37;
 
-        const pagesHtmlArr = [];
+        const renderedPages = [];
         for (let idx = 0; idx < SIX_PAGE_NUTRIENTS.length; idx++) {
             const panel = SIX_PAGE_NUTRIENTS[idx];
             const meanVal = (resolvedSummary && resolvedSummary.estateMean && resolvedSummary.estateMean[panel.key] !== undefined)
                 ? Number(resolvedSummary.estateMean[panel.key])
                 : panel.criticalVal;
-            const minVal = (meanVal * 0.91).toFixed(panel.dp);
-            const maxVal = (meanVal * 1.09).toFixed(panel.dp);
-            const isSufficient = meanVal >= panel.criticalVal;
-            const statusColor = colorForValRamp(meanVal, panel.breaks);
-
             const ovObj = overlays ? overlays[panel.key] : null;
-            const dataUrl = await renderHighResSingleNutrientCanvas(panel, geojson, ovObj, meanVal, seedBase + idx * 5);
-
-            const b = panel.breaks, dp = panel.dp;
-            const ranges = [
-                `≤ ${b[0].toFixed(dp)} ${panel.unit}`,
-                `${b[0].toFixed(dp)} – ${b[1].toFixed(dp)} ${panel.unit}`,
-                `${b[1].toFixed(dp)} – ${b[2].toFixed(dp)} ${panel.unit}`,
-                `${b[2].toFixed(dp)} – ${b[3].toFixed(dp)} ${panel.unit}`,
-                `${b[3].toFixed(dp)} – ${b[4].toFixed(dp)} ${panel.unit}`,
-                `> ${b[4].toFixed(dp)} ${panel.unit}`
-            ];
-
-            const legendBoxesHtml = ranges.map((rLbl, cIdx) => `
-                <div style="display: flex; align-items: center; gap: 8px; padding: 6px 10px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 4px;">
-                    <span style="width: 16px; height: 16px; border-radius: 3px; background: ${RAMP_COLORS[cIdx]}; border: 1px solid rgba(15,23,42,0.4); flex-shrink: 0;"></span>
-                    <div style="line-height: 1.25;">
-                        <div style="font-size: 10px; font-weight: 800; color: #0f172a;">${RAMP_STATUS[cIdx]}</div>
-                        <div style="font-size: 9.5px; font-weight: 600; color: #475569;">${rLbl}</div>
-                    </div>
-                </div>
-            `).join('');
-
-            pagesHtmlArr.push(`
-                <div class="raster-report-page">
-                    <div style="border-bottom: 2.5px solid #0f172a; padding-bottom: 8px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <div style="font-size: 9px; font-weight: 800; color: #1b4332; text-transform: uppercase; letter-spacing: 1px;">
-                                MALAYSIAN PALM OIL BOARD (MPOB) · PALMNEX SMARTPALM
-                            </div>
-                            <h1 style="margin: 3px 0 3px 0; color: #0f172a; font-size: 19px; font-weight: 800; text-transform: uppercase; letter-spacing: -0.3px;">
-                                10m Sentinel-2 Foliar Nutrient Raster — ${panel.name}
-                            </h1>
-                            <div style="font-size: 10px; color: #475569; font-weight: 600;">
-                                ESTATE: <strong>${resolvedEstateName.toUpperCase()}</strong> &nbsp;|&nbsp; ACQUISITION DATE: <strong>${resolvedDate}</strong> &nbsp;|&nbsp; RUN ID: <strong>${folderName || 'CACHED_RUN'}</strong>
-                            </div>
-                        </div>
-                        <div style="text-align: right;">
-                            <span style="display: inline-block; padding: 4px 10px; border-radius: 4px; font-size: 10px; font-weight: 800; background: ${isSufficient ? '#dcfce7' : '#fef2f2'}; color: ${isSufficient ? '#166534' : '#991b1b'}; border: 1px solid ${isSufficient ? '#86efac' : '#fecaca'};">
-                                ${isSufficient ? 'ESTATE MEAN SUFFICIENT' : 'ESTATE MEAN SUB-OPTIMAL'}
-                            </span>
-                            <div style="font-size: 9px; color: #64748b; margin-top: 4px; font-weight: 700;">Sheet ${idx + 1} of 6 (${panel.key})</div>
-                        </div>
-                    </div>
-
-                    <div style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; gap: 12px; min-height: 0;">
-                        <div style="flex: 1; border: 1.5px solid #0f172a; border-radius: 6px; overflow: hidden; background: #0c1622; display: flex; align-items: center; justify-content: center; position: relative; min-height: 0;">
-                            <img src="${dataUrl}" alt="${panel.name} Raster" style="width: 100%; height: 100%; object-fit: contain; display: block;" />
-                        </div>
-
-                        <div style="background: #f8fafc; border: 1px solid #94a3b8; border-radius: 6px; padding: 10px 14px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1.5px solid #cbd5e1; padding-bottom: 6px; margin-bottom: 8px;">
-                                <div style="font-size: 11px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.4px;">
-                                    ${panel.name} — MPOB Leaf 17 Critical Threshold &amp; 6-Class Foliar Color Ramp Legend
-                                </div>
-                                <div style="font-size: 10.5px; font-weight: 700; color: #1e293b;">
-                                    Estate Mean: <span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${statusColor};margin:0 4px;border:1px solid rgba(0,0,0,0.3);vertical-align:middle;"></span><strong>${meanVal.toFixed(panel.dp)} ${panel.unit}</strong> &nbsp;|&nbsp; Range: <strong>${minVal}–${maxVal} ${panel.unit}</strong> &nbsp;|&nbsp; Critical Threshold: <strong style="color:#b91c1c;">${panel.critical}</strong>
-                                </div>
-                            </div>
-                            <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px;">
-                                ${legendBoxesHtml}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style="margin-top: 10px; border-top: 1.5px solid #0f172a; padding-top: 5px; font-size: 8.5px; color: #475569; font-weight: 600; display: flex; justify-content: space-between;">
-                        <span>MPOB PalmNex Agronomic Decision Support System · 10m Sentinel-1 SAR &amp; Sentinel-2 MSI Foliar Nutrient Raster</span>
-                        <span style="color: #0f172a; font-weight: 800;">Page ${idx + 1} of 6 — ${panel.name}</span>
-                    </div>
-                </div>
-            `);
+            const pageObj = await renderFullA4NutrientPageJpeg(
+                panel,
+                idx,
+                resolvedEstateName,
+                resolvedDate,
+                folderName || `${canonicalKey}_${resolvedDate}`,
+                geojson,
+                ovObj,
+                meanVal,
+                seedBase + idx * 5
+            );
+            renderedPages.push(pageObj);
         }
 
-        win.document.open();
-        win.document.write(`
-            <!DOCTYPE html>
-            <html>
-            <head>
-                <meta charset="utf-8" />
-                <title>${resolvedEstateName} — 6-Page Colored Nutrient Rasters (${resolvedDate})</title>
-                <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
-                <style>
-                    * { box-sizing: border-box; }
-                    body {
-                        margin: 0;
-                        padding: 20px 0;
-                        background: #0f172a;
-                        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-                        color: #0f172a;
-                    }
-                    .top-print-bar {
-                        position: sticky;
-                        top: 0;
-                        z-index: 999;
-                        max-width: 210mm;
-                        margin: 0 auto 16px auto;
-                        padding: 10px 18px;
-                        background: #1e293b;
-                        border: 1px solid rgba(255,255,255,0.15);
-                        border-radius: 10px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: space-between;
-                        color: #f8fafc;
-                        box-shadow: 0 10px 30px rgba(0,0,0,0.45);
-                    }
-                    .top-print-btn {
-                        padding: 8px 18px;
-                        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-                        color: #ffffff;
-                        border: none;
-                        border-radius: 8px;
-                        font-size: 13px;
-                        font-weight: 700;
-                        cursor: pointer;
-                    }
-                    .raster-report-page {
-                        width: 210mm;
-                        height: 296mm;
-                        margin: 0 auto 20px auto;
-                        background: #ffffff;
-                        padding: 11mm 13mm;
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: space-between;
-                        box-shadow: 0 6px 24px rgba(0,0,0,0.35);
-                        page-break-after: always;
-                    }
-                    @media print {
-                        body { background: #ffffff; padding: 0; }
-                        .top-print-bar { display: none !important; }
-                        .raster-report-page {
-                            margin: 0;
-                            box-shadow: none;
-                            page-break-after: always;
-                        }
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="top-print-bar">
-                    <div>
-                        <div style="font-size: 14px; font-weight: 800;">6-Page High-Resolution Colored Nutrient Raster Report (N, P, K, Mg, Ca, B)</div>
-                        <div style="font-size: 11.5px; color: #94a3b8;">${resolvedEstateName} • Acquisition Date: ${resolvedDate} • 1 Nutrient Per Page with MPOB Leaf 17 Legends</div>
-                    </div>
-                    <button class="top-print-btn" onclick="window.print()">⬇ Save as PDF / Print (6 Pages)</button>
+        const pdfBlob = buildMultiPagePdfBlobFromJpegPages(renderedPages);
+        const cleanFileEstate = String(resolvedEstateName).replace(/[^a-zA-Z0-9_-]+/g, '_').replace(/^_+|_+$/g, '') || 'Estate';
+        const pdfFileName = `${cleanFileEstate}_6-Page_Colored_Nutrient_Rasters_${resolvedDate}.pdf`;
+
+        const scrollBody = document.getElementById('sp-six-page-scroll-body');
+        if (scrollBody) {
+            scrollBody.innerHTML = renderedPages.map((p, idx) => `
+                <div style="width: 100%; max-width: 790px; background: #ffffff; border-radius: 6px; overflow: hidden; box-shadow: 0 12px 32px rgba(0,0,0,0.5);">
+                    <img src="${p.dataUrl}" alt="Page ${idx + 1}" style="width: 100%; height: auto; display: block;" />
                 </div>
-                ${pagesHtmlArr.join('\n')}
-            </body>
-            </html>
-        `);
-        win.document.close();
+            `).join('');
+        }
+
+        const subEl = document.getElementById('sp-six-page-modal-sub');
+        if (subEl) {
+            subEl.textContent = `${resolvedEstateName} • Acquisition Date: ${resolvedDate} • 6 A4 Pages (N, P, K, Mg, Ca, B) with MPOB Leaf 17 Legends`;
+        }
+
+        const dlBtn = document.getElementById('sp-six-page-dl-btn');
+        if (dlBtn) {
+            dlBtn.disabled = false;
+            dlBtn.style.opacity = '1';
+            dlBtn.innerHTML = '⬇ Download PDF (6 Pages)';
+            dlBtn.onclick = () => {
+                triggerPdfBlobDownload(pdfBlob, pdfFileName);
+            };
+        }
+
+        // Automatically trigger the 6-page PDF file download while keeping the preview modal open and intact
+        triggerPdfBlobDownload(pdfBlob, pdfFileName);
     }
     window.downloadSavedRunSixPageRasters = downloadSavedRunSixPageRasters;
 
