@@ -137,10 +137,10 @@
                 <!-- Profile / Login Button -->
                 <button type="button" class="sp-profile-btn" onclick="openAuthModal('signin')" title="Account Login / Profile">
                     <div class="sp-avatar-circle">
-                        <span>Dr</span>
+                        <span>AD</span>
                         <span class="sp-avatar-status"></span>
                     </div>
-                    <span id="nav-user-email">Login / Profile</span>
+                    <span id="nav-user-email">Admin • Palmnex Sdn Bhd</span>
                 </button>
             </div>
         </div>
@@ -231,7 +231,7 @@
                 </div>
 
                 <!-- ---------------------------------------------------------
-                     CENTER MAP HUD: Welcome Card, All-20-Maps Dropdown, Zoom Controls
+                     CENTER MAP HUD: Welcome Card (Top-Left), Company Nutrient & Stress Card (Top-Right), Zoom Controls
                      --------------------------------------------------------- -->
                 <div class="sp-center-hud">
                     <div class="sp-map-top-hud">
@@ -243,6 +243,58 @@
                             <p class="sp-welcome-desc">
                                 Your session is active. You have full access to uploaded estate maps, satellite foliar nutrient predictions, and block-level fertilization analytics.
                             </p>
+                        </div>
+
+                        <!-- Top-Right Sleek Company Foliar Bar Chart (Top) & Overall Stress Circular Gauge (Bottom) -->
+                        <div id="sp-company-stress-card" class="sp-glass-panel sp-company-stress-card">
+                            <div class="sp-comp-card-header">
+                                <div class="sp-comp-card-title-wrap">
+                                    <span class="sp-comp-card-dot"></span>
+                                    <span id="sp-comp-card-name" class="sp-comp-card-name">Benta Wawasan Sdn Bhd</span>
+                                </div>
+                                <span id="sp-comp-card-count" class="sp-comp-card-count">11 Estates</span>
+                            </div>
+
+                            <!-- Top: Horizontal Bar Chart for N, P, K, Mg, B, Ca -->
+                            <div id="sp-comp-nutrient-bars" class="sp-comp-nutrient-bars"></div>
+
+                            <div class="sp-comp-card-divider"></div>
+
+                            <!-- Bottom: Circular Graphic for Overall Stress -->
+                            <div class="sp-comp-stress-footer">
+                                <div class="sp-comp-circle-wrap">
+                                    <svg class="sp-comp-ring-svg" viewBox="0 0 88 88">
+                                        <circle class="sp-comp-ring-bg" cx="44" cy="44" r="35"></circle>
+                                        <circle id="sp-comp-ring-prog" class="sp-comp-ring-prog" cx="44" cy="44" r="35" stroke-dasharray="219.91" stroke-dashoffset="146"></circle>
+                                    </svg>
+                                    <div class="sp-comp-ring-center">
+                                        <span id="sp-comp-stress-pct" class="sp-comp-ring-val">33.5%</span>
+                                    </div>
+                                </div>
+                                <div class="sp-comp-stress-meta">
+                                    <span class="sp-comp-stress-label">Overall Stress</span>
+                                    <span id="sp-comp-stress-rating" class="sp-comp-stress-badge">Moderate</span>
+                                </div>
+                            </div>
+
+                            <div class="sp-comp-card-divider"></div>
+
+                            <!-- Under Stress Chart: Sleek Geospatial Stress Map (Yellow & Red Stress Areas) -->
+                            <div class="sp-comp-geo-section">
+                                <div class="sp-comp-geo-top">
+                                    <select id="sp-comp-geo-select" class="sp-comp-geo-select" onchange="selectEstate(this.value, true)" title="Select estate map"></select>
+                                    <button type="button" id="sp-comp-geo-mode-btn" class="sp-comp-geo-mode-btn" style="display:none;" onclick="toggleCompGeoRasterMode()" title="Toggle Block Choropleth / 10m Raster">10m</button>
+                                </div>
+                                <div id="sp-comp-geo-map-box" class="sp-comp-geo-map-box" onclick="selectEstate(document.getElementById('sp-comp-geo-select').value, true)" title="Click to zoom to estate on main map">
+                                    <div id="sp-comp-geo-svg-holder" class="sp-comp-geo-svg-holder"></div>
+                                    <div id="sp-comp-geo-tooltip" class="sp-comp-geo-tooltip" style="display:none;"></div>
+                                </div>
+                                <div class="sp-comp-geo-legend">
+                                    <span class="sp-comp-legend-item"><i style="background:#ef4444;"></i>High</span>
+                                    <span class="sp-comp-legend-item"><i style="background:#eab308;"></i>Moderate</span>
+                                    <span class="sp-comp-legend-item"><i style="background:#475569;"></i>Normal</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 

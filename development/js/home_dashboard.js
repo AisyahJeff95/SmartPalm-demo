@@ -178,8 +178,8 @@
                 const pinIcon = L.divIcon({
                     className: '',
                     html: `
-                        <div class="sp-estate-pin" style="border-color:${isSelected ? '#ffffff' : 'rgba(255,255,255,0.28)'};background:${isSelected ? 'rgba(42,48,60,0.95)' : 'rgba(14,18,24,0.9)'};">
-                            <span class="sp-estate-pin-dot" style="background:#ffffff;box-shadow:none;"></span>
+                        <div class="sp-estate-pin">
+                            <span class="sp-estate-pin-dot"></span>
                         </div>
                     `,
                     iconSize: [0, 0]
@@ -293,6 +293,9 @@
         document.querySelectorAll('.sp-estate-row-item').forEach(el => {
             el.classList.toggle('active', el.dataset.ownerId === cluster.id);
         });
+
+        // Update Top-Right Company Nutrient & Circular Stress Card
+        renderCompanyStressCard(cluster.id);
     };
 
     window.selectOwnerClusterOrEstate = function (val, zoom) {
@@ -361,9 +364,293 @@
             el.classList.toggle('active', el.dataset.estateKey === est.key);
         });
 
+        // Update Top-Right Company Nutrient & Circular Stress Card
+        renderCompanyStressCard(selectedOwnerClusterId);
+
         // Update Bottom-Right 3-Month N, P, K, Mg, Ca, B Panel
         render3MonthNutrientPanel(est);
     };
+
+    const COMPANY_BAR_SPECS = [
+        { key: 'N',  label: 'N',  unit: '%',   maxScale: 3.10, dp: 2 },
+        { key: 'P',  label: 'P',  unit: '%',   maxScale: 0.21, dp: 3 },
+        { key: 'K',  label: 'K',  unit: '%',   maxScale: 1.35, dp: 2 },
+        { key: 'Mg', label: 'Mg', unit: '%',   maxScale: 0.36, dp: 2 },
+        { key: 'B',  label: 'B',  unit: 'ppm', maxScale: 20.0, dp: 1 },
+        { key: 'Ca', label: 'Ca', unit: '%',   maxScale: 0.85, dp: 2 }
+    ];
+
+    function renderCompanyStressCard(clusterId) {
+        const cluster = getOwnerClusterById(clusterId || selectedOwnerClusterId);
+        if (!cluster) return;
+
+        const estates = cluster.estateKeys.map(k => getEstateByKey(k)).filter(Boolean);
+        if (!estates.length) return;
+
+        const nameEl = document.getElementById('sp-comp-card-name');
+        const countEl = document.getElementById('sp-comp-card-count');
+        const barsEl = document.getElementById('sp-comp-nutrient-bars');
+        const ringProgEl = document.getElementById('sp-comp-ring-prog');
+        const pctEl = document.getElementById('sp-comp-stress-pct');
+        const ratingEl = document.getElementById('sp-comp-stress-rating');
+
+        if (nameEl) nameEl.textContent = cluster.ownerName;
+        if (countEl) countEl.textContent = `${estates.length} ${estates.length === 1 ? 'Estate' : 'Estates'}`;
+
+        // Compute average N, P, K, Mg, B, Ca across the chosen estate company
+        if (barsEl) {
+            barsEl.innerHTML = COMPANY_BAR_SPECS.map(spec => {
+                const avgVal = estates.reduce((sum, e) => {
+                    const cn = e.currentNutrients || {};
+                    return sum + Number(cn[spec.key] || 0);
+                }, 0) / estates.length;
+                const fillPct = Math.max(12, Math.min(100, (avgVal / spec.maxScale) * 100));
+                const unitStr = spec.unit === 'ppm' ? ' ppm' : '%';
+                return `
+                    <div class="sp-comp-bar-row">
+                        <span class="sp-comp-bar-label">${spec.label}</span>
+                        <div class="sp-comp-bar-track">
+                            <div class="sp-comp-bar-fill" style="width:${fillPct.toFixed(1)}%;"></div>
+                        </div>
+                        <span class="sp-comp-bar-val">${avgVal.toFixed(spec.dp)}${unitStr}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Compute overall stress percentage & rating for the chosen estate company
+        const avgStress = estates.reduce((sum, e) => sum + Number(e.stressPct || 0), 0) / estates.length;
+        let ratingLabel = 'Optimal';
+        if (avgStress >= 65) ratingLabel = 'Critical';
+        else if (avgStress >= 45) ratingLabel = 'High';
+        else if (avgStress >= 25) ratingLabel = 'Moderate';
+
+        const circumference = 2 * Math.PI * 35; // r = 35 -> 219.91
+        const offset = circumference - (Math.max(0, Math.min(100, avgStress)) / 100) * circumference;
+
+        if (ringProgEl) {
+            ringProgEl.setAttribute('stroke-dasharray', circumference.toFixed(2));
+            ringProgEl.setAttribute('stroke-dashoffset', offset.toFixed(2));
+        }
+        if (pctEl) pctEl.textContent = `${avgStress.toFixed(1)}%`;
+        if (ratingEl) ratingEl.textContent = ratingLabel;
+
+        // Sync Estate Selector & Render Geospatial Stress Map under the circular stress chart
+        const geoSel = document.getElementById('sp-comp-geo-select');
+        const activeEstKey = cluster.estateKeys.includes(selectedEstateKey)
+            ? selectedEstateKey
+            : cluster.estateKeys[0];
+        if (geoSel) {
+            geoSel.innerHTML = estates.map(e =>
+                `<option value="${e.key}">${e.name}</option>`
+            ).join('');
+            geoSel.value = activeEstKey;
+        }
+        renderCompanyGeoStressMap(activeEstKey);
+    }
+
+    let compGeoUseRaster = false;
+
+    window.toggleCompGeoRasterMode = function () {
+        compGeoUseRaster = !compGeoUseRaster;
+        const btn = document.getElementById('sp-comp-geo-mode-btn');
+        if (btn) btn.classList.toggle('active', compGeoUseRaster);
+        const geoSel = document.getElementById('sp-comp-geo-select');
+        renderCompanyGeoStressMap((geoSel && geoSel.value) || selectedEstateKey);
+    };
+
+    window.showCompGeoTip = function (text) {
+        const tip = document.getElementById('sp-comp-geo-tooltip');
+        if (!tip) return;
+        if (!text) {
+            tip.style.display = 'none';
+            return;
+        }
+        tip.textContent = text;
+        tip.style.display = 'block';
+    };
+
+    function getCachedRasterForEstate(estateKey) {
+        try {
+            if (window.SmartPalmPredictionCache && typeof window.SmartPalmPredictionCache.listSavedRuns === 'function') {
+                const runs = window.SmartPalmPredictionCache.listSavedRuns(estateKey) || [];
+                for (let i = 0; i < runs.length; i++) {
+                    const r = runs[i];
+                    if (r && r.nutrients && r.nutrients.N && r.nutrients.N.dataUrl) {
+                        return r.nutrients.N.dataUrl;
+                    }
+                }
+            }
+        } catch (e) {}
+        return null;
+    }
+
+    function renderCompanyGeoStressMap(estateKey) {
+        const holder = document.getElementById('sp-comp-geo-svg-holder');
+        const modeBtn = document.getElementById('sp-comp-geo-mode-btn');
+        if (!holder) return;
+
+        const data = getHomeData();
+        const est = getEstateByKey(estateKey);
+        const fc = (data.boundaries && data.boundaries[estateKey]) || null;
+        if (!est || !fc || !fc.features || !fc.features.length) {
+            holder.innerHTML = `<span style="font-size:11px;color:#64748b;">No boundary data</span>`;
+            return;
+        }
+
+        const cachedRasterUrl = getCachedRasterForEstate(estateKey);
+        if (modeBtn) {
+            modeBtn.style.display = cachedRasterUrl ? 'inline-block' : 'none';
+            modeBtn.classList.toggle('active', Boolean(cachedRasterUrl && compGeoUseRaster));
+        }
+
+        if (cachedRasterUrl && compGeoUseRaster) {
+            holder.innerHTML = `
+                <img src="${cachedRasterUrl}" alt="${est.name} 10m Raster" style="max-width:100%;max-height:100%;object-fit:contain;border-radius:6px;" />
+            `;
+            return;
+        }
+
+        // Compute bounding box of all features
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        function scanCoords(coords, geomType) {
+            if (!coords) return;
+            if (geomType === 'Point') {
+                const x = Number(coords[0]), y = Number(coords[1]);
+                if (isFinite(x) && isFinite(y)) {
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                }
+                return;
+            }
+            if (typeof coords[0] === 'number' && typeof coords[1] === 'number') {
+                const x = Number(coords[0]), y = Number(coords[1]);
+                if (isFinite(x) && isFinite(y)) {
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                }
+                return;
+            }
+            for (let i = 0; i < coords.length; i++) {
+                scanCoords(coords[i], geomType);
+            }
+        }
+
+        // Filter out outer estate wrapper boundary if sub-blocks exist (e.g. Lahad Datu)
+        const rawFeatures = fc.features.filter(f => f && f.geometry);
+        const features = rawFeatures.length > 2
+            ? rawFeatures.filter(f => !/Estate Boundary/i.test((f.properties && f.properties.name) || ''))
+            : rawFeatures;
+
+        features.forEach(f => scanCoords(f.geometry.coordinates, f.geometry.type));
+        if (!isFinite(minX) || !isFinite(minY)) return;
+
+        const svgW = 240;
+        const svgH = 122;
+        const pad = 6;
+        const spanX = Math.max(0.0001, maxX - minX);
+        const spanY = Math.max(0.0001, maxY - minY);
+        const scale = Math.min((svgW - pad * 2) / spanX, (svgH - pad * 2) / spanY);
+        const offsetX = (svgW - spanX * scale) / 2;
+        const offsetY = (svgH - spanY * scale) / 2;
+
+        const projX = (lng) => ( offsetX + (lng - minX) * scale ).toFixed(1);
+        const projY = (lat) => ( svgH - offsetY - (lat - minY) * scale ).toFixed(1);
+
+        // Score each block so stressed areas (Red = High, Yellow = Moderate) reflect actual foliar deficiency + estate stressPct
+        const scored = features.map((f, idx) => {
+            const p = f.properties || {};
+            let deficiencyScore = 0;
+            if (typeof p.N_mean === 'number') {
+                deficiencyScore =
+                    (2.55 - Number(p.N_mean || 2.5)) * 40 +
+                    (1.05 - Number(p.K_mean || 1.0)) * 35 +
+                    (0.165 - Number(p.P_mean || 0.16)) * 120 +
+                    (14.0 - Number(p.B_mean || 13.5)) * 1.5;
+            } else {
+                // Deterministic spatial/index score when block nutrient properties are not embedded
+                deficiencyScore = Math.sin(idx * 1.93 + estateKey.length * 0.7) * 10 + Math.cos(idx * 0.71) * 6;
+            }
+            return { idx, feature: f, score: deficiencyScore };
+        });
+
+        const sortedByStress = [...scored].sort((a, b) => b.score - a.score);
+        const total = Math.max(1, sortedByStress.length);
+        const stressRatio = Math.max(0.12, Math.min(0.88, Number(est.stressPct || 35) / 100));
+        const redCount = Math.max(1, Math.round(total * stressRatio * 0.44));
+        const yellowCount = Math.max(1, Math.round(total * stressRatio * 0.56));
+
+        const colorByIdx = {};
+        const statusByIdx = {};
+        sortedByStress.forEach((item, rank) => {
+            if (rank < redCount) {
+                colorByIdx[item.idx] = '#ef4444';
+                statusByIdx[item.idx] = 'High Stress';
+            } else if (rank < redCount + yellowCount) {
+                colorByIdx[item.idx] = '#eab308';
+                statusByIdx[item.idx] = 'Moderate Stress';
+            } else {
+                colorByIdx[item.idx] = '#475569';
+                statusByIdx[item.idx] = 'Normal';
+            }
+        });
+
+        function ringToPath(ring) {
+            if (!ring || !ring.length) return '';
+            let d = '';
+            for (let i = 0; i < ring.length; i++) {
+                const pt = ring[i];
+                if (typeof pt[0] !== 'number') continue;
+                d += (i === 0 ? 'M' : 'L') + projX(pt[0]) + ',' + projY(pt[1]);
+            }
+            return d + 'Z';
+        }
+
+        // Cap point features if an estate has thousands of points (like geolocation_ish)
+        const step = features.length > 350 ? Math.ceil(features.length / 350) : 1;
+        const svgShapes = [];
+
+        for (let i = 0; i < features.length; i += step) {
+            const f = features[i];
+            const geom = f.geometry;
+            const fill = colorByIdx[i] || '#475569';
+            const status = statusByIdx[i] || 'Normal';
+            const bname = ((f.properties && f.properties.name) || `Block ${i + 1}`).replace(/'/g, '');
+            const tipText = `${bname} • ${status}`;
+
+            if (geom.type === 'Point') {
+                const cx = projX(geom.coordinates[0]);
+                const cy = projY(geom.coordinates[1]);
+                svgShapes.push(
+                    `<circle cx="${cx}" cy="${cy}" r="2.2" fill="${fill}" opacity="0.9" onmouseenter="showCompGeoTip('${tipText}')" onmouseleave="showCompGeoTip('')" />`
+                );
+            } else if (geom.type === 'Polygon') {
+                const d = geom.coordinates.map(ringToPath).join(' ');
+                if (d) {
+                    svgShapes.push(
+                        `<path d="${d}" fill="${fill}" fill-opacity="0.88" stroke="#0b0f16" stroke-width="0.7" onmouseenter="showCompGeoTip('${tipText}')" onmouseleave="showCompGeoTip('')" />`
+                    );
+                }
+            } else if (geom.type === 'MultiPolygon') {
+                const d = geom.coordinates.map(poly => poly.map(ringToPath).join(' ')).join(' ');
+                if (d) {
+                    svgShapes.push(
+                        `<path d="${d}" fill="${fill}" fill-opacity="0.88" stroke="#0b0f16" stroke-width="0.7" onmouseenter="showCompGeoTip('${tipText}')" onmouseleave="showCompGeoTip('')" />`
+                    );
+                }
+            }
+        }
+
+        holder.innerHTML = `
+            <svg viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="xMidYMid meet">
+                ${svgShapes.join('')}
+            </svg>
+        `;
+    }
 
     function updateMapFocusCallout(est) {
         const nameEl = document.getElementById('sp-focus-estate-name');
@@ -1211,5 +1498,6 @@
             updateMapFocusCallout(defaultEst);
             render3MonthNutrientPanel(defaultEst);
         }
+        renderCompanyStressCard(selectedOwnerClusterId);
     });
 })();

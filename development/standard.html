@@ -12,6 +12,7 @@
     
     <!-- Styling (Vanilla CSS) -->
     <link rel="stylesheet" href="css/cms-layout.css" />
+    <link rel="stylesheet" href="css/styles.css" />
     
     <style>
 
@@ -2925,31 +2926,114 @@ function toggleSatDataMode(mode) {
     <div class="cms-layout">
         <!-- Top Panel -->
         <div class="cms-top-panel">
-            <div class="cms-sidebar-brand">
-                <img src="MPOB-3.png" alt="MPOB Logo" style="max-width: 100%; height: auto; max-height: 44px; object-fit: contain;" />
+            <div class="sp-top-left-group">
+                <a href="index.html" class="sp-brand-box" title="MPOB PalmNex Home">
+                    <div class="sp-brand-logo-wrap">
+                        <img src="MPOB-3.png" alt="MPOB Logo" />
+                    </div>
+                </a>
+
+                <nav class="sp-top-nav-pills">
+                    <a href="index.html" class="sp-top-pill">
+                        <img src="home-logo-final.png" class="pill-icon" alt="Home" />
+                        <span class="pill-text">Home</span>
+                    </a>
+                    <a href="comprehensive.html" class="sp-top-pill">
+                        <img src="comp-logo-final.png" class="pill-icon" alt="Comprehensive" />
+                        <span class="pill-text">Comprehensive Fert</span>
+                    </a>
+                    <a href="standard.html" class="sp-top-pill active">
+                        <img src="std-logo-final.png" class="pill-icon" alt="Standard" />
+                        <span class="pill-text">Standard Fert</span>
+                    </a>
+                    <a href="https://www.palmnex.com.my" target="_blank" rel="noopener noreferrer" class="sp-top-pill">
+                        <img src="reada-logo-final.png" class="pill-icon" alt="PalmNexReaDS" />
+                        <span class="pill-text">PalmNexReaDS</span>
+                    </a>
+                    <div class="sp-top-pill-dropdown" id="sp-top-kpsm-dropdown">
+                        <button type="button" class="sp-top-pill" onclick="document.getElementById('sp-top-kpsm-dropdown').classList.toggle('open')">
+                            <img src="kpsm-logo-final.png" class="pill-icon" alt="KPSM" />
+                            <span class="pill-text">KPSM System</span>
+                            <span style="font-size: 9px; opacity: 0.7;">▼</span>
+                        </button>
+                        <div class="sp-top-dropdown-menu">
+                            <a href="kpsm-home.html" class="sp-top-dropdown-item">
+                                <span>KPSM Home</span>
+                                <span>→</span>
+                            </a>
+                            <a href="kpsm.html" class="sp-top-dropdown-item">
+                                <span>Monitoring Dashboard</span>
+                                <span>→</span>
+                            </a>
+                            <a href="kpsm-database.html" class="sp-top-dropdown-item">
+                                <span>Smallholder Database</span>
+                                <span>→</span>
+                            </a>
+                        </div>
+                    </div>
+                </nav>
             </div>
-            <!-- Global Top Right Actions -->
-            <div class="global-top-right-actions">
-                <div class="action-btn-container" onclick="document.getElementById('manual-modal').style.display='flex'">
-                    <div class="action-icon-box">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
-                    </div>
-                    <span class="action-label">User Manual</span>
-                </div>
-                
-                <div class="action-btn-container">
-                    <div class="action-icon-box">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.9 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2s.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2s.07-1.34.16-2h4.68c.09.66.16 1.32.16 2s-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.66-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2s-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z"/></svg>
-                    </div>
-                    <span class="action-label">Language</span>
+
+            <div class="sp-top-right-controls">
+                <!-- Search Bar -->
+                <div class="sp-search-box">
+                    <input type="text" id="sp-global-search-input" placeholder="Search estate..." autocomplete="off" />
+                    <span class="search-shortcut">Ctrl+Shift+F</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <div id="sp-search-results-dropdown" class="sp-search-results-dropdown"></div>
                 </div>
 
-                <div class="action-btn-container">
-                    <div class="action-icon-box">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                <!-- System Settings & Quota Config Button -->
+                <button type="button" class="sp-icon-btn" onclick="document.getElementById('sp-settings-modal').style.display='flex'" title="System Settings & Prediction Quota">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                </button>
+
+                <!-- User Manual Button -->
+                <button type="button" class="sp-icon-btn" onclick="document.getElementById('manual-modal').style.display='flex'" title="User Manual">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                </button>
+
+                <!-- Notifications Bell Button & Dropdown -->
+                <div class="sp-notif-dropdown-wrap" id="sp-notif-dropdown-wrap">
+                    <button type="button" class="sp-icon-btn" id="sp-notif-bell-btn" onclick="toggleTopNotifDropdown(event)" title="Notifications">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                        </svg>
+                        <span id="sp-top-notif-badge" class="sp-notif-badge">5</span>
+                    </button>
+                    <div id="sp-top-notif-dropdown" class="sp-top-notif-dropdown">
+                        <div class="sp-notif-dd-header">
+                            <div class="sp-notif-dd-title">
+                                <span>Notifications</span>
+                                <span id="sp-notif-dd-unread-pill" class="sp-notif-dd-count-pill">5 New</span>
+                            </div>
+                            <button type="button" class="sp-notif-dd-mark-btn" onclick="markAllNotificationsRead(event)">Mark all read</button>
+                        </div>
+                        <div id="sp-top-notif-dropdown-list" class="sp-notif-dd-list"></div>
+                        <div class="sp-notif-dd-footer">
+                            <a href="notifications.html" class="sp-notif-dd-view-all">
+                                <span>View All Notifications</span>
+                                <span>→</span>
+                            </a>
+                        </div>
                     </div>
-                    <span class="action-label">Login / Sign Up</span>
                 </div>
+
+                <!-- Profile / Login Button -->
+                <button type="button" class="sp-profile-btn" onclick="openAuthModal('signin')" title="Account Login / Profile">
+                    <div class="sp-avatar-circle">
+                        <span>AD</span>
+                        <span class="sp-avatar-status"></span>
+                    </div>
+                    <span id="nav-user-email">Admin • Palmnex Sdn Bhd</span>
+                </button>
             </div>
         </div>
 
@@ -7156,5 +7240,6 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
         </div>
     </div>
 
+    <script src="js/top-panel.js"></script>
 </body>
 </html>

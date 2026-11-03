@@ -12,6 +12,7 @@
     
     <!-- Styling (Vanilla CSS) -->
     <link rel="stylesheet" href="css/cms-layout.css" />
+    <link rel="stylesheet" href="css/styles.css" />
     
     <style>
 
@@ -2904,31 +2905,114 @@ function toggleSatDataMode(mode) {
     <div class="cms-layout">
         <!-- Top Panel -->
         <div class="cms-top-panel">
-            <div class="cms-sidebar-brand">
-                <img src="MPOB-3-all-black-fonts.png" alt="MPOB Logo" style="max-width: 100%; height: auto; max-height: 50px;" />
+            <div class="sp-top-left-group">
+                <a href="index.html" class="sp-brand-box" title="MPOB PalmNex Home">
+                    <div class="sp-brand-logo-wrap">
+                        <img src="MPOB-3.png" alt="MPOB Logo" />
+                    </div>
+                </a>
+
+                <nav class="sp-top-nav-pills">
+                    <a href="index.html" class="sp-top-pill">
+                        <img src="home-logo-final.png" class="pill-icon" alt="Home" />
+                        <span class="pill-text">Home</span>
+                    </a>
+                    <a href="comprehensive.html" class="sp-top-pill">
+                        <img src="comp-logo-final.png" class="pill-icon" alt="Comprehensive" />
+                        <span class="pill-text">Comprehensive Fert</span>
+                    </a>
+                    <a href="standard.html" class="sp-top-pill">
+                        <img src="std-logo-final.png" class="pill-icon" alt="Standard" />
+                        <span class="pill-text">Standard Fert</span>
+                    </a>
+                    <a href="https://www.palmnex.com.my" target="_blank" rel="noopener noreferrer" class="sp-top-pill">
+                        <img src="reada-logo-final.png" class="pill-icon" alt="PalmNexReaDS" />
+                        <span class="pill-text">PalmNexReaDS</span>
+                    </a>
+                    <div class="sp-top-pill-dropdown" id="sp-top-kpsm-dropdown">
+                        <button type="button" class="sp-top-pill active" onclick="document.getElementById('sp-top-kpsm-dropdown').classList.toggle('open')">
+                            <img src="kpsm-logo-final.png" class="pill-icon" alt="KPSM" />
+                            <span class="pill-text">KPSM System</span>
+                            <span style="font-size: 9px; opacity: 0.7;">▼</span>
+                        </button>
+                        <div class="sp-top-dropdown-menu">
+                            <a href="kpsm-home.html" class="sp-top-dropdown-item">
+                                <span>KPSM Home</span>
+                                <span>→</span>
+                            </a>
+                            <a href="kpsm.html" class="sp-top-dropdown-item">
+                                <span>Monitoring Dashboard</span>
+                                <span>→</span>
+                            </a>
+                            <a href="kpsm-database.html" class="sp-top-dropdown-item">
+                                <span>Smallholder Database</span>
+                                <span>→</span>
+                            </a>
+                        </div>
+                    </div>
+                </nav>
             </div>
-            <!-- Global Top Right Actions -->
-            <div class="global-top-right-actions">
-                <div class="action-btn-container" onclick="document.getElementById('manual-modal').style.display='flex'">
-                    <div class="action-icon-box">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 4h5v8l-2.5-1.5L6 12V4z"/></svg>
-                    </div>
-                    <span class="action-label">User Manual</span>
-                </div>
-                
-                <div class="action-btn-container">
-                    <div class="action-icon-box">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm6.93 6h-2.95c-.32-1.25-.78-2.45-1.38-3.56 1.84.63 3.37 1.9 4.33 3.56zM12 4.04c.83 1.2 1.48 2.53 1.91 3.96h-3.82c.43-1.43 1.08-2.76 1.91-3.96zM4.26 14C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2s.06 1.34.14 2H4.26zm.82 2h2.95c.32 1.25.78 2.45 1.38 3.56-1.84-.63-3.37-1.9-4.33-3.56zm2.95-8H5.08c.96-1.66 2.49-2.93 4.33-3.56C8.81 5.55 8.35 6.75 8.03 8zM12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96zM14.34 14H9.66c-.09-.66-.16-1.32-.16-2s.07-1.34.16-2h4.68c.09.66.16 1.32.16 2s-.07 1.34-.16 2zm.25 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95c-.96 1.66-2.49 2.93-4.33 3.56zM16.36 14c.08-.66.14-1.32.14-2s-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2h-3.38z"/></svg>
-                    </div>
-                    <span class="action-label">Language</span>
+
+            <div class="sp-top-right-controls">
+                <!-- Search Bar -->
+                <div class="sp-search-box">
+                    <input type="text" id="sp-global-search-input" placeholder="Search estate..." autocomplete="off" />
+                    <span class="search-shortcut">Ctrl+Shift+F</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <div id="sp-search-results-dropdown" class="sp-search-results-dropdown"></div>
                 </div>
 
-                <div class="action-btn-container">
-                    <div class="action-icon-box">
-                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                <!-- System Settings & Quota Config Button -->
+                <button type="button" class="sp-icon-btn" onclick="document.getElementById('sp-settings-modal').style.display='flex'" title="System Settings & Prediction Quota">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                </button>
+
+                <!-- User Manual Button -->
+                <button type="button" class="sp-icon-btn" onclick="document.getElementById('manual-modal').style.display='flex'" title="User Manual">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                </button>
+
+                <!-- Notifications Bell Button & Dropdown -->
+                <div class="sp-notif-dropdown-wrap" id="sp-notif-dropdown-wrap">
+                    <button type="button" class="sp-icon-btn" id="sp-notif-bell-btn" onclick="toggleTopNotifDropdown(event)" title="Notifications">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                        </svg>
+                        <span id="sp-top-notif-badge" class="sp-notif-badge">5</span>
+                    </button>
+                    <div id="sp-top-notif-dropdown" class="sp-top-notif-dropdown">
+                        <div class="sp-notif-dd-header">
+                            <div class="sp-notif-dd-title">
+                                <span>Notifications</span>
+                                <span id="sp-notif-dd-unread-pill" class="sp-notif-dd-count-pill">5 New</span>
+                            </div>
+                            <button type="button" class="sp-notif-dd-mark-btn" onclick="markAllNotificationsRead(event)">Mark all read</button>
+                        </div>
+                        <div id="sp-top-notif-dropdown-list" class="sp-notif-dd-list"></div>
+                        <div class="sp-notif-dd-footer">
+                            <a href="notifications.html" class="sp-notif-dd-view-all">
+                                <span>View All Notifications</span>
+                                <span>→</span>
+                            </a>
+                        </div>
                     </div>
-                    <span class="action-label">Login / Sign Up</span>
                 </div>
+
+                <!-- Profile / Login Button -->
+                <button type="button" class="sp-profile-btn" onclick="openAuthModal('signin')" title="Account Login / Profile">
+                    <div class="sp-avatar-circle">
+                        <span>AD</span>
+                        <span class="sp-avatar-status"></span>
+                    </div>
+                    <span id="nav-user-email">Admin • Palmnex Sdn Bhd</span>
+                </button>
             </div>
         </div>
 
@@ -5408,6 +5492,25 @@ function clearPredictionLogTimers() {
         window._PREDICTION_LOG_TIMERS.forEach(t => clearTimeout(t));
     }
     window._PREDICTION_LOG_TIMERS = [];
+    if (window._PREDICTION_PROGRESS_INTERVAL) {
+        clearInterval(window._PREDICTION_PROGRESS_INTERVAL);
+        window._PREDICTION_PROGRESS_INTERVAL = null;
+    }
+}
+
+function setPredictionModalProgress(pct, state) {
+    const bar = document.getElementById('pred-modal-progress-bar');
+    if (!bar) return;
+    const clamped = Math.max(0, Math.min(100, Number(pct) || 0));
+    window._PREDICTION_CURRENT_PCT = clamped;
+    bar.style.width = clamped + '%';
+    if (state === 'complete') {
+        bar.style.background = 'linear-gradient(90deg, #10b981 0%, #34d399 100%)';
+        bar.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.55)';
+    } else if (state === 'error') {
+        bar.style.background = 'linear-gradient(90deg, #ef4444 0%, #f87171 100%)';
+        bar.style.boxShadow = '0 0 10px rgba(239, 68, 68, 0.45)';
+    }
 }
 
 function appendPredictionModalLog(lineText, color) {
@@ -5452,6 +5555,10 @@ function openPredictionProgressModal(estateLabel, shpDisplay, targetDate, isReal
                 </div>
             </div>
 
+            <div id="pred-modal-progress-track" style="width:100%; height:4px; background:#141821; overflow:hidden; position:relative; flex-shrink:0;">
+                <div id="pred-modal-progress-bar" style="width:4%; height:100%; background:linear-gradient(90deg, #0ea5e9 0%, #22d3ee 50%, #10b981 100%); box-shadow:0 0 10px rgba(34, 211, 238, 0.55); transition:width 0.35s ease-out, background 0.3s ease;"></div>
+            </div>
+
             <div id="prediction-terminal-log" style="padding:18px 22px; height:400px; overflow-y:auto; background:#07090d; color:#cbd5e1; font-family:'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size:12.5px; line-height:1.55; user-select:text;"></div>
 
             <div style="padding:14px 22px; background:linear-gradient(145deg, #14171e 0%, #0e1116 100%); border-top:1px solid rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:space-between; gap:12px;">
@@ -5459,7 +5566,7 @@ function openPredictionProgressModal(estateLabel, shpDisplay, targetDate, isReal
                     <span style="filter:grayscale(1);">🔒</span> Screen locked while processing to prevent duplicate runs. Click <strong style="color:#f4f4f5;">Cancel Prediction Run</strong> to abort and close.
                 </div>
                 <div style="display:flex; align-items:center; gap:10px; flex-shrink:0;">
-                    <button id="btn-view-prediction-map" onclick="closePredictionModalAfterComplete()" style="display:none; padding:10px 18px; background:linear-gradient(145deg, #2e323b 0%, #1d2026 100%); color:#ffffff; border:1px solid rgba(255,255,255,0.28); border-radius:10px; font-weight:700; font-size:13px; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,0.5);">
+                    <button id="btn-view-prediction-map" onclick="closePredictionModalAfterComplete()" style="display:none; padding:10px 18px; background:linear-gradient(145deg, #10b981 0%, #059669 100%); color:#ffffff; border:1px solid #34d399; border-radius:10px; font-weight:700; font-size:13px; cursor:pointer; box-shadow:0 4px 16px rgba(16, 185, 129, 0.45); transition:all 0.2s;" onmouseover="this.style.background='linear-gradient(145deg, #34d399 0%, #10b981 100%)'; this.style.boxShadow='0 6px 20px rgba(16, 185, 129, 0.65)'" onmouseout="this.style.background='linear-gradient(145deg, #10b981 0%, #059669 100%)'; this.style.boxShadow='0 4px 16px rgba(16, 185, 129, 0.45)'">
                         ✓ View Nutrient Map
                     </button>
                     <button id="btn-cancel-prediction-run" onclick="cancelPredictionRunAndClose()" style="padding:10px 18px; background:linear-gradient(145deg, #272a30 0%, #181a1f 100%); color:#f4f4f5; border:1px solid rgba(255,255,255,0.22); border-radius:10px; font-weight:700; font-size:13px; cursor:pointer; display:flex; align-items:center; gap:7px; box-shadow:0 4px 14px rgba(0,0,0,0.5); transition:all 0.2s;" onmouseover="this.style.background='linear-gradient(145deg, #32363e 0%, #22252b 100%)'; this.style.borderColor='rgba(255,255,255,0.38)'" onmouseout="this.style.background='linear-gradient(145deg, #272a30 0%, #181a1f 100%)'; this.style.borderColor='rgba(255,255,255,0.22)'">
@@ -5491,30 +5598,48 @@ function openPredictionProgressModal(estateLabel, shpDisplay, targetDate, isReal
     const maxLng = bounds && bounds[1] ? Number(bounds[1][1]).toFixed(5) : '117.81996';
 
     clearPredictionLogTimers();
+    setPredictionModalProgress(4, 'running');
 
     const stagedLogs = [
-        { delay: 100,  text: `STEP 1: Calling fetch_sentinel_for_shapefile() from fetch_sentinel_data.py...`, color: '#38bdf8' },
-        { delay: 450,  text: `- Target Shapefile: /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/map/${shpDisplay}.shp`, color: '#e2e8f0' },
-        { delay: 800,  text: `📅 Target Date     : ${targetDate} (±30 days window)`, color: '#fbbf24' },
-        { delay: 1300, text: `  ✓ Reprojecting Timbalai RSO (EPSG:29873) -> WGS84 (EPSG:4326)...`, color: '#a7f3d0' },
-        { delay: 1850, text: `  ✓ Shapefile WGS84 Bounds: Lng [${minLng}, ${maxLng}], Lat [${minLat}, ${maxLat}]`, color: '#a7f3d0' },
-        { delay: 2500, text: `  ✓ Generated 2,785,013 true 10m2 spatial grid points inside full estate map boundary (4503 cols x 3470 rows).\n`, color: '#a7f3d0' },
-        { delay: 3300, text: `--- Multi-Temporal SCL Cloud-Free Compositing (${winStart} to ${winEnd}, Cloud Filter: < 60%) ---`, color: '#c084fc' },
-        { delay: 4300, text: `  Pass S2B_MSIL2A_${p1Compact}T021529_R003_T50NNL_${p1Compact}T051621 (${p1Date}) | Added new clear pixels: 321,421 | Total clear composite: 321,421/2,785,013 (11.5%)`, color: '#cbd5e1' },
-        { delay: 5400, text: `  Pass S2B_MSIL2A_${p2Compact}T021559_R003_T50NNK_${p2Compact}T051842 (${p2Date}) | Added new clear pixels: 0 | Total clear composite: 468,730/2,785,013 (16.8%)`, color: '#cbd5e1' },
-        { delay: 6500, text: `  Pass S2C_MSIL2A_${p3Compact}T022531_R046_T50NNK_${p3Compact}T055310 (${p3Date}) | Added new clear pixels: 74,392 | Total clear composite: 1,940,025/2,785,013 (69.7%)\n`, color: '#cbd5e1' },
-        { delay: 7600, text: `✅ Sentinel Dataset Fetched Successfully: 2,785,013 cloud-free 10m grid records.\n`, color: '#4ade80' },
-        { delay: 8400, text: `STEP 2: Executing Random Forest predictions...`, color: '#38bdf8' }
+        { delay: 100,  pct: 8,  text: `STEP 1: Calling fetch_sentinel_for_shapefile() from fetch_sentinel_data.py...`, color: '#38bdf8' },
+        { delay: 450,  pct: 14, text: `- Target Shapefile: /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/map/${shpDisplay}.shp`, color: '#e2e8f0' },
+        { delay: 800,  pct: 20, text: `📅 Target Date     : ${targetDate} (±30 days window)`, color: '#fbbf24' },
+        { delay: 1300, pct: 27, text: `  ✓ Reprojecting Timbalai RSO (EPSG:29873) -> WGS84 (EPSG:4326)...`, color: '#a7f3d0' },
+        { delay: 1850, pct: 35, text: `  ✓ Shapefile WGS84 Bounds: Lng [${minLng}, ${maxLng}], Lat [${minLat}, ${maxLat}]`, color: '#a7f3d0' },
+        { delay: 2500, pct: 44, text: `  ✓ Generated 2,785,013 true 10m2 spatial grid points inside full estate map boundary (4503 cols x 3470 rows).\n`, color: '#a7f3d0' },
+        { delay: 3300, pct: 52, text: `--- Multi-Temporal SCL Cloud-Free Compositing (${winStart} to ${winEnd}, Cloud Filter: < 60%) ---`, color: '#c084fc' },
+        { delay: 4300, pct: 60, text: `  Pass S2B_MSIL2A_${p1Compact}T021529_R003_T50NNL_${p1Compact}T051621 (${p1Date}) | Added new clear pixels: 321,421 | Total clear composite: 321,421/2,785,013 (11.5%)`, color: '#cbd5e1' },
+        { delay: 5400, pct: 68, text: `  Pass S2B_MSIL2A_${p2Compact}T021559_R003_T50NNK_${p2Compact}T051842 (${p2Date}) | Added new clear pixels: 0 | Total clear composite: 468,730/2,785,013 (16.8%)`, color: '#cbd5e1' },
+        { delay: 6500, pct: 76, text: `  Pass S2C_MSIL2A_${p3Compact}T022531_R046_T50NNK_${p3Compact}T055310 (${p3Date}) | Added new clear pixels: 74,392 | Total clear composite: 1,940,025/2,785,013 (69.7%)\n`, color: '#cbd5e1' },
+        { delay: 7600, pct: 82, text: `✅ Sentinel Dataset Fetched Successfully: 2,785,013 cloud-free 10m grid records.\n`, color: '#4ade80' },
+        { delay: 8400, pct: 86, text: `STEP 2: Executing Random Forest predictions...`, color: '#38bdf8' }
     ];
 
     stagedLogs.forEach(item => {
         const tid = setTimeout(() => {
             if (window._PREDICTION_IS_RUNNING) {
                 appendPredictionModalLog(item.text, item.color);
+                setPredictionModalProgress(item.pct, 'running');
             }
         }, item.delay);
         window._PREDICTION_LOG_TIMERS.push(tid);
     });
+
+    const creepTimer = setTimeout(() => {
+        if (!window._PREDICTION_IS_RUNNING) return;
+        window._PREDICTION_PROGRESS_INTERVAL = setInterval(() => {
+            if (!window._PREDICTION_IS_RUNNING) {
+                clearInterval(window._PREDICTION_PROGRESS_INTERVAL);
+                window._PREDICTION_PROGRESS_INTERVAL = null;
+                return;
+            }
+            const cur = window._PREDICTION_CURRENT_PCT || 86;
+            if (cur < 96) {
+                setPredictionModalProgress(cur + Math.max(0.35, (96 - cur) * 0.08), 'running');
+            }
+        }, 450);
+    }, 8600);
+    window._PREDICTION_LOG_TIMERS.push(creepTimer);
 }
 
 function cancelPredictionRunAndClose() {
@@ -5836,6 +5961,7 @@ function runRfrPredictionFlow() {
             appendPredictionModalLog(`✅ REAL SENTINEL 10M PREDICTION COMPLETED IN ${elapsedSec}s!`, '#4ade80');
             appendPredictionModalLog(`📁 Output Directory: ${outDir}`, '#fbbf24');
 
+            setPredictionModalProgress(100, 'complete');
             const pill = document.getElementById('pred-modal-status-pill');
             if (pill) {
                 pill.textContent = '✓ COMPLETED';
@@ -5865,6 +5991,7 @@ function runRfrPredictionFlow() {
             const errMsg = lastErr ? (lastErr.message || 'Connection refused') : 'Server returned invalid response';
             appendPredictionModalLog(`\n❌ ERROR: Prediction server unreachable (${errMsg}).`, '#f87171');
             appendPredictionModalLog(`Ensure Hugging Face Space (https://aisyjeff95-smartpalm-demo.hf.space) or local prediction_server.py is running.`, '#fca5a5');
+            setPredictionModalProgress(100, 'error');
             const pill = document.getElementById('pred-modal-status-pill');
             if (pill) {
                 pill.textContent = '✕ CONNECTION ERROR';
@@ -7592,5 +7719,6 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
         </div>
     </div>
 
+    <script src="js/top-panel.js"></script>
 </body>
 </html>

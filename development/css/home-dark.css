@@ -734,32 +734,34 @@ body.sp-dark-home .cms-main-content {
     border-top-color: rgba(14, 18, 24, 0.94) !important;
 }
 
-/* Estate Pin Marker on Map (Circular Dot Only, No Text) */
+/* Estate Pin Marker on Map (Smaller Dot, No Outline, Red Glow) */
 .sp-estate-pin {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 18px;
-    height: 18px;
+    width: 8px;
+    height: 8px;
     padding: 0;
     border-radius: 50%;
-    background: rgba(14, 18, 24, 0.9);
-    border: 1.5px solid rgba(255, 255, 255, 0.28);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+    background: #ef4444;
+    border: none;
+    outline: none;
+    box-shadow: 0 0 8px 3px rgba(239, 68, 68, 0.88), 0 0 16px 6px rgba(239, 68, 68, 0.45);
     transform: translate(-50%, -50%);
-    transition: transform 0.2s ease, border-color 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .sp-estate-pin:hover {
-    transform: translate(-50%, -50%) scale(1.18);
-    border-color: #ffffff;
+    transform: translate(-50%, -50%) scale(1.35);
+    box-shadow: 0 0 11px 4px rgba(239, 68, 68, 1), 0 0 22px 8px rgba(239, 68, 68, 0.65);
     z-index: 9999 !important;
 }
 
 .sp-estate-pin-dot {
-    width: 7px;
-    height: 7px;
+    width: 4px;
+    height: 4px;
     border-radius: 50%;
+    background: #fecaca;
     flex-shrink: 0;
 }
 
@@ -1089,9 +1091,11 @@ body.sp-dark-home .cms-main-content {
 
 .sp-map-top-hud {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
+    flex-direction: row;
+    justify-content: space-between;
     align-items: flex-start;
+    gap: 16px;
+    width: 100%;
 }
 
 .sp-welcome-banner {
@@ -1151,6 +1155,338 @@ body.sp-dark-home .cms-main-content {
     line-height: 1.55;
     color: #cbd5e1;
     font-weight: 400;
+}
+
+/* Top-Right Sleek Company Foliar Bar Chart & Circular Stress Card */
+.sp-company-stress-card {
+    pointer-events: auto;
+    width: 280px;
+    padding: 16px 18px;
+    border-radius: 16px;
+    background: rgba(18, 22, 28, 0.88);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.58);
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+    flex-shrink: 0;
+}
+
+.sp-comp-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.sp-comp-card-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.sp-comp-card-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #ffffff;
+    flex-shrink: 0;
+}
+
+.sp-comp-card-name {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sp-comp-card-count {
+    font-size: 11px;
+    font-weight: 500;
+    color: #94a3b8;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* Top Horizontal Bar Chart (N, P, K, Mg, B, Ca) */
+.sp-comp-nutrient-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sp-comp-bar-row {
+    display: grid;
+    grid-template-columns: 24px 1fr 56px;
+    align-items: center;
+    gap: 9px;
+}
+
+.sp-comp-bar-label {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #e2e8f0;
+    letter-spacing: 0.1px;
+}
+
+.sp-comp-bar-track {
+    position: relative;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+}
+
+.sp-comp-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.45) 0%, #ffffff 100%);
+    transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sp-comp-bar-val {
+    font-family: 'Outfit', sans-serif;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #cbd5e1;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.sp-comp-card-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    width: 100%;
+}
+
+/* Bottom Circular Stress Graphic */
+.sp-comp-stress-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding-top: 2px;
+}
+
+.sp-comp-circle-wrap {
+    position: relative;
+    width: 78px;
+    height: 78px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.sp-comp-ring-svg {
+    width: 78px;
+    height: 78px;
+    transform: rotate(-90deg);
+}
+
+.sp-comp-ring-bg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.09);
+    stroke-width: 6.5;
+}
+
+.sp-comp-ring-prog {
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 6.5;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.55s cubic-bezier(0.22, 1, 0.36, 1), stroke 0.3s ease;
+}
+
+.sp-comp-ring-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.sp-comp-ring-val {
+    font-family: 'Outfit', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.3px;
+    line-height: 1;
+}
+
+.sp-comp-stress-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+}
+
+.sp-comp-stress-label {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: #94a3b8;
+    letter-spacing: 0.1px;
+}
+
+.sp-comp-stress-badge {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #f8fafc;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.09);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* Under Stress Chart: Sleek Geospatial Stress Choropleth Map */
+.sp-comp-geo-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sp-comp-geo-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.sp-comp-geo-select {
+    flex: 1;
+    min-width: 0;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    color: #f8fafc;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 5px 8px;
+    font-family: inherit;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.18s ease;
+}
+
+.sp-comp-geo-select:hover,
+.sp-comp-geo-select:focus {
+    border-color: rgba(255, 255, 255, 0.28);
+}
+
+.sp-comp-geo-select option {
+    background: #12161c;
+    color: #f8fafc;
+}
+
+.sp-comp-geo-mode-btn {
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 7px;
+    color: #cbd5e1;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 7px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.sp-comp-geo-mode-btn:hover,
+.sp-comp-geo-mode-btn.active {
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+}
+
+.sp-comp-geo-map-box {
+    position: relative;
+    width: 100%;
+    height: 138px;
+    border-radius: 12px;
+    background: rgba(10, 13, 18, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.sp-comp-geo-svg-holder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+.sp-comp-geo-svg-holder svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.55));
+}
+
+.sp-comp-geo-svg-holder path,
+.sp-comp-geo-svg-holder circle {
+    transition: opacity 0.15s ease, stroke-width 0.15s ease;
+}
+
+.sp-comp-geo-svg-holder path:hover,
+.sp-comp-geo-svg-holder circle:hover {
+    opacity: 0.92;
+    stroke: #ffffff !important;
+    stroke-width: 1.4px !important;
+}
+
+.sp-comp-geo-tooltip {
+    position: absolute;
+    bottom: 6px;
+    left: 8px;
+    right: 8px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: rgba(14, 18, 24, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #f8fafc;
+    font-size: 10.5px;
+    font-weight: 600;
+    text-align: center;
+    pointer-events: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sp-comp-geo-legend {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    font-size: 10.5px;
+    font-weight: 500;
+    color: #94a3b8;
+}
+
+.sp-comp-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.sp-comp-legend-item i {
+    width: 7px;
+    height: 7px;
+    border-radius: 2px;
+    display: inline-block;
 }
 
 .sp-map-hero-title {
