@@ -795,6 +795,287 @@
         if (badgeCount) {
             badgeCount.textContent = schedules.length + Math.min(3, runs.length);
         }
+
+        renderTopNotifDropdown();
+        renderFullNotificationsPage();
+    }
+
+    // -------------------------------------------------------------------------
+    // 6B. TOP-RIGHT NOTIFICATION DROPDOWN & FULL NOTIFICATIONS PAGE ENGINE
+    // -------------------------------------------------------------------------
+    const LS_READ_NOTIFS_KEY = 'smartpalm_read_notifs_v1';
+
+    function getReadNotifSet() {
+        try {
+            const raw = localStorage.getItem(LS_READ_NOTIFS_KEY);
+            if (raw) return new Set(JSON.parse(raw));
+        } catch (e) {}
+        return new Set();
+    }
+
+    function saveReadNotifSet(setObj) {
+        try {
+            localStorage.setItem(LS_READ_NOTIFS_KEY, JSON.stringify(Array.from(setObj)));
+        } catch (e) {}
+    }
+
+    function formatEstateRunName(rawName) {
+        const s = String(rawName || '').trim();
+        const lower = s.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const map = {
+            ssb: 'Benta Wawasan (SSB)',
+            sekinchan1poly: 'Sekinchan 1 Poly',
+            sawitkinabalu: 'Sawit Kinabalu Estate',
+            lahaddatu: 'Lahad Datu Estate',
+            lahaddatu2023: 'Lahad Datu Estate',
+            lahaddatuwithblockboundary: 'Lahad Datu Estate',
+            lahaddatucombined: 'Lahad Datu Estate',
+            selanganbatu: 'Selangan Batu Estate',
+            ramin: 'Ramin Estate',
+            merbau: 'Merbau Estate',
+            menggaris: 'Menggaris Estate',
+            keruing: 'Keruing Estate',
+            kapur: 'Kapur Estate',
+            gaharu: 'Gaharu Estate',
+            binuang: 'Binuang Estate',
+            belian: 'Belian Estate',
+            agathis: 'Agathis Estate',
+            seraya: 'Seraya Estate',
+            serayawithblockboundary: 'Seraya Estate',
+            jengka24: 'Ladang Jengka 24',
+            jengka25: 'Ladang Jengka 25',
+            kotagelanggi5: 'Ladang Kota Gelanggi 5',
+            ppptar: 'Ladang PPPTAR'
+        };
+        if (map[lower]) return map[lower];
+        const found = getHomeData().estates.find(e => e.key.toLowerCase() === lower || e.name.toLowerCase() === s.toLowerCase());
+        if (found) return found.name;
+        return s.replace(/_/g, ' ');
+    }
+
+    function parseRunTimestamp(tsStr, fallbackDate) {
+        const raw = String(tsStr || '').trim();
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        // Format: YYYY-MM-DD_HHMMSS
+        const m = raw.match(/^(\d{4})-(\d{2})-(\d{2})[_T\s](\d{2}):?(\d{2})(?::?(\d{2}))?/);
+        if (m) {
+            const year = m[1];
+            const monIdx = Math.max(0, Math.min(11, parseInt(m[2], 10) - 1));
+            const day = m[3];
+            const hh = m[4];
+            const mm = m[5];
+            return {
+                timeStr: `${hh}:${mm}`,
+                dateStr: `${day} ${months[monIdx]} ${year}`
+            };
+        }
+        // Fallback YYYY-MM-DD
+        const dMatch = (raw || String(fallbackDate || '')).match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (dMatch) {
+            const monIdx = Math.max(0, Math.min(11, parseInt(dMatch[2], 10) - 1));
+            return {
+                timeStr: '16:08',
+                dateStr: `${dMatch[3]} ${months[monIdx]} ${dMatch[1]}`
+            };
+        }
+        return { timeStr: '14:15', dateStr: '30 Oct 2026' };
+    }
+
+    window.getSmartPalmNotifications = function () {
+        const runs = getCombinedRunHistory();
+        const readSet = getReadNotifSet();
+        const items = [];
+
+        // 1. Profile update notification
+        items.push({
+            id: 'notif-profile-update',
+            type: 'profile',
+            unread: !readSet.has('notif-profile-update'),
+            htmlText: `<b>Please update your profile</b>`,
+            plainText: 'Please update your profile',
+            subText: 'Account Settings • Complete your organization & contact profile',
+            timeAgo: 'Action Required',
+            whereStr: 'Account Profile',
+            href: 'notifications.html?id=notif-profile-update'
+        });
+
+        // 2. Completed prediction run notifications
+        runs.forEach((r, idx) => {
+            const id = `notif-run-${r.folderName}`;
+            const estateLabel = formatEstateRunName(r.estateName);
+            const { timeStr, dateStr } = parseRunTimestamp(r.timestamp, r.acquisitionDate);
+            const whereStr = `outputs/${r.folderName}`;
+            const isDefaultUnread = idx < 4 && !readSet.has(id);
+
+            items.push({
+                id,
+                type: 'run',
+                unread: isDefaultUnread,
+                estateLabel,
+                timeStr,
+                dateStr,
+                whereStr,
+                folderName: r.folderName,
+                totalBlocks: r.totalBlocks || 55,
+                acquisitionDate: r.acquisitionDate || '2026-10-07',
+                htmlText: `Run for <b>${estateLabel}</b> completed at <b>${timeStr}</b>, <b>${dateStr}</b>, saved in <b>${whereStr}</b>`,
+                plainText: `Run for ${estateLabel} completed at ${timeStr}, ${dateStr}, saved in ${whereStr}`,
+                subText: `${r.totalBlocks || 55} blocks • Sentinel-2 (${r.acquisitionDate || '2026-10-07'})`,
+                timeAgo: `${dateStr}, ${timeStr}`,
+                href: `notifications.html?id=${encodeURIComponent(id)}`
+            });
+        });
+
+        return items;
+    };
+
+    function renderTopNotifDropdown() {
+        const listEl = document.getElementById('sp-top-notif-dropdown-list');
+        const badgeEl = document.getElementById('sp-top-notif-badge');
+        const pillEl = document.getElementById('sp-notif-dd-unread-pill');
+        const items = window.getSmartPalmNotifications();
+        const unreadCount = items.filter(i => i.unread).length;
+
+        if (badgeEl) {
+            badgeEl.textContent = unreadCount;
+            badgeEl.style.display = unreadCount > 0 ? 'flex' : 'none';
+        }
+        if (pillEl) {
+            pillEl.textContent = `${unreadCount} New`;
+        }
+        if (!listEl) return;
+
+        // Show top 6 notifications inside the compact right-side dropdown
+        const dropdownItems = items.slice(0, 6);
+        listEl.innerHTML = dropdownItems.map(item => {
+            const iconSvg = item.type === 'profile'
+                ? `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`
+                : `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>`;
+
+            return `
+                <a href="${item.href}" class="sp-notif-dd-item ${item.unread ? 'unread' : ''}" onclick="handleNotifItemClick(event, '${item.id}', '${item.href}')">
+                    <div class="sp-notif-dd-icon ${item.type}">
+                        ${iconSvg}
+                    </div>
+                    <div class="sp-notif-dd-body">
+                        <div class="sp-notif-dd-text">${item.htmlText}</div>
+                        <div class="sp-notif-dd-sub">
+                            <span>${item.subText}</span>
+                        </div>
+                    </div>
+                    ${item.unread ? '<span class="sp-notif-dd-dot" title="Unread"></span>' : ''}
+                </a>
+            `;
+        }).join('');
+    }
+
+    window.toggleTopNotifDropdown = function (event) {
+        if (event) event.stopPropagation();
+        const dd = document.getElementById('sp-top-notif-dropdown');
+        if (!dd) return;
+        const isOpen = dd.classList.toggle('open');
+        if (isOpen) {
+            renderTopNotifDropdown();
+        }
+    };
+
+    window.handleNotifItemClick = function (event, notifId, targetHref) {
+        const readSet = getReadNotifSet();
+        readSet.add(notifId);
+        saveReadNotifSet(readSet);
+        renderTopNotifDropdown();
+        if (targetHref) {
+            window.location.href = targetHref;
+        }
+    };
+
+    window.markAllNotificationsRead = function (event) {
+        if (event) event.stopPropagation();
+        const items = window.getSmartPalmNotifications();
+        const readSet = getReadNotifSet();
+        items.forEach(i => readSet.add(i.id));
+        saveReadNotifSet(readSet);
+        renderTopNotifDropdown();
+        renderFullNotificationsPage();
+    };
+
+    let activeNotifPageFilter = 'all';
+
+    window.filterFullNotificationsPage = function (filterMode, btnEl) {
+        if (filterMode) activeNotifPageFilter = filterMode;
+        window._activeNotifFilter = activeNotifPageFilter;
+        if (btnEl) {
+            document.querySelectorAll('.sp-notif-page-tab').forEach(b => b.classList.remove('active'));
+            btnEl.classList.add('active');
+        }
+        renderFullNotificationsPage();
+    };
+
+    function renderFullNotificationsPage() {
+        const container = document.getElementById('sp-full-notifications-list');
+        if (!container) return;
+
+        const searchInput = document.getElementById('sp-notif-page-search');
+        const query = (searchInput ? searchInput.value : '').trim().toLowerCase();
+        const urlParams = new URLSearchParams(window.location.search);
+        const highlightId = urlParams.get('id');
+
+        const allItems = window.getSmartPalmNotifications();
+        const totalEl = document.getElementById('sp-notif-page-total-count');
+        const unreadEl = document.getElementById('sp-notif-page-unread-count');
+        if (totalEl) totalEl.textContent = allItems.length;
+        if (unreadEl) unreadEl.textContent = allItems.filter(i => i.unread).length;
+
+        const filtered = allItems.filter(item => {
+            if (activeNotifPageFilter === 'unread' && !item.unread) return false;
+            if (activeNotifPageFilter === 'profile' && item.type !== 'profile') return false;
+            if (activeNotifPageFilter === 'runs' && item.type !== 'run') return false;
+            if (query && !item.plainText.toLowerCase().includes(query) && !item.subText.toLowerCase().includes(query)) {
+                return false;
+            }
+            return true;
+        });
+
+        if (!filtered.length) {
+            container.innerHTML = `
+                <div style="padding: 42px 20px; text-align: left; color: #94a3b8; font-size: 14px;">
+                    No notifications match the selected filter.
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = filtered.map(item => {
+            const isHighlighted = highlightId && item.id === highlightId;
+            const iconSvg = item.type === 'profile'
+                ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`
+                : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>`;
+
+            const actionBtnHtml = item.type === 'profile'
+                ? `<button type="button" class="sp-sched-btn" style="padding: 7px 14px; font-size: 12.5px;" onclick="openAuthModal('signin')">Update Profile</button>`
+                : `<a href="comprehensive.html" class="sp-sched-btn" style="padding: 7px 14px; font-size: 12.5px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">Open Run in Comprehensive Fert →</a>`;
+
+            return `
+                <div id="${item.id}" class="sp-notif-page-row ${item.unread ? 'unread' : ''} ${isHighlighted ? 'highlighted' : ''}">
+                    <div class="sp-notif-dd-icon ${item.type}" style="width: 38px; height: 38px; border-radius: 10px;">
+                        ${iconSvg}
+                    </div>
+                    <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px;">
+                        <div style="font-size: 14.5px; color: #f8fafc; line-height: 1.45;">
+                            ${item.htmlText}
+                        </div>
+                        <div style="font-size: 12.5px; color: #94a3b8; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                            <span>${item.subText}</span>
+                            <span>•</span>
+                            <span style="color: #cbd5e1;">${item.timeAgo}</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
+                        ${actionBtnHtml}
+                    </div>
+                </div>
+            `;
+        }).join('');
     }
 
     // -------------------------------------------------------------------------
@@ -915,6 +1196,15 @@
         initTopSearch();
         window.spMeasureWifiSpeed();
         setInterval(window.spMeasureWifiSpeed, 30000);
+
+        // Close notification dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const wrap = document.getElementById('sp-notif-dropdown-wrap');
+            const dd = document.getElementById('sp-top-notif-dropdown');
+            if (wrap && dd && !wrap.contains(e.target)) {
+                dd.classList.remove('open');
+            }
+        });
 
         const defaultEst = getEstateByKey(selectedEstateKey);
         if (defaultEst) {

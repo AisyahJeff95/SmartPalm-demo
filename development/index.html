@@ -107,14 +107,32 @@
                     </svg>
                 </button>
 
-                <!-- Notifications Bell Button -->
-                <button type="button" class="sp-icon-btn" onclick="document.getElementById('sp-schedule-builder-form').style.display='flex'" title="Notifications & Scheduled Predictions">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-                        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-                    </svg>
-                    <span id="sp-top-notif-badge" class="sp-notif-badge">5</span>
-                </button>
+                <!-- Notifications Bell Button & Dropdown -->
+                <div class="sp-notif-dropdown-wrap" id="sp-notif-dropdown-wrap">
+                    <button type="button" class="sp-icon-btn" id="sp-notif-bell-btn" onclick="toggleTopNotifDropdown(event)" title="Notifications">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                        </svg>
+                        <span id="sp-top-notif-badge" class="sp-notif-badge">5</span>
+                    </button>
+                    <div id="sp-top-notif-dropdown" class="sp-top-notif-dropdown">
+                        <div class="sp-notif-dd-header">
+                            <div class="sp-notif-dd-title">
+                                <span>Notifications</span>
+                                <span id="sp-notif-dd-unread-pill" class="sp-notif-dd-count-pill">5 New</span>
+                            </div>
+                            <button type="button" class="sp-notif-dd-mark-btn" onclick="markAllNotificationsRead(event)">Mark all read</button>
+                        </div>
+                        <div id="sp-top-notif-dropdown-list" class="sp-notif-dd-list"></div>
+                        <div class="sp-notif-dd-footer">
+                            <a href="notifications.html" class="sp-notif-dd-view-all">
+                                <span>View All Notifications</span>
+                                <span>→</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
 
                 <!-- Profile / Login Button -->
                 <button type="button" class="sp-profile-btn" onclick="openAuthModal('signin')" title="Account Login / Profile">
@@ -208,7 +226,7 @@
                     <!-- Estate Directory -->
                     <div class="sp-glass-panel sp-estate-directory-card">
                         <div class="sp-card-header-row" style="margin-bottom: 4px;">
-                            <span class="sp-card-title" style="font-size: 16px; font-weight: 700; letter-spacing: -0.2px;">Browse All Estate</span>
+                            <span class="sp-card-title" style="font-size: 18px; font-weight: 700; letter-spacing: -0.2px;">Browse All Estate</span>
                             <span class="sp-card-subtitle">Click to view cluster</span>
                         </div>
                         <div id="sp-left-estate-list" class="sp-estate-list-scroll"></div>
