@@ -732,12 +732,17 @@
 
     function renderLeftEstateDirectory() {
         const data = getHomeData();
+        const totalCompanyEl = document.getElementById('sp-kpi-company-count');
+        const totalCompanySubEl = document.getElementById('sp-kpi-company-subtitle');
         const totalOnlineEl = document.getElementById('sp-kpi-online-count');
         const totalSubtitleEl = document.getElementById('sp-kpi-total-subtitle');
         const listEl = document.getElementById('sp-left-estate-list');
 
         const totalBlocks = data.estates.reduce((acc, e) => acc + e.totalBlocks, 0);
+        const totalAreaHa = Math.round(data.estates.reduce((acc, e) => acc + (e.areaHa || 0), 0));
 
+        if (totalCompanyEl) totalCompanyEl.textContent = ESTATE_OWNER_CLUSTERS.length;
+        if (totalCompanySubEl) totalCompanySubEl.textContent = `${ESTATE_OWNER_CLUSTERS.length} Companies • ${totalAreaHa.toLocaleString()} Ha`;
         if (totalOnlineEl) totalOnlineEl.textContent = data.estates.length;
         if (totalSubtitleEl) totalSubtitleEl.textContent = `${data.estates.length} Maps • ${totalBlocks.toLocaleString()} Blocks`;
 
