@@ -6719,9 +6719,10 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                           <div style="font-size: 8px; font-weight: 800; color: #0f172a; text-transform:uppercase; margin-bottom: 5px; border-bottom:1px solid #e2e8f0; padding-bottom:2px;">
                             Fig 1.2 — 3-Year Historical Foliar Readings (N, P, K, Mg, B, Ca)
                           </div>
+                          ${window.get3YearBlockFoliarHistoryHtml ? window.get3YearBlockFoliarHistoryHtml(mapVal, blockNameStr, null, currentNutrients) : `
                           <div style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 10px 8px; text-align: center; font-size: 8.5px; color: #475569; font-style: italic; background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 2px;">
                             Please run nutrient detection for previous 3 years for the same month, to view this data
-                          </div>
+                          </div>`}
                         </div>
 
                         <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 2px; padding: 6px 8px; display: flex; align-items: center; justify-content: space-between;">

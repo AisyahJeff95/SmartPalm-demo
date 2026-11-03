@@ -1022,21 +1022,27 @@
     function getCombinedRunHistory() {
         const data = getHomeData();
         const liveRuns = Array.isArray(window.PREDICTION_RUN_HISTORY) ? window.PREDICTION_RUN_HISTORY : [];
-        let lsRuns = [];
+        let lsRunsV2 = [];
+        let lsRunsV1 = [];
         try {
-            const raw = localStorage.getItem('smartpalm_prediction_history_v1');
-            if (raw) lsRuns = JSON.parse(raw);
+            const rawV2 = localStorage.getItem('smartpalm_prediction_history_meta_v2');
+            if (rawV2) lsRunsV2 = JSON.parse(rawV2);
+        } catch (e) {}
+        try {
+            const rawV1 = localStorage.getItem('smartpalm_prediction_history_v1');
+            if (rawV1) lsRunsV1 = JSON.parse(rawV1);
         } catch (e) {}
 
         const merged = [];
         const seen = new Set();
 
-        [...liveRuns, ...lsRuns, ...(data.defaultRunHistory || [])].forEach(r => {
+        [...liveRuns, ...lsRunsV2, ...lsRunsV1, ...(data.defaultRunHistory || [])].forEach(r => {
             const key = r.folderName || r.folder_name || `${r.estateName}_${r.timestamp}`;
             if (!key || seen.has(key)) return;
             seen.add(key);
             merged.push({
                 folderName: key,
+                shpKey: r.shpKey || r.shp_key || r.estateName || '',
                 estateName: r.estateName || r.estate_name || r.shpKey || 'Estate Run',
                 acquisitionDate: r.acquisitionDate || r.acquisition_date || '2026-10-07',
                 timestamp: r.timestamp || r.createdAt || '2026-10-14',
@@ -1245,6 +1251,7 @@
                 type: 'run',
                 unread: isDefaultUnread,
                 estateLabel,
+                shpKey: r.shpKey || r.estateName || '',
                 timeStr,
                 dateStr,
                 whereStr,
@@ -1384,9 +1391,14 @@
                 ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`
                 : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>`;
 
+            const safeFolder = String(item.folderName || '').replace(/'/g, "\\'");
+            const safeEstate = String(item.estateLabel || '').replace(/'/g, "\\'");
+            const safeDate = String(item.acquisitionDate || '2026-10-07').replace(/'/g, "\\'");
+            const safeKey = String(item.shpKey || item.estateLabel || '').replace(/'/g, "\\'");
+
             const actionBtnHtml = item.type === 'profile'
                 ? `<button type="button" class="sp-sched-btn" style="padding: 7px 14px; font-size: 12.5px;" onclick="openAuthModal('signin')">Update Profile</button>`
-                : `<a href="comprehensive.html" class="sp-sched-btn" style="padding: 7px 14px; font-size: 12.5px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">Open Run in Comprehensive Fert →</a>`;
+                : `<button type="button" class="sp-sched-btn" style="padding: 7px 14px; font-size: 12.5px; display: inline-flex; align-items: center; gap: 6px; cursor: pointer;" onclick="if(window.downloadSavedRunSixPageRasters){window.downloadSavedRunSixPageRasters('${safeFolder}','${safeEstate}','${safeDate}','${safeKey}');}">⬇ Download Data</button>`;
 
             return `
                 <div id="${item.id}" class="sp-notif-page-row ${item.unread ? 'unread' : ''} ${isHighlighted ? 'highlighted' : ''}">

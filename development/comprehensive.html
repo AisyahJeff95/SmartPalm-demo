@@ -7400,11 +7400,12 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                               <div style="font-size: 8px; font-weight: 800; color: #0f172a; text-transform:uppercase; margin-bottom: 5px; border-bottom:1px solid #e2e8f0; padding-bottom:2px;">
                                 Fig 1.2 — 3-Year Historical Foliar Readings (N, P, K, Mg, B, Ca)
                               </div>
+                              ${window.get3YearBlockFoliarHistoryHtml ? window.get3YearBlockFoliarHistoryHtml(mapVal, blockNameStr, null, currentNutrients) : `
                               <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 10px 8px; background: #ffffff; border: 1px dashed #cbd5e1; border-radius: 2px;">
                                 <div style="font-size: 8.2px; font-weight: 600; color: #475569; line-height: 1.45;">
                                   Please run nutrient detection for previous 3 years for the same month, to view this data
                                 </div>
-                              </div>
+                              </div>`}
                             </div>
 
                             <!-- Stress Level Donut Chart -->
