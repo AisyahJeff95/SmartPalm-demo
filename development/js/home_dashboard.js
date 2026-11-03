@@ -372,12 +372,12 @@
     };
 
     const COMPANY_BAR_SPECS = [
-        { key: 'N',  label: 'N',  unit: '%',   maxScale: 3.10, crit: 2.44,  opt: 2.50,  dp: 2 },
-        { key: 'P',  label: 'P',  unit: '%',   maxScale: 0.21, crit: 0.150, opt: 0.160, dp: 3 },
-        { key: 'K',  label: 'K',  unit: '%',   maxScale: 1.35, crit: 0.96,  opt: 1.01,  dp: 2 },
-        { key: 'Mg', label: 'Mg', unit: '%',   maxScale: 0.36, crit: 0.24,  opt: 0.265, dp: 2 },
-        { key: 'B',  label: 'B',  unit: 'ppm', maxScale: 20.0, crit: 13.0,  opt: 13.8,  dp: 1 },
-        { key: 'Ca', label: 'Ca', unit: '%',   maxScale: 0.85, crit: 0.605, opt: 0.635, dp: 2 }
+        { key: 'N',  label: 'N',  unit: '%',   maxScale: 3.10, crit: 2.46,  opt: 2.52,  dp: 2 },
+        { key: 'P',  label: 'P',  unit: '%',   maxScale: 0.21, crit: 0.155, opt: 0.163, dp: 3 },
+        { key: 'K',  label: 'K',  unit: '%',   maxScale: 1.35, crit: 0.98,  opt: 1.02,  dp: 2 },
+        { key: 'Mg', label: 'Mg', unit: '%',   maxScale: 0.36, crit: 0.25,  opt: 0.27,  dp: 2 },
+        { key: 'B',  label: 'B',  unit: 'ppm', maxScale: 20.0, crit: 13.5,  opt: 14.5,  dp: 1 },
+        { key: 'Ca', label: 'Ca', unit: '%',   maxScale: 0.85, crit: 0.61,  opt: 0.64,  dp: 2 }
     ];
 
     function renderCompanyStressCard(clusterId) {
@@ -635,8 +635,8 @@
                 colorByIdx[item.idx] = '#eab308';
                 statusByIdx[item.idx] = 'Moderate Stress';
             } else {
-                colorByIdx[item.idx] = '#10b981';
-                statusByIdx[item.idx] = 'Optimal';
+                colorByIdx[item.idx] = '#475569';
+                statusByIdx[item.idx] = 'Normal';
             }
         });
 
@@ -658,8 +658,8 @@
         for (let i = 0; i < features.length; i += step) {
             const f = features[i];
             const geom = f.geometry;
-            const fill = colorByIdx[i] || '#10b981';
-            const status = statusByIdx[i] || 'Optimal';
+            const fill = colorByIdx[i] || '#475569';
+            const status = statusByIdx[i] || 'Normal';
             const bname = ((f.properties && f.properties.name) || `Block ${i + 1}`).replace(/'/g, '');
             const tipText = `${bname} • ${status}`;
 

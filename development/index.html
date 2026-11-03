@@ -17,8 +17,8 @@
     <link rel="stylesheet" href="css/components.css" />
     <link rel="stylesheet" href="css/tables-forms.css" />
     <link rel="stylesheet" href="css/reada.css" />
-    <link rel="stylesheet" href="css/styles.css" />
-    <link rel="stylesheet" href="css/home-dark.css" />
+    <link rel="stylesheet" href="css/styles.css?v=20261103c" />
+    <link rel="stylesheet" href="css/home-dark.css?v=20261103c" />
 
     <!-- Supabase JS Client & Auth Modules -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -265,15 +265,15 @@
                                 <div class="sp-comp-circle-wrap">
                                     <svg class="sp-comp-ring-svg" viewBox="0 0 88 88">
                                         <circle class="sp-comp-ring-bg" cx="44" cy="44" r="35"></circle>
-                                        <circle id="sp-comp-ring-prog" class="sp-comp-ring-prog" cx="44" cy="44" r="35" stroke-dasharray="219.91" stroke-dashoffset="146"></circle>
+                                        <circle id="sp-comp-ring-prog" class="sp-comp-ring-prog" cx="44" cy="44" r="35" stroke-dasharray="219.91" stroke-dashoffset="146" style="stroke:#eab308;"></circle>
                                     </svg>
                                     <div class="sp-comp-ring-center">
-                                        <span id="sp-comp-stress-pct" class="sp-comp-ring-val">33.5%</span>
+                                        <span id="sp-comp-stress-pct" class="sp-comp-ring-val" style="color:#eab308;">33.5%</span>
                                     </div>
                                 </div>
                                 <div class="sp-comp-stress-meta">
                                     <span class="sp-comp-stress-label">Overall Stress</span>
-                                    <span id="sp-comp-stress-rating" class="sp-comp-stress-badge">Moderate</span>
+                                    <span id="sp-comp-stress-rating" class="sp-comp-stress-badge" style="background:rgba(234,179,8,0.16);border-color:rgba(234,179,8,0.45);color:#fde047;">Moderate</span>
                                 </div>
                             </div>
 
@@ -290,9 +290,9 @@
                                     <div id="sp-comp-geo-tooltip" class="sp-comp-geo-tooltip" style="display:none;"></div>
                                 </div>
                                 <div class="sp-comp-geo-legend">
-                                    <span class="sp-comp-legend-item"><i style="background:#ef4444;"></i>Critical / High</span>
+                                    <span class="sp-comp-legend-item"><i style="background:#ef4444;"></i>High</span>
                                     <span class="sp-comp-legend-item"><i style="background:#eab308;"></i>Moderate</span>
-                                    <span class="sp-comp-legend-item"><i style="background:#10b981;"></i>Optimal</span>
+                                    <span class="sp-comp-legend-item"><i style="background:#475569;"></i>Normal</span>
                                 </div>
                             </div>
                         </div>
@@ -389,10 +389,10 @@
 
     <!-- External & Modular JS Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="js/i18n.js"></script>
-    <script src="js/nav.js"></script>
-    <script src="js/prediction_cache_history.js"></script>
-    <script src="js/home_dashboard_data.js"></script>
-    <script src="js/home_dashboard.js"></script>
+    <script src="js/i18n.js?v=20261103c"></script>
+    <script src="js/nav.js?v=20261103c"></script>
+    <script src="js/prediction_cache_history.js?v=20261103c"></script>
+    <script src="js/home_dashboard_data.js?v=20261103c"></script>
+    <script src="js/home_dashboard.js?v=20261103c"></script>
 </body>
 </html>
