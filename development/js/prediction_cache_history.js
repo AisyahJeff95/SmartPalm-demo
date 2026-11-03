@@ -1750,44 +1750,7 @@
     }
 
     function injectPredictionHistoryControls() {
-        const runBtn = document.getElementById('btn-run-prediction');
-        if (!runBtn || document.getElementById('btn-open-prediction-history')) return;
-
-        const parent = runBtn.parentElement;
-        if (!parent) return;
-
-        const statusPill = document.createElement('div');
-        statusPill.id = 'estate-cache-status-pill';
-        statusPill.style.cssText = 'display:none; align-items:center; gap:6px; margin-top:8px; padding:6px 10px; border-radius:8px; background:#f0fdf4; border:1px solid #bbf7d0; font-size:11.5px;';
-        parent.appendChild(statusPill);
-
-        const dropdownWrap = document.createElement('div');
-        dropdownWrap.style.cssText = 'margin-top:8px; display:flex; flex-direction:column; gap:4px;';
-        dropdownWrap.innerHTML = `
-            <label for="pred-history-dropdown" style="font-size:11px; font-weight:700; color:#475569; display:flex; align-items:center; justify-content:space-between;">
-                <span>📂 Load Previous Run (Estate &amp; Date):</span>
-                <span id="pred-history-count-badge" style="padding:1px 7px; border-radius:999px; background:#e2e8f0; color:#0f172a; font-size:10.5px; font-weight:700;">0</span>
-            </label>
-            <div style="display:flex; gap:6px; align-items:center;">
-                <select id="pred-history-dropdown" onchange="window.onSidebarHistoryDropdownChange(this)" style="flex:1; min-width:0; padding:7px 9px; border-radius:8px; border:1px solid #cbd5e1; background:#ffffff; color:#0f172a; font-size:12px; font-weight:600; cursor:pointer;">
-                    <option value="">-- Loading runs history... --</option>
-                </select>
-                <button type="button" onclick="window.downloadSelectedSidebarRunZip()" title="Download 6-Page Colored Nutrient Raster Report" style="padding:7px 10px; border-radius:8px; border:1px solid #10b981; background:#ecfdf5; color:#047857; font-size:12px; font-weight:700; cursor:pointer; flex-shrink:0;">
-                    ⬇ Data
-                </button>
-            </div>
-        `;
-        parent.appendChild(dropdownWrap);
-
-        const histBtn = document.createElement('button');
-        histBtn.type = 'button';
-        histBtn.id = 'btn-open-prediction-history';
-        histBtn.onclick = openPredictionHistoryModal;
-        histBtn.style.cssText = 'width:100%; margin-top:6px; padding:7px 12px; border-radius:10px; border:1px solid #cbd5e1; background:#f8fafc; color:#1e293b; font-weight:600; font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:all 0.15s ease;';
-        histBtn.innerHTML = `
-            <span>🕒 Browse &amp; Filter All Runs (Estate / Date)</span>
-        `;
-        parent.appendChild(histBtn);
+        // Redundant sidebar history dropdown & browse button removed — users access Run History via the top-bar Clock icon (#sp-top-history-btn)
     }
 
     window.savePredictionRunToCacheAndHistory = savePredictionRunToCacheAndHistory;
