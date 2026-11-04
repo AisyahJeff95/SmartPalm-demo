@@ -220,10 +220,47 @@
         }
     }
 
+    const SB_FALLBACK_URL = "https://dkafzakyeuehvpkkhdsa.supabase.co";
+    const SB_FALLBACK_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRrYWZ6YWt5ZXVlaHZwa2toZHNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5MTA3MTgsImV4cCI6MjEwMzQ4NjcxOH0.CmL8-LZ3XBrLZ1H_3ofUtCFcy5vNJFiMzEvdFbE-pQU";
+
+    function resolveSupabaseClient() {
+        if (typeof window.getSupabase === 'function') {
+            const c = window.getSupabase();
+            if (c) return c;
+        }
+        if (window.supabaseClient) return window.supabaseClient;
+        if (window.supabase && typeof window.supabase.createClient === 'function') {
+            try {
+                window.supabaseClient = window.supabase.createClient(
+                    window.SUPABASE_URL || SB_FALLBACK_URL,
+                    window.SUPABASE_ANON_KEY || SB_FALLBACK_KEY
+                );
+                return window.supabaseClient;
+            } catch (e) {}
+        }
+        return null;
+    }
+
+    function buildLightweightOverlaysMeta(overlays) {
+        if (!overlays || typeof overlays !== 'object') return null;
+        const meta = {};
+        let extractedBounds = null;
+        Object.keys(overlays).forEach(k => {
+            const item = overlays[k];
+            if (item && typeof item === 'object') {
+                if (item.bounds && !extractedBounds) extractedBounds = item.bounds;
+                meta[k] = {
+                    bounds: item.bounds || null,
+                    hasDataUrl: Boolean(item.dataUrl)
+                };
+            }
+        });
+        return { meta, bounds: extractedBounds };
+    }
+
     async function syncRunToSupabase(record) {
         try {
-            const sb = typeof getSupabase === 'function' ? getSupabase() : (window.supabaseClient || null);
-            if (!sb || !record) return;
+            if (!record) return;
             const folderName = record.folderName || record.folder_name;
             if (!folderName) return;
             let tDate = record.targetDate || record.acquisitionDate || record.target_date || record.acquisition_date || '';
@@ -240,7 +277,8 @@
                 ? new Date(Number(record.mtime) * 1000).toISOString()
                 : new Date().toISOString();
 
-            const res = await sb.from('prediction_runs').upsert([{
+            const ovLite = buildLightweightOverlaysMeta(record.overlays);
+            const rowPayload = {
                 folder_name: folderName,
                 shp_key: shpKey || '',
                 estate_name: estateName || '',
@@ -249,43 +287,71 @@
                 month: record.month || ym.month,
                 timestamp: record.timestamp || createdIso,
                 total_blocks: blkCount ? Number(blkCount) : null,
-                bounds: record.bounds || null,
+                bounds: record.bounds || (ovLite ? ovLite.bounds : null),
                 block_summary: blkSummary || null,
-                overlays: record.overlays || null,
+                overlays: ovLite ? ovLite.meta : null,
                 created_at: createdIso
-            }], { onConflict: 'folder_name' });
-            if (res && res.error) {
-                await sb.from('prediction_runs').upsert([{
-                    folder_name: folderName,
-                    estate_key: shpKey || '',
-                    estate_name: estateName || '',
-                    target_date: tDate || '',
-                    year: record.year || ym.year,
-                    month: record.month || ym.month,
-                    is_realtime: Boolean(record.isRealtime),
-                    base_url: record.baseUrl || DEFAULT_HF_BASE,
-                    execution_time_sec: Number(record.executionTimeSec) || null,
-                    block_summary: blkSummary || null,
-                    overlays: record.overlays || null,
-                    created_at: createdIso
-                }], { onConflict: 'folder_name' });
+            };
+
+            const sb = resolveSupabaseClient();
+            if (sb) {
+                const res = await sb.from('prediction_runs').upsert([rowPayload], { onConflict: 'folder_name' });
+                if (!res || !res.error) return;
+                console.warn('[SmartPalm Supabase Sync] SDK upsert warning, trying REST fallback:', res.error);
+            }
+
+            // Direct REST API fallback to https://dkafzakyeuehvpkkhdsa.supabase.co/rest/v1/prediction_runs
+            const apiUrl = `${window.SUPABASE_URL || SB_FALLBACK_URL}/rest/v1/prediction_runs?on_conflict=folder_name`;
+            const apiKey = window.SUPABASE_ANON_KEY || SB_FALLBACK_KEY;
+            const restRes = await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apikey': apiKey,
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Prefer': 'resolution=merge-duplicates,return=minimal'
+                },
+                body: JSON.stringify([rowPayload])
+            });
+            if (!restRes.ok) {
+                const errTxt = await restRes.text().catch(() => '');
+                console.warn('[SmartPalm Supabase Sync] REST upsert failed:', restRes.status, errTxt);
             }
         } catch (e) {
-            // Silent fallback if table does not exist or RLS restricts anonymous writes
+            console.warn('[SmartPalm Supabase Sync] Exception:', e);
         }
     }
 
     async function fetchSupabaseHistory() {
         try {
-            const sb = typeof getSupabase === 'function' ? getSupabase() : (window.supabaseClient || null);
-            if (!sb) return [];
-            const { data, error } = await sb
-                .from('prediction_runs')
-                .select('*')
-                .order('created_at', { ascending: false })
-                .limit(60);
-            if (error || !Array.isArray(data)) return [];
-            return data.map(row => {
+            let rows = null;
+            const sb = resolveSupabaseClient();
+            if (sb) {
+                const { data, error } = await sb
+                    .from('prediction_runs')
+                    .select('*')
+                    .order('created_at', { ascending: false })
+                    .limit(60);
+                if (!error && Array.isArray(data)) {
+                    rows = data;
+                }
+            }
+            if (!rows) {
+                const apiUrl = `${window.SUPABASE_URL || SB_FALLBACK_URL}/rest/v1/prediction_runs?select=*&order=created_at.desc&limit=60`;
+                const apiKey = window.SUPABASE_ANON_KEY || SB_FALLBACK_KEY;
+                const restRes = await fetch(apiUrl, {
+                    headers: {
+                        'apikey': apiKey,
+                        'Authorization': `Bearer ${apiKey}`
+                    }
+                });
+                if (restRes.ok) {
+                    const data = await restRes.json();
+                    if (Array.isArray(data)) rows = data;
+                }
+            }
+            if (!Array.isArray(rows)) return [];
+            return rows.map(row => {
                 const tDate = row.target_date || row.acquisition_date || '';
                 const ym = parseDateYearMonth(tDate);
                 const ts = row.timestamp || row.created_at || '';
