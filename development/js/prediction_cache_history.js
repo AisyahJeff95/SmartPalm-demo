@@ -223,37 +223,51 @@
     async function syncRunToSupabase(record) {
         try {
             const sb = typeof getSupabase === 'function' ? getSupabase() : (window.supabaseClient || null);
-            if (!sb) return;
-            const ym = parseDateYearMonth(record.targetDate);
-            const blkCount = record.totalBlocks || (record.blockSummary && record.blockSummary.blocks ? Object.keys(record.blockSummary.blocks).length : null);
+            if (!sb || !record) return;
+            const folderName = record.folderName || record.folder_name;
+            if (!folderName) return;
+            let tDate = record.targetDate || record.acquisitionDate || record.target_date || record.acquisition_date || '';
+            if (!tDate) {
+                const dm = String(folderName).match(/(\d{4}-\d{2}-\d{2})/);
+                if (dm) tDate = dm[1];
+            }
+            const ym = parseDateYearMonth(tDate);
+            const shpKey = record.shpKey || record.shp_key || record.estate_key || guessShpKeyFromEstateName(record.estateName || folderName);
+            const estateName = record.estateName || record.estate_name || shpKey || folderName;
+            const blkSummary = record.blockSummary || record.block_summary || computeEstateAndBlockSummary(shpKey, estateName);
+            const blkCount = record.totalBlocks || record.total_blocks || (blkSummary && blkSummary.blocks ? Object.keys(blkSummary.blocks).length : null);
+            const createdIso = (record.mtime && Number(record.mtime) > 1000000000)
+                ? new Date(Number(record.mtime) * 1000).toISOString()
+                : new Date().toISOString();
+
             const res = await sb.from('prediction_runs').upsert([{
-                folder_name: record.folderName,
-                shp_key: record.shpKey || '',
-                estate_name: record.estateName || '',
-                acquisition_date: record.targetDate || '',
+                folder_name: folderName,
+                shp_key: shpKey || '',
+                estate_name: estateName || '',
+                acquisition_date: tDate || '',
                 year: record.year || ym.year,
                 month: record.month || ym.month,
-                timestamp: record.timestamp || new Date().toISOString(),
-                total_blocks: blkCount,
+                timestamp: record.timestamp || createdIso,
+                total_blocks: blkCount ? Number(blkCount) : null,
                 bounds: record.bounds || null,
-                block_summary: record.blockSummary || null,
+                block_summary: blkSummary || null,
                 overlays: record.overlays || null,
-                created_at: new Date().toISOString()
+                created_at: createdIso
             }], { onConflict: 'folder_name' });
             if (res && res.error) {
                 await sb.from('prediction_runs').upsert([{
-                    folder_name: record.folderName,
-                    estate_key: record.shpKey || '',
-                    estate_name: record.estateName || '',
-                    target_date: record.targetDate || '',
+                    folder_name: folderName,
+                    estate_key: shpKey || '',
+                    estate_name: estateName || '',
+                    target_date: tDate || '',
                     year: record.year || ym.year,
                     month: record.month || ym.month,
                     is_realtime: Boolean(record.isRealtime),
                     base_url: record.baseUrl || DEFAULT_HF_BASE,
                     execution_time_sec: Number(record.executionTimeSec) || null,
-                    block_summary: record.blockSummary || null,
+                    block_summary: blkSummary || null,
                     overlays: record.overlays || null,
-                    created_at: new Date().toISOString()
+                    created_at: createdIso
                 }], { onConflict: 'folder_name' });
             }
         } catch (e) {
@@ -608,6 +622,8 @@
             fetchServerPredictionHistory()
         ]);
 
+        const sbFolderSet = new Set((sbHistory || []).map(s => s.folderName || s.folder_name).filter(Boolean));
+
         idbEstates.forEach(rec => {
             if (rec && rec.shpKey) {
                 window.PREDICTION_CACHE_BY_ESTATE[rec.shpKey] = rec;
@@ -652,7 +668,12 @@
             saveLocalHistoryMeta(merged);
         }
 
+        // Automatically backfill any runs from HuggingFace / local cache that are not yet in Supabase prediction_runs
         merged.forEach(r => {
+            const fn = r.folderName || r.folder_name;
+            if (fn && !sbFolderSet.has(fn)) {
+                syncRunToSupabase(r);
+            }
             const k = r.shpKey || guessShpKeyFromEstateName(r.estateName || r.folderName);
             if (k && !window.PREDICTION_CACHE_BY_ESTATE[k] && r.overlays) {
                 window.PREDICTION_CACHE_BY_ESTATE[k] = r;
