@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="css/tables-forms.css" />
     <link rel="stylesheet" href="css/reada.css" />
     <link rel="stylesheet" href="css/styles.css?v=20261103d" />
-    <link rel="stylesheet" href="css/home-dark.css?v=20261104d" />
+    <link rel="stylesheet" href="css/home-dark.css?v=20261104e" />
 
     <!-- Supabase JS Client & Auth Modules -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -206,10 +206,6 @@
                      LEFT FLOATING COLUMN: Total Estate Summary + Estate List
                      --------------------------------------------------------- -->
                 <div class="sp-left-column">
-                    <div class="sp-left-column-header">
-                        <h1 class="sp-left-main-title">Estates Overview</h1>
-                    </div>
-
                     <!-- Top Estate Company Filter Strip -->
                     <div class="sp-region-strip">
                         <button type="button" class="sp-region-chip active" onclick="filterLeftEstatesByRegion('ALL', this)">All Owners</button>
@@ -222,21 +218,21 @@
                             <span class="sp-card-subtitle" id="sp-kpi-company-subtitle">4 Companies • 57,773 Ha</span>
                         </div>
                         <div class="sp-status-duo-grid">
-                            <div class="sp-status-tile" onclick="filterLeftEstatesByRegion('ALL')" title="Online Monitored Estate Companies">
+                            <div class="sp-status-tile" onclick="filterLeftEstatesByRegion('ALL')" title="Online Monitored Estate Companies" style="padding: 9px 13px; gap: 6px;">
                                 <div class="sp-status-icon-circle online">●</div>
                                 <div class="sp-status-bottom">
                                     <span class="sp-status-label">Online</span>
-                                    <span class="sp-status-num" id="sp-kpi-company-count" style="font-size: 33px;">4</span>
+                                    <span class="sp-status-num" id="sp-kpi-company-count" style="font-size: 29px;">4</span>
                                 </div>
                             </div>
-                            <div class="sp-status-tile" onclick="filterLeftEstatesByRegion('ALL')" title="Online Monitored Estates">
+                            <div class="sp-status-tile" onclick="filterLeftEstatesByRegion('ALL')" title="Online Monitored Estates" style="padding: 7px 13px; gap: 3px;">
                                 <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                                    <div class="sp-status-icon-circle online">●</div>
+                                    <div class="sp-status-icon-circle online" style="width: 21px; height: 21px; font-size: 11px;">●</div>
                                     <span class="sp-card-subtitle" id="sp-kpi-total-subtitle">20 Maps • 3,678 Blocks</span>
                                 </div>
                                 <div class="sp-status-bottom">
                                     <span class="sp-status-label">Total Estate • Online</span>
-                                    <span class="sp-status-num" id="sp-kpi-online-count" style="font-size: 33px;">20</span>
+                                    <span class="sp-status-num" id="sp-kpi-online-count" style="font-size: 24px;">20</span>
                                 </div>
                             </div>
                         </div>
@@ -257,14 +253,19 @@
                      --------------------------------------------------------- -->
                 <div class="sp-center-hud">
                     <div class="sp-map-top-hud">
-                        <div id="sp-welcome-banner" class="sp-welcome-banner" onclick="openAuthModal('signin')" title="Synced with Supabase user profile (Click to switch account)">
-                            <div class="sp-welcome-header-row">
-                                <span class="sp-welcome-dot"></span>
-                                <span id="sp-welcome-text" class="sp-welcome-title">Welcome, <b>Admin</b>, from <b>Palmnex Sdn Bhd</b>!</span>
+                        <div style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start;">
+                            <div class="sp-left-column-header" style="padding: 0 2px;">
+                                <h1 class="sp-left-main-title">Estates Overview</h1>
                             </div>
-                            <p class="sp-welcome-desc">
-                                Your session is active. You have full access to uploaded estate maps, satellite foliar nutrient predictions, and block-level fertilization analytics.
-                            </p>
+                            <div id="sp-welcome-banner" class="sp-welcome-banner" onclick="openAuthModal('signin')" title="Synced with Supabase user profile (Click to switch account)">
+                                <div class="sp-welcome-header-row">
+                                    <span class="sp-welcome-dot"></span>
+                                    <span id="sp-welcome-text" class="sp-welcome-title">Welcome, <b>Admin</b>, from <b>Palmnex Sdn Bhd</b>!</span>
+                                </div>
+                                <p class="sp-welcome-desc">
+                                    Your session is active. You have full access to uploaded estate maps, satellite foliar nutrient predictions, and block-level fertilization analytics.
+                                </p>
+                            </div>
                         </div>
 
                         <!-- Top-Right 3 Separated Cards Stack: 1. Overall Nutrient Level, 2. Overall Stress Level, 3. Stress Areas -->

@@ -879,18 +879,18 @@ body.sp-dark-home .cms-main-content {
 .sp-status-duo-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 8px;
 }
 
 .sp-status-tile {
     background: rgba(255, 255, 255, 0.035);
     border: 1px solid var(--sp-border);
     border-radius: 14px;
-    padding: 12px 14px;
+    padding: 8px 13px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    gap: 10px;
+    gap: 5px;
     cursor: pointer;
     transition: all 0.2s ease;
 }
