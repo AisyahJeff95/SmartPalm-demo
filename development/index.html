@@ -18,7 +18,7 @@
     <link rel="stylesheet" href="css/tables-forms.css" />
     <link rel="stylesheet" href="css/reada.css" />
     <link rel="stylesheet" href="css/styles.css?v=20261103d" />
-    <link rel="stylesheet" href="css/home-dark.css?v=20261104c" />
+    <link rel="stylesheet" href="css/home-dark.css?v=20261104d" />
 
     <!-- Supabase JS Client & Auth Modules -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -207,7 +207,7 @@
                      --------------------------------------------------------- -->
                 <div class="sp-left-column">
                     <div class="sp-left-column-header">
-                        <h1 class="sp-left-main-title">Estate Maps Overview</h1>
+                        <h1 class="sp-left-main-title">Estates Overview</h1>
                     </div>
 
                     <!-- Top Estate Company Filter Strip -->
@@ -215,7 +215,7 @@
                         <button type="button" class="sp-region-chip active" onclick="filterLeftEstatesByRegion('ALL', this)">All Owners</button>
                     </div>
 
-                    <!-- Total Estate Company Card -->
+                    <!-- Total Estate Company Card (Combined with Total Estate) -->
                     <div class="sp-glass-panel sp-total-estate-card">
                         <div class="sp-card-header-row">
                             <span class="sp-card-title">Total Estate Company</span>
@@ -229,21 +229,14 @@
                                     <span class="sp-status-num" id="sp-kpi-company-count" style="font-size: 33px;">4</span>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <!-- Total Estate Status Card (Online Only with Point Symbol) -->
-                    <div class="sp-glass-panel sp-total-estate-card">
-                        <div class="sp-card-header-row">
-                            <span class="sp-card-title">Total Estate Overview</span>
-                            <span class="sp-card-subtitle" id="sp-kpi-total-subtitle">20 Maps • 3,678 Blocks</span>
-                        </div>
-                        <div class="sp-status-duo-grid">
                             <div class="sp-status-tile" onclick="filterLeftEstatesByRegion('ALL')" title="Online Monitored Estates">
-                                <div class="sp-status-icon-circle online">●</div>
+                                <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                                    <div class="sp-status-icon-circle online">●</div>
+                                    <span class="sp-card-subtitle" id="sp-kpi-total-subtitle">20 Maps • 3,678 Blocks</span>
+                                </div>
                                 <div class="sp-status-bottom">
-                                    <span class="sp-status-label">Online</span>
-                                    <span class="sp-status-num" id="sp-kpi-online-count">20</span>
+                                    <span class="sp-status-label">Total Estate • Online</span>
+                                    <span class="sp-status-num" id="sp-kpi-online-count" style="font-size: 33px;">20</span>
                                 </div>
                             </div>
                         </div>
