@@ -3453,7 +3453,7 @@ function toggleSatDataMode(mode) {
             </div>
 
             <!-- Selected Block Status for Report -->
-            <div id="selected-block-report-hint" class="ui-hint-text" style="font-size: 11px; color: #a1a1aa; margin-bottom: 6px; padding: 0 2px;">
+            <div id="selected-block-report-hint" class="ui-hint-text" style="font-size: 13px; line-height: 1.4; color: #a1a1aa; margin-bottom: 8px; padding: 0 2px;">
                 * Click a single block on the dashboard map first to generate report.
             </div>
 
@@ -3596,7 +3596,7 @@ function toggleSatDataMode(mode) {
         let selectedBlock = "Block 22";
         let hasClickedBlock = false;
         let selectedBlockFeature = null;
-        const MAX_SELECTED_BLOCKS = 10;
+        const MAX_SELECTED_BLOCKS = 30;
         let selectedBlockSlots = []; // Array of { name, feature, latlng } or null (pending map click)
         let activeBlockSlotIndex = 0;
         let uploadedShapefileName = "";  // set when user uploads a .shp file
@@ -3770,31 +3770,31 @@ function toggleSatDataMode(mode) {
                 hintEl.style.fontWeight = '600';
                 const firstSlot = selectedBlockSlots[0];
                 const firstName = (firstSlot && firstSlot.name) ? firstSlot.name : selectedBlock;
-                let html = `<div>✓ Selected Block for Report (Page 1): <strong>${firstName}</strong></div>`;
+                let html = `<div style="font-size: 13px; margin-bottom: 4px;">✓ Selected Block for Report (Page 1): <strong>${firstName}</strong></div>`;
 
                 for (let i = 1; i < selectedBlockSlots.length; i++) {
                     const slot = selectedBlockSlots[i];
                     const isPending = (slot === null);
                     const isActive = (activeBlockSlotIndex === i);
                     if (isPending) {
-                        html += `<div onclick="window.setActiveBlockSlot(${i})" style="margin-top: 3px; padding: 2px 6px; border-radius: 4px; background: ${isActive ? 'rgba(16, 185, 129, 0.18)' : 'rgba(255,255,255,0.05)'}; border: 1px dashed ${isActive ? '#10b981' : '#52525b'}; color: ${isActive ? '#34d399' : '#a1a1aa'}; font-size: 10.5px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+                        html += `<div onclick="window.setActiveBlockSlot(${i})" style="margin-top: 4px; padding: 4px 8px; border-radius: 5px; background: ${isActive ? 'rgba(16, 185, 129, 0.18)' : 'rgba(255,255,255,0.05)'}; border: 1px dashed ${isActive ? '#10b981' : '#52525b'}; color: ${isActive ? '#34d399' : '#a1a1aa'}; font-size: 12.5px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
                             <span>${isActive ? '👉 Click another block on map...' : '+ Click to select block on map...'} (Block ${i + 1})</span>
-                            <span onclick="window.removeBlockSlot(${i}, event)" title="Remove slot" style="color: #9ca3af; font-weight: 700; padding: 0 4px; cursor: pointer;">×</span>
+                            <span onclick="window.removeBlockSlot(${i}, event)" title="Remove slot" style="color: #9ca3af; font-weight: 700; font-size: 14px; padding: 0 4px; cursor: pointer;">×</span>
                         </div>`;
                     } else {
-                        html += `<div onclick="window.setActiveBlockSlot(${i})" title="Click to re-select Block ${i + 1} on map" style="margin-top: 3px; padding: 2px 6px; border-radius: 4px; background: ${isActive ? 'rgba(16, 185, 129, 0.18)' : 'rgba(255,255,255,0.04)'}; border: 1px solid ${isActive ? '#10b981' : 'rgba(255,255,255,0.1)'}; color: #e4e4e7; font-size: 10.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+                        html += `<div onclick="window.setActiveBlockSlot(${i})" title="Click to re-select Block ${i + 1} on map" style="margin-top: 4px; padding: 4px 8px; border-radius: 5px; background: ${isActive ? 'rgba(16, 185, 129, 0.18)' : 'rgba(255,255,255,0.04)'}; border: 1px solid ${isActive ? '#10b981' : 'rgba(255,255,255,0.1)'}; color: #e4e4e7; font-size: 12.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
                             <span>✓ Block ${i + 1}: <strong style="color: #34d399;">${slot.name}</strong></span>
-                            <span onclick="window.removeBlockSlot(${i}, event)" title="Remove block" style="color: #9ca3af; font-weight: 700; padding: 0 4px; cursor: pointer;">×</span>
+                            <span onclick="window.removeBlockSlot(${i}, event)" title="Remove block" style="color: #9ca3af; font-weight: 700; font-size: 14px; padding: 0 4px; cursor: pointer;">×</span>
                         </div>`;
                     }
                 }
 
                 if (selectedBlockSlots.length < MAX_SELECTED_BLOCKS) {
-                    html += `<div onclick="window.addAnotherBlockSlot()" style="margin-top: 4px; color: #10b981; font-size: 11px; font-weight: 600; cursor: pointer; display: inline-block; user-select: none;">+ add another block</div>`;
+                    html += `<div onclick="window.addAnotherBlockSlot()" style="margin-top: 6px; color: #10b981; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-block; user-select: none;">+ add another block</div>`;
                 }
 
                 if (filledSlots.length > 1) {
-                    html += `<div style="margin-top: 3px; font-size: 10px; color: #a1a1aa; font-weight: 500;">Combined Report Block (${filledSlots.length}/${MAX_SELECTED_BLOCKS}): <strong style="color: #e4e4e7;">${selectedBlock}</strong></div>`;
+                    html += `<div style="margin-top: 5px; font-size: 12px; line-height: 1.4; color: #a1a1aa; font-weight: 500;">Combined Report Block (${filledSlots.length}/${MAX_SELECTED_BLOCKS}): <strong style="color: #e4e4e7;">${selectedBlock}</strong></div>`;
                 }
 
                 hintEl.innerHTML = html;
