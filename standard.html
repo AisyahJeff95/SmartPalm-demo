@@ -6817,9 +6817,10 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                     ? window.colorForNutrientValue(nut.actual, nut.key)
                     : getNutrientColorComp(nut.actual, nut.key);
                 let isOpt = nut.actual >= nut.target;
+                let defPct = (!isOpt && nut.target > 0) ? (((nut.target - nut.actual) / nut.target) * 100).toFixed(1) : '0.0';
                 let badge = isOpt
                     ? `<span style="color:#166534;font-weight:400;">Sufficient</span>`
-                    : `<span style="color:#991b1b;font-weight:400;">Deficient</span>`;
+                    : `<span style="color:#991b1b;font-weight:400;">Deficient (${defPct}%)</span>`;
 
                 return `
                   <tr>
@@ -6828,11 +6829,8 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                       <span style="display:inline-block;width:7.5px;height:7.5px;border-radius:50%;background:${dotColor};margin-right:4px;border:1px solid rgba(0,0,0,0.25);vertical-align:middle;"></span>
                       ${nut.actual.toFixed(nut.dec)}${nut.unit}
                     </td>
-                    <td style="padding: 4.5px 7px; border: 1px solid #cbd5e1; color: #475569; font-weight: 600;">${getStatRangeStr(nut.key, nut.dec, nut.unit, nut.actual)}</td>
-                    <td style="padding: 4.5px 7px; border: 1px solid #cbd5e1; color: #b91c1c; font-weight: 700;">${nut.target.toFixed(nut.dec)}${nut.unit}</td>
+                    <td style="padding: 4.5px 7px; border: 1px solid #cbd5e1; color: #15803d; font-weight: 700;">${nut.target.toFixed(nut.dec)}${nut.unit}</td>
                     <td style="padding: 4.5px 7px; border: 1px solid #cbd5e1;">${badge}</td>
-                    <td style="padding: 4.5px 7px; border: 1px solid #cbd5e1;"></td>
-                    <td style="padding: 4.5px 7px; border: 1px solid #cbd5e1;"></td>
                   </tr>
                 `;
             }).join('');
@@ -7011,13 +7009,10 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
                       <table style="width: 100%; border-collapse: collapse; font-size: 8.8px; text-align: center;">
                         <thead>
                           <tr style="background-color: #f1f5f9; border: 1px solid #94a3b8; color: #0f172a; font-weight: 800;">
-                            <th style="padding: 4.5px 7px; border: 1px solid #cbd5e1; text-align: left; width: 18%;">Nutrient Element</th>
-                            <th style="padding: 4.5px 7px; border: 1px solid #cbd5e1; width: 15%;">Block Mean</th>
-                            <th style="padding: 4.5px 7px; border: 1px solid #cbd5e1; width: 16%;">Spatial Range</th>
-                            <th style="padding: 4.5px 7px; border: 1px solid #cbd5e1; width: 13%;">Critical Level</th>
-                            <th style="padding: 4.5px 7px; border: 1px solid #cbd5e1; width: 16%;">Diagnostic Status</th>
-                            <th style="padding: 4.5px 7px; border: 1px solid #cbd5e1; width: 11%;">Rec. (kg/palm)</th>
-                            <th style="padding: 4.5px 7px; border: 1px solid #cbd5e1; width: 11%;">Rec. (kg/ha)</th>
+                            <th style="padding: 4.5px 7px; border: 1px solid #cbd5e1; text-align: left; width: 28%;">Nutrient Element</th>
+                            <th style="padding: 4.5px 7px; border: 1px solid #cbd5e1; width: 24%;">Average %</th>
+                            <th style="padding: 4.5px 7px; border: 1px solid #cbd5e1; width: 24%;">Critical Level</th>
+                            <th style="padding: 4.5px 7px; border: 1px solid #cbd5e1; width: 24%;">Diagnostic Status</th>
                           </tr>
                         </thead>
                         <tbody>
