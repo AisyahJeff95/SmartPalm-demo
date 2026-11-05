@@ -14,3 +14,4 @@ API Endpoints:
 - Predict Nutrients : POST https://aisyjeff95-smartpalm-demo.hf.space/api/predict
 - Download .zip     : GET  https://aisyjeff95-smartpalm-demo.hf.space/api/download_zip
 - Save PDF Report   : POST https://aisyjeff95-smartpalm-demo.hf.space/api/save_pdf
+

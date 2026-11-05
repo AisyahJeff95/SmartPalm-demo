@@ -503,15 +503,21 @@
             isLiveSessionRun: true
         };
 
-        if (record.grids) {
-            window.DYNAMIC_PREDICTION_GRIDS = record.grids;
-        } else if (normOverlays && typeof window.decodeDynamicPredictionGrids === 'function') {
+        if (normOverlays && typeof window.decodeDynamicPredictionGrids === 'function') {
             window.decodeDynamicPredictionGrids(normOverlays, record.bounds).then(decoded => {
                 if (decoded && Object.keys(decoded).length > 0) {
                     record.grids = decoded;
                     window.DYNAMIC_PREDICTION_GRIDS = decoded;
+                    if (typeof window.syncDynamicGridBoundsToActiveLayer === 'function') {
+                        window.syncDynamicGridBoundsToActiveLayer();
+                    }
+                    if (typeof window.refreshPointNutrientDetectionFromActiveRasters === 'function') {
+                        window.refreshPointNutrientDetectionFromActiveRasters();
+                    }
                 }
             });
+        } else if (record.grids) {
+            window.DYNAMIC_PREDICTION_GRIDS = record.grids;
         }
 
         window.PREDICTION_CACHE_BY_ESTATE[shpKey] = record;
@@ -557,11 +563,17 @@
         if (cached && (cached.overlays || cached.folderName)) {
             window.DYNAMIC_PREDICTION_RASTERS = cached.overlays || null;
             window.DYNAMIC_PREDICTION_GRIDS = cached.grids || null;
-            if (!window.DYNAMIC_PREDICTION_GRIDS && cached.overlays && typeof window.decodeDynamicPredictionGrids === 'function') {
+            if (cached.overlays && typeof window.decodeDynamicPredictionGrids === 'function') {
                 window.decodeDynamicPredictionGrids(cached.overlays, cached.bounds).then(decoded => {
                     if (decoded && Object.keys(decoded).length > 0) {
                         cached.grids = decoded;
                         window.DYNAMIC_PREDICTION_GRIDS = decoded;
+                        if (typeof window.syncDynamicGridBoundsToActiveLayer === 'function') {
+                            window.syncDynamicGridBoundsToActiveLayer();
+                        }
+                        if (typeof window.refreshPointNutrientDetectionFromActiveRasters === 'function') {
+                            window.refreshPointNutrientDetectionFromActiveRasters();
+                        }
                     }
                 });
             }

@@ -271,32 +271,100 @@
         const stepLast = brk[4] - brk[3];
         const low = (bestIdx === 0) ? Math.max(0.01, brk[0] - step0) : brk[bestIdx - 1];
         const high = (bestIdx === 5) ? (brk[4] + stepLast) : brk[bestIdx];
-        // Deterministic spatial variation inside the exact class interval [low, high]
-        const wave = 0.5 + 0.36 * Math.sin((rowNorm || 0.5) * 19.0 + (colNorm || 0.5) * 23.0);
-        const val = low + (high - low) * Math.max(0.08, Math.min(0.92, wave));
+        // Deterministic spatial variation strictly inside the exact class interval (low, high)
+        const wave = 0.5 + 0.34 * Math.sin((rowNorm || 0.5) * 19.0 + (colNorm || 0.5) * 23.0);
+        const val = low + (high - low) * Math.max(0.12, Math.min(0.88, wave));
         return Number(val.toFixed(panel.dp + 1));
     }
+
+    function getActiveOverlayOrBoundaryBounds(fallbackBounds) {
+        const activeOverlay = window.compRasterOverlay || window.stdRasterOverlay || null;
+        if (activeOverlay && typeof activeOverlay.getBounds === 'function') {
+            try {
+                const ob = activeOverlay.getBounds();
+                if (ob && ob.isValid && ob.isValid()) {
+                    const sw = ob.getSouthWest(), ne = ob.getNorthEast();
+                    if (sw.lng >= 99.5 && ne.lng <= 119.35) {
+                        return [[sw.lat, sw.lng], [ne.lat, ne.lng]];
+                    }
+                }
+            } catch (e) {}
+        }
+        const activeBLayer = window.compBoundaryLayer
+            || (typeof compBoundaryLayer !== 'undefined' ? compBoundaryLayer : null)
+            || window.stdBoundaryLayer
+            || (typeof stdBoundaryLayer !== 'undefined' ? stdBoundaryLayer : null)
+            || window.currentCompBoundaryLayer
+            || window.currentStdBoundaryLayer
+            || null;
+        if (typeof window.fixSeaBoundsIfNeeded === 'function' && fallbackBounds) {
+            return window.fixSeaBoundsIfNeeded(fallbackBounds, activeBLayer);
+        }
+        if (activeBLayer && typeof activeBLayer.getBounds === 'function') {
+            try {
+                const lb = activeBLayer.getBounds();
+                if (lb && lb.isValid && lb.isValid()) {
+                    return [[lb.getSouth(), lb.getWest()], [lb.getNorth(), lb.getEast()]];
+                }
+            } catch (e) {}
+        }
+        return fallbackBounds;
+    }
+
+    function syncDynamicGridBoundsToActiveLayer(bLayer) {
+        const fixed = getActiveOverlayOrBoundaryBounds(null);
+        if (!Array.isArray(fixed) || fixed.length < 2) return;
+        const south = Number(fixed[0][0]), west = Number(fixed[0][1]);
+        const north = Number(fixed[1][0]), east = Number(fixed[1][1]);
+        if (!isFinite(south) || !isFinite(west) || !isFinite(north) || !isFinite(east)) return;
+        if (window.DYNAMIC_PREDICTION_RASTERS && typeof window.DYNAMIC_PREDICTION_RASTERS === 'object') {
+            Object.keys(window.DYNAMIC_PREDICTION_RASTERS).forEach(k => {
+                const ov = window.DYNAMIC_PREDICTION_RASTERS[k];
+                if (ov && typeof ov === 'object' && ov.dataUrl) {
+                    ov.bounds = [[south, west], [north, east]];
+                }
+            });
+        }
+        if (window.DYNAMIC_PREDICTION_GRIDS && typeof window.DYNAMIC_PREDICTION_GRIDS === 'object') {
+            Object.keys(window.DYNAMIC_PREDICTION_GRIDS).forEach(k => {
+                const g = window.DYNAMIC_PREDICTION_GRIDS[k];
+                if (g && g.bounds) {
+                    g.bounds.left = west;
+                    g.bounds.bottom = south;
+                    g.bounds.right = east;
+                    g.bounds.top = north;
+                }
+            });
+        }
+    }
+    window.syncDynamicGridBoundsToActiveLayer = syncDynamicGridBoundsToActiveLayer;
 
     async function decodeDynamicPredictionGrids(overlaysObj, fallbackBounds) {
         if (!overlaysObj || typeof overlaysObj !== 'object') return null;
         const decodedGrids = {};
-        const sharedBnd = overlaysObj.bounds || fallbackBounds || null;
+        const rawSharedBnd = overlaysObj.bounds || fallbackBounds || null;
+        const sharedBnd = getActiveOverlayOrBoundaryBounds(rawSharedBnd);
 
         await Promise.all(NUTRIENT_PANELS.map(async (panel) => {
             const key = panel.key;
             const rawOv = overlaysObj[key];
             if (!rawOv) return;
+            const rawBounds = (typeof rawOv === 'object' && rawOv.bounds) ? rawOv.bounds : sharedBnd;
+            const fixedBounds = getActiveOverlayOrBoundaryBounds(rawBounds) || sharedBnd;
+            if (typeof rawOv === 'object' && fixedBounds) {
+                rawOv.bounds = fixedBounds;
+            }
             const ov = (typeof rawOv === 'string')
-                ? { dataUrl: rawOv, bounds: sharedBnd }
-                : { dataUrl: rawOv.dataUrl, bounds: rawOv.bounds || sharedBnd };
+                ? { dataUrl: rawOv, bounds: fixedBounds }
+                : { dataUrl: rawOv.dataUrl, bounds: fixedBounds };
             if (!ov.dataUrl || !ov.bounds || ov.bounds.length !== 2) return;
 
             const img = await loadOverlayImage(ov);
             if (!img) return;
 
-            const maxDim = 150;
-            const natW = img.naturalWidth || img.width || 120;
-            const natH = img.naturalHeight || img.height || 120;
+            const maxDim = 600;
+            const natW = img.naturalWidth || img.width || 240;
+            const natH = img.naturalHeight || img.height || 240;
             const scale = Math.min(1, maxDim / Math.max(natW, natH, 1));
             const W = Math.max(10, Math.round(natW * scale));
             const H = Math.max(10, Math.round(natH * scale));
