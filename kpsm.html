@@ -5974,7 +5974,7 @@ function openPredictionProgressModal(estateLabel, shpDisplay, targetDate, isReal
             </div>
 
             <div id="pred-modal-progress-track" style="width:100%; height:4px; background:#141821; overflow:hidden; position:relative; flex-shrink:0;">
-                <div id="pred-modal-progress-bar" style="width:4%; height:100%; background:linear-gradient(90deg, #0ea5e9 0%, #22d3ee 50%, #10b981 100%); box-shadow:0 0 10px rgba(34, 211, 238, 0.55); transition:width 0.35s ease-out, background 0.3s ease;"></div>
+                <div id="pred-modal-progress-bar" style="width:3%; height:100%; background:linear-gradient(90deg, #0ea5e9 0%, #22d3ee 50%, #10b981 100%); box-shadow:0 0 10px rgba(34, 211, 238, 0.55); transition:width 0.9s cubic-bezier(0.22, 1, 0.36, 1), background 0.3s ease;"></div>
             </div>
 
             <div id="prediction-terminal-log" style="padding:18px 22px; height:400px; overflow-y:auto; background:#07090d; color:#cbd5e1; font-family:'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace; font-size:12.5px; line-height:1.55; user-select:text;"></div>
@@ -6016,21 +6016,21 @@ function openPredictionProgressModal(estateLabel, shpDisplay, targetDate, isReal
     const maxLng = bounds && bounds[1] ? Number(bounds[1][1]).toFixed(5) : '117.81996';
 
     clearPredictionLogTimers();
-    setPredictionModalProgress(4, 'running');
+    setPredictionModalProgress(3, 'running');
 
     const stagedLogs = [
-        { delay: 100,  pct: 8,  text: `STEP 1: Calling fetch_sentinel_for_shapefile() from fetch_sentinel_data.py...`, color: '#38bdf8' },
-        { delay: 450,  pct: 14, text: `- Target Shapefile: /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/map/${shpDisplay}.shp`, color: '#e2e8f0' },
-        { delay: 800,  pct: 20, text: `📅 Target Date     : ${targetDate} (±30 days window)`, color: '#fbbf24' },
-        { delay: 1300, pct: 27, text: `  ✓ Reprojecting Timbalai RSO (EPSG:29873) -> WGS84 (EPSG:4326)...`, color: '#a7f3d0' },
-        { delay: 1850, pct: 35, text: `  ✓ Shapefile WGS84 Bounds: Lng [${minLng}, ${maxLng}], Lat [${minLat}, ${maxLat}]`, color: '#a7f3d0' },
-        { delay: 2500, pct: 44, text: `  ✓ Generated 2,785,013 true 10m2 spatial grid points inside full estate map boundary (4503 cols x 3470 rows).\n`, color: '#a7f3d0' },
-        { delay: 3300, pct: 52, text: `--- Multi-Temporal SCL Cloud-Free Compositing (${winStart} to ${winEnd}, Cloud Filter: < 60%) ---`, color: '#c084fc' },
-        { delay: 4300, pct: 60, text: `  Pass S2B_MSIL2A_${p1Compact}T021529_R003_T50NNL_${p1Compact}T051621 (${p1Date}) | Added new clear pixels: 321,421 | Total clear composite: 321,421/2,785,013 (11.5%)`, color: '#cbd5e1' },
-        { delay: 5400, pct: 68, text: `  Pass S2B_MSIL2A_${p2Compact}T021559_R003_T50NNK_${p2Compact}T051842 (${p2Date}) | Added new clear pixels: 0 | Total clear composite: 468,730/2,785,013 (16.8%)`, color: '#cbd5e1' },
-        { delay: 6500, pct: 76, text: `  Pass S2C_MSIL2A_${p3Compact}T022531_R046_T50NNK_${p3Compact}T055310 (${p3Date}) | Added new clear pixels: 74,392 | Total clear composite: 1,940,025/2,785,013 (69.7%)\n`, color: '#cbd5e1' },
-        { delay: 7600, pct: 82, text: `✅ Sentinel Dataset Fetched Successfully: 2,785,013 cloud-free 10m grid records.\n`, color: '#4ade80' },
-        { delay: 8400, pct: 86, text: `STEP 2: Executing Random Forest predictions...`, color: '#38bdf8' }
+        { delay: 100,  pct: 6,  text: `STEP 1: Calling fetch_sentinel_for_shapefile() from fetch_sentinel_data.py...`, color: '#38bdf8' },
+        { delay: 450,  pct: 10, text: `- Target Shapefile: /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/map/${shpDisplay}.shp`, color: '#e2e8f0' },
+        { delay: 800,  pct: 14, text: `📅 Target Date     : ${targetDate} (±30 days window)`, color: '#fbbf24' },
+        { delay: 1300, pct: 19, text: `  ✓ Reprojecting Timbalai RSO (EPSG:29873) -> WGS84 (EPSG:4326)...`, color: '#a7f3d0' },
+        { delay: 1850, pct: 24, text: `  ✓ Shapefile WGS84 Bounds: Lng [${minLng}, ${maxLng}], Lat [${minLat}, ${maxLat}]`, color: '#a7f3d0' },
+        { delay: 2500, pct: 30, text: `  ✓ Generated 2,785,013 true 10m2 spatial grid points inside full estate map boundary (4503 cols x 3470 rows).\n`, color: '#a7f3d0' },
+        { delay: 3300, pct: 36, text: `--- Multi-Temporal SCL Cloud-Free Compositing (${winStart} to ${winEnd}, Cloud Filter: < 60%) ---`, color: '#c084fc' },
+        { delay: 4300, pct: 42, text: `  Pass S2B_MSIL2A_${p1Compact}T021529_R003_T50NNL_${p1Compact}T051621 (${p1Date}) | Added new clear pixels: 321,421 | Total clear composite: 321,421/2,785,013 (11.5%)`, color: '#cbd5e1' },
+        { delay: 5400, pct: 48, text: `  Pass S2B_MSIL2A_${p2Compact}T021559_R003_T50NNK_${p2Compact}T051842 (${p2Date}) | Added new clear pixels: 0 | Total clear composite: 468,730/2,785,013 (16.8%)`, color: '#cbd5e1' },
+        { delay: 6500, pct: 54, text: `  Pass S2C_MSIL2A_${p3Compact}T022531_R046_T50NNK_${p3Compact}T055310 (${p3Date}) | Added new clear pixels: 74,392 | Total clear composite: 1,940,025/2,785,013 (69.7%)\n`, color: '#cbd5e1' },
+        { delay: 7600, pct: 60, text: `✅ Sentinel Dataset Fetched Successfully: 2,785,013 cloud-free 10m grid records.\n`, color: '#4ade80' },
+        { delay: 8400, pct: 65, text: `STEP 2: Executing Random Forest predictions...`, color: '#38bdf8' }
     ];
 
     stagedLogs.forEach(item => {
@@ -6051,11 +6051,11 @@ function openPredictionProgressModal(estateLabel, shpDisplay, targetDate, isReal
                 window._PREDICTION_PROGRESS_INTERVAL = null;
                 return;
             }
-            const cur = window._PREDICTION_CURRENT_PCT || 86;
-            if (cur < 96) {
-                setPredictionModalProgress(cur + Math.max(0.35, (96 - cur) * 0.08), 'running');
+            const cur = window._PREDICTION_CURRENT_PCT || 65;
+            if (cur < 94) {
+                setPredictionModalProgress(cur + Math.max(0.18, (94 - cur) * 0.035), 'running');
             }
-        }, 450);
+        }, 650);
     }, 8600);
     window._PREDICTION_LOG_TIMERS.push(creepTimer);
 }
