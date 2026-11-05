@@ -171,16 +171,24 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_overr
 
         bbox = sf.bbox
         is_projected = abs(bbox[0]) > 180 or abs(bbox[1]) > 90
+        is_sea_misprojected = (not is_projected) and (119.35 <= bbox[0] <= 123.5) and (3.0 <= bbox[1] <= 6.5)
         transformer = None
+        sea_to_utm = None
         if is_projected:
             print("  ✓ Detected projected coordinates. Reprojecting Timbalai RSO (EPSG:29873) -> WGS84 (EPSG:4326)...")
+            transformer = pyproj.Transformer.from_crs('EPSG:29873', 'EPSG:4326', always_xy=True)
+        elif is_sea_misprojected:
+            print("  ✓ Detected UTM50N-misprojected Sabah coordinates in Celebes Sea -> Repairing via EPSG:29873 to WGS84...")
+            sea_to_utm = pyproj.Transformer.from_crs('EPSG:4326', 'EPSG:32650', always_xy=True)
             transformer = pyproj.Transformer.from_crs('EPSG:29873', 'EPSG:4326', always_xy=True)
 
         geoms = []
         wgs_polygons = []
         for idx, (s, rec) in enumerate(zip(shapes_list, records_list)):
             pts = s.points
-            if transformer:
+            if sea_to_utm and transformer:
+                wgs_pts = [transformer.transform(*sea_to_utm.transform(x, y)) for x, y in pts]
+            elif transformer:
                 wgs_pts = [transformer.transform(x, y) for x, y in pts]
             else:
                 wgs_pts = pts

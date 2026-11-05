@@ -4781,7 +4781,7 @@ function lockEnteredSatDate() {
                     let prjText = prjFile ? await prjFile.text() : null;
 
                     if (window.shp) {
-                        let geometries = shp.parseShp(shpBuffer, prjText);
+                        let geometries = shp.parseShp(shpBuffer);
                         let properties = dbfBuffer ? shp.parseDbf(dbfBuffer) : [];
                         geojson = shp.combine([geometries, properties]);
                     } else {
@@ -4921,51 +4921,305 @@ function lockEnteredSatDate() {
         }
         window.handleIndividualShapefileUpload = handleIndividualShapefileUpload;
 
+        // Exact Timbalai 1948 / RSO Borneo Meters (EPSG:29873) -> WGS84 (EPSG:4326)
+        function epsg29873ToWgs84(x, y) {
+            const a = 6377298.556;
+            const rf = 300.8017;
+            const f = 1.0 / rf;
+            const e2 = 2 * f - f * f;
+            const e = Math.sqrt(e2);
+
+            const lat0 = 4.0 * Math.PI / 180.0;
+            const lonc = 115.0 * Math.PI / 180.0;
+            const alpha = 53.31582047222222 * Math.PI / 180.0;
+            const gamma = 53.13010236111111 * Math.PI / 180.0;
+            const k0 = 0.99984;
+
+            const sinLat0 = Math.sin(lat0);
+            const cosLat0 = Math.cos(lat0);
+            const B = Math.sqrt(1.0 + (e2 * Math.pow(cosLat0, 4)) / (1.0 - e2));
+            const A = a * B * k0 * Math.sqrt(1.0 - e2) / (1.0 - e2 * sinLat0 * sinLat0);
+            const t0 = Math.tan(Math.PI / 4.0 - lat0 / 2.0) / Math.pow((1.0 - e * sinLat0) / (1.0 + e * sinLat0), e / 2.0);
+            const D = B * Math.sqrt(1.0 - e2) / (cosLat0 * Math.sqrt(1.0 - e2 * sinLat0 * sinLat0));
+            const D2 = D * D < 1.0 ? 1.0 : D * D;
+            const F = D + Math.sqrt(D2 - 1.0) * (lat0 >= 0 ? 1.0 : -1.0);
+            const E = F * Math.pow(t0, B);
+            const G = (F - 1.0 / F) / 2.0;
+            const gamma0 = Math.asin(Math.sin(alpha) / D);
+            const lon0 = lonc - Math.asin(G * Math.tan(gamma0)) / B;
+
+            const v = x * Math.cos(gamma) - y * Math.sin(gamma);
+            const u = y * Math.cos(gamma) + x * Math.sin(gamma);
+
+            const Q = Math.exp(-B * v / A);
+            const S = (Q - 1.0 / Q) / 2.0;
+            const T = (Q + 1.0 / Q) / 2.0;
+            const V = Math.sin(B * u / A);
+            const U = (V * Math.cos(gamma0) + S * Math.sin(gamma0)) / T;
+            const t = Math.pow(E / Math.sqrt((1.0 + U) / (1.0 - U)), 1.0 / B);
+
+            let phi = Math.PI / 2.0 - 2.0 * Math.atan(t);
+            for (let i = 0; i < 6; i++) {
+                const sinPhi = Math.sin(phi);
+                phi = Math.PI / 2.0 - 2.0 * Math.atan(t * Math.pow((1.0 - e * sinPhi) / (1.0 + e * sinPhi), e / 2.0));
+            }
+            const lam = lon0 - Math.atan2(S * Math.cos(gamma0) - V * Math.sin(gamma0), Math.cos(B * u / A)) / B;
+
+            // Datum shift: Timbalai 1948 (Everest 1967) -> WGS84 (dX=-679, dY=669, dZ=-48)
+            const sinP = Math.sin(phi), cosP = Math.cos(phi);
+            const sinL = Math.sin(lam), cosL = Math.cos(lam);
+            const N = a / Math.sqrt(1.0 - e2 * sinP * sinP);
+            const X = N * cosP * cosL - 679.0;
+            const Y = N * cosP * sinL + 669.0;
+            const Z = N * (1.0 - e2) * sinP - 48.0;
+
+            const aW = 6378137.0;
+            const fW = 1.0 / 298.257223563;
+            const e2W = 2 * fW - fW * fW;
+            const p = Math.sqrt(X * X + Y * Y);
+            const lonW = Math.atan2(Y, X);
+            let latW = Math.atan2(Z, p * (1.0 - e2W));
+            for (let i = 0; i < 5; i++) {
+                const sW = Math.sin(latW);
+                const NW = aW / Math.sqrt(1.0 - e2W * sW * sW);
+                latW = Math.atan2(Z + e2W * NW * sW, p);
+            }
+            return [lonW * 180.0 / Math.PI, latW * 180.0 / Math.PI];
+        }
+
+        // Exact Kertau RSO Malaya Meters (EPSG:3168) -> WGS84 (EPSG:4326)
+        function epsg3168ToWgs84(x, y) {
+            const a = 6377304.063;
+            const rf = 300.8017;
+            const f = 1.0 / rf;
+            const e2 = 2 * f - f * f;
+            const e = Math.sqrt(e2);
+
+            const lat0 = 4.0 * Math.PI / 180.0;
+            const lonc = 102.25 * Math.PI / 180.0;
+            const alpha = 323.0257905 * Math.PI / 180.0;
+            const gamma = 323.1301023611111 * Math.PI / 180.0;
+            const k0 = 0.99984;
+            const fe = 804670.24;
+            const fn = 0.0;
+
+            const sinLat0 = Math.sin(lat0);
+            const cosLat0 = Math.cos(lat0);
+            const B = Math.sqrt(1.0 + (e2 * Math.pow(cosLat0, 4)) / (1.0 - e2));
+            const A = a * B * k0 * Math.sqrt(1.0 - e2) / (1.0 - e2 * sinLat0 * sinLat0);
+            const t0 = Math.tan(Math.PI / 4.0 - lat0 / 2.0) / Math.pow((1.0 - e * sinLat0) / (1.0 + e * sinLat0), e / 2.0);
+            const D = B * Math.sqrt(1.0 - e2) / (cosLat0 * Math.sqrt(1.0 - e2 * sinLat0 * sinLat0));
+            const D2 = D * D < 1.0 ? 1.0 : D * D;
+            const F = D + Math.sqrt(D2 - 1.0) * (lat0 >= 0 ? 1.0 : -1.0);
+            const E = F * Math.pow(t0, B);
+            const G = (F - 1.0 / F) / 2.0;
+            const gamma0 = Math.asin(Math.sin(alpha) / D);
+            const lon0 = lonc - Math.asin(G * Math.tan(gamma0)) / B;
+            const uc = (A / B) * Math.atan2(Math.sqrt(D2 - 1.0), Math.cos(alpha)) * (lat0 >= 0 ? 1.0 : -1.0);
+
+            const dx = x - fe;
+            const dy = y - fn;
+            const v = dx * Math.cos(gamma) - dy * Math.sin(gamma);
+            const u = dy * Math.cos(gamma) + dx * Math.sin(gamma) + uc;
+
+            const Q = Math.exp(-B * v / A);
+            const S = (Q - 1.0 / Q) / 2.0;
+            const T = (Q + 1.0 / Q) / 2.0;
+            const V = Math.sin(B * u / A);
+            const U = (V * Math.cos(gamma0) + S * Math.sin(gamma0)) / T;
+            const t = Math.pow(E / Math.sqrt((1.0 + U) / (1.0 - U)), 1.0 / B);
+
+            let phi = Math.PI / 2.0 - 2.0 * Math.atan(t);
+            for (let i = 0; i < 6; i++) {
+                const sinPhi = Math.sin(phi);
+                phi = Math.PI / 2.0 - 2.0 * Math.atan(t * Math.pow((1.0 - e * sinPhi) / (1.0 + e * sinPhi), e / 2.0));
+            }
+            const lam = lon0 - Math.atan2(S * Math.cos(gamma0) - V * Math.sin(gamma0), Math.cos(B * u / A)) / B;
+
+            // Datum shift: Kertau 1968 -> WGS84 (dX=-11, dY=851, dZ=5)
+            const sinP = Math.sin(phi), cosP = Math.cos(phi);
+            const sinL = Math.sin(lam), cosL = Math.cos(lam);
+            const N = a / Math.sqrt(1.0 - e2 * sinP * sinP);
+            const X = N * cosP * cosL - 11.0;
+            const Y = N * cosP * sinL + 851.0;
+            const Z = N * (1.0 - e2) * sinP + 5.0;
+
+            const aW = 6378137.0;
+            const fW = 1.0 / 298.257223563;
+            const e2W = 2 * fW - fW * fW;
+            const p = Math.sqrt(X * X + Y * Y);
+            const lonW = Math.atan2(Y, X);
+            let latW = Math.atan2(Z, p * (1.0 - e2W));
+            for (let i = 0; i < 5; i++) {
+                const sW = Math.sin(latW);
+                const NW = aW / Math.sqrt(1.0 - e2W * sW * sW);
+                latW = Math.atan2(Z + e2W * NW * sW, p);
+            }
+            return [lonW * 180.0 / Math.PI, latW * 180.0 / Math.PI];
+        }
+
+        // WGS84 (EPSG:4326) -> UTM Zone 50N (EPSG:32650)
+        function wgs84ToUtm50n(lonDeg, latDeg) {
+            const a = 6378137.0;
+            const f = 1.0 / 298.257223563;
+            const k0 = 0.9996;
+            const lon0 = 117.0 * Math.PI / 180.0;
+            const e2 = 2 * f - f * f;
+            const ep2 = e2 / (1.0 - e2);
+            const phi = latDeg * Math.PI / 180.0;
+            const lam = lonDeg * Math.PI / 180.0;
+            const sinPhi = Math.sin(phi), cosPhi = Math.cos(phi), tanPhi = Math.tan(phi);
+            const N = a / Math.sqrt(1.0 - e2 * sinPhi * sinPhi);
+            const T = tanPhi * tanPhi;
+            const C = ep2 * cosPhi * cosPhi;
+            const A = cosPhi * (lam - lon0);
+            const M = a * ((1 - e2 / 4 - 3 * e2 * e2 / 64 - 5 * e2 * e2 * e2 / 256) * phi
+                - (3 * e2 / 8 + 3 * e2 * e2 / 32 + 45 * e2 * e2 * e2 / 1024) * Math.sin(2 * phi)
+                + (15 * e2 * e2 / 256 + 45 * e2 * e2 * e2 / 1024) * Math.sin(4 * phi)
+                - (35 * e2 * e2 * e2 / 3072) * Math.sin(6 * phi));
+            const x = 500000.0 + k0 * N * (A + (1 - T + C) * Math.pow(A, 3) / 6
+                + (5 - 18 * T + T * T + 72 * C - 58 * ep2) * Math.pow(A, 5) / 120);
+            const y = k0 * (M + N * tanPhi * (A * A / 2 + (5 - T + 9 * C + 4 * C * C) * Math.pow(A, 4) / 24
+                + (61 - 58 * T + T * T + 600 * C - 330 * ep2) * Math.pow(A, 6) / 720));
+            return [x, y];
+        }
+
+        // Exact UTM Zone 50N (EPSG:32650) -> WGS84 (EPSG:4326)
+        function utm50nToWgs84(x, y) {
+            const a = 6378137.0;
+            const f = 1.0 / 298.257223563;
+            const k0 = 0.9996;
+            const lon0 = 117.0 * Math.PI / 180.0;
+            const e2 = 2 * f - f * f;
+            const ep2 = e2 / (1.0 - e2);
+            const e1 = (1.0 - Math.sqrt(1.0 - e2)) / (1.0 + Math.sqrt(1.0 - e2));
+            const M = y / k0;
+            const mu = M / (a * (1.0 - e2 / 4.0 - 3.0 * e2 * e2 / 64.0 - 5.0 * e2 * e2 * e2 / 256.0));
+            const phi1 = mu + (3.0 * e1 / 2.0 - 27.0 * Math.pow(e1, 3) / 32.0) * Math.sin(2.0 * mu)
+                + (21.0 * e1 * e1 / 16.0 - 55.0 * Math.pow(e1, 4) / 32.0) * Math.sin(4.0 * mu)
+                + (151.0 * Math.pow(e1, 3) / 96.0) * Math.sin(6.0 * mu)
+                + (1097.0 * Math.pow(e1, 4) / 512.0) * Math.sin(8.0 * mu);
+            const sin1 = Math.sin(phi1), cos1 = Math.cos(phi1), tan1 = Math.tan(phi1);
+            const N1 = a / Math.sqrt(1.0 - e2 * sin1 * sin1);
+            const T1 = tan1 * tan1;
+            const C1 = ep2 * cos1 * cos1;
+            const R1 = a * (1.0 - e2) / Math.pow(1.0 - e2 * sin1 * sin1, 1.5);
+            const D = (x - 500000.0) / (N1 * k0);
+            const lat = phi1 - (N1 * tan1 / R1) * (D * D / 2.0 - (5.0 + 3.0 * T1 + 10.0 * C1 - 4.0 * C1 * C1 - 9.0 * ep2) * Math.pow(D, 4) / 24.0
+                + (61.0 + 90.0 * T1 + 298.0 * C1 + 45.0 * T1 * T1 - 252.0 * ep2 - 3.0 * C1 * C1) * Math.pow(D, 6) / 720.0);
+            const lon = lon0 + (D - (1.0 + 2.0 * T1 + C1) * Math.pow(D, 3) / 6.0
+                + (5.0 - 2.0 * C1 + 28.0 * T1 - 3.0 * C1 * C1 + 8.0 * ep2 + 24.0 * T1 * T1) * Math.pow(D, 5) / 120.0) / cos1;
+            return [lon * 180.0 / Math.PI, lat * 180.0 / Math.PI];
+        }
+
+        // Auto-repair bounds that were mistakenly projected into the Celebes Sea via UTM 50N instead of EPSG:29873
+        function fixSeaBoundsIfNeeded(bounds, bLayer) {
+            if (!bounds || !Array.isArray(bounds) || bounds.length < 2) return bounds;
+            const sLat = Number(bounds[0] && bounds[0][0]);
+            const wLng = Number(bounds[0] && bounds[0][1]);
+            const nLat = Number(bounds[1] && bounds[1][0]);
+            const eLng = Number(bounds[1] && bounds[1][1]);
+            if (isFinite(sLat) && isFinite(wLng) && isFinite(nLat) && isFinite(eLng)) {
+                // If bounds lie in the Celebes Sea (119.35°E - 123.5°E, 3.0°N - 6.5°N)
+                if (wLng >= 119.35 && eLng <= 123.5 && sLat >= 3.0 && nLat <= 6.5) {
+                    if (bLayer && typeof bLayer.getBounds === 'function') {
+                        const lb = bLayer.getBounds();
+                        if (lb && typeof lb.isValid === 'function' && lb.isValid() && lb.getWest() < 119.35) {
+                            return [[lb.getSouth(), lb.getWest()], [lb.getNorth(), lb.getEast()]];
+                        }
+                    }
+                    const swMeters = wgs84ToUtm50n(wLng, sLat);
+                    const neMeters = wgs84ToUtm50n(eLng, nLat);
+                    const swFixed = epsg29873ToWgs84(swMeters[0], swMeters[1]);
+                    const neFixed = epsg29873ToWgs84(neMeters[0], neMeters[1]);
+                    return [[swFixed[1], swFixed[0]], [neFixed[1], neFixed[0]]];
+                }
+            }
+            return bounds;
+        }
+        window.epsg29873ToWgs84 = epsg29873ToWgs84;
+        window.wgs84ToUtm50n = wgs84ToUtm50n;
+        window.fixSeaBoundsIfNeeded = fixSeaBoundsIfNeeded;
+
         function reprojectGeoJSONIfNeeded(geojson, prjText) {
             if (!geojson || !geojson.features || geojson.features.length === 0) return geojson;
 
-            let firstFeat = geojson.features[0];
             let sampleCoord = null;
-            if (firstFeat.geometry) {
-                if (firstFeat.geometry.type === 'Point') {
-                    sampleCoord = firstFeat.geometry.coordinates;
-                } else if (firstFeat.geometry.type === 'Polygon') {
-                    sampleCoord = firstFeat.geometry.coordinates[0][0];
-                } else if (firstFeat.geometry.type === 'MultiPolygon') {
-                    sampleCoord = firstFeat.geometry.coordinates[0][0][0];
-                }
+            for (let i = 0; i < geojson.features.length; i++) {
+                let g = geojson.features[i] && geojson.features[i].geometry;
+                if (!g || !g.coordinates) continue;
+                if (g.type === 'Point') sampleCoord = g.coordinates;
+                else if (g.type === 'LineString' || g.type === 'MultiPoint') sampleCoord = g.coordinates[0];
+                else if (g.type === 'Polygon' || g.type === 'MultiLineString') sampleCoord = g.coordinates[0] && g.coordinates[0][0];
+                else if (g.type === 'MultiPolygon') sampleCoord = g.coordinates[0] && g.coordinates[0][0] && g.coordinates[0][0][0];
+                if (sampleCoord && sampleCoord.length >= 2) break;
             }
 
             if (!sampleCoord) return geojson;
 
-            let x = sampleCoord[0];
-            let y = sampleCoord[1];
+            let x = Number(sampleCoord[0]);
+            let y = Number(sampleCoord[1]);
+            if (!isFinite(x) || !isFinite(y)) return geojson;
 
-            // If coordinates are in lat/lng (-180..180, -90..90), no reprojection needed
-            if (Math.abs(x) <= 180 && Math.abs(y) <= 90) return geojson;
+            // Check if coordinates were already mis-projected into the Celebes Sea (119.35°E..123.5°E, 3.0°N..6.5°N)
+            // by shpjs or an earlier UTM 50N fallback when the shapefile was actually Timbalai 1948 RSO Borneo (EPSG:29873)
+            const isMisprojectedInCelebesSea = (x >= 119.35 && x <= 123.5 && y >= 3.0 && y <= 6.5);
 
-            let sourceProj = null;
+            // If coordinates are already valid lat/lng (-180..180, -90..90) and NOT in the Celebes Sea, no reprojection needed
+            if (Math.abs(x) <= 180 && Math.abs(y) <= 90 && !isMisprojectedInCelebesSea) {
+                return geojson;
+            }
 
-            if (prjText && window.proj4) {
+            const prjUpper = (prjText || "").toUpperCase();
+            let transformFn = null;
+
+            if (isMisprojectedInCelebesSea) {
+                transformFn = function(pt) {
+                    const meters = wgs84ToUtm50n(pt[0], pt[1]);
+                    return epsg29873ToWgs84(meters[0], meters[1]);
+                };
+            } else if (
+                prjUpper.includes("TIMBALAI") ||
+                prjUpper.includes("29873") ||
+                prjUpper.includes("BORNEO") ||
+                prjUpper.includes("RECTIFIED_SKEW_ORTHOMORPHIC")
+            ) {
+                if (prjUpper.includes("KERTAU") || prjUpper.includes("MALAYA") || prjUpper.includes("3168")) {
+                    transformFn = function(pt) { return epsg3168ToWgs84(pt[0], pt[1]); };
+                } else {
+                    transformFn = function(pt) { return epsg29873ToWgs84(pt[0], pt[1]); };
+                }
+            } else if (prjUpper.includes("UTM") || prjUpper.includes("32650")) {
+                transformFn = function(pt) { return utm50nToWgs84(pt[0], pt[1]); };
+            } else if (prjText && window.proj4) {
                 try {
                     proj4.defs("CUSTOM_PRJ", prjText);
-                    sourceProj = "CUSTOM_PRJ";
+                    const testRes = proj4("CUSTOM_PRJ", "EPSG:4326", [x, y]);
+                    if (testRes && isFinite(testRes[0]) && isFinite(testRes[1]) && !(testRes[0] >= 119.35 && testRes[0] <= 123.5 && testRes[1] >= 3.0 && testRes[1] <= 6.5)) {
+                        transformFn = function(pt) {
+                            const r = proj4("CUSTOM_PRJ", "EPSG:4326", [pt[0], pt[1]]);
+                            return [r[0], r[1]];
+                        };
+                    }
                 } catch (e) {
-                    console.warn("Could not parse .prj with proj4:", e);
+                    console.warn("Could not parse .prj with proj4, using RSO Borneo fallback:", e);
                 }
             }
 
-            if (!sourceProj && window.proj4) {
-                // Fallback UTM Zone 50N (EPSG:32650) for Sabah
-                proj4.defs("EPSG:32650", "+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs");
-                sourceProj = "EPSG:32650";
+            if (!transformFn) {
+                // Distinguish MPOB Lahad Datu UTM 50N (X ~ 657,800..658,800, Y ~ 564,000..564,700)
+                // from Sabah / Borneo RSO Meters (EPSG:29873, X ~ 400,000..990,000, Y ~ 350,000..800,000)
+                const isLahadDatuUtm50N = (x >= 656000 && x <= 661000 && y >= 562000 && y <= 567000);
+                if (isLahadDatuUtm50N) {
+                    transformFn = function(pt) { return utm50nToWgs84(pt[0], pt[1]); };
+                } else {
+                    transformFn = function(pt) { return epsg29873ToWgs84(pt[0], pt[1]); };
+                }
             }
-
-            if (!sourceProj || !window.proj4) return geojson;
 
             function transformPt(pt) {
                 try {
-                    let res = proj4(sourceProj, "EPSG:4326", [pt[0], pt[1]]);
+                    const res = transformFn(pt);
                     return [res[0], res[1]];
                 } catch (e) {
                     return pt;
@@ -5447,13 +5701,16 @@ function toggleNutrientLayerComp(layerValue) {
         const prebuiltOverlays = getActiveEstateRasterOverlays(currentMapType);
         if (window.DYNAMIC_PREDICTION_RASTERS && window.DYNAMIC_PREDICTION_RASTERS[layerValue]) {
             let oData = window.DYNAMIC_PREDICTION_RASTERS[layerValue];
-            window.compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.75, pane: 'rasterPane', zIndex: 400 }).addTo(targetMap);
+            const safeBounds = typeof fixSeaBoundsIfNeeded === 'function' ? fixSeaBoundsIfNeeded(oData.bounds, bLayer) : oData.bounds;
+            oData.bounds = safeBounds;
+            window.compRasterOverlay = L.imageOverlay(oData.dataUrl, safeBounds, { opacity: 0.75, pane: 'rasterPane', zIndex: 400 }).addTo(targetMap);
             if (bLayer && typeof bLayer.bringToFront === 'function') {
                 bLayer.bringToFront();
             }
         } else if (prebuiltOverlays && prebuiltOverlays[layerValue]) {
             let oData = prebuiltOverlays[layerValue];
-            window.compRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.75, pane: 'rasterPane', zIndex: 400 }).addTo(targetMap);
+            const safeBounds = typeof fixSeaBoundsIfNeeded === 'function' ? fixSeaBoundsIfNeeded(oData.bounds, bLayer) : oData.bounds;
+            window.compRasterOverlay = L.imageOverlay(oData.dataUrl, safeBounds, { opacity: 0.75, pane: 'rasterPane', zIndex: 400 }).addTo(targetMap);
             if (bLayer && typeof bLayer.bringToFront === 'function') bLayer.bringToFront();
         } else if (bLayer && typeof createContinuousNutrientRaster === 'function') {
             window.compRasterOverlay = createContinuousNutrientRaster(bLayer, layerValue, targetMap);
@@ -5495,13 +5752,16 @@ function toggleNutrientLayerStd(layerValue) {
         const prebuiltOverlays = getActiveEstateRasterOverlays(currentMapType);
         if (window.DYNAMIC_PREDICTION_RASTERS && window.DYNAMIC_PREDICTION_RASTERS[layerValue]) {
             let oData = window.DYNAMIC_PREDICTION_RASTERS[layerValue];
-            window.stdRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.75, pane: 'rasterPane', zIndex: 400 }).addTo(targetMap);
+            const safeBounds = typeof fixSeaBoundsIfNeeded === 'function' ? fixSeaBoundsIfNeeded(oData.bounds, bLayer) : oData.bounds;
+            oData.bounds = safeBounds;
+            window.stdRasterOverlay = L.imageOverlay(oData.dataUrl, safeBounds, { opacity: 0.75, pane: 'rasterPane', zIndex: 400 }).addTo(targetMap);
             if (bLayer && typeof bLayer.bringToFront === 'function') {
                 bLayer.bringToFront();
             }
         } else if (prebuiltOverlays && prebuiltOverlays[layerValue]) {
             let oData = prebuiltOverlays[layerValue];
-            window.stdRasterOverlay = L.imageOverlay(oData.dataUrl, oData.bounds, { opacity: 0.75, pane: 'rasterPane', zIndex: 400 }).addTo(targetMap);
+            const safeBounds = typeof fixSeaBoundsIfNeeded === 'function' ? fixSeaBoundsIfNeeded(oData.bounds, bLayer) : oData.bounds;
+            window.stdRasterOverlay = L.imageOverlay(oData.dataUrl, safeBounds, { opacity: 0.75, pane: 'rasterPane', zIndex: 400 }).addTo(targetMap);
             if (bLayer && typeof bLayer.bringToFront === 'function') bLayer.bringToFront();
         } else if (bLayer && typeof createContinuousNutrientRaster === 'function') {
             window.stdRasterOverlay = createContinuousNutrientRaster(bLayer, layerValue, targetMap);
@@ -6042,10 +6302,17 @@ function runRfrPredictionFlow() {
     }
 
     let bounds = [[4.41323, 117.41170], [4.72680, 117.81996]];
+    const activeBoundary = (typeof compBoundaryLayer !== 'undefined' && compBoundaryLayer) || (typeof stdBoundaryLayer !== 'undefined' && stdBoundaryLayer) || window.compBoundaryLayer || window.stdBoundaryLayer;
     const mapObj = window.mapComp || window.mapStd || window.mapKpsm;
-    if (mapObj && typeof mapObj.getBounds === 'function') {
+    if (activeBoundary && typeof activeBoundary.getBounds === 'function' && activeBoundary.getBounds().isValid()) {
+        const b = activeBoundary.getBounds();
+        bounds = [[b.getSouth(), b.getWest()], [b.getNorth(), b.getEast()]];
+    } else if (mapObj && typeof mapObj.getBounds === 'function') {
         const b = mapObj.getBounds();
         bounds = [[b.getSouth(), b.getWest()], [b.getNorth(), b.getEast()]];
+    }
+    if (typeof fixSeaBoundsIfNeeded === 'function') {
+        bounds = fixSeaBoundsIfNeeded(bounds, activeBoundary);
     }
 
     window._PREDICTION_IS_RUNNING = true;

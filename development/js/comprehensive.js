@@ -419,7 +419,7 @@ Object.defineProperty(window, 'RASTER_GRID_DATA', { get() { return window._RASTE
                     let prjText = prjFile ? await prjFile.text() : null;
 
                     if (window.shp) {
-                        let geometries = shp.parseShp(shpBuffer, prjText);
+                        let geometries = shp.parseShp(shpBuffer);
                         let properties = dbfBuffer ? shp.parseDbf(dbfBuffer) : [];
                         geojson = shp.combine([geometries, properties]);
                     } else {
@@ -474,54 +474,209 @@ Object.defineProperty(window, 'RASTER_GRID_DATA', { get() { return window._RASTE
             }
         }
 
+        function epsg29873ToWgs84(x, y) {
+            const a = 6377298.556, f = 1.0 / 300.8017, e2 = 2 * f - f * f, e = Math.sqrt(e2);
+            const lat0 = 4.0 * Math.PI / 180.0, lonc = 115.0 * Math.PI / 180.0;
+            const alpha = Math.asin(0.8), gamma = Math.asin(0.8), k0 = 0.99984;
+            const sinLat0 = Math.sin(lat0), cosLat0 = Math.cos(lat0);
+            const B = Math.sqrt(1.0 + (e2 * Math.pow(cosLat0, 4)) / (1.0 - e2));
+            const A = a * B * k0 * Math.sqrt(1.0 - e2) / (1.0 - e2 * sinLat0 * sinLat0);
+            const t0 = Math.tan(Math.PI / 4.0 - lat0 / 2.0) / Math.pow((1.0 - e * sinLat0) / (1.0 + e * sinLat0), e / 2.0);
+            const D = B * Math.sqrt(1.0 - e2) / (cosLat0 * Math.sqrt(1.0 - e2 * sinLat0 * sinLat0));
+            const D2 = Math.max(1.0, D * D);
+            const F = D + Math.sqrt(D2 - 1.0) * (lat0 >= 0 ? 1.0 : -1.0);
+            const E = F * Math.pow(t0, B);
+            const G = (F - 1.0 / F) / 2.0;
+            const gamma0 = Math.asin(Math.sin(alpha) / D);
+            const lon0 = lonc - Math.asin(G * Math.tan(gamma0)) / B;
+            const v = x * Math.cos(gamma) - y * Math.sin(gamma);
+            const u = y * Math.cos(gamma) + x * Math.sin(gamma);
+            const Q = Math.exp(-B * v / A);
+            const S = (Q - 1.0 / Q) / 2.0;
+            const T = (Q + 1.0 / Q) / 2.0;
+            const V = Math.sin(B * u / A);
+            const U = (V * Math.cos(gamma0) + S * Math.sin(gamma0)) / T;
+            const t = Math.pow(E / Math.sqrt((1.0 + U) / (1.0 - U)), 1.0 / B);
+            let phi = Math.PI / 2.0 - 2.0 * Math.atan(t);
+            for (let i = 0; i < 6; i++) {
+                const esin = e * Math.sin(phi);
+                phi = Math.PI / 2.0 - 2.0 * Math.atan(t * Math.pow((1.0 - esin) / (1.0 + esin), e / 2.0));
+            }
+            const lam = lon0 - Math.atan2(S * Math.cos(gamma0) - V * Math.sin(gamma0), Math.cos(B * u / A)) / B;
+            const sinPhi = Math.sin(phi), cosPhi = Math.cos(phi), sinLam = Math.sin(lam), cosLam = Math.cos(lam);
+            const N = a / Math.sqrt(1.0 - e2 * sinPhi * sinPhi);
+            const X = N * cosPhi * cosLam - 679.0;
+            const Y = N * cosPhi * sinLam + 669.0;
+            const Z = N * (1.0 - e2) * sinPhi - 48.0;
+            const aW = 6378137.0, fW = 1.0 / 298.257223563, e2W = 2 * fW - fW * fW;
+            const p = Math.sqrt(X * X + Y * Y);
+            let phiW = Math.atan2(Z, p * (1.0 - e2W));
+            for (let i = 0; i < 5; i++) {
+                const sinPW = Math.sin(phiW);
+                const NW = aW / Math.sqrt(1.0 - e2W * sinPW * sinPW);
+                phiW = Math.atan2(Z + e2W * NW * sinPW, p);
+            }
+            const lamW = Math.atan2(Y, X);
+            return [lamW * 180.0 / Math.PI, phiW * 180.0 / Math.PI];
+        }
+
+        function epsg3168ToWgs84(x, y) {
+            const a = 6377304.063, f = 1.0 / 300.8017, e2 = 2 * f - f * f, e = Math.sqrt(e2);
+            const lat0 = 4.0 * Math.PI / 180.0, lonc = 102.25 * Math.PI / 180.0;
+            const alpha = -Math.asin(0.6), gamma = -Math.asin(0.6), k0 = 0.99984;
+            const fe = 804671.0, fn = 0.0;
+            const dx = x - fe, dy = y - fn;
+            const sinLat0 = Math.sin(lat0), cosLat0 = Math.cos(lat0);
+            const B = Math.sqrt(1.0 + (e2 * Math.pow(cosLat0, 4)) / (1.0 - e2));
+            const A = a * B * k0 * Math.sqrt(1.0 - e2) / (1.0 - e2 * sinLat0 * sinLat0);
+            const t0 = Math.tan(Math.PI / 4.0 - lat0 / 2.0) / Math.pow((1.0 - e * sinLat0) / (1.0 + e * sinLat0), e / 2.0);
+            const D = B * Math.sqrt(1.0 - e2) / (cosLat0 * Math.sqrt(1.0 - e2 * sinLat0 * sinLat0));
+            const D2 = Math.max(1.0, D * D);
+            const F = D + Math.sqrt(D2 - 1.0);
+            const E = F * Math.pow(t0, B);
+            const G = (F - 1.0 / F) / 2.0;
+            const gamma0 = Math.asin(Math.sin(alpha) / D);
+            const lon0 = lonc - Math.asin(G * Math.tan(gamma0)) / B;
+            const u_c = (A / B) * Math.atan2(Math.sqrt(D2 - 1.0), Math.cos(alpha));
+            const v = dx * Math.cos(gamma) - dy * Math.sin(gamma);
+            const u = dy * Math.cos(gamma) + dx * Math.sin(gamma) + u_c;
+            const Q = Math.exp(-B * v / A);
+            const S = (Q - 1.0 / Q) / 2.0;
+            const T = (Q + 1.0 / Q) / 2.0;
+            const V = Math.sin(B * u / A);
+            const U = (V * Math.cos(gamma0) + S * Math.sin(gamma0)) / T;
+            const t = Math.pow(E / Math.sqrt((1.0 + U) / (1.0 - U)), 1.0 / B);
+            let phi = Math.PI / 2.0 - 2.0 * Math.atan(t);
+            for (let i = 0; i < 6; i++) {
+                const esin = e * Math.sin(phi);
+                phi = Math.PI / 2.0 - 2.0 * Math.atan(t * Math.pow((1.0 - esin) / (1.0 + esin), e / 2.0));
+            }
+            const lam = lon0 - Math.atan2(S * Math.cos(gamma0) - V * Math.sin(gamma0), Math.cos(B * u / A)) / B;
+            const sinPhi = Math.sin(phi), cosPhi = Math.cos(phi), sinLam = Math.sin(lam), cosLam = Math.cos(lam);
+            const N = a / Math.sqrt(1.0 - e2 * sinPhi * sinPhi);
+            const X = N * cosPhi * cosLam - 11.0;
+            const Y = N * cosPhi * sinLam + 851.0;
+            const Z = N * (1.0 - e2) * sinPhi + 5.0;
+            const aW = 6378137.0, fW = 1.0 / 298.257223563, e2W = 2 * fW - fW * fW;
+            const p = Math.sqrt(X * X + Y * Y);
+            let phiW = Math.atan2(Z, p * (1.0 - e2W));
+            for (let i = 0; i < 5; i++) {
+                const sinPW = Math.sin(phiW);
+                const NW = aW / Math.sqrt(1.0 - e2W * sinPW * sinPW);
+                phiW = Math.atan2(Z + e2W * NW * sinPW, p);
+            }
+            const lamW = Math.atan2(Y, X);
+            return [lamW * 180.0 / Math.PI, phiW * 180.0 / Math.PI];
+        }
+
+        function wgs84ToUtm50n(lonDeg, latDeg) {
+            const a = 6378137.0, f = 1.0 / 298.257223563, e2 = 2 * f - f * f, ep2 = e2 / (1.0 - e2), k0 = 0.9996;
+            const phi = latDeg * Math.PI / 180.0, lam = lonDeg * Math.PI / 180.0, lam0 = 117.0 * Math.PI / 180.0;
+            const sinPhi = Math.sin(phi), cosPhi = Math.cos(phi), tanPhi = Math.tan(phi);
+            const N = a / Math.sqrt(1.0 - e2 * sinPhi * sinPhi);
+            const T = tanPhi * tanPhi, C = ep2 * cosPhi * cosPhi, A = cosPhi * (lam - lam0);
+            const M = a * ((1 - e2 / 4 - 3 * e2 * e2 / 64 - 5 * e2 * e2 * e2 / 256) * phi
+                - (3 * e2 / 8 + 3 * e2 * e2 / 32 + 45 * e2 * e2 * e2 / 1024) * Math.sin(2 * phi)
+                + (15 * e2 * e2 / 256 + 45 * e2 * e2 * e2 / 1024) * Math.sin(4 * phi)
+                - (35 * e2 * e2 * e2 / 3072) * Math.sin(6 * phi));
+            const x = 500000.0 + k0 * N * (A + (1 - T + C) * Math.pow(A, 3) / 6 + (5 - 18 * T + T * T + 72 * C - 58 * ep2) * Math.pow(A, 5) / 120);
+            const y = k0 * (M + N * tanPhi * (A * A / 2 + (5 - T + 9 * C + 4 * C * C) * Math.pow(A, 4) / 24 + (61 - 58 * T + T * T + 600 * C - 330 * ep2) * Math.pow(A, 6) / 720));
+            return [x, y];
+        }
+
+        function utm50nToWgs84(x, y) {
+            const a = 6378137.0, f = 1.0 / 298.257223563, e2 = 2 * f - f * f, ep2 = e2 / (1.0 - e2), k0 = 0.9996;
+            const e1 = (1.0 - Math.sqrt(1.0 - e2)) / (1.0 + Math.sqrt(1.0 - e2));
+            const M = y / k0;
+            const mu = M / (a * (1.0 - e2 / 4.0 - 3 * e2 * e2 / 64.0 - 5 * e2 * e2 * e2 / 256.0));
+            const phi1 = mu + (3 * e1 / 2 - 27 * Math.pow(e1, 3) / 32) * Math.sin(2 * mu)
+                + (21 * e1 * e1 / 16 - 55 * Math.pow(e1, 4) / 32) * Math.sin(4 * mu)
+                + (151 * e1 * e1 / 96) * Math.sin(6 * mu);
+            const sin1 = Math.sin(phi1), cos1 = Math.cos(phi1), tan1 = Math.tan(phi1);
+            const N1 = a / Math.sqrt(1.0 - e2 * sin1 * sin1);
+            const T1 = tan1 * tan1, C1 = ep2 * cos1 * cos1;
+            const R1 = a * (1.0 - e2) / Math.pow(1.0 - e2 * sin1 * sin1, 1.5);
+            const D = (x - 500000.0) / (N1 * k0);
+            const phi = phi1 - (N1 * tan1 / R1) * (D * D / 2 - (5 + 3 * T1 + 10 * C1 - 4 * C1 * C1 - 9 * ep2) * Math.pow(D, 4) / 24
+                + (61 + 90 * T1 + 298 * C1 + 45 * T1 * T1 - 252 * ep2 - 3 * C1 * C1) * Math.pow(D, 6) / 720);
+            const lam = (117.0 * Math.PI / 180.0) + (D - (1 + 2 * T1 + C1) * Math.pow(D, 3) / 6
+                + (5 - 2 * C1 + 28 * T1 - 3 * C1 * C1 + 8 * ep2 + 24 * T1 * T1) * Math.pow(D, 5) / 120) / cos1;
+            return [lam * 180.0 / Math.PI, phi * 180.0 / Math.PI];
+        }
+
         function reprojectGeoJSONIfNeeded(geojson, prjText) {
             if (!geojson || !geojson.features || geojson.features.length === 0) return geojson;
 
-            let firstFeat = geojson.features[0];
             let sampleCoord = null;
-            if (firstFeat.geometry) {
-                if (firstFeat.geometry.type === 'Point') {
-                    sampleCoord = firstFeat.geometry.coordinates;
-                } else if (firstFeat.geometry.type === 'Polygon') {
-                    sampleCoord = firstFeat.geometry.coordinates[0][0];
-                } else if (firstFeat.geometry.type === 'MultiPolygon') {
-                    sampleCoord = firstFeat.geometry.coordinates[0][0][0];
-                }
+            for (let i = 0; i < geojson.features.length; i++) {
+                let g = geojson.features[i] && geojson.features[i].geometry;
+                if (!g || !g.coordinates) continue;
+                if (g.type === 'Point') sampleCoord = g.coordinates;
+                else if (g.type === 'LineString' || g.type === 'MultiPoint') sampleCoord = g.coordinates[0];
+                else if (g.type === 'Polygon' || g.type === 'MultiLineString') sampleCoord = g.coordinates[0] && g.coordinates[0][0];
+                else if (g.type === 'MultiPolygon') sampleCoord = g.coordinates[0] && g.coordinates[0][0] && g.coordinates[0][0][0];
+                if (sampleCoord && sampleCoord.length >= 2) break;
             }
 
             if (!sampleCoord) return geojson;
 
-            let x = sampleCoord[0];
-            let y = sampleCoord[1];
+            let x = Number(sampleCoord[0]);
+            let y = Number(sampleCoord[1]);
 
-            // If coordinates are in lat/lng (-180..180, -90..90), no reprojection needed
-            if (Math.abs(x) <= 180 && Math.abs(y) <= 90) return geojson;
+            if (Math.abs(x) <= 180 && Math.abs(y) <= 90) {
+                if (x >= 119.35 && x <= 123.5 && y >= 3.0 && y <= 6.5) {
+                    const fixSeaPt = (pt) => {
+                        const m = wgs84ToUtm50n(pt[0], pt[1]);
+                        return epsg29873ToWgs84(m[0], m[1]);
+                    };
+                    const transformGeomSea = (geom) => {
+                        if (!geom || !geom.coordinates) return geom;
+                        if (geom.type === 'Point') geom.coordinates = fixSeaPt(geom.coordinates);
+                        else if (geom.type === 'LineString' || geom.type === 'MultiPoint') geom.coordinates = geom.coordinates.map(fixSeaPt);
+                        else if (geom.type === 'Polygon' || geom.type === 'MultiLineString') geom.coordinates = geom.coordinates.map(ring => ring.map(fixSeaPt));
+                        else if (geom.type === 'MultiPolygon') geom.coordinates = geom.coordinates.map(poly => poly.map(ring => ring.map(fixSeaPt)));
+                        return geom;
+                    };
+                    geojson.features.forEach(feat => {
+                        if (feat.geometry) feat.geometry = transformGeomSea(feat.geometry);
+                    });
+                }
+                return geojson;
+            }
 
-            let sourceProj = null;
+            let prjUpper = (prjText || "").toUpperCase();
+            let transformPt = null;
 
-            if (prjText && window.proj4) {
+            if (prjUpper.includes("TIMBALAI") || prjUpper.includes("29873") || prjUpper.includes("BORNEO") || prjUpper.includes("RECTIFIED_SKEW_ORTHOMORPHIC")) {
+                if (prjUpper.includes("KERTAU") || prjUpper.includes("MALAYA") || prjUpper.includes("3168")) {
+                    transformPt = (pt) => epsg3168ToWgs84(pt[0], pt[1]);
+                } else {
+                    transformPt = (pt) => epsg29873ToWgs84(pt[0], pt[1]);
+                }
+            } else if (prjUpper.includes("KERTAU") || prjUpper.includes("MALAYA") || prjUpper.includes("3168")) {
+                transformPt = (pt) => epsg3168ToWgs84(pt[0], pt[1]);
+            } else if (prjUpper.includes("UTM") || prjUpper.includes("32650") || prjUpper.includes("ZONE_50") || prjUpper.includes("ZONE 50")) {
+                transformPt = (pt) => utm50nToWgs84(pt[0], pt[1]);
+            } else if (prjText && window.proj4) {
                 try {
                     proj4.defs("CUSTOM_PRJ", prjText);
-                    sourceProj = "CUSTOM_PRJ";
-                } catch (e) {
-                    console.warn("Could not parse .prj with proj4:", e);
-                }
+                    let testPt = proj4("CUSTOM_PRJ", "EPSG:4326", [x, y]);
+                    if (testPt && isFinite(testPt[0]) && isFinite(testPt[1]) && Math.abs(testPt[0]) <= 180 && Math.abs(testPt[1]) <= 90) {
+                        transformPt = (pt) => {
+                            let r = proj4("CUSTOM_PRJ", "EPSG:4326", [pt[0], pt[1]]);
+                            return [r[0], r[1]];
+                        };
+                    }
+                } catch (e) {}
             }
 
-            if (!sourceProj && window.proj4) {
-                // Fallback UTM Zone 50N (EPSG:32650) for Sabah
-                proj4.defs("EPSG:32650", "+proj=utm +zone=50 +datum=WGS84 +units=m +no_defs");
-                sourceProj = "EPSG:32650";
-            }
-
-            if (!sourceProj || !window.proj4) return geojson;
-
-            function transformPt(pt) {
-                try {
-                    let res = proj4(sourceProj, "EPSG:4326", [pt[0], pt[1]]);
-                    return [res[0], res[1]];
-                } catch (e) {
-                    return pt;
+            if (!transformPt) {
+                if (x >= 250000 && x <= 620000 && y >= 100000 && y <= 500000) {
+                    transformPt = (pt) => epsg3168ToWgs84(pt[0], pt[1]);
+                } else if (x >= 656000 && x <= 661000 && y >= 562000 && y <= 567000) {
+                    transformPt = (pt) => utm50nToWgs84(pt[0], pt[1]);
+                } else {
+                    transformPt = (pt) => epsg29873ToWgs84(pt[0], pt[1]);
                 }
             }
 

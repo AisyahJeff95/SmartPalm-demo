@@ -57,6 +57,41 @@ def find_shapefile_for_estate(estate_raw, geojson_data=None):
     
     search_dirs = [map_dir, TRAINING_V3_DIR, sekinchan_dir, BOUNDARIES_DIR, BASE_DIR, reada_dir]
 
+    # If client passed fresh GeoJSON for a Custom uploaded shapefile, always synthesize/overwrite it first
+    def _synthesize_from_geojson():
+        if geojson_data and isinstance(geojson_data, dict) and geojson_data.get("features"):
+            try:
+                import shapefile
+                os.makedirs(BOUNDARIES_DIR, exist_ok=True)
+                safe_stem = "".join(ch if (ch.isalnum() or ch in ("_", "-")) else "_" for ch in clean_name).strip("_") or "custom_estate"
+                out_shp = os.path.join(BOUNDARIES_DIR, f"{safe_stem}.shp")
+                with shapefile.Writer(out_shp, shapeType=shapefile.POLYGON) as w:
+                    w.field("No_Block", "C", size=80)
+                    for idx, feat in enumerate(geojson_data.get("features", [])):
+                        geom = feat.get("geometry") or {}
+                        props = feat.get("properties") or {}
+                        bname = str(props.get("No_Block") or props.get("name") or props.get("block") or f"Block_{idx+1}")
+                        gtype = geom.get("type", "")
+                        coords = geom.get("coordinates") or []
+                        if gtype == "Polygon" and coords:
+                            w.poly(coords)
+                            w.record(bname)
+                        elif gtype == "MultiPolygon" and coords:
+                            for poly_coords in coords:
+                                if poly_coords:
+                                    w.poly(poly_coords)
+                                    w.record(bname)
+                if os.path.isfile(out_shp):
+                    return out_shp
+            except Exception as e:
+                print(f"  ! Warning: Failed to synthesize shapefile from GeoJSON: {e}")
+        return None
+
+    if clean_name.lower().startswith("custom") and geojson_data:
+        syn = _synthesize_from_geojson()
+        if syn:
+            return syn
+
     for sdir in search_dirs:
         c = os.path.join(sdir, f"{clean_name}.shp")
         if os.path.isfile(c):
@@ -77,32 +112,9 @@ def find_shapefile_for_estate(estate_raw, geojson_data=None):
                         return os.path.join(search_dir, fname)
 
     # If client passed GeoJSON for an estate/custom shapefile not yet on disk, synthesize a .shp in BOUNDARIES_DIR
-    if geojson_data and isinstance(geojson_data, dict) and geojson_data.get("features"):
-        try:
-            import shapefile
-            os.makedirs(BOUNDARIES_DIR, exist_ok=True)
-            safe_stem = "".join(ch if (ch.isalnum() or ch in ("_", "-")) else "_" for ch in clean_name).strip("_") or "custom_estate"
-            out_shp = os.path.join(BOUNDARIES_DIR, f"{safe_stem}.shp")
-            with shapefile.Writer(out_shp, shapeType=shapefile.POLYGON) as w:
-                w.field("No_Block", "C", size=80)
-                for idx, feat in enumerate(geojson_data.get("features", [])):
-                    geom = feat.get("geometry") or {}
-                    props = feat.get("properties") or {}
-                    bname = str(props.get("No_Block") or props.get("name") or props.get("block") or f"Block_{idx+1}")
-                    gtype = geom.get("type", "")
-                    coords = geom.get("coordinates") or []
-                    if gtype == "Polygon" and coords:
-                        w.poly(coords)
-                        w.record(bname)
-                    elif gtype == "MultiPolygon" and coords:
-                        for poly_coords in coords:
-                            if poly_coords:
-                                w.poly(poly_coords)
-                                w.record(bname)
-            if os.path.isfile(out_shp):
-                return out_shp
-        except Exception as e:
-            print(f"  ! Warning: Failed to synthesize shapefile from GeoJSON: {e}")
+    syn = _synthesize_from_geojson()
+    if syn:
+        return syn
 
     # Fallback to DEFAULT shapefile
     for fb in [
