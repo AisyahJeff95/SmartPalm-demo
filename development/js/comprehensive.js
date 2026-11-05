@@ -288,9 +288,17 @@ Object.defineProperty(window, 'RASTER_GRID_DATA', { get() { return window._RASTE
                 try { mapComp.removeLayer(compRasterOverlay); } catch(e){}
                 compRasterOverlay = null;
             }
+            if (window.compRasterOverlay && mapComp) {
+                try { mapComp.removeLayer(window.compRasterOverlay); } catch(e){}
+                window.compRasterOverlay = null;
+            }
             if (stdRasterOverlay && mapStd) {
                 try { mapStd.removeLayer(stdRasterOverlay); } catch(e){}
                 stdRasterOverlay = null;
+            }
+            if (window.stdRasterOverlay && mapStd) {
+                try { mapStd.removeLayer(window.stdRasterOverlay); } catch(e){}
+                window.stdRasterOverlay = null;
             }
             
             // Reset radio controls and legends
@@ -385,6 +393,10 @@ Object.defineProperty(window, 'RASTER_GRID_DATA', { get() { return window._RASTE
                 document.getElementById('comp-p-val').innerText = "-- %";
                 document.getElementById('comp-k-val').innerText = "-- %";
                 document.getElementById('comp-mg-val').innerText = "-- %";
+                let compCa = document.getElementById('comp-ca-val');
+                if (compCa) compCa.innerText = "-- %";
+                let compB = document.getElementById('comp-b-val');
+                if (compB) compB.innerText = "-- ppm";
             }
 
             let stdN = document.getElementById('std-n-val');
@@ -393,6 +405,10 @@ Object.defineProperty(window, 'RASTER_GRID_DATA', { get() { return window._RASTE
                 document.getElementById('std-p-val').innerText = "-- %";
                 document.getElementById('std-k-val').innerText = "-- %";
                 document.getElementById('std-mg-val').innerText = "-- %";
+                let stdCa = document.getElementById('std-ca-val');
+                if (stdCa) stdCa.innerText = "-- %";
+                let stdB = document.getElementById('std-b-val');
+                if (stdB) stdB.innerText = "-- ppm";
             }
         }
 
@@ -449,6 +465,11 @@ Object.defineProperty(window, 'RASTER_GRID_DATA', { get() { return window._RASTE
                 let mapDisplayName = `Custom: ${fileName} (${geojson.features.length} blocks)`;
                 geojson.mapName = mapDisplayName;
                 REAL_MAPS_DATA[customKey] = geojson;
+                if (window.PREDICTION_CACHE_BY_ESTATE && window.PREDICTION_CACHE_BY_ESTATE[customKey]) {
+                    delete window.PREDICTION_CACHE_BY_ESTATE[customKey];
+                }
+                window.DYNAMIC_PREDICTION_RASTERS = null;
+                window.DYNAMIC_PREDICTION_GRIDS = null;
 
                 // Update select dropdowns
                 ['map-select-comp', 'map-select-std'].forEach(selectId => {
@@ -464,6 +485,8 @@ Object.defineProperty(window, 'RASTER_GRID_DATA', { get() { return window._RASTE
 
                 // Load newly created shapefile
                 onMapSelectChanged(customKey);
+                if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp('OFF');
+                if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd('OFF');
 
                 alert(`Shapefile '${fileName}' loaded successfully!\n${geojson.features.length} block boundaries displayed on the map.`);
             } catch (err) {

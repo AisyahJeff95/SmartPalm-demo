@@ -548,12 +548,31 @@
      * If found, restore its colored PNG overlays immediately without re-running prediction.
      * Note: Raw .tif ZIP downloads are only offered during the active session right after a live run.
      */
-    function restoreEstatePredictionFromCache(shpKey) {
-        if (!shpKey) {
+    function restoreEstatePredictionFromCache(shpKey, forceShowOverlay) {
+        if (!shpKey || !forceShowOverlay) {
             window.DYNAMIC_PREDICTION_RASTERS = null;
             window.DYNAMIC_PREDICTION_GRIDS = null;
             window._LAST_PREDICTION_FOLDER = '';
-            updateHistoryUIBadge('');
+            window._USE_RF_PREDICTIONS = false;
+            const offComp = document.querySelector('input[name="comp_layer"][value="OFF"]');
+            const offStd = document.querySelector('input[name="std_layer"][value="OFF"]');
+            const offKpsm = document.querySelector('input[name="kpsm_layer"][value="OFF"]');
+            if (offComp) offComp.checked = true;
+            if (offStd) offStd.checked = true;
+            if (offKpsm) offKpsm.checked = true;
+            if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp('OFF');
+            if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd('OFF');
+            if (typeof toggleNutrientLayerKpsm === 'function') toggleNutrientLayerKpsm('OFF');
+            if (typeof setNutrientLayerSelectionEnabled === 'function') {
+                setNutrientLayerSelectionEnabled(
+                    false,
+                    shpKey
+                        ? "* Click 'Run Prediction' to generate 10m Sentinel rasters"
+                        : "* Select a map boundary and click 'Run Prediction'",
+                    null
+                );
+            }
+            updateHistoryUIBadge(shpKey || '');
             return false;
         }
 
@@ -584,7 +603,7 @@
             if (typeof setNutrientLayerSelectionEnabled === 'function') {
                 setNutrientLayerSelectionEnabled(
                     true,
-                    `✓ Restored cached 10m Sentinel Rasters for ${cached.estateName} (${cached.targetDate})`,
+                    `✓ Cached 10m Sentinel Rasters available for ${cached.estateName} (${cached.targetDate})`,
                     true
                 );
             }
@@ -609,6 +628,7 @@
             window.DYNAMIC_PREDICTION_RASTERS = null;
             window.DYNAMIC_PREDICTION_GRIDS = null;
             window._LAST_PREDICTION_FOLDER = '';
+            window._USE_RF_PREDICTIONS = false;
             updateHistoryUIBadge(shpKey);
             return false;
         }
@@ -685,7 +705,7 @@
                     onMapSelectChanged(resolvedShpKey);
                 }
             }
-            restoreEstatePredictionFromCache(resolvedShpKey);
+            restoreEstatePredictionFromCache(resolvedShpKey, true);
         }
 
         const modal = document.getElementById('smartpalm-history-modal');
@@ -861,7 +881,7 @@
         if (!statusEl) return;
 
         const cached = key ? (window.PREDICTION_CACHE_BY_ESTATE[key] || window.PREDICTION_CACHE_BY_ESTATE[normalizeKey(key)]) : null;
-        if (cached && cached.folderName) {
+        if (window.DYNAMIC_PREDICTION_RASTERS && cached && cached.folderName) {
             const isLiveRun = Boolean(cached.isLiveSessionRun);
             const safeFn = String(cached.folderName).replace(/'/g, "\\'");
             const safeEst = String(cached.estateName || '').replace(/'/g, "\\'");

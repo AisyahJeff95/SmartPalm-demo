@@ -4291,9 +4291,17 @@ function toggleSatDataMode(mode) {
                 mapComp.removeLayer(compRasterOverlay);
                 compRasterOverlay = null;
             }
+            if (window.compRasterOverlay && mapComp) {
+                try { mapComp.removeLayer(window.compRasterOverlay); } catch (e) {}
+                window.compRasterOverlay = null;
+            }
             if (stdRasterOverlay && mapStd) {
                 mapStd.removeLayer(stdRasterOverlay);
                 stdRasterOverlay = null;
+            }
+            if (window.stdRasterOverlay && mapStd) {
+                try { mapStd.removeLayer(window.stdRasterOverlay); } catch (e) {}
+                window.stdRasterOverlay = null;
             }
             
             // Reset radio controls and legends
@@ -4368,11 +4376,15 @@ function toggleSatDataMode(mode) {
             setElementText('comp-p-val', "-- %");
             setElementText('comp-k-val', "-- %");
             setElementText('comp-mg-val', "-- %");
+            setElementText('comp-ca-val', "-- %");
+            setElementText('comp-b-val', "-- ppm");
 
             setElementText('std-n-val', "-- %");
             setElementText('std-p-val', "-- %");
             setElementText('std-k-val', "-- %");
             setElementText('std-mg-val', "-- %");
+            setElementText('std-ca-val', "-- %");
+            setElementText('std-b-val', "-- ppm");
 
             let activeBoundary = compBoundaryLayer || stdBoundaryLayer;
             if (activeBoundary && activeBoundary.getBounds) {
@@ -4464,6 +4476,11 @@ function toggleSatDataMode(mode) {
                 let mapDisplayName = `Custom: ${fileName} (${geojson.features.length} blocks)`;
                 geojson.mapName = mapDisplayName;
                 REAL_MAPS_DATA[customKey] = geojson;
+                if (window.PREDICTION_CACHE_BY_ESTATE) {
+                    delete window.PREDICTION_CACHE_BY_ESTATE[customKey];
+                }
+                window.DYNAMIC_PREDICTION_RASTERS = null;
+                window.DYNAMIC_PREDICTION_GRIDS = null;
 
                 // Update select dropdowns
                 ['map-select-comp', 'map-select-std'].forEach(selectId => {
@@ -4479,6 +4496,8 @@ function toggleSatDataMode(mode) {
 
                 // Load newly created shapefile
                 onMapSelectChanged(customKey);
+                if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp('OFF');
+                if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd('OFF');
 
                 // Auto-fill the estate name input with the shapefile filename (editable)
                 let estateInput = document.getElementById('estate-name-input');
@@ -4833,6 +4852,11 @@ function toggleSatDataMode(mode) {
                 const customKey = 'custom_' + Date.now();
                 REAL_MAPS_DATA[customKey] = geojson;
                 if (typeof ESTATE_BOUNDARIES !== 'undefined') ESTATE_BOUNDARIES[customKey] = geojson;
+                if (window.PREDICTION_CACHE_BY_ESTATE && window.PREDICTION_CACHE_BY_ESTATE[customKey]) {
+                    delete window.PREDICTION_CACHE_BY_ESTATE[customKey];
+                }
+                window.DYNAMIC_PREDICTION_RASTERS = null;
+                window.DYNAMIC_PREDICTION_GRIDS = null;
 
                 ['map-select-comp', 'map-select-std', 'map-select-kpsm'].forEach(selId => {
                     const sel = document.getElementById(selId);
@@ -4846,6 +4870,8 @@ function toggleSatDataMode(mode) {
                 });
 
                 onMapSelectChanged(customKey);
+                if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp('OFF');
+                if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd('OFF');
             } catch (err) {
                 console.error("Error parsing uploaded shapefile:", err);
                 alert("Failed to parse shapefile: " + (err.message || err));
@@ -5411,6 +5437,8 @@ function toggleSatDataMode(mode) {
         function onMapSelectChanged(val) {
             window.DYNAMIC_PREDICTION_RASTERS = null;
             window.DYNAMIC_PREDICTION_GRIDS = null;
+            window._USE_RF_PREDICTIONS = false;
+            window._LAST_PREDICTION_FOLDER = '';
             setElementValue('map-select-comp', val);
             setElementValue('map-select-std', val);
 
@@ -5421,11 +5449,18 @@ function toggleSatDataMode(mode) {
                 updateIdentifiedSoilTypeDisplay(null, null, null);
                 // Clear boundaries & overlays and zoom to whole Malaysia map
                 if (compBoundaryLayer && mapComp) { mapComp.removeLayer(compBoundaryLayer); compBoundaryLayer = null; }
-                if (stdBoundaryLayer && mapStd) { mapComp.removeLayer(stdBoundaryLayer); stdBoundaryLayer = null; }
+                if (stdBoundaryLayer && mapStd) { mapStd.removeLayer(stdBoundaryLayer); stdBoundaryLayer = null; }
                 if (compRasterOverlay && mapComp) { mapComp.removeLayer(compRasterOverlay); compRasterOverlay = null; }
-                if (stdRasterOverlay && mapStd) { mapComp.removeLayer(stdRasterOverlay); stdRasterOverlay = null; }
+                if (window.compRasterOverlay && mapComp) { try { mapComp.removeLayer(window.compRasterOverlay); } catch(e){} window.compRasterOverlay = null; }
+                if (stdRasterOverlay && mapStd) { mapStd.removeLayer(stdRasterOverlay); stdRasterOverlay = null; }
+                if (window.stdRasterOverlay && mapStd) { try { mapStd.removeLayer(window.stdRasterOverlay); } catch(e){} window.stdRasterOverlay = null; }
                 
                 document.querySelectorAll('.nutrient-legend-box').forEach(el => el.style.display = 'none');
+                if (typeof window.restoreEstatePredictionFromCache === 'function') {
+                    window.restoreEstatePredictionFromCache('', false);
+                } else if (typeof setNutrientLayerSelectionEnabled === 'function') {
+                    setNutrientLayerSelectionEnabled(false, "* Select a map boundary and click 'Run Prediction'", null);
+                }
 
                 const malaysiaCenter = [4.2105, 101.9758];
                 const malaysiaZoom = 6.2;
@@ -5447,9 +5482,11 @@ function toggleSatDataMode(mode) {
             }
 
             loadShapeBoundaries(val);
-            const restoredFromCache = (typeof window.restoreEstatePredictionFromCache === 'function')
-                ? window.restoreEstatePredictionFromCache(val)
-                : false;
+            if (typeof window.restoreEstatePredictionFromCache === 'function') {
+                window.restoreEstatePredictionFromCache(val, false);
+            } else if (typeof setNutrientLayerSelectionEnabled === 'function') {
+                setNutrientLayerSelectionEnabled(false, "* Click 'Run Prediction' to generate 10m Sentinel rasters", null);
+            }
 
             function zoomToActiveMap() {
                 let activeBoundary = compBoundaryLayer || stdBoundaryLayer;
@@ -5466,14 +5503,9 @@ function toggleSatDataMode(mode) {
             setTimeout(zoomToActiveMap, 60);
             setTimeout(zoomToActiveMap, 200);
             setTimeout(zoomToActiveMap, 500);
-            // Sekinchan / PPPTAR / Benta have prebuilt rasters: re-apply the selected nutrient layer immediately
-            const activeLayerRadio = document.querySelector('input[name="comp_layer"]:checked') || document.querySelector('input[name="std_layer"]:checked');
-            if ((restoredFromCache || val.includes('sekinchan') || val.includes('ppptar')) && activeLayerRadio && activeLayerRadio.value !== 'OFF') {
-                setTimeout(() => {
-                    if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp(activeLayerRadio.value);
-                    if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd(activeLayerRadio.value);
-                }, 250);
-            }
+            // Always keep map clean (boundary only) when uploading or selecting a boundary until Run Prediction or Load from Run History
+            if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp('OFF');
+            if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd('OFF');
         }
 
 // Continuous Point-by-Point Pixel Raster Heatmap Generator with Point-In-Polygon Canvas Masking
@@ -5649,17 +5681,18 @@ function toggleNutrientLayerComp(layerValue) {
     if (!targetMap) return;
     document.querySelectorAll('#page-comprehensive .nutrient-legend-box').forEach(el => el.style.display = 'none');
     
+    if (typeof compRasterOverlay !== 'undefined' && compRasterOverlay && targetMap) {
+        try { targetMap.removeLayer(compRasterOverlay); } catch(e){}
+        compRasterOverlay = null;
+    }
     if (window.compRasterOverlay && targetMap) {
         try { targetMap.removeLayer(window.compRasterOverlay); } catch(e){}
         window.compRasterOverlay = null;
     }
-    
-    const selectEl = document.getElementById('map-select-comp');
-    const currentMapType = selectEl ? selectEl.value : 'lahad_datu_combined';
 
     let bLayer = window.compBoundaryLayer || (typeof compBoundaryLayer !== 'undefined' ? compBoundaryLayer : null);
 
-    if (layerValue === "OFF") {
+    if (layerValue === "OFF" || !window.DYNAMIC_PREDICTION_RASTERS || !window.DYNAMIC_PREDICTION_RASTERS[layerValue]) {
         if (bLayer) {
             bLayer.setStyle({ color: "#ff7800", fillColor: "#ff7800", fillOpacity: 0.15 });
         }
@@ -5671,31 +5704,18 @@ function toggleNutrientLayerComp(layerValue) {
             bLayer.setStyle({ color: "#ff7800", fillColor: "transparent", fillOpacity: 0.0 });
         }
 
-        const prebuiltOverlays = getActiveEstateRasterOverlays(currentMapType);
-        if (window.DYNAMIC_PREDICTION_RASTERS && window.DYNAMIC_PREDICTION_RASTERS[layerValue]) {
-            let oData = window.DYNAMIC_PREDICTION_RASTERS[layerValue];
-            let fixedBounds = (typeof fixSeaBoundsIfNeeded === 'function') ? fixSeaBoundsIfNeeded(oData.bounds, bLayer) : oData.bounds;
-            oData.bounds = fixedBounds;
-            window.compRasterOverlay = L.imageOverlay(oData.dataUrl, fixedBounds, { opacity: 0.85, zIndex: 400 }).addTo(targetMap);
-            if (typeof window.syncDynamicGridBoundsToActiveLayer === 'function') {
-                window.syncDynamicGridBoundsToActiveLayer(bLayer);
-            }
-            if (!window.DYNAMIC_PREDICTION_GRIDS && typeof window.decodeDynamicPredictionGrids === 'function') {
-                window.decodeDynamicPredictionGrids(window.DYNAMIC_PREDICTION_RASTERS, fixedBounds);
-            }
-            if (bLayer && typeof bLayer.bringToFront === 'function') {
-                bLayer.bringToFront();
-            }
-        } else if (prebuiltOverlays && prebuiltOverlays[layerValue]) {
-            let oData = prebuiltOverlays[layerValue];
-            let fixedBounds = (typeof fixSeaBoundsIfNeeded === 'function') ? fixSeaBoundsIfNeeded(oData.bounds, bLayer) : oData.bounds;
-            window.compRasterOverlay = L.imageOverlay(oData.dataUrl, fixedBounds, { opacity: 0.85, zIndex: 400 }).addTo(targetMap);
-            if (!window.DYNAMIC_PREDICTION_GRIDS && typeof window.decodeDynamicPredictionGrids === 'function') {
-                window.decodeDynamicPredictionGrids(prebuiltOverlays, fixedBounds);
-            }
-            if (bLayer && typeof bLayer.bringToFront === 'function') bLayer.bringToFront();
-        } else if (bLayer && typeof createContinuousNutrientRaster === 'function') {
-            window.compRasterOverlay = createContinuousNutrientRaster(bLayer, layerValue, targetMap);
+        let oData = window.DYNAMIC_PREDICTION_RASTERS[layerValue];
+        let fixedBounds = (typeof fixSeaBoundsIfNeeded === 'function') ? fixSeaBoundsIfNeeded(oData.bounds, bLayer) : oData.bounds;
+        oData.bounds = fixedBounds;
+        window.compRasterOverlay = L.imageOverlay(oData.dataUrl, fixedBounds, { opacity: 0.85, zIndex: 400 }).addTo(targetMap);
+        if (typeof window.syncDynamicGridBoundsToActiveLayer === 'function') {
+            window.syncDynamicGridBoundsToActiveLayer(bLayer);
+        }
+        if (!window.DYNAMIC_PREDICTION_GRIDS && typeof window.decodeDynamicPredictionGrids === 'function') {
+            window.decodeDynamicPredictionGrids(window.DYNAMIC_PREDICTION_RASTERS, fixedBounds);
+        }
+        if (bLayer && typeof bLayer.bringToFront === 'function') {
+            bLayer.bringToFront();
         }
     }
     if (typeof window.refreshPointNutrientDetectionFromActiveRasters === 'function') window.refreshPointNutrientDetectionFromActiveRasters();
@@ -5708,17 +5728,18 @@ function toggleNutrientLayerStd(layerValue) {
     if (!targetMap) return;
     document.querySelectorAll('#page-standard .nutrient-legend-box').forEach(el => el.style.display = 'none');
     
+    if (typeof stdRasterOverlay !== 'undefined' && stdRasterOverlay && targetMap) {
+        try { targetMap.removeLayer(stdRasterOverlay); } catch(e){}
+        stdRasterOverlay = null;
+    }
     if (window.stdRasterOverlay && targetMap) {
         try { targetMap.removeLayer(window.stdRasterOverlay); } catch(e){}
         window.stdRasterOverlay = null;
     }
-    
-    const selectEl = document.getElementById('map-select-std') || document.getElementById('map-select-comp');
-    const currentMapType = selectEl ? selectEl.value : 'lahad_datu_combined';
 
     let bLayer = window.stdBoundaryLayer || (typeof stdBoundaryLayer !== 'undefined' ? stdBoundaryLayer : null);
 
-    if (layerValue === "OFF") {
+    if (layerValue === "OFF" || !window.DYNAMIC_PREDICTION_RASTERS || !window.DYNAMIC_PREDICTION_RASTERS[layerValue]) {
         if (bLayer) {
             bLayer.setStyle({ color: "#10b981", fillColor: "#10b981", fillOpacity: 0.20 });
         }
@@ -5730,31 +5751,18 @@ function toggleNutrientLayerStd(layerValue) {
             bLayer.setStyle({ color: "#10b981", fillColor: "transparent", fillOpacity: 0.0 });
         }
 
-        const prebuiltOverlays = getActiveEstateRasterOverlays(currentMapType);
-        if (window.DYNAMIC_PREDICTION_RASTERS && window.DYNAMIC_PREDICTION_RASTERS[layerValue]) {
-            let oData = window.DYNAMIC_PREDICTION_RASTERS[layerValue];
-            let fixedBounds = (typeof fixSeaBoundsIfNeeded === 'function') ? fixSeaBoundsIfNeeded(oData.bounds, bLayer) : oData.bounds;
-            oData.bounds = fixedBounds;
-            window.stdRasterOverlay = L.imageOverlay(oData.dataUrl, fixedBounds, { opacity: 0.85, zIndex: 400 }).addTo(targetMap);
-            if (typeof window.syncDynamicGridBoundsToActiveLayer === 'function') {
-                window.syncDynamicGridBoundsToActiveLayer(bLayer);
-            }
-            if (!window.DYNAMIC_PREDICTION_GRIDS && typeof window.decodeDynamicPredictionGrids === 'function') {
-                window.decodeDynamicPredictionGrids(window.DYNAMIC_PREDICTION_RASTERS, fixedBounds);
-            }
-            if (bLayer && typeof bLayer.bringToFront === 'function') {
-                bLayer.bringToFront();
-            }
-        } else if (prebuiltOverlays && prebuiltOverlays[layerValue]) {
-            let oData = prebuiltOverlays[layerValue];
-            let fixedBounds = (typeof fixSeaBoundsIfNeeded === 'function') ? fixSeaBoundsIfNeeded(oData.bounds, bLayer) : oData.bounds;
-            window.stdRasterOverlay = L.imageOverlay(oData.dataUrl, fixedBounds, { opacity: 0.85, zIndex: 400 }).addTo(targetMap);
-            if (!window.DYNAMIC_PREDICTION_GRIDS && typeof window.decodeDynamicPredictionGrids === 'function') {
-                window.decodeDynamicPredictionGrids(prebuiltOverlays, fixedBounds);
-            }
-            if (bLayer && typeof bLayer.bringToFront === 'function') bLayer.bringToFront();
-        } else if (bLayer && typeof createContinuousNutrientRaster === 'function') {
-            window.stdRasterOverlay = createContinuousNutrientRaster(bLayer, layerValue, targetMap);
+        let oData = window.DYNAMIC_PREDICTION_RASTERS[layerValue];
+        let fixedBounds = (typeof fixSeaBoundsIfNeeded === 'function') ? fixSeaBoundsIfNeeded(oData.bounds, bLayer) : oData.bounds;
+        oData.bounds = fixedBounds;
+        window.stdRasterOverlay = L.imageOverlay(oData.dataUrl, fixedBounds, { opacity: 0.85, zIndex: 400 }).addTo(targetMap);
+        if (typeof window.syncDynamicGridBoundsToActiveLayer === 'function') {
+            window.syncDynamicGridBoundsToActiveLayer(bLayer);
+        }
+        if (!window.DYNAMIC_PREDICTION_GRIDS && typeof window.decodeDynamicPredictionGrids === 'function') {
+            window.decodeDynamicPredictionGrids(window.DYNAMIC_PREDICTION_RASTERS, fixedBounds);
+        }
+        if (bLayer && typeof bLayer.bringToFront === 'function') {
+            bLayer.bringToFront();
         }
     }
     if (typeof window.refreshPointNutrientDetectionFromActiveRasters === 'function') window.refreshPointNutrientDetectionFromActiveRasters();
@@ -6068,7 +6076,7 @@ function cancelPredictionRunAndClose() {
         btn.style.opacity = '1.0';
         btn.innerHTML = '<span>Run Prediction</span><span style="font-size: 17px; line-height: 1;">→</span>';
     }
-    setNutrientLayerSelectionEnabled(true, '⚠️ Prediction run cancelled by user.', false);
+    setNutrientLayerSelectionEnabled(Boolean(window.DYNAMIC_PREDICTION_RASTERS), '⚠️ Prediction run cancelled by user.', false);
 }
 window.cancelPredictionRunAndClose = cancelPredictionRunAndClose;
 
@@ -6427,7 +6435,7 @@ function runRfrPredictionFlow() {
                 pill.style.borderColor = 'rgba(255,255,255,0.22)';
                 pill.style.color = '#e4e4e7';
             }
-            setNutrientLayerSelectionEnabled(true, `! Error: Prediction server unreachable (${errMsg}).`, false);
+            setNutrientLayerSelectionEnabled(Boolean(window.DYNAMIC_PREDICTION_RASTERS), `! Error: Prediction server unreachable (${errMsg}).`, false);
         }
 
         window._PREDICTION_IS_RUNNING = false;
