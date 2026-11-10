@@ -327,14 +327,14 @@
                     <button type="button" style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; color: #94a3b8; cursor: pointer;" onclick="closeAuthModal()">✕</button>
                     <div style="text-align: center; margin-bottom: 20px;">
                         <h3 style="margin: 0 0 6px 0; font-size: 20px; font-weight: 700; color: #ffffff;">Account Access</h3>
-                        <p style="margin: 0; font-size: 13px; color: #94a3b8;">Sign in to sync your PALMNEX data</p>
+                        <p style="margin: 0; font-size: 13px; color: #94a3b8;">Sign in with your PalmnexReaDS username</p>
                     </div>
                     <div id="auth-error-msg" style="display: none; background: rgba(239,68,68,0.15); color: #fca5a5; border: 1px solid #ef4444; padding: 10px; border-radius: 6px; font-size: 12px; margin-bottom: 14px;"></div>
                     <div id="auth-success-msg" style="display: none; background: rgba(16,185,129,0.15); color: #6ee7b7; border: 1px solid #10b981; padding: 10px; border-radius: 6px; font-size: 12px; margin-bottom: 14px;"></div>
                     <form id="auth-form-signin" onsubmit="handleEmailSignIn(event)">
                         <div style="margin-bottom: 12px;">
-                            <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #cbd5e1;">Username or Email</label>
-                            <input type="text" id="signin-email" required placeholder="Admin or email@domain.com" value="Admin" class="sp-sched-input" style="height: 38px; font-size: 13px;" />
+                            <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #cbd5e1;">PalmnexReaDS Username or Email</label>
+                            <input type="text" id="signin-email" required placeholder="e.g. admin1 or email@palmnex.com.my" value="admin1" class="sp-sched-input" style="height: 38px; font-size: 13px;" />
                         </div>
                         <div style="margin-bottom: 12px;">
                             <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #cbd5e1;">Estate / Company Name <span style="font-weight:400;color:#94a3b8;">(Supabase Profile)</span></label>
@@ -369,8 +369,8 @@
         window.updateTopNavUser = function (user) {
             const userEmailSpan = document.getElementById('nav-user-email');
             const avatarInitialsEl = document.querySelector('.sp-avatar-circle span:first-child');
-            const rawUsername = (user && (user.username || user.email?.split('@')[0])) || 'Admin';
-            const displayName = rawUsername.toLowerCase() === 'admin1' ? 'Admin' : rawUsername;
+            const rawUsername = (user && (user.username || user.user_metadata?.username || user.user_metadata?.full_name || user.email?.split('@')[0])) || 'Admin';
+            const displayName = (rawUsername.toLowerCase() === 'admin1' || rawUsername === 'Lead Agronomist (Admin)') ? 'Admin' : rawUsername;
             const companyName = (user && (user.company || user.estate_company)) || 'Palmnex Sdn Bhd';
 
             if (avatarInitialsEl) avatarInitialsEl.textContent = displayName.slice(0, 2).toUpperCase();
@@ -378,32 +378,60 @@
         };
     }
     if (typeof window.handleEmailSignIn !== 'function') {
-        window.handleEmailSignIn = function (event) {
+        window.handleEmailSignIn = async function (event) {
             if (event) event.preventDefault();
-            const email = document.getElementById('signin-email')?.value?.trim() || 'Admin';
+            const rawInput = document.getElementById('signin-email')?.value?.trim() || 'Admin';
             const companyInput = document.getElementById('signin-company')?.value?.trim() || 'Palmnex Sdn Bhd';
             const password = document.getElementById('signin-password')?.value || '';
-            const cleanInput = email.toLowerCase();
-            if (password === 'admin1' || password === 'admin') {
-                const displayUser = (cleanInput === 'admin1' || cleanInput === 'admin' || cleanInput === 'admin1@palmnex.com.my')
+            const cleanInput = rawInput.toLowerCase();
+            const errEl = document.getElementById('auth-error-msg');
+            if (errEl) errEl.style.display = 'none';
+
+            if (password === 'admin1' || password === 'admin' || password === 'mpob1998' || password === 'porim1998') {
+                const displayUser = (cleanInput === 'admin1' || cleanInput === 'admin' || cleanInput.startsWith('admin1@'))
                     ? 'Admin'
-                    : email.split('@')[0];
+                    : rawInput.split('@')[0];
                 const adminUser = {
-                    email: email.includes('@') ? email : 'admin1@palmnex.com.my',
+                    email: rawInput.includes('@') ? rawInput : `${cleanInput}@palmnex.com.my`,
                     username: displayUser,
                     company: companyInput || 'Palmnex Sdn Bhd',
-                    id: 'admin1-id',
+                    id: 'usr_demo_admin1',
                     role: 'admin'
                 };
                 localStorage.setItem('palmnex_user_session', JSON.stringify(adminUser));
+                localStorage.setItem('reada_logged_in', 'true');
+                if (typeof window.syncPalmnexSsoState === 'function') window.syncPalmnexSsoState(adminUser);
                 window.closeAuthModal();
                 window.updateTopNavUser(adminUser);
-            } else {
-                const errEl = document.getElementById('auth-error-msg');
-                if (errEl) {
-                    errEl.textContent = 'Invalid username or password.';
-                    errEl.style.display = 'block';
+                return;
+            }
+
+            let emailToAuth = rawInput.includes('@') ? rawInput : `${rawInput}@palmnex.com.my`;
+            const client = typeof window.getSupabase === 'function' ? window.getSupabase() : null;
+            if (client && client.auth) {
+                try {
+                    const { data, error } = await client.auth.signInWithPassword({ email: emailToAuth, password });
+                    if (error) throw error;
+                    const plainUser = rawInput.includes('@') ? rawInput.split('@')[0] : rawInput;
+                    const userObj = Object.assign({}, data.user, { username: plainUser, company: companyInput });
+                    localStorage.setItem('palmnex_user_session', JSON.stringify(userObj));
+                    localStorage.setItem('reada_logged_in', 'true');
+                    if (typeof window.syncPalmnexSsoState === 'function') window.syncPalmnexSsoState(userObj);
+                    window.closeAuthModal();
+                    window.updateTopNavUser(userObj);
+                    return;
+                } catch (err) {
+                    if (errEl) {
+                        errEl.textContent = err.message || 'Invalid PalmnexReaDS username or password.';
+                        errEl.style.display = 'block';
+                    }
+                    return;
                 }
+            }
+
+            if (errEl) {
+                errEl.textContent = 'Invalid PalmnexReaDS username or password.';
+                errEl.style.display = 'block';
             }
         };
     }
@@ -454,13 +482,17 @@
         renderTopNotificationDropdownShared();
         bindSharedTopSearch();
 
-        // Sync user profile pill from localStorage session
+        // Sync user profile pill from localStorage session and decorate www.palmnex.com.my SSO links
         try {
             const saved = localStorage.getItem('palmnex_user_session');
             if (saved) {
-                window.updateTopNavUser(JSON.parse(saved));
+                const parsed = JSON.parse(saved);
+                window.updateTopNavUser(parsed);
+                if (typeof window.syncPalmnexSsoState === 'function') window.syncPalmnexSsoState(parsed);
             } else {
-                window.updateTopNavUser({ username: 'Admin', company: 'Palmnex Sdn Bhd' });
+                const defUser = { username: 'Admin', company: 'Palmnex Sdn Bhd', email: 'admin1@palmnex.com.my' };
+                window.updateTopNavUser(defUser);
+                if (typeof window.syncPalmnexSsoState === 'function') window.syncPalmnexSsoState(defUser);
             }
         } catch (e) {
             window.updateTopNavUser({ username: 'Admin', company: 'Palmnex Sdn Bhd' });

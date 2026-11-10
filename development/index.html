@@ -23,7 +23,7 @@
     <!-- Supabase JS Client & Auth Modules -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js?v=20261104b"></script>
-    <script src="js/auth.js"></script>
+    <script src="js/auth.js?v=20261110a"></script>
 </head>
 <body class="sp-dark-home">
     <div class="cms-layout">
@@ -395,14 +395,14 @@
             <button type="button" style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; color: #94a3b8; cursor: pointer;" onclick="closeAuthModal()">✕</button>
             <div style="text-align: center; margin-bottom: 20px;">
                 <h3 style="margin: 0 0 6px 0; font-size: 20px; font-weight: 700; color: #ffffff;" data-i18n="authModalTitle">Account Access</h3>
-                <p style="margin: 0; font-size: 13px; color: #94a3b8;">Sign in to sync your PALMNEX data</p>
+                <p style="margin: 0; font-size: 13px; color: #94a3b8;">Sign in with your PalmnexReaDS username</p>
             </div>
             <div id="auth-error-msg" style="display: none; background: rgba(239,68,68,0.15); color: #fca5a5; border: 1px solid #ef4444; padding: 10px; border-radius: 6px; font-size: 12px; margin-bottom: 14px;"></div>
             <div id="auth-success-msg" style="display: none; background: rgba(16,185,129,0.15); color: #6ee7b7; border: 1px solid #10b981; padding: 10px; border-radius: 6px; font-size: 12px; margin-bottom: 14px;"></div>
             <form id="auth-form-signin" onsubmit="handleEmailSignIn(event)">
                 <div style="margin-bottom: 12px;">
-                    <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #cbd5e1;">Username or Email</label>
-                    <input type="text" id="signin-email" required placeholder="Admin or email@domain.com" value="Admin" class="sp-sched-input" style="height: 38px; font-size: 13px;" />
+                    <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #cbd5e1;">PalmnexReaDS Username or Email</label>
+                    <input type="text" id="signin-email" required placeholder="e.g. admin1 or email@palmnex.com.my" value="admin1" class="sp-sched-input" style="height: 38px; font-size: 13px;" />
                 </div>
                 <div style="margin-bottom: 12px;">
                     <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #cbd5e1;">Estate / Company Name <span style="font-weight:400;color:#94a3b8;">(Supabase Profile)</span></label>
