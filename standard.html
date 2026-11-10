@@ -2111,6 +2111,8 @@
     <script src="js/ramin_raster_overlays.js"></script>
     <script src="js/selanganbatu_raster_overlays.js"></script>
     <script src="js/seraya_raster_overlays.js"></script>
+    <script src="js/boundary_mpob_map.js"></script>
+    <script>if (typeof window.BOUNDARY_MPOB_MAP_DATA === 'undefined') { document.write('<scr'+'ipt src="development/js/boundary_mpob_map.js"><\/scr'+'ipt>'); }</script>
     <script src="js/nutrient_full_map_grid.js?v=20261029_hd2"></script>
     <script src="js/malaysia_soil_reconnaissance.js"></script>
     <script src="js/prediction_cache_history.js"></script>
@@ -3141,6 +3143,7 @@ function toggleSatDataMode(mode) {
                     <label class="ui-input-label">Select Map:</label>
                     <select class="ui-select-input" id="map-select-comp" onchange="onMapSelectChanged(this.value)">
                         <option value="" selected>-- Select Map Boundary --</option>
+                        <option value="boundary_mpob">Sabah Softwoods SSB</option>
                         <option value="lahad_datu_combined">Lahad Datu - Boundary + 36 Trial Plots</option>
                         <option value="seraya">Seraya with block boundary</option>
                         <option value="agathis">Agathis</option>
@@ -4406,12 +4409,16 @@ function toggleSatDataMode(mode) {
                         "SOIL_TYPE",
                         "DESCRIPTIO",
                         "CUSTODIAN"
+            ],
+            "boundary_mpob": [
+                        "Blok_name",
+                        "Area"
             ]
 };
 
         const BENTA_ESTATE_KEYS = [
             'agathis', 'belian', 'binuang', 'gaharu', 'kapur',
-            'keruing', 'menggaris', 'merbau', 'ramin', 'selanganbatu', 'seraya'
+            'keruing', 'menggaris', 'merbau', 'ramin', 'selanganbatu', 'seraya', 'boundary_mpob'
         ];
         const bentaTooltipFields = ["No_Block", "Area_Ha", "N_mean", "P_mean", "K_mean", "Mg_mean", "Ca_mean", "B_mean"];
         for (const k of BENTA_ESTATE_KEYS) {
@@ -4433,6 +4440,7 @@ function toggleSatDataMode(mode) {
             if (!blocksData) return;
             
             const mapCenterLookup = {
+                boundary_mpob:       [4.5699, 117.6163],
                 lahad_datu:          lahadDatuCoords,
                 lahad_datu_combined: lahadDatuCoords,
                 mpob_36_trial:       lahadDatuCoords,
