@@ -72,6 +72,11 @@
     }
 
     function getRuns() {
+        const activeStorageGroup = typeof window.getCurrentPalmnexStorageGroup === 'function'
+            ? window.getCurrentPalmnexStorageGroup()
+            : 'storage_all';
+        const isClientPrivateStorage = (activeStorageGroup && activeStorageGroup !== 'storage_all');
+
         const live = Array.isArray(window.PREDICTION_RUN_HISTORY) ? window.PREDICTION_RUN_HISTORY : [];
         let lsV2 = [];
         try {
@@ -86,6 +91,10 @@
             if (!r) return;
             const folder = r.folderName || r.folder_name;
             if (!folder || seen.has(folder)) return;
+            if (isClientPrivateStorage) {
+                const runGroup = r.storageGroup || r.storage_group || '';
+                if (runGroup !== activeStorageGroup) return;
+            }
             seen.add(folder);
             const dt = formatTopPanelRunTime(r.timestamp, folder, r.mtime);
             result.push({
@@ -248,6 +257,31 @@
         };
     }
 
+    if (typeof window.toggleAuthPasswordVisibility !== 'function') {
+        window.toggleAuthPasswordVisibility = function (inputId = 'signin-password', iconId = 'icon-eye-signin-password') {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            if (!input) return;
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+            if (icon) {
+                if (isPassword) {
+                    icon.innerHTML = `
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                        <line x1="1" y1="1" x2="23" y2="23"></line>
+                    `;
+                    icon.style.color = '#34d399';
+                } else {
+                    icon.innerHTML = `
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    `;
+                    icon.style.color = '#94a3b8';
+                }
+            }
+        };
+    }
+
     // Inject missing modals (#sp-settings-modal, #manual-modal, #auth-modal) and Clock History button so buttons work on every page
     function ensureTopPanelModals() {
         const rightControls = document.querySelector('.sp-top-right-controls');
@@ -337,12 +371,20 @@
                             <input type="text" id="signin-email" required placeholder="e.g. admin1 or email@palmnex.com.my" value="admin1" class="sp-sched-input" style="height: 38px; font-size: 13px;" />
                         </div>
                         <div style="margin-bottom: 12px;">
-                            <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #cbd5e1;">Estate / Company Name <span style="font-weight:400;color:#94a3b8;">(Supabase Profile)</span></label>
+                            <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #cbd5e1;">Estate Company Name</label>
                             <input type="text" id="signin-company" placeholder="e.g. Palmnex Sdn Bhd / Benta Wawasan" value="Palmnex Sdn Bhd" class="sp-sched-input" style="height: 38px; font-size: 13px;" />
                         </div>
                         <div style="margin-bottom: 16px;">
                             <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #cbd5e1;">Password</label>
-                            <input type="password" id="signin-password" required placeholder="••••••••" value="admin1" class="sp-sched-input" style="height: 38px; font-size: 13px;" />
+                            <div style="position: relative; display: flex; align-items: center; width: 100%;">
+                                <input type="password" id="signin-password" required placeholder="••••••••" value="admin1" class="sp-sched-input" style="height: 38px; font-size: 13px; width: 100%; padding-right: 38px;" />
+                                <button type="button" id="btn-toggle-signin-password" onclick="toggleAuthPasswordVisibility('signin-password', 'icon-eye-signin-password')" title="Show / Hide Password" style="position: absolute; right: 10px; background: none; border: none; color: #94a3b8; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center;">
+                                    <svg id="icon-eye-signin-password" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#94a3b8;">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
                         <button type="submit" id="btn-auth-signin" class="sp-sched-btn" style="width: 100%; height: 40px; font-size: 14px;">Sign In</button>
                     </form>
@@ -352,11 +394,44 @@
         }
     }
 
+    function renderFallbackSessionBanner() {
+        const formSignin = document.getElementById('auth-form-signin');
+        if (!formSignin) return;
+        let banner = document.getElementById('auth-active-session-banner');
+        if (!banner) {
+            banner = document.createElement('div');
+            banner.id = 'auth-active-session-banner';
+            banner.style.cssText = 'display:none; align-items:center; justify-content:space-between; gap:10px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.35); padding:10px 12px; border-radius:8px; margin-bottom:14px; font-size:12px; color:#d1fae5;';
+            formSignin.parentNode.insertBefore(banner, formSignin);
+        }
+        const saved = localStorage.getItem('palmnex_user_session');
+        if (saved) {
+            try {
+                const u = JSON.parse(saved);
+                const name = u.username || u.user_metadata?.full_name || (u.email ? u.email.split('@')[0] : 'Admin');
+                const comp = u.company || u.estate_company || 'Palmnex Sdn Bhd';
+                banner.innerHTML = `
+                    <div>
+                        <div style="font-weight:700; color:#34d399;">Signed in as ${name}</div>
+                        <div style="font-size:11px; color:#94a3b8;">${comp}</div>
+                    </div>
+                    <button type="button" onclick="handleSignOut()" style="background:rgba(239,68,68,0.18); color:#fca5a5; border:1px solid rgba(239,68,68,0.45); border-radius:6px; padding:5px 10px; font-size:11px; font-weight:600; cursor:pointer; white-space:nowrap;">Sign Out</button>
+                `;
+                banner.style.display = 'flex';
+                return;
+            } catch (e) {}
+        }
+        banner.style.display = 'none';
+    }
+
     // Fallback auth helpers if js/auth.js is not loaded on the page
     if (typeof window.openAuthModal !== 'function') {
         window.openAuthModal = function () {
             const modal = document.getElementById('auth-modal');
-            if (modal) modal.style.display = 'flex';
+            if (modal) {
+                modal.style.display = 'flex';
+                renderFallbackSessionBanner();
+            }
         };
     }
     if (typeof window.closeAuthModal !== 'function') {
@@ -377,6 +452,57 @@
             if (userEmailSpan) userEmailSpan.textContent = `${displayName} • ${companyName}`;
         };
     }
+    if (typeof window.applyModuleAccessControl !== 'function') {
+        window.applyModuleAccessControl = function (user) {
+            const tier = (user && user.access_tier) ? String(user.access_tier).toUpperCase() : 'C';
+            const allowComp = (tier === 'B' || tier === 'C');
+            const allowStd = (tier === 'A' || tier === 'C');
+            const allowReads = (tier === 'B' || tier === 'C');
+            const allowKpsm = (tier === 'C');
+            const setElVisible = (el, visible) => {
+                if (!el) return;
+                if (visible) el.style.removeProperty('display');
+                else el.style.setProperty('display', 'none', 'important');
+            };
+            document.querySelectorAll('.sp-top-nav-pills a.sp-top-pill').forEach(a => {
+                const href = (a.getAttribute('href') || '').toLowerCase();
+                if (href.includes('comprehensive')) setElVisible(a, allowComp);
+                else if (href.includes('standard')) setElVisible(a, allowStd);
+                else if (href.includes('palmnex.com.my') || href.includes('palmnexreads')) setElVisible(a, allowReads);
+            });
+            setElVisible(document.getElementById('sp-top-kpsm-dropdown'), allowKpsm);
+            document.querySelectorAll('.cms-sidebar .cms-nav > a.cms-nav-item').forEach(a => {
+                const href = (a.getAttribute('href') || '').toLowerCase();
+                if (href.includes('comprehensive')) setElVisible(a, allowComp);
+                else if (href.includes('standard')) setElVisible(a, allowStd);
+                else if (href.includes('palmnex.com.my') || href.includes('palmnexreads')) setElVisible(a, allowReads);
+                else if (href.includes('kpsm')) setElVisible(a, allowKpsm);
+            });
+            document.querySelectorAll('.cms-sidebar .cms-nav .cms-nav-group').forEach(group => {
+                setElVisible(group, allowKpsm);
+            });
+            if (tier === 'A') {
+                const path = (window.location.pathname || '').toLowerCase();
+                if (path.includes('comprehensive') || path.includes('kpsm')) window.location.replace('standard.html');
+            } else if (tier === 'B') {
+                const path = (window.location.pathname || '').toLowerCase();
+                if (path.includes('standard') || path.includes('kpsm')) window.location.replace('comprehensive.html');
+            }
+        };
+    }
+    if (typeof window.handleSignOut !== 'function') {
+        window.handleSignOut = async function () {
+            const client = typeof window.getSupabase === 'function' ? window.getSupabase() : null;
+            if (client && client.auth) {
+                try { await client.auth.signOut(); } catch (e) {}
+            }
+            localStorage.removeItem('palmnex_user_session');
+            renderFallbackSessionBanner();
+            const defUser = { username: 'Admin', company: 'Palmnex Sdn Bhd', access_tier: 'C', storage_group: 'storage_all', email: 'admin1@palmnex.com.my' };
+            window.updateTopNavUser(defUser);
+            if (typeof window.applyModuleAccessControl === 'function') window.applyModuleAccessControl(defUser);
+        };
+    }
     if (typeof window.handleEmailSignIn !== 'function') {
         window.handleEmailSignIn = async function (event) {
             if (event) event.preventDefault();
@@ -387,7 +513,9 @@
             const errEl = document.getElementById('auth-error-msg');
             if (errEl) errEl.style.display = 'none';
 
-            if (password === 'admin1' || password === 'admin' || password === 'mpob1998' || password === 'porim1998') {
+            const isDemoAdminPass = (password === 'admin1' || password === 'admin' || password === 'mpob1998' || password === 'porim1998');
+            const isPalmnexAdminUser = (cleanInput === 'admin1' || cleanInput === 'admin' || cleanInput === 'admin1@palmnex.com.my' || cleanInput.startsWith('adminpalmnex'));
+            if (isDemoAdminPass && isPalmnexAdminUser) {
                 const displayUser = (cleanInput === 'admin1' || cleanInput === 'admin' || cleanInput.startsWith('admin1@'))
                     ? 'Admin'
                     : rawInput.split('@')[0];
@@ -395,12 +523,17 @@
                     email: rawInput.includes('@') ? rawInput : `${cleanInput}@palmnex.com.my`,
                     username: displayUser,
                     company: companyInput || 'Palmnex Sdn Bhd',
+                    company_code: 'palmnex',
+                    access_tier: 'C',
+                    storage_group: 'storage_all',
                     id: 'usr_demo_admin1',
                     role: 'admin'
                 };
                 localStorage.setItem('palmnex_user_session', JSON.stringify(adminUser));
                 localStorage.setItem('reada_logged_in', 'true');
                 if (typeof window.syncPalmnexSsoState === 'function') window.syncPalmnexSsoState(adminUser);
+                if (typeof window.applyModuleAccessControl === 'function') window.applyModuleAccessControl(adminUser);
+                renderFallbackSessionBanner();
                 window.closeAuthModal();
                 window.updateTopNavUser(adminUser);
                 return;
@@ -413,10 +546,35 @@
                     const { data, error } = await client.auth.signInWithPassword({ email: emailToAuth, password });
                     if (error) throw error;
                     const plainUser = rawInput.includes('@') ? rawInput.split('@')[0] : rawInput;
-                    const userObj = Object.assign({}, data.user, { username: plainUser, company: companyInput });
+                    let accessTier = 'A';
+                    let storageGroup = `storage_${plainUser.toLowerCase()}`;
+                    let companyName = companyInput;
+                    let companyCode = plainUser.toLowerCase().replace(/^admin([a-z0-9_-]+?)(\d*)$/, '$1') || 'client';
+                    try {
+                        const { data: prof } = await client
+                            .from('profiles')
+                            .select('username, company_code, company_name, estate_company, access_tier, storage_group')
+                            .eq('id', data.user.id)
+                            .maybeSingle();
+                        if (prof) {
+                            accessTier = String(prof.access_tier || 'A').toUpperCase();
+                            companyCode = prof.company_code || companyCode;
+                            storageGroup = prof.storage_group || storageGroup;
+                            companyName = (companyInput && companyInput !== 'Palmnex Sdn Bhd') ? companyInput : (prof.estate_company || prof.company_name || companyName);
+                        }
+                    } catch (e) {}
+                    const userObj = Object.assign({}, data.user, {
+                        username: plainUser,
+                        company: companyName,
+                        company_code: companyCode,
+                        access_tier: accessTier,
+                        storage_group: storageGroup
+                    });
                     localStorage.setItem('palmnex_user_session', JSON.stringify(userObj));
-                    localStorage.setItem('reada_logged_in', 'true');
+                    if (accessTier !== 'A') localStorage.setItem('reada_logged_in', 'true');
                     if (typeof window.syncPalmnexSsoState === 'function') window.syncPalmnexSsoState(userObj);
+                    if (typeof window.applyModuleAccessControl === 'function') window.applyModuleAccessControl(userObj);
+                    renderFallbackSessionBanner();
                     window.closeAuthModal();
                     window.updateTopNavUser(userObj);
                     return;
@@ -482,17 +640,19 @@
         renderTopNotificationDropdownShared();
         bindSharedTopSearch();
 
-        // Sync user profile pill from localStorage session and decorate www.palmnex.com.my SSO links
+        // Sync user profile pill from localStorage session, apply RBAC module visibility, and decorate www.palmnex.com.my SSO links
         try {
             const saved = localStorage.getItem('palmnex_user_session');
             if (saved) {
                 const parsed = JSON.parse(saved);
                 window.updateTopNavUser(parsed);
                 if (typeof window.syncPalmnexSsoState === 'function') window.syncPalmnexSsoState(parsed);
+                if (typeof window.applyModuleAccessControl === 'function') window.applyModuleAccessControl(parsed);
             } else {
-                const defUser = { username: 'Admin', company: 'Palmnex Sdn Bhd', email: 'admin1@palmnex.com.my' };
+                const defUser = { username: 'Admin', company: 'Palmnex Sdn Bhd', company_code: 'palmnex', access_tier: 'C', storage_group: 'storage_all', email: 'admin1@palmnex.com.my' };
                 window.updateTopNavUser(defUser);
                 if (typeof window.syncPalmnexSsoState === 'function') window.syncPalmnexSsoState(defUser);
+                if (typeof window.applyModuleAccessControl === 'function') window.applyModuleAccessControl(defUser);
             }
         } catch (e) {
             window.updateTopNavUser({ username: 'Admin', company: 'Palmnex Sdn Bhd' });

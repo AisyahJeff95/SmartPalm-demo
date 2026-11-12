@@ -181,6 +181,34 @@
         return summary;
     }
 
+    function getActiveStorageGroup() {
+        if (typeof window.getCurrentPalmnexStorageGroup === 'function') {
+            return window.getCurrentPalmnexStorageGroup() || 'storage_all';
+        }
+        try {
+            const raw = localStorage.getItem('palmnex_user_session');
+            if (raw) {
+                const u = JSON.parse(raw);
+                if (u && u.storage_group) return u.storage_group;
+            }
+        } catch (e) {}
+        return 'storage_all';
+    }
+
+    function getActiveCompanyCode() {
+        if (typeof window.getCurrentPalmnexCompanyCode === 'function') {
+            return window.getCurrentPalmnexCompanyCode() || 'palmnex';
+        }
+        try {
+            const raw = localStorage.getItem('palmnex_user_session');
+            if (raw) {
+                const u = JSON.parse(raw);
+                if (u && u.company_code) return u.company_code;
+            }
+        } catch (e) {}
+        return 'palmnex';
+    }
+
     function saveLocalHistoryMeta(list) {
         try {
             const slim = (list || []).slice(0, 60).map(item => {
@@ -200,6 +228,8 @@
                     executionTimeSec: item.executionTimeSec || item.execution_time_sec || null,
                     totalBlocks: blkCount,
                     blockSummary: item.blockSummary || item.block_summary || null,
+                    storageGroup: item.storageGroup || item.storage_group || 'storage_all',
+                    companyCode: item.companyCode || item.company_code || 'palmnex',
                     timestamp: item.timestamp || new Date().toISOString(),
                     mtime: item.mtime || Date.now() / 1000,
                     hasOverlays: Boolean(item.overlays || item.hasOverlays || item.has_overlays)
@@ -290,6 +320,8 @@
                 bounds: record.bounds || (ovLite ? ovLite.bounds : null),
                 block_summary: blkSummary || null,
                 overlays: ovLite ? ovLite.meta : null,
+                storage_group: record.storageGroup || record.storage_group || getActiveStorageGroup(),
+                company_code: record.companyCode || record.company_code || getActiveCompanyCode(),
                 created_at: createdIso
             };
 
@@ -368,6 +400,8 @@
                     executionTimeSec: row.execution_time_sec || null,
                     totalBlocks: row.total_blocks || (row.block_summary && row.block_summary.blocks ? Object.keys(row.block_summary.blocks).length : null),
                     blockSummary: row.block_summary || null,
+                    storageGroup: row.storage_group || 'storage_all',
+                    companyCode: row.company_code || 'palmnex',
                     timestamp: ts,
                     mtime: row.created_at ? (new Date(row.created_at).getTime() / 1000) : 0,
                     hasOverlays: true
@@ -497,6 +531,8 @@
             executionTimeSec: entry.executionTimeSec || null,
             totalBlocks: computedBlocksCount,
             blockSummary: computedSummary,
+            storageGroup: entry.storageGroup || entry.storage_group || getActiveStorageGroup(),
+            companyCode: entry.companyCode || entry.company_code || getActiveCompanyCode(),
             timestamp: new Date().toISOString(),
             mtime: Date.now() / 1000,
             hasOverlays: Boolean(normOverlays),
@@ -721,9 +757,14 @@
         ]);
 
         const sbFolderSet = new Set((sbHistory || []).map(s => s.folderName || s.folder_name).filter(Boolean));
+        const activeStorageGroup = getActiveStorageGroup();
+        const isClientPrivateStorage = (activeStorageGroup && activeStorageGroup !== 'storage_all');
 
         idbEstates.forEach(rec => {
             if (rec && rec.shpKey) {
+                if (isClientPrivateStorage && (rec.storageGroup || rec.storage_group) !== activeStorageGroup) {
+                    return;
+                }
                 window.PREDICTION_CACHE_BY_ESTATE[rec.shpKey] = rec;
                 window.PREDICTION_CACHE_BY_ESTATE[normalizeKey(rec.shpKey)] = rec;
                 if (rec.estateName) {
@@ -742,6 +783,8 @@
             const ym = parseDateYearMonth(tDate);
             const blkSummary = existing.blockSummary || item.blockSummary || item.block_summary || null;
             const blkCount = existing.totalBlocks || item.totalBlocks || item.total_blocks || (blkSummary && blkSummary.blocks ? Object.keys(blkSummary.blocks).length : null);
+            const sGroup = existing.storageGroup || existing.storage_group || item.storageGroup || item.storage_group || 'storage_all';
+            const cCode = existing.companyCode || existing.company_code || item.companyCode || item.company_code || 'palmnex';
             byFolder.set(fn, Object.assign({}, item, existing, {
                 targetDate: tDate,
                 acquisitionDate: tDate,
@@ -749,6 +792,8 @@
                 month: existing.month || item.month || ym.month,
                 totalBlocks: blkCount,
                 blockSummary: blkSummary,
+                storageGroup: sGroup,
+                companyCode: cCode,
                 overlays: existing.overlays || item.overlays || null,
                 hasOverlays: Boolean(existing.overlays || item.overlays || existing.hasOverlays || item.hasOverlays)
             }));
@@ -760,18 +805,28 @@
         sbHistory.forEach(mergeItem);
         srvHistory.forEach(mergeItem);
 
-        const merged = Array.from(byFolder.values()).sort((a, b) => (b.mtime || 0) - (a.mtime || 0));
-        window.PREDICTION_RUN_HISTORY = merged;
-        if (merged.length > 0) {
-            saveLocalHistoryMeta(merged);
-        }
+        const allMerged = Array.from(byFolder.values()).sort((a, b) => (b.mtime || 0) - (a.mtime || 0));
 
         // Automatically backfill any runs from HuggingFace / local cache that are not yet in Supabase prediction_runs
-        merged.forEach(r => {
+        allMerged.forEach(r => {
             const fn = r.folderName || r.folder_name;
             if (fn && !sbFolderSet.has(fn)) {
                 syncRunToSupabase(r);
             }
+        });
+
+        // Per-User Private Storage Isolation:
+        // Master Admin (storage_all) sees all runs; Client users (e.g. storage_adminbenta1) only see their own private runs
+        const visibleRuns = isClientPrivateStorage
+            ? allMerged.filter(r => (r.storageGroup || r.storage_group) === activeStorageGroup)
+            : allMerged;
+
+        window.PREDICTION_RUN_HISTORY = visibleRuns;
+        if (!isClientPrivateStorage && allMerged.length > 0) {
+            saveLocalHistoryMeta(allMerged);
+        }
+
+        visibleRuns.forEach(r => {
             const k = r.shpKey || guessShpKeyFromEstateName(r.estateName || r.folderName);
             if (k && !window.PREDICTION_CACHE_BY_ESTATE[k] && r.overlays) {
                 window.PREDICTION_CACHE_BY_ESTATE[k] = r;
@@ -784,7 +839,7 @@
         if (typeof window.renderRightNotificationsAndSchedules === 'function') window.renderRightNotificationsAndSchedules();
         if (typeof window.renderFullNotificationsPage === 'function') window.renderFullNotificationsPage();
         if (typeof window.renderTopNotifDropdown === 'function') window.renderTopNotifDropdown();
-        return merged;
+        return visibleRuns;
     }
 
     function populateSidebarHistoryDropdown(activeShpKey) {

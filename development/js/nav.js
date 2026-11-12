@@ -29,10 +29,13 @@ function handleSignIn() {
             }
         }
 
-        function handleSignOut() {
-            const profMenu = document.getElementById('profile-popover-menu');
-            if (profMenu) profMenu.classList.remove('show');
-            location.reload();
+        if (typeof window.handleSignOut !== 'function') {
+            window.handleSignOut = function () {
+                const profMenu = document.getElementById('profile-popover-menu');
+                if (profMenu) profMenu.classList.remove('show');
+                localStorage.removeItem('palmnex_user_session');
+                location.reload();
+            };
         }
 
         function toggleProfileDropdown(event) {

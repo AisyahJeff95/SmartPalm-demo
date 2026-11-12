@@ -3317,7 +3317,10 @@ function lockEnteredSatDate() {
 
                 <!-- Soil Type Identification Section (MPOB Reconnaissance Soil Malaysia Data) -->
                 <div id="soil-type-identification-section" style="margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.08);">
-                    <div class="ui-card-label" style="margin-bottom: 8px;">Soil Type</div>
+                    <div class="ui-field-row-between" style="margin-bottom: 8px;">
+                        <div class="ui-card-label" style="margin-bottom: 0;">Soil Type</div>
+                        <span id="soil-data-detected-badge" style="font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: rgba(16, 185, 129, 0.16); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.35);">Select Soil Type</span>
+                    </div>
                     <div class="ui-field-row" style="margin-bottom: 6px;">
                         <span class="ui-sub-label" style="font-weight: 600; width: 78px; flex-shrink: 0;">Soil Type:</span>
                         <div id="identified-soil-type-val" class="ui-nutrient-box" style="flex: 1; min-height: 32px; height: auto; padding: 4px 10px; font-weight: 600; font-size: 12.5px; color: #f8fafc; background: rgba(255, 255, 255, 0.05); text-align: center;">--</div>
@@ -3325,6 +3328,17 @@ function lockEnteredSatDate() {
                     <div class="ui-hint-text" style="font-size: 11px; color: #a1a1aa; line-height: 1.35; margin-top: 6px;">
                         * Note: This data is based on MPOB Reconnaissance Soil Malaysia Data, Publisher: Director of National Mapping, Malaysia. Year: 1968.
                         <a href="soil-reconnaissance-map.html" target="_blank" rel="noopener noreferrer" style="color: #e4e4e7; font-weight: 600; text-decoration: underline; display: inline-block; margin-top: 2px;">View Full Soil Reconnaissance Map ↗</a>
+                    </div>
+                    <!-- Hidden checkboxes preserved for backward compatibility -->
+                    <input type="checkbox" id="chk-eds-inland" style="display: none;">
+                    <input type="checkbox" id="chk-eds-alluvial" style="display: none;">
+                    <div id="soil-data-btn-group" style="display: flex; gap: 8px; width: 100%; margin-top: 10px;">
+                        <button type="button" id="btn-eds-inland" onclick="openEdsInlandDialog()" style="flex: 1; padding: 9px 12px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.55); background: linear-gradient(135deg, rgba(16, 185, 129, 0.24) 0%, rgba(5, 150, 105, 0.36) 100%); color: #ecfdf5; font-size: 12.5px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.18s ease; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);" onmouseover="this.style.background='linear-gradient(135deg, rgba(16, 185, 129, 0.36) 0%, rgba(5, 150, 105, 0.5) 100%)';this.style.borderColor='#34d399';" onmouseout="this.style.background='linear-gradient(135deg, rgba(16, 185, 129, 0.24) 0%, rgba(5, 150, 105, 0.36) 100%)';this.style.borderColor='rgba(16, 185, 129, 0.55)';">
+                            <span id="btn-eds-inland-label">📝 Enter Inland Soil Data →</span>
+                        </button>
+                        <button type="button" id="btn-eds-alluvial" onclick="openEdsAlluvialDialog()" style="flex: 1; padding: 9px 12px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.5); background: linear-gradient(135deg, rgba(14, 165, 233, 0.22) 0%, rgba(2, 132, 199, 0.34) 100%); color: #f0f9ff; font-size: 12.5px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.18s ease; box-shadow: 0 2px 8px rgba(14, 165, 233, 0.15);" onmouseover="this.style.background='linear-gradient(135deg, rgba(14, 165, 233, 0.34) 0%, rgba(2, 132, 199, 0.48) 100%)';this.style.borderColor='#38bdf8';" onmouseout="this.style.background='linear-gradient(135deg, rgba(14, 165, 233, 0.22) 0%, rgba(2, 132, 199, 0.34) 100%)';this.style.borderColor='rgba(56, 189, 248, 0.5)';">
+                            <span id="btn-eds-alluvial-label">📝 Alluvial / Coastal Data →</span>
+                        </button>
                     </div>
                 </div>
 
@@ -3481,62 +3495,8 @@ function lockEnteredSatDate() {
                 </div>
             </div>
 
-            <!-- Card 3: Optional Drone Image Upload & Estate Name -->
-            <div class="ui-card" id="card-drone-upload">
-                <div class="ui-card-label" style="margin-bottom: 10px;">Optional:</div>
-                
-                <div style="margin-bottom: 8px;">
-                    <div class="ui-field-row-between">
-                        <span class="ui-sub-label">Drone Image (.tif / .png / .jpg):</span>
-                        <button class="ui-upload-outline-btn" onclick="document.getElementById('drone-file-input').click()">Upload Drone</button>
-                        <input type="file" id="drone-file-input" accept="image/*,.tif,.tiff" style="display:none;" onchange="handleDroneImageUpload(event)">
-                    </div>
-                    <div id="drone-status-log" style="font-size: 11px; margin-top: 4px; display: none;">
-                        <div id="drone-msg-upload" style="color: #e4e4e7; font-weight: 600; display: none;">* successfully uploaded</div>
-                        <div id="drone-msg-converting" style="color: #a1a1aa; font-weight: 600; display: none; margin-top: 2px;">* converting into PNG...</div>
-                        <div id="drone-msg-converted" style="color: #e4e4e7; font-weight: 600; display: none; margin-top: 2px;">* successfully converted to PNG</div>
-                    </div>
-                </div>
-
-                <div class="ui-field-row" style="margin-top: 6px;">
-                    <span class="ui-sub-label" style="font-weight: 600; white-space: nowrap;">Date Taken:</span>
-                    <input type="date" class="ui-date-input" id="drone-date-input" style="flex: 1;" onchange="updateDroneImageOverlay()">
-                </div>
-
-                <!-- Show Uploaded Drone Overlay Checkbox -->
-                <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 8px; margin-top: 8px;">
-                    <label class="ui-checkbox-label" style="font-weight: 600; color: #e4e4e7;">
-                        <input type="checkbox" id="comp-show-drone-chk" onchange="updateDroneImageOverlay()"> Show Uploaded Drone Overlay
-                    </label>
-                </div>
-
-                <div class="ui-hint-text" id="drone-status-hint" style="margin-top: 4px;">* Upload high-resolution drone orthomosaic image to overlay on active map boundary.</div>
-
-                <!-- Estate Name (for report) -->
-                <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 10px; margin-top: 10px;">
-                    <div class="ui-sub-label" style="font-weight: 600; margin-bottom: 6px;">Estate Name (for report):</div>
-                    <div class="ui-field-row">
-                        <input type="text" id="estate-name-input" class="ui-pill-input" placeholder="">
-                        <input type="checkbox" id="estate-name-lock-chk" class="ui-accent-checkbox" onchange="toggleLockInput(this, 'estate-name-input')" title="Lock / Unlock input">
-                    </div>
-                </div>
-            </div>
-
             <!-- Section 2 Header: Fertilizer Recommendation -->
             <div class="ui-section-title" style="margin-top: 10px;">Fertilizer Recommendation</div>
-
-            <!-- Soil Data Entry -->
-            <div class="ui-card flex-row-between" style="align-items: center;">
-                <div class="ui-card-label">Soil Data Entry</div>
-                <div style="display: flex; gap: 12px; font-size: 13px; margin-top: 4px; color: #e4e4e7;">
-                    <label style="cursor:pointer; display:flex; align-items:center; gap:4px;">
-                        <input type="checkbox" id="chk-eds-inland"> Inland
-                    </label>
-                    <label style="cursor:pointer; display:flex; align-items:center; gap:4px;">
-                        <input type="checkbox" id="chk-eds-alluvial"> Alluvial / Coastal
-                    </label>
-                </div>
-            </div>
 
             <!-- Card 7: Enter Fertilizer Used/ To Use [Ratio] -->
             <div class="ui-card">
@@ -3600,6 +3560,47 @@ function lockEnteredSatDate() {
 
             <!-- Generate Report Button -->
             <button class="ui-generate-report-btn" onclick="viewReportPDF(reportData.soilType || 'Standard')">Generate Report</button>
+
+            <!-- Card 3: Optional Drone Image Upload & Estate Name (Moved under Generate Report) -->
+            <div class="ui-card" id="card-drone-upload" style="margin-top: 12px;">
+                <div class="ui-card-label" style="margin-bottom: 10px;">Optional:</div>
+                
+                <div style="margin-bottom: 8px;">
+                    <div class="ui-field-row-between">
+                        <span class="ui-sub-label">Drone Image (.tif / .png / .jpg):</span>
+                        <button class="ui-upload-outline-btn" onclick="document.getElementById('drone-file-input').click()">Upload Drone</button>
+                        <input type="file" id="drone-file-input" accept="image/*,.tif,.tiff" style="display:none;" onchange="handleDroneImageUpload(event)">
+                    </div>
+                    <div id="drone-status-log" style="font-size: 11px; margin-top: 4px; display: none;">
+                        <div id="drone-msg-upload" style="color: #e4e4e7; font-weight: 600; display: none;">* successfully uploaded</div>
+                        <div id="drone-msg-converting" style="color: #a1a1aa; font-weight: 600; display: none; margin-top: 2px;">* converting into PNG...</div>
+                        <div id="drone-msg-converted" style="color: #e4e4e7; font-weight: 600; display: none; margin-top: 2px;">* successfully converted to PNG</div>
+                    </div>
+                </div>
+
+                <div class="ui-field-row" style="margin-top: 6px;">
+                    <span class="ui-sub-label" style="font-weight: 600; white-space: nowrap;">Date Taken:</span>
+                    <input type="date" class="ui-date-input" id="drone-date-input" style="flex: 1;" onchange="updateDroneImageOverlay()">
+                </div>
+
+                <!-- Show Uploaded Drone Overlay Checkbox -->
+                <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 8px; margin-top: 8px;">
+                    <label class="ui-checkbox-label" style="font-weight: 600; color: #e4e4e7;">
+                        <input type="checkbox" id="comp-show-drone-chk" onchange="updateDroneImageOverlay()"> Show Uploaded Drone Overlay
+                    </label>
+                </div>
+
+                <div class="ui-hint-text" id="drone-status-hint" style="margin-top: 4px;">* Upload high-resolution drone orthomosaic image to overlay on active map boundary.</div>
+
+                <!-- Estate Name (for report) -->
+                <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 10px; margin-top: 10px;">
+                    <div class="ui-sub-label" style="font-weight: 600; margin-bottom: 6px;">Estate Name (for report):</div>
+                    <div class="ui-field-row">
+                        <input type="text" id="estate-name-input" class="ui-pill-input" placeholder="">
+                        <input type="checkbox" id="estate-name-lock-chk" class="ui-accent-checkbox" onchange="toggleLockInput(this, 'estate-name-input')" title="Lock / Unlock input">
+                    </div>
+                </div>
+            </div>
 
             <!-- Note & Disclaimer Section -->
             <div class="ui-footer-notes" style="margin-top: 12px; margin-bottom: 16px; padding: 12px 14px; background: rgba(20, 24, 31, 0.88); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); font-size: 11px; color: #a1a1aa; line-height: 1.5; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;">
@@ -3902,6 +3903,15 @@ function lockEnteredSatDate() {
             refreshCombinedBlockNutrientsAndDisplays();
         };
 
+        window.clearAllSelectedBlocks = function(ev) {
+            if (ev && typeof ev.stopPropagation === 'function') ev.stopPropagation();
+            resetSelectedBlockSlots();
+            selectedBlock = "";
+            updateSelectedBlockReportHint();
+            const currentBlocksData = (typeof REAL_MAPS_DATA !== 'undefined' && REAL_MAPS_DATA && REAL_MAPS_DATA.blocks) ? REAL_MAPS_DATA.blocks : null;
+            updateIdentifiedSoilTypeDisplay(currentBlocksData, null, null);
+        };
+
         function updateSelectedBlockReportHint() {
             const el = document.getElementById('selected-block-report-hint');
             if (!el) return;
@@ -3930,9 +3940,14 @@ function lockEnteredSatDate() {
                     }
                 }
 
+                html += `<div style="margin-top: 6px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">`;
                 if (selectedBlockSlots.length < MAX_SELECTED_BLOCKS) {
-                    html += `<div onclick="window.addAnotherBlockSlot()" style="margin-top: 6px; color: #10b981; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-block; user-select: none;">+ add another block</div>`;
+                    html += `<div onclick="window.addAnotherBlockSlot()" style="color: #10b981; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-block; user-select: none;">+ add another block</div>`;
+                } else {
+                    html += `<div></div>`;
                 }
+                html += `<button type="button" onclick="window.clearAllSelectedBlocks(event)" style="background: rgba(239, 68, 68, 0.14); border: 1px solid rgba(239, 68, 68, 0.38); color: #f87171; font-size: 11.5px; font-weight: 600; padding: 3px 10px; border-radius: 6px; cursor: pointer; user-select: none; transition: all 0.15s ease;" onmouseover="this.style.background='rgba(239,68,68,0.26)';this.style.color='#fca5a5';" onmouseout="this.style.background='rgba(239,68,68,0.14)';this.style.color='#f87171';">Clear All</button>`;
+                html += `</div>`;
 
                 if (filledSlots.length > 1) {
                     html += `<div style="margin-top: 5px; font-size: 12px; line-height: 1.4; color: #a1a1aa; font-weight: 500;">Combined Report Block (${filledSlots.length}/${MAX_SELECTED_BLOCKS}): <strong style="color: #e4e4e7;">${selectedBlock}</strong></div>`;
@@ -4021,11 +4036,22 @@ function lockEnteredSatDate() {
             return pts;
         }
 
+        window._lastMatchedSoilTypes = null;
         function syncSoilDataCardCheckboxes(matchedTypes) {
+            if (matchedTypes !== undefined) {
+                window._lastMatchedSoilTypes = matchedTypes;
+            } else {
+                matchedTypes = window._lastMatchedSoilTypes;
+            }
             const chkInland = document.getElementById('chk-eds-inland');
             const chkAlluvial = document.getElementById('chk-eds-alluvial');
             const lblInland = chkInland ? chkInland.closest('label') : null;
             const lblAlluvial = chkAlluvial ? chkAlluvial.closest('label') : null;
+            const btnInland = document.getElementById('btn-eds-inland');
+            const btnAlluvial = document.getElementById('btn-eds-alluvial');
+            const lblBtnInland = document.getElementById('btn-eds-inland-label');
+            const lblBtnAlluvial = document.getElementById('btn-eds-alluvial-label');
+            const badgeEl = document.getElementById('soil-data-detected-badge');
 
             const setOptionState = (chk, lbl, enabled) => {
                 if (!chk) return;
@@ -4039,20 +4065,59 @@ function lockEnteredSatDate() {
                 }
             };
 
-            const hasInland = matchedTypes && matchedTypes.has('Inland');
-            const hasCoastal = matchedTypes && (matchedTypes.has('Coastal') || matchedTypes.has('Alluvial'));
+            const hasInland = Boolean(matchedTypes && matchedTypes.has('Inland'));
+            const hasCoastal = Boolean(matchedTypes && (matchedTypes.has('Coastal') || matchedTypes.has('Alluvial')));
+            const appliedType = window.appliedEdsSoilType || '';
+            const isInlandApplied = (appliedType === 'Inland');
+            const isCoastalApplied = (appliedType === 'Alluvial' || appliedType === 'Coastal' || appliedType === 'Alluvial / Coastal');
 
             if (hasInland && !hasCoastal) {
                 setOptionState(chkInland, lblInland, true);
                 setOptionState(chkAlluvial, lblAlluvial, false);
                 if (typeof reportData !== 'undefined' && reportData) reportData.soilType = 'Inland';
+                if (btnInland) btnInland.style.display = 'flex';
+                if (btnAlluvial) btnAlluvial.style.display = 'none';
+                if (lblBtnInland) {
+                    lblBtnInland.textContent = isInlandApplied ? '✓ Inland Soil Data Applied (Click to Edit)' : '📝 Enter Inland Soil Data →';
+                }
+                if (badgeEl) {
+                    badgeEl.textContent = isInlandApplied ? '✓ Inland Data Applied' : 'Detected: Inland';
+                    badgeEl.style.background = 'rgba(16, 185, 129, 0.18)';
+                    badgeEl.style.color = '#34d399';
+                    badgeEl.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+                }
             } else if (hasCoastal && !hasInland) {
                 setOptionState(chkInland, lblInland, false);
                 setOptionState(chkAlluvial, lblAlluvial, true);
                 if (typeof reportData !== 'undefined' && reportData) reportData.soilType = 'Alluvial / Coastal';
+                if (btnInland) btnInland.style.display = 'none';
+                if (btnAlluvial) btnAlluvial.style.display = 'flex';
+                if (lblBtnAlluvial) {
+                    lblBtnAlluvial.textContent = isCoastalApplied ? '✓ Alluvial / Coastal Data Applied (Click to Edit)' : '📝 Enter Alluvial / Coastal Soil Data →';
+                }
+                if (badgeEl) {
+                    badgeEl.textContent = isCoastalApplied ? '✓ Coastal Data Applied' : 'Detected: Alluvial / Coastal';
+                    badgeEl.style.background = 'rgba(14, 165, 233, 0.18)';
+                    badgeEl.style.color = '#38bdf8';
+                    badgeEl.style.borderColor = 'rgba(56, 189, 248, 0.4)';
+                }
             } else {
                 setOptionState(chkInland, lblInland, true);
                 setOptionState(chkAlluvial, lblAlluvial, true);
+                if (btnInland) btnInland.style.display = 'flex';
+                if (btnAlluvial) btnAlluvial.style.display = 'flex';
+                if (lblBtnInland) {
+                    lblBtnInland.textContent = isInlandApplied ? '✓ Inland Data Applied' : '📝 Inland Soil Data →';
+                }
+                if (lblBtnAlluvial) {
+                    lblBtnAlluvial.textContent = isCoastalApplied ? '✓ Coastal Data Applied' : '📝 Alluvial / Coastal →';
+                }
+                if (badgeEl) {
+                    badgeEl.textContent = (isInlandApplied || isCoastalApplied) ? `✓ ${appliedType} Applied` : 'Click to Enter Data';
+                    badgeEl.style.background = 'rgba(16, 185, 129, 0.16)';
+                    badgeEl.style.color = '#34d399';
+                    badgeEl.style.borderColor = 'rgba(16, 185, 129, 0.35)';
+                }
             }
         }
 
@@ -6841,6 +6906,9 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
             const chkAlluvial = document.getElementById('chk-eds-alluvial');
             if (chkInland) chkInland.checked = (reportData.soilType === 'Inland');
             if (chkAlluvial) chkAlluvial.checked = (reportData.soilType === 'Alluvial' || reportData.soilType === 'Coastal');
+            if (typeof syncSoilDataCardCheckboxes === 'function') {
+                syncSoilDataCardCheckboxes();
+            }
 
             alert(`Treatment successfully applied to ${selectedBlock}!\nSOA Rate: ${reportData.nRate} kg/palm\nKCI Rate: ${reportData.kRate} kg/palm\nYield Prediction: ${reportData.yieldVal} t/ha/year`);
         }
