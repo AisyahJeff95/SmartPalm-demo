@@ -1,0 +1,75 @@
+===============================================================================
+PALMNEX SMARTPALM & PALMNEXREADS — SUPABASE USER & ACCESS SETUP GUIDE
+Supabase Project: https://dkafzakyeuehvpkkhdsa.supabase.co
+===============================================================================
+
+1. HOW TO CREATE NEW ACCOUNTS IN SUPABASE
+-------------------------------------------------------------------------------
+1) Open Supabase Dashboard -> Authentication -> Users
+2) Click "Add user" -> "Create new user"
+3) Enter the email using the format:
+
+   A) For Palmnex System Owners / Master Admins (You & Your Boss):
+      - admin1@palmnex.com.my
+      - adminpalmnex1@palmnex.com.my, adminpalmnex2@palmnex.com.my, etc.
+      (Or personal emails like aisyah@palmnex.com.my — just set `company_code`
+      to `palmnex` and `access_tier` to `C` in the `profiles` table.)
+
+   B) For Client Company Accounts:
+      - admin<company><number>@palmnex.com.my
+      Examples:
+      - Company Benta    : adminbenta1@palmnex.com.my ... adminbenta10@palmnex.com.my
+      - Company Achijaya : adminachijaya1@palmnex.com.my ... adminachijaya10@palmnex.com.my
+      - Company FGV      : adminfgv1@palmnex.com.my ... adminfgv10@palmnex.com.my
+
+4) Enter their password, make sure "Auto Confirm User?" is CHECKED, and click
+   "Create user".
+   (Note: Deleting a user in Authentication -> Users automatically deletes
+   their row in the `profiles` table.)
+
+
+2. HOW SUPABASE AUTOMATICALLY DETECTS USERNAMES & PRIVATE STORAGE
+-------------------------------------------------------------------------------
+As soon as you create (or rename) a user in Authentication -> Users, the
+database trigger (`on_auth_user_created`) automatically populates their row in:
+   Table Editor -> `profiles`
+
+Each client user is automatically assigned their OWN PRIVATE STORAGE so users
+cannot see each other's uploaded maps or progress (even within the same company):
+
+- `adminbenta1`    -> `company_code`: `benta`    | `storage_group`: `storage_adminbenta1` (Private)
+- `adminbenta2`    -> `company_code`: `benta`    | `storage_group`: `storage_adminbenta2` (Private)
+- `adminachijaya1` -> `company_code`: `achijaya` | `storage_group`: `storage_adminachijaya1` (Private)
+- `adminpalmnex1`  -> `company_code`: `palmnex`  | `storage_group`: `storage_all` (Master Admin - sees ALL)
+- `admin1`         -> `company_code`: `palmnex`  | `storage_group`: `storage_all` (Master Admin - sees ALL)
+
+
+3. HOW TO ASSIGN ACCESS TIER (A, B, OR C) IN TABLE EDITOR
+-------------------------------------------------------------------------------
+1) Go to Supabase Dashboard -> Table Editor -> `profiles`
+2) Find the user row and double-click the `access_tier` column to set `A`, `B`, or `C`:
+
+   * Tier A (`A`) — Standard Only:
+     - Visible & Allowed : Home, Standard Fert
+     - Completely Hidden : Comprehensive Fert, PalmNexReaDS, KPSM System
+
+   * Tier B (`B`) — Comprehensive + PalmNexReaDS:
+     - Visible & Allowed : Home, Comprehensive Fert, PalmNexReaDS (Auto-SSO)
+     - Completely Hidden : Standard Fert, KPSM System
+
+   * Tier C (`C`) — Full Access (Palmnex Admin):
+     - Visible & Allowed : ALL modules (Home, Comprehensive, Standard, PalmNexReaDS, KPSM)
+     - Storage           : `storage_all` (can view all users' maps and progress)
+
+3) (Optional) Double-click `company_name` to customize the company display name
+   shown in the dashboard welcome banner (e.g., "Benta Wawasan Sdn Bhd").
+
+
+4. HOW USERS SIGN IN ON THE WEBSITE (`demo.palmnex.com.my`)
+-------------------------------------------------------------------------------
+- Users do NOT need to register.
+- In the login box, they can type just their plain username (e.g. `adminbenta1`,
+  `adminpalmnex1`, or `admin1`) or full email (`adminbenta1@palmnex.com.my`)
+  and their password.
+- The system automatically appends `@palmnex.com.my` if `@` is omitted.
+===============================================================================
