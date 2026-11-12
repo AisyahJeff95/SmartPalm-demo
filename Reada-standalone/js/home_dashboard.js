@@ -72,17 +72,225 @@
         return window.SMARTPALM_HOME_DATA || { estates: [], boundaries: {}, defaultRunHistory: [] };
     }
 
-    function getEstateByKey(key) {
+    function getCurrentUserContext() {
+        try {
+            const raw = localStorage.getItem('palmnex_user_session');
+            if (!raw) {
+                return {
+                    isMasterAdmin: true,
+                    storageGroup: 'storage_all',
+                    accessTier: 'C',
+                    companyCode: 'palmnex',
+                    companyName: 'Palmnex Sdn Bhd',
+                    username: 'Admin'
+                };
+            }
+            const u = JSON.parse(raw);
+            const username = String(u.username || (u.email ? u.email.split('@')[0] : 'Admin')).trim();
+            const lowerUser = username.toLowerCase();
+            const companyName = String(u.company || u.estate_company || u.company_name || 'Estate Company').trim();
+            const rawCode = String(u.company_code || '').toLowerCase().trim() ||
+                lowerUser.replace(/^admin([a-z0-9_-]+?)(\d*)$/, '$1');
+            const storageGroup = String(
+                u.storage_group ||
+                (typeof window.getCurrentPalmnexStorageGroup === 'function' ? window.getCurrentPalmnexStorageGroup() : '') ||
+                `storage_${lowerUser}`
+            ).toLowerCase().trim();
+            const accessTier = String(
+                u.access_tier ||
+                (typeof window.getCurrentPalmnexAccessTier === 'function' ? window.getCurrentPalmnexAccessTier() : 'A')
+            ).toUpperCase().trim();
+
+            const isMasterAdmin =
+                storageGroup === 'storage_all' ||
+                rawCode === 'palmnex' ||
+                lowerUser === 'admin' ||
+                lowerUser === 'admin1' ||
+                lowerUser.startsWith('adminpalmnex');
+
+            return {
+                isMasterAdmin,
+                storageGroup,
+                accessTier,
+                companyCode: rawCode,
+                companyName,
+                username
+            };
+        } catch (e) {
+            return {
+                isMasterAdmin: true,
+                storageGroup: 'storage_all',
+                accessTier: 'C',
+                companyCode: 'palmnex',
+                companyName: 'Palmnex Sdn Bhd',
+                username: 'Admin'
+            };
+        }
+    }
+
+    function computeGeoJsonCenter(fc) {
+        if (!fc || !Array.isArray(fc.features) || !fc.features.length) return [4.5, 117.8];
+        let minLat = Infinity, maxLat = -Infinity, minLng = Infinity, maxLng = -Infinity;
+        function walk(coords) {
+            if (!coords) return;
+            if (typeof coords[0] === 'number' && typeof coords[1] === 'number') {
+                const lng = Number(coords[0]);
+                const lat = Number(coords[1]);
+                if (isFinite(lat) && isFinite(lng)) {
+                    if (lat < minLat) minLat = lat;
+                    if (lat > maxLat) maxLat = lat;
+                    if (lng < minLng) minLng = lng;
+                    if (lng > maxLng) maxLng = lng;
+                }
+                return;
+            }
+            for (let i = 0; i < coords.length; i++) walk(coords[i]);
+        }
+        fc.features.forEach(f => {
+            if (f && f.geometry) walk(f.geometry.coordinates);
+        });
+        if (!isFinite(minLat) || !isFinite(minLng)) return [4.5, 117.8];
+        return [(minLat + maxLat) / 2, (minLng + maxLng) / 2];
+    }
+
+    function injectCustomMapsIntoHomeData() {
         const data = getHomeData();
-        return data.estates.find(e => e.key === key) || data.estates[0] || null;
+        const customMaps = Array.isArray(window.CUSTOM_SUPABASE_MAPS) ? window.CUSTOM_SUPABASE_MAPS : [];
+        if (!customMaps.length) return;
+
+        customMaps.forEach(m => {
+            if (!m || !m.map_key || !m.geojson) return;
+            const key = m.map_key;
+            data.boundaries[key] = m.geojson;
+
+            const existingEst = data.estates.find(e => e.key === key);
+            const blocksCount = Number(m.total_blocks) || (m.geojson.features ? m.geojson.features.length : 1);
+            const center = computeGeoJsonCenter(m.geojson);
+            const cleanTitle = String(m.map_name || key)
+                .replace(/^Custom:\s*/i, '')
+                .replace(/\s*\(\d+\s*blocks\)\s*$/i, '')
+                .trim();
+
+            if (!existingEst) {
+                data.estates.push({
+                    key,
+                    name: cleanTitle || key,
+                    region: 'Uploaded Boundary',
+                    zone: m.company_code ? m.company_code.toUpperCase() : 'Custom Estate',
+                    totalBlocks: blocksCount,
+                    areaHa: Math.max(15, Math.round(blocksCount * 28.5)),
+                    center,
+                    stressPct: 32.0,
+                    stressRating: 'Moderate',
+                    stressColor: '#eab308',
+                    storageGroup: m.storage_group || '',
+                    companyCode: m.company_code || '',
+                    currentNutrients: { N: 2.51, P: 0.159, K: 1.01, Mg: 0.26, Ca: 0.63, B: 14.2 },
+                    history3Months: [
+                        { month: 'Aug', date: 'Aug 2026', N: 2.47, P: 0.154, K: 0.98, Mg: 0.25, Ca: 0.61, B: 13.8 },
+                        { month: 'Sep', date: 'Sep 2026', N: 2.49, P: 0.157, K: 0.99, Mg: 0.25, Ca: 0.62, B: 14.0 },
+                        { month: 'Oct', date: 'Oct 2026', N: 2.51, P: 0.159, K: 1.01, Mg: 0.26, Ca: 0.63, B: 14.2 }
+                    ]
+                });
+            }
+        });
+    }
+
+    function getVisibleClusters() {
+        injectCustomMapsIntoHomeData();
+        const ctx = getCurrentUserContext();
+        const customMaps = Array.isArray(window.CUSTOM_SUPABASE_MAPS) ? window.CUSTOM_SUPABASE_MAPS : [];
+
+        // Deep-clone base clusters so we can safely attach custom maps per session
+        const baseClusters = ESTATE_OWNER_CLUSTERS.map(c => Object.assign({}, c, {
+            estateKeys: [...c.estateKeys]
+        }));
+
+        if (ctx.isMasterAdmin) {
+            if (customMaps.length > 0) {
+                const customKeys = customMaps.map(m => m.map_key).filter(Boolean);
+                if (customKeys.length > 0) {
+                    baseClusters.push({
+                        id: 'custom_uploaded_all',
+                        filterGroup: 'ALL',
+                        ownerName: 'Custom Uploaded Estate Maps',
+                        dateAdded: 'Live Sync',
+                        lastManaged: 'Today',
+                        regionLabel: 'User Uploaded Boundaries',
+                        estateKeys: customKeys,
+                        estateNamesList: customMaps.map(m => m.map_name || m.map_key).join(', ')
+                    });
+                }
+            }
+            return baseClusters;
+        }
+
+        // Client user isolation: match company_code or company_name to cluster
+        const code = ctx.companyCode.toLowerCase();
+        const compLower = ctx.companyName.toLowerCase();
+
+        let matched = baseClusters.filter(c => {
+            if (code.includes('benta') || compLower.includes('benta')) return c.id === 'benta_wawasan';
+            if (code.includes('fgv') || compLower.includes('fgv')) return c.id === 'fgv';
+            if (code.includes('mpob') || compLower.includes('mpob')) return c.filterGroup === 'mpob';
+            return c.id === code || c.filterGroup === code || c.ownerName.toLowerCase().includes(compLower);
+        });
+
+        // Attach any custom maps belonging to this specific user's storage_group
+        const userCustomMaps = customMaps.filter(m =>
+            !m.storage_group || m.storage_group.toLowerCase() === ctx.storageGroup
+        );
+        const userCustomKeys = userCustomMaps.map(m => m.map_key).filter(Boolean);
+
+        if (matched.length > 0) {
+            if (userCustomKeys.length > 0) {
+                userCustomKeys.forEach(k => {
+                    if (!matched[0].estateKeys.includes(k)) matched[0].estateKeys.push(k);
+                });
+            }
+            return matched;
+        }
+
+        // If this user belongs to a new company not in the 4 default clusters:
+        const fallbackKeys = userCustomKeys.length > 0 ? userCustomKeys : ['seraya'];
+        return [
+            {
+                id: `company_${code || 'client'}`,
+                filterGroup: 'ALL',
+                ownerName: ctx.companyName || `Company (${ctx.username})`,
+                dateAdded: 'Active Account',
+                lastManaged: 'Today',
+                regionLabel: userCustomKeys.length > 0 ? 'Custom Uploaded Boundaries' : 'Assigned Estate Boundary',
+                estateKeys: fallbackKeys,
+                estateNamesList: fallbackKeys.map(k => {
+                    const e = getHomeData().estates.find(x => x.key === k);
+                    return e ? e.name : k;
+                }).join(', ')
+            }
+        ];
+    }
+
+    function getVisibleEstates() {
+        const clusters = getVisibleClusters();
+        const allowedKeys = new Set();
+        clusters.forEach(c => (c.estateKeys || []).forEach(k => allowedKeys.add(k)));
+        const allEstates = getHomeData().estates || [];
+        const filtered = allEstates.filter(e => allowedKeys.has(e.key));
+        return filtered.length > 0 ? filtered : allEstates;
+    }
+
+    function getEstateByKey(key) {
+        const visible = getVisibleEstates();
+        return visible.find(e => e.key === key) || getHomeData().estates.find(e => e.key === key) || visible[0] || null;
     }
 
     function getOwnerClusterById(clusterId) {
-        return ESTATE_OWNER_CLUSTERS.find(c => c.id === clusterId) || ESTATE_OWNER_CLUSTERS[0];
+        const clusters = getVisibleClusters();
+        return clusters.find(c => c.id === clusterId) || clusters[0] || ESTATE_OWNER_CLUSTERS[0];
     }
 
     // -------------------------------------------------------------------------
-    // 1. INITIALIZE LEAFLET DARK MAP & ALL 20 BOUNDARIES
+    // 1. INITIALIZE LEAFLET DARK MAP & ALL BOUNDARIES
     // -------------------------------------------------------------------------
     function initHomeMap() {
         const mapEl = document.getElementById('sp-home-map');
@@ -123,6 +331,7 @@
     function renderAllBoundariesOnMap() {
         if (!homeMap) return;
         const data = getHomeData();
+        const visibleEstates = getVisibleEstates();
         const activeCluster = getOwnerClusterById(selectedOwnerClusterId);
         const activeKeysSet = new Set(activeCluster ? activeCluster.estateKeys : []);
 
@@ -131,7 +340,7 @@
         boundaryLayersByKey = {};
         pinMarkersByKey = {};
 
-        data.estates.forEach(est => {
+        visibleEstates.forEach(est => {
             const fc = data.boundaries[est.key];
             if (!fc || !fc.features || !fc.features.length) return;
 
@@ -173,13 +382,13 @@
 
             boundaryLayersByKey[est.key] = layer;
 
-            // Add floating interactive Estate Pin at estate center so all 20 maps are visible at Malaysia-wide zoom
+            // Add floating interactive Estate Pin at estate center
             if (est.center && est.center.length === 2) {
                 const pinIcon = L.divIcon({
                     className: '',
                     html: `
-                        <div class="sp-estate-pin" style="border-color:${isSelected ? '#ffffff' : 'rgba(255,255,255,0.28)'};background:${isSelected ? 'rgba(42,48,60,0.95)' : 'rgba(14,18,24,0.9)'};">
-                            <span class="sp-estate-pin-dot" style="background:#ffffff;box-shadow:none;"></span>
+                        <div class="sp-estate-pin">
+                            <span class="sp-estate-pin-dot"></span>
                         </div>
                     `,
                     iconSize: [0, 0]
@@ -293,6 +502,9 @@
         document.querySelectorAll('.sp-estate-row-item').forEach(el => {
             el.classList.toggle('active', el.dataset.ownerId === cluster.id);
         });
+
+        // Update Top-Right Company Nutrient & Circular Stress Card
+        renderCompanyStressCard(cluster.id);
     };
 
     window.selectOwnerClusterOrEstate = function (val, zoom) {
@@ -316,7 +528,7 @@
         if (!est) return;
 
         selectedEstateKey = est.key;
-        const ownerCluster = ESTATE_OWNER_CLUSTERS.find(c => c.estateKeys.includes(est.key));
+        const ownerCluster = getVisibleClusters().find(c => c.estateKeys.includes(est.key));
         if (ownerCluster) selectedOwnerClusterId = ownerCluster.id;
 
         // Sync dropdowns
@@ -361,9 +573,346 @@
             el.classList.toggle('active', el.dataset.estateKey === est.key);
         });
 
+        // Update Top-Right Company Nutrient & Circular Stress Card
+        renderCompanyStressCard(selectedOwnerClusterId);
+
         // Update Bottom-Right 3-Month N, P, K, Mg, Ca, B Panel
         render3MonthNutrientPanel(est);
     };
+
+    const COMPANY_BAR_SPECS = [
+        { key: 'N',  label: 'N',  unit: '%',   minScale: 2.30, crit: 2.46,  opt: 2.52,  maxScale: 2.75, dp: 2 },
+        { key: 'P',  label: 'P',  unit: '%',   minScale: 0.140, crit: 0.155, opt: 0.163, maxScale: 0.185, dp: 3 },
+        { key: 'K',  label: 'K',  unit: '%',   minScale: 0.85, crit: 0.98,  opt: 1.02,  maxScale: 1.25, dp: 2 },
+        { key: 'Mg', label: 'Mg', unit: '%',   minScale: 0.21, crit: 0.25,  opt: 0.27,  maxScale: 0.34, dp: 2 },
+        { key: 'B',  label: 'B',  unit: 'ppm', minScale: 11.0, crit: 13.5,  opt: 14.5,  maxScale: 18.0, dp: 1 },
+        { key: 'Ca', label: 'Ca', unit: '%',   minScale: 0.52, crit: 0.61,  opt: 0.64,  maxScale: 0.78, dp: 2 }
+    ];
+
+    function renderCompanyStressCard(clusterId) {
+        const cluster = getOwnerClusterById(clusterId || selectedOwnerClusterId);
+        if (!cluster) return;
+
+        const estates = cluster.estateKeys.map(k => getEstateByKey(k)).filter(Boolean);
+        if (!estates.length) return;
+
+        const nameEl = document.getElementById('sp-comp-card-name');
+        const countEl = document.getElementById('sp-comp-card-count');
+        const barsEl = document.getElementById('sp-comp-nutrient-bars');
+        const ringProgEl = document.getElementById('sp-comp-ring-prog');
+        const pctEl = document.getElementById('sp-comp-stress-pct');
+        const ratingEl = document.getElementById('sp-comp-stress-rating');
+
+        if (nameEl) nameEl.textContent = cluster.ownerName;
+        if (countEl) countEl.textContent = `${estates.length} ${estates.length === 1 ? 'Estate' : 'Estates'}`;
+
+        // Compute average N, P, K, Mg, B, Ca across the chosen estate company with Red - Yellow - Green status colors
+        // and piecewise physiological bar widths so low/deficient averages show a visibly low bar
+        if (barsEl) {
+            barsEl.innerHTML = COMPANY_BAR_SPECS.map(spec => {
+                const avgVal = estates.reduce((sum, e) => {
+                    const cn = e.currentNutrients || {};
+                    return sum + Number(cn[spec.key] || 0);
+                }, 0) / estates.length;
+                const unitStr = spec.unit === 'ppm' ? ' ppm' : '%';
+
+                let barGradient = 'linear-gradient(90deg, #059669 0%, #10b981 100%)'; // Green (Optimal / High)
+                let valColor = '#34d399';
+                let fillPct = 80;
+
+                if (avgVal < spec.crit) {
+                    // Red (Critical / Very Low): bar length is visibly low (18% - 32%)
+                    barGradient = 'linear-gradient(90deg, #dc2626 0%, #ef4444 100%)';
+                    valColor = '#f87171';
+                    const ratio = Math.max(0, Math.min(1, (avgVal - spec.minScale) / Math.max(0.0001, spec.crit - spec.minScale)));
+                    fillPct = 18 + ratio * 14;
+                } else if (avgVal < spec.opt) {
+                    // Yellow (Low / Marginal): bar length is visibly low-moderate (36% - 50%)
+                    barGradient = 'linear-gradient(90deg, #ca8a04 0%, #eab308 100%)';
+                    valColor = '#facc15';
+                    const ratio = Math.max(0, Math.min(1, (avgVal - spec.crit) / Math.max(0.0001, spec.opt - spec.crit)));
+                    fillPct = 36 + ratio * 14;
+                } else {
+                    // Green (Optimal / Sufficient): bar length is high (74% - 94%)
+                    const ratio = Math.max(0, Math.min(1, (avgVal - spec.opt) / Math.max(0.0001, spec.maxScale - spec.opt)));
+                    fillPct = 74 + ratio * 20;
+                }
+
+                return `
+                    <div class="sp-comp-bar-row">
+                        <span class="sp-comp-bar-label">${spec.label}</span>
+                        <div class="sp-comp-bar-track">
+                            <div class="sp-comp-bar-fill" style="width:${fillPct.toFixed(1)}%;background:${barGradient};"></div>
+                        </div>
+                        <span class="sp-comp-bar-val" style="color:${valColor};">${avgVal.toFixed(spec.dp)}${unitStr}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Compute overall stress percentage & rating for the chosen estate company (Red - Yellow - Green)
+        const avgStress = estates.reduce((sum, e) => sum + Number(e.stressPct || 0), 0) / estates.length;
+        let ratingLabel = 'Optimal';
+        let stressColor = '#10b981'; // Green
+        let badgeBg = 'rgba(16, 185, 129, 0.16)';
+        let badgeBorder = 'rgba(16, 185, 129, 0.42)';
+        let badgeText = '#6ee7b7';
+
+        if (avgStress >= 65) {
+            ratingLabel = 'Critical';
+            stressColor = '#ef4444'; // Red
+            badgeBg = 'rgba(239, 68, 68, 0.16)';
+            badgeBorder = 'rgba(239, 68, 68, 0.45)';
+            badgeText = '#fca5a5';
+        } else if (avgStress >= 45) {
+            ratingLabel = 'High';
+            stressColor = '#ef4444'; // Red
+            badgeBg = 'rgba(239, 68, 68, 0.16)';
+            badgeBorder = 'rgba(239, 68, 68, 0.45)';
+            badgeText = '#fca5a5';
+        } else if (avgStress >= 25) {
+            ratingLabel = 'Moderate';
+            stressColor = '#eab308'; // Yellow
+            badgeBg = 'rgba(234, 179, 8, 0.16)';
+            badgeBorder = 'rgba(234, 179, 8, 0.45)';
+            badgeText = '#fde047';
+        }
+
+        const circumference = 2 * Math.PI * 35; // r = 35 -> 219.91
+        const offset = circumference - (Math.max(0, Math.min(100, avgStress)) / 100) * circumference;
+
+        if (ringProgEl) {
+            ringProgEl.setAttribute('stroke-dasharray', circumference.toFixed(2));
+            ringProgEl.setAttribute('stroke-dashoffset', offset.toFixed(2));
+            ringProgEl.style.stroke = stressColor;
+        }
+        if (pctEl) {
+            pctEl.textContent = `${avgStress.toFixed(1)}%`;
+            pctEl.style.color = stressColor;
+        }
+        if (ratingEl) {
+            ratingEl.textContent = ratingLabel;
+            ratingEl.style.background = badgeBg;
+            ratingEl.style.borderColor = badgeBorder;
+            ratingEl.style.color = badgeText;
+        }
+
+        // Sync Estate Selector & Render Geospatial Stress Map under the circular stress chart
+        const geoSel = document.getElementById('sp-comp-geo-select');
+        const activeEstKey = cluster.estateKeys.includes(selectedEstateKey)
+            ? selectedEstateKey
+            : cluster.estateKeys[0];
+        if (geoSel) {
+            geoSel.innerHTML = estates.map(e =>
+                `<option value="${e.key}">${e.name}</option>`
+            ).join('');
+            geoSel.value = activeEstKey;
+        }
+        renderCompanyGeoStressMap(activeEstKey);
+    }
+
+    let compGeoUseRaster = false;
+
+    window.toggleCompGeoRasterMode = function () {
+        compGeoUseRaster = !compGeoUseRaster;
+        const btn = document.getElementById('sp-comp-geo-mode-btn');
+        if (btn) btn.classList.toggle('active', compGeoUseRaster);
+        const geoSel = document.getElementById('sp-comp-geo-select');
+        renderCompanyGeoStressMap((geoSel && geoSel.value) || selectedEstateKey);
+    };
+
+    window.showCompGeoTip = function (text) {
+        const tip = document.getElementById('sp-comp-geo-tooltip');
+        if (!tip) return;
+        if (!text) {
+            tip.style.display = 'none';
+            return;
+        }
+        tip.textContent = text;
+        tip.style.display = 'block';
+    };
+
+    function getCachedRasterForEstate(estateKey) {
+        try {
+            if (window.SmartPalmPredictionCache && typeof window.SmartPalmPredictionCache.listSavedRuns === 'function') {
+                const runs = window.SmartPalmPredictionCache.listSavedRuns(estateKey) || [];
+                for (let i = 0; i < runs.length; i++) {
+                    const r = runs[i];
+                    if (r && r.nutrients && r.nutrients.N && r.nutrients.N.dataUrl) {
+                        return r.nutrients.N.dataUrl;
+                    }
+                }
+            }
+        } catch (e) {}
+        return null;
+    }
+
+    function renderCompanyGeoStressMap(estateKey) {
+        const holder = document.getElementById('sp-comp-geo-svg-holder');
+        const modeBtn = document.getElementById('sp-comp-geo-mode-btn');
+        if (!holder) return;
+
+        const data = getHomeData();
+        const est = getEstateByKey(estateKey);
+        const fc = (data.boundaries && data.boundaries[estateKey]) || null;
+        if (!est || !fc || !fc.features || !fc.features.length) {
+            holder.innerHTML = `<span style="font-size:11px;color:#64748b;">No boundary data</span>`;
+            return;
+        }
+
+        const cachedRasterUrl = getCachedRasterForEstate(estateKey);
+        if (modeBtn) {
+            modeBtn.style.display = cachedRasterUrl ? 'inline-block' : 'none';
+            modeBtn.classList.toggle('active', Boolean(cachedRasterUrl && compGeoUseRaster));
+        }
+
+        if (cachedRasterUrl && compGeoUseRaster) {
+            holder.innerHTML = `
+                <img src="${cachedRasterUrl}" alt="${est.name} 10m Raster" style="max-width:100%;max-height:100%;object-fit:contain;border-radius:6px;" />
+            `;
+            return;
+        }
+
+        // Compute bounding box of all features
+        let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+        function scanCoords(coords, geomType) {
+            if (!coords) return;
+            if (geomType === 'Point') {
+                const x = Number(coords[0]), y = Number(coords[1]);
+                if (isFinite(x) && isFinite(y)) {
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                }
+                return;
+            }
+            if (typeof coords[0] === 'number' && typeof coords[1] === 'number') {
+                const x = Number(coords[0]), y = Number(coords[1]);
+                if (isFinite(x) && isFinite(y)) {
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                }
+                return;
+            }
+            for (let i = 0; i < coords.length; i++) {
+                scanCoords(coords[i], geomType);
+            }
+        }
+
+        // Filter out outer estate wrapper boundary if sub-blocks exist (e.g. Lahad Datu)
+        const rawFeatures = fc.features.filter(f => f && f.geometry);
+        const features = rawFeatures.length > 2
+            ? rawFeatures.filter(f => !/Estate Boundary/i.test((f.properties && f.properties.name) || ''))
+            : rawFeatures;
+
+        features.forEach(f => scanCoords(f.geometry.coordinates, f.geometry.type));
+        if (!isFinite(minX) || !isFinite(minY)) return;
+
+        const svgW = 240;
+        const svgH = 122;
+        const pad = 6;
+        const spanX = Math.max(0.0001, maxX - minX);
+        const spanY = Math.max(0.0001, maxY - minY);
+        const scale = Math.min((svgW - pad * 2) / spanX, (svgH - pad * 2) / spanY);
+        const offsetX = (svgW - spanX * scale) / 2;
+        const offsetY = (svgH - spanY * scale) / 2;
+
+        const projX = (lng) => ( offsetX + (lng - minX) * scale ).toFixed(1);
+        const projY = (lat) => ( svgH - offsetY - (lat - minY) * scale ).toFixed(1);
+
+        // Score each block so stressed areas (Red = High, Yellow = Moderate, Green = Optimal) reflect actual foliar deficiency + estate stressPct
+        const scored = features.map((f, idx) => {
+            const p = f.properties || {};
+            let deficiencyScore = 0;
+            if (typeof p.N_mean === 'number') {
+                deficiencyScore =
+                    (2.55 - Number(p.N_mean || 2.5)) * 40 +
+                    (1.05 - Number(p.K_mean || 1.0)) * 35 +
+                    (0.165 - Number(p.P_mean || 0.16)) * 120 +
+                    (14.0 - Number(p.B_mean || 13.5)) * 1.5;
+            } else {
+                // Deterministic spatial/index score when block nutrient properties are not embedded
+                deficiencyScore = Math.sin(idx * 1.93 + estateKey.length * 0.7) * 10 + Math.cos(idx * 0.71) * 6;
+            }
+            return { idx, feature: f, score: deficiencyScore };
+        });
+
+        const sortedByStress = [...scored].sort((a, b) => b.score - a.score);
+        const total = Math.max(1, sortedByStress.length);
+        const stressRatio = Math.max(0.12, Math.min(0.88, Number(est.stressPct || 35) / 100));
+        const redCount = Math.max(1, Math.round(total * stressRatio * 0.44));
+        const yellowCount = Math.max(1, Math.round(total * stressRatio * 0.56));
+
+        const colorByIdx = {};
+        const statusByIdx = {};
+        sortedByStress.forEach((item, rank) => {
+            if (rank < redCount) {
+                colorByIdx[item.idx] = '#ef4444';
+                statusByIdx[item.idx] = 'High Stress';
+            } else if (rank < redCount + yellowCount) {
+                colorByIdx[item.idx] = '#eab308';
+                statusByIdx[item.idx] = 'Moderate Stress';
+            } else {
+                colorByIdx[item.idx] = '#475569';
+                statusByIdx[item.idx] = 'Normal';
+            }
+        });
+
+        function ringToPath(ring) {
+            if (!ring || !ring.length) return '';
+            let d = '';
+            for (let i = 0; i < ring.length; i++) {
+                const pt = ring[i];
+                if (typeof pt[0] !== 'number') continue;
+                d += (i === 0 ? 'M' : 'L') + projX(pt[0]) + ',' + projY(pt[1]);
+            }
+            return d + 'Z';
+        }
+
+        // Cap point features if an estate has thousands of points (like geolocation_ish)
+        const step = features.length > 350 ? Math.ceil(features.length / 350) : 1;
+        const svgShapes = [];
+
+        for (let i = 0; i < features.length; i += step) {
+            const f = features[i];
+            const geom = f.geometry;
+            const fill = colorByIdx[i] || '#475569';
+            const status = statusByIdx[i] || 'Normal';
+            const bname = ((f.properties && f.properties.name) || `Block ${i + 1}`).replace(/'/g, '');
+            const tipText = `${bname} • ${status}`;
+
+            if (geom.type === 'Point') {
+                const cx = projX(geom.coordinates[0]);
+                const cy = projY(geom.coordinates[1]);
+                svgShapes.push(
+                    `<circle cx="${cx}" cy="${cy}" r="2.2" fill="${fill}" opacity="0.9" onmouseenter="showCompGeoTip('${tipText}')" onmouseleave="showCompGeoTip('')" />`
+                );
+            } else if (geom.type === 'Polygon') {
+                const d = geom.coordinates.map(ringToPath).join(' ');
+                if (d) {
+                    svgShapes.push(
+                        `<path d="${d}" fill="${fill}" fill-opacity="0.88" stroke="#0b0f16" stroke-width="0.7" onmouseenter="showCompGeoTip('${tipText}')" onmouseleave="showCompGeoTip('')" />`
+                    );
+                }
+            } else if (geom.type === 'MultiPolygon') {
+                const d = geom.coordinates.map(poly => poly.map(ringToPath).join(' ')).join(' ');
+                if (d) {
+                    svgShapes.push(
+                        `<path d="${d}" fill="${fill}" fill-opacity="0.88" stroke="#0b0f16" stroke-width="0.7" onmouseenter="showCompGeoTip('${tipText}')" onmouseleave="showCompGeoTip('')" />`
+                    );
+                }
+            }
+        }
+
+        holder.innerHTML = `
+            <svg viewBox="0 0 ${svgW} ${svgH}" preserveAspectRatio="xMidYMid meet">
+                ${svgShapes.join('')}
+            </svg>
+        `;
+    }
 
     function updateMapFocusCallout(est) {
         const nameEl = document.getElementById('sp-focus-estate-name');
@@ -403,19 +952,39 @@
     };
 
     function renderLeftEstateDirectory() {
-        const data = getHomeData();
+        const visibleClusters = getVisibleClusters();
+        const visibleEstates = getVisibleEstates();
+        const ctx = getCurrentUserContext();
+        const totalCompanyEl = document.getElementById('sp-kpi-company-count');
+        const totalCompanySubEl = document.getElementById('sp-kpi-company-subtitle');
         const totalOnlineEl = document.getElementById('sp-kpi-online-count');
         const totalSubtitleEl = document.getElementById('sp-kpi-total-subtitle');
         const listEl = document.getElementById('sp-left-estate-list');
 
-        const totalBlocks = data.estates.reduce((acc, e) => acc + e.totalBlocks, 0);
+        const totalBlocks = visibleEstates.reduce((acc, e) => acc + (e.totalBlocks || 0), 0);
+        const totalAreaHa = Math.round(visibleEstates.reduce((acc, e) => acc + (e.areaHa || 0), 0));
 
-        if (totalOnlineEl) totalOnlineEl.textContent = data.estates.length;
-        if (totalSubtitleEl) totalSubtitleEl.textContent = `${data.estates.length} Maps • ${totalBlocks.toLocaleString()} Blocks`;
+        if (totalCompanyEl) totalCompanyEl.textContent = visibleClusters.length;
+        if (totalCompanySubEl) totalCompanySubEl.textContent = `${visibleClusters.length} ${visibleClusters.length === 1 ? 'Company' : 'Companies'} • ${totalAreaHa.toLocaleString()} Ha`;
+        if (totalOnlineEl) totalOnlineEl.textContent = visibleEstates.length;
+        if (totalSubtitleEl) totalSubtitleEl.textContent = `${visibleEstates.length} ${visibleEstates.length === 1 ? 'Map' : 'Maps'} • ${totalBlocks.toLocaleString()} Blocks`;
+
+        // Hide region filter chips that don't belong to a non-admin client user
+        document.querySelectorAll('.sp-region-chip').forEach(chip => {
+            const oc = chip.getAttribute('onclick') || '';
+            if (ctx.isMasterAdmin) {
+                chip.style.display = '';
+            } else {
+                const isAll = oc.includes("'ALL'");
+                const matchGroup = visibleClusters.some(c => oc.includes(`'${c.filterGroup}'`));
+                chip.style.display = (isAll || matchGroup) ? '' : 'none';
+            }
+        });
 
         if (!listEl) return;
 
-        const filteredClusters = ESTATE_OWNER_CLUSTERS.filter(c => {
+        const filteredClusters = visibleClusters.filter(c => {
+            if (!ctx.isMasterAdmin) return true;
             if (activeRegionFilter === 'ALL') return true;
             return c.filterGroup === activeRegionFilter;
         });
@@ -450,13 +1019,13 @@
     // 4. BOTTOM-LEFT PANEL: STRESS LEVEL FOR ALL ESTATES & HIGHEST STRESS RATINGS
     // -------------------------------------------------------------------------
     function renderStressLeaderboardPanel() {
-        const data = getHomeData();
+        const visibleEstates = getVisibleEstates();
         const barsContainer = document.getElementById('sp-stress-bars-container');
         const highestValEl = document.getElementById('sp-stress-highest-val');
         const highestTagEl = document.getElementById('sp-stress-highest-estate-tag');
 
-        if (!data.estates.length) return;
-        const sorted = [...data.estates].sort((a, b) => b.stressPct - a.stressPct);
+        if (!visibleEstates.length) return;
+        const sorted = [...visibleEstates].sort((a, b) => b.stressPct - a.stressPct);
         const highest = sorted[0];
 
         if (highestValEl && highest) {
@@ -616,17 +1185,35 @@
     // -------------------------------------------------------------------------
     // 6. RIGHT PANEL: WEEKLY QUOTA, FERTILIZER SCHEDULE & RUN HISTORY NOTIFICATIONS
     // -------------------------------------------------------------------------
+    function getSchedulesStorageKey() {
+        const ctx = getCurrentUserContext();
+        return ctx.isMasterAdmin ? LS_SCHEDULES_KEY : `${LS_SCHEDULES_KEY}_${ctx.storageGroup}`;
+    }
+
+    function getTargetPredictionModuleHref() {
+        const ctx = getCurrentUserContext();
+        return ctx.accessTier === 'A' ? 'standard.html' : 'comprehensive.html';
+    }
+
     function loadSchedules() {
+        const storageKey = getSchedulesStorageKey();
+        const visibleEstates = getVisibleEstates();
+        const visibleKeys = new Set(visibleEstates.map(e => e.key));
         try {
-            const raw = localStorage.getItem(LS_SCHEDULES_KEY);
+            const raw = localStorage.getItem(storageKey);
             if (raw) {
                 const parsed = JSON.parse(raw);
-                if (Array.isArray(parsed) && parsed.length) return parsed;
+                if (Array.isArray(parsed)) {
+                    const ctx = getCurrentUserContext();
+                    return ctx.isMasterAdmin
+                        ? parsed
+                        : parsed.filter(s => !s.estateKey || visibleKeys.has(s.estateKey));
+                }
             }
         } catch (e) {}
 
         // Default realistic schedules demonstrating how Fertilizer Application -> Next Prediction Notification works
-        const defaults = [
+        const allDefaults = [
             {
                 id: 'sched-1',
                 estateKey: 'seraya',
@@ -646,13 +1233,17 @@
                 nextPredDate: '2026-10-30'
             }
         ];
-        localStorage.setItem(LS_SCHEDULES_KEY, JSON.stringify(defaults));
+        const ctx = getCurrentUserContext();
+        const defaults = ctx.isMasterAdmin
+            ? allDefaults
+            : allDefaults.filter(s => visibleKeys.has(s.estateKey));
+        localStorage.setItem(storageKey, JSON.stringify(defaults));
         return defaults;
     }
 
     window.spSaveFertilizerSchedule = function (event) {
         if (event) event.preventDefault();
-        const estKey = document.getElementById('sp-sched-estate')?.value || 'seraya';
+        const estKey = document.getElementById('sp-sched-estate')?.value || selectedEstateKey || 'seraya';
         const fertDate = document.getElementById('sp-sched-date')?.value;
         const intervalDays = parseInt(document.getElementById('sp-sched-interval')?.value || '45', 10);
         const fertType = document.getElementById('sp-sched-type')?.value || 'NPK Compound Application';
@@ -673,7 +1264,7 @@
             intervalDays,
             nextPredDate
         });
-        localStorage.setItem(LS_SCHEDULES_KEY, JSON.stringify(schedules.slice(0, 12)));
+        localStorage.setItem(getSchedulesStorageKey(), JSON.stringify(schedules.slice(0, 12)));
 
         const builder = document.getElementById('sp-schedule-builder-form');
         if (builder) builder.style.display = 'none';
@@ -682,32 +1273,71 @@
 
     window.spDeleteSchedule = function (id) {
         const schedules = loadSchedules().filter(s => s.id !== id);
-        localStorage.setItem(LS_SCHEDULES_KEY, JSON.stringify(schedules));
+        localStorage.setItem(getSchedulesStorageKey(), JSON.stringify(schedules));
         renderRightNotificationsAndSchedules();
     };
 
+    function resolveEstateBlockCount(shpKey, estateName, formattedName) {
+        const estates = (getHomeData() && Array.isArray(getHomeData().estates)) ? getHomeData().estates : [];
+        const candidates = [shpKey, estateName, formattedName]
+            .map(s => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, ''))
+            .filter(Boolean);
+        for (const c of candidates) {
+            const match = estates.find(e => {
+                const ek = String(e.key || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                const en = String(e.name || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                return ek === c || en === c || en.includes(c) || c.includes(ek);
+            });
+            if (match && match.totalBlocks) return match.totalBlocks;
+        }
+        return null;
+    }
+
     function getCombinedRunHistory() {
-        const data = getHomeData();
         const liveRuns = Array.isArray(window.PREDICTION_RUN_HISTORY) ? window.PREDICTION_RUN_HISTORY : [];
-        let lsRuns = [];
+        let lsRunsV2 = [];
+        let lsRunsV1 = [];
         try {
-            const raw = localStorage.getItem('smartpalm_prediction_history_v1');
-            if (raw) lsRuns = JSON.parse(raw);
+            const rawV2 = localStorage.getItem('smartpalm_prediction_history_meta_v2');
+            if (rawV2) lsRunsV2 = JSON.parse(rawV2);
+        } catch (e) {}
+        try {
+            const rawV1 = localStorage.getItem('smartpalm_prediction_history_v1');
+            if (rawV1) lsRunsV1 = JSON.parse(rawV1);
         } catch (e) {}
 
         const merged = [];
         const seen = new Set();
 
-        [...liveRuns, ...lsRuns, ...(data.defaultRunHistory || [])].forEach(r => {
-            const key = r.folderName || r.folder_name || `${r.estateName}_${r.timestamp}`;
+        [...liveRuns, ...lsRunsV2, ...lsRunsV1].forEach(r => {
+            if (!r) return;
+            const key = r.folderName || r.folder_name || (r.estateName && r.timestamp ? `${r.estateName}_${r.timestamp}` : '');
             if (!key || seen.has(key)) return;
             seen.add(key);
+
+            const shpKey = r.shpKey || r.shp_key || r.estate_key || '';
+            const rawEstateName = r.estateName || r.estate_name || shpKey || key;
+            const formattedName = formatEstateRunName(rawEstateName);
+
+            let acqDate = r.targetDate || r.target_date || r.acquisitionDate || r.acquisition_date || '';
+            if (!acqDate) {
+                const dm = String(key).match(/(\d{4}-\d{2}-\d{2})/);
+                if (dm) acqDate = dm[1];
+            }
+
+            const summaryBlocks = (r.blockSummary && r.blockSummary.blocks)
+                ? Object.keys(r.blockSummary.blocks).length
+                : ((r.block_summary && r.block_summary.blocks) ? Object.keys(r.block_summary.blocks).length : null);
+            const totalBlocks = r.totalBlocks || r.total_blocks || summaryBlocks || resolveEstateBlockCount(shpKey, rawEstateName, formattedName) || null;
+
             merged.push({
                 folderName: key,
-                estateName: r.estateName || r.estate_name || r.shpKey || 'Estate Run',
-                acquisitionDate: r.acquisitionDate || r.acquisition_date || '2026-10-07',
-                timestamp: r.timestamp || r.createdAt || '2026-10-14',
-                totalBlocks: r.totalBlocks || r.total_blocks || 55
+                shpKey: shpKey || rawEstateName,
+                estateName: rawEstateName,
+                acquisitionDate: acqDate,
+                timestamp: r.timestamp || r.createdAt || r.created_at || '',
+                mtime: r.mtime || 0,
+                totalBlocks: totalBlocks
             });
         });
         return merged;
@@ -716,10 +1346,10 @@
     function renderRightNotificationsAndSchedules() {
         const runs = getCombinedRunHistory();
         const schedules = loadSchedules();
+        const targetHref = getTargetPredictionModuleHref();
         const maxWeekly = parseInt(localStorage.getItem(LS_QUOTA_MAX_KEY) || '20', 10);
 
-        // Calculate runs used this week (minimum 6 for realistic demo feedback if cache is fresh)
-        const usedThisWeek = Math.min(maxWeekly, Math.max(6, Math.min(runs.length, 6)));
+        const usedThisWeek = Math.min(maxWeekly, runs.length);
         const leftThisWeek = Math.max(0, maxWeekly - usedThisWeek);
         const pctLeft = Math.round((leftThisWeek / maxWeekly) * 100);
 
@@ -729,7 +1359,7 @@
 
         if (quotaCountEl) quotaCountEl.textContent = `${leftThisWeek} / ${maxWeekly} Runs Left`;
         if (quotaFillEl) quotaFillEl.style.width = `${pctLeft}%`;
-        if (quotaUsedEl) quotaUsedEl.textContent = `${usedThisWeek} prediction runs executed this week`;
+        if (quotaUsedEl) quotaUsedEl.textContent = `${usedThisWeek} prediction runs executed`;
 
         // Render Scheduled Fertilizer Prediction Reminders
         const schedListEl = document.getElementById('sp-scheduled-runs-list');
@@ -763,7 +1393,7 @@
                         </div>
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:4px;">
                             <span style="font-size:10px;color:#cbd5e1;">+${s.intervalDays}d Leaf 17 uptake check</span>
-                            <a href="comprehensive.html" style="font-size:10.5px;font-weight:700;color:#34d399;text-decoration:none;">Run Prediction →</a>
+                            <a href="${targetHref}" style="font-size:10.5px;font-weight:700;color:#34d399;text-decoration:none;">Run Prediction →</a>
                         </div>
                     </div>
                 `;
@@ -774,28 +1404,404 @@
         const historyListEl = document.getElementById('sp-run-history-list');
         if (historyListEl) {
             const topRuns = runs.slice(0, 8);
-            historyListEl.innerHTML = topRuns.map((r, i) => {
-                const cleanEstate = String(r.estateName).replace(/_/g, ' ');
-                const timeLabel = String(r.timestamp).replace('_', ' ');
-                return `
-                    <div class="sp-alert-card neutral" style="cursor:pointer;" onclick="location.href='comprehensive.html'">
-                        <div class="sp-alert-top">
-                            <span class="sp-alert-badge" style="color:#34d399;">✓ ${cleanEstate.toUpperCase()}</span>
-                            <span class="sp-alert-time">${i === 0 ? 'Latest Run' : timeLabel.slice(0, 10)}</span>
-                        </div>
-                        <div class="sp-alert-desc">
-                            Sentinel-2 10m N, P, K, Mg, Ca, B prediction completed • <b>${r.totalBlocks || 55} blocks</b> analyzed (Image: ${r.acquisitionDate}).
-                        </div>
+            if (topRuns.length === 0) {
+                historyListEl.innerHTML = `
+                    <div class="sp-alert-card neutral" style="color:#94a3b8;font-size:12px;">
+                        No completed prediction runs recorded yet.
                     </div>
                 `;
-            }).join('');
+            } else {
+                historyListEl.innerHTML = topRuns.map((r, i) => {
+                    const cleanEstate = formatEstateRunName(r.estateName);
+                    const { timeStr, dateStr } = parseRunTimestamp(r.timestamp, r.acquisitionDate, r.folderName, r.mtime);
+                    const blkText = r.totalBlocks ? `<b>${r.totalBlocks} blocks</b> analyzed • ` : '';
+                    const imgText = r.acquisitionDate ? `Image: ${r.acquisitionDate}` : `Saved in outputs/${r.folderName}`;
+                    return `
+                        <div class="sp-alert-card neutral" style="cursor:pointer;" onclick="location.href='${targetHref}'">
+                            <div class="sp-alert-top">
+                                <span class="sp-alert-badge" style="color:#34d399;">✓ ${cleanEstate.toUpperCase()}</span>
+                                <span class="sp-alert-time">${i === 0 ? 'Latest Run' : `${dateStr}, ${timeStr}`}</span>
+                            </div>
+                            <div class="sp-alert-desc">
+                                Sentinel-2 10m N, P, K, Mg, Ca, B prediction completed • ${blkText}${imgText}.
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
         }
 
         const badgeCount = document.getElementById('sp-top-notif-badge');
         if (badgeCount) {
             badgeCount.textContent = schedules.length + Math.min(3, runs.length);
         }
+
+        renderTopNotifDropdown();
+        renderFullNotificationsPage();
     }
+    window.renderRightNotificationsAndSchedules = renderRightNotificationsAndSchedules;
+
+    // -------------------------------------------------------------------------
+    // 6B. TOP-RIGHT NOTIFICATION DROPDOWN & FULL NOTIFICATIONS PAGE ENGINE
+    // -------------------------------------------------------------------------
+    const LS_READ_NOTIFS_KEY = 'smartpalm_read_notifs_v1';
+
+    function getReadNotifSet() {
+        try {
+            const raw = localStorage.getItem(LS_READ_NOTIFS_KEY);
+            if (raw) return new Set(JSON.parse(raw));
+        } catch (e) {}
+        return new Set();
+    }
+
+    function saveReadNotifSet(setObj) {
+        try {
+            localStorage.setItem(LS_READ_NOTIFS_KEY, JSON.stringify(Array.from(setObj)));
+        } catch (e) {}
+    }
+
+    function formatEstateRunName(rawName) {
+        const s = String(rawName || '').trim();
+        const lower = s.toLowerCase().replace(/[^a-z0-9]/g, '');
+        const map = {
+            ssb: 'Benta Wawasan (SSB)',
+            sekinchan1poly: 'Sekinchan 1 Poly',
+            sawitkinabalu: 'Sawit Kinabalu Estate',
+            lahaddatu: 'Lahad Datu Estate',
+            lahaddatu2023: 'Lahad Datu Estate',
+            lahaddatuwithblockboundary: 'Lahad Datu Estate',
+            lahaddatucombined: 'Lahad Datu Estate',
+            selanganbatu: 'Selangan Batu Estate',
+            ramin: 'Ramin Estate',
+            merbau: 'Merbau Estate',
+            menggaris: 'Menggaris Estate',
+            keruing: 'Keruing Estate',
+            kapur: 'Kapur Estate',
+            gaharu: 'Gaharu Estate',
+            binuang: 'Binuang Estate',
+            belian: 'Belian Estate',
+            agathis: 'Agathis Estate',
+            seraya: 'Seraya Estate',
+            serayawithblockboundary: 'Seraya Estate',
+            jengka24: 'Ladang Jengka 24',
+            jengka25: 'Ladang Jengka 25',
+            kotagelanggi5: 'Ladang Kota Gelanggi 5',
+            ppptar: 'Ladang PPPTAR'
+        };
+        if (map[lower]) return map[lower];
+        const found = getHomeData().estates.find(e => e.key.toLowerCase() === lower || e.name.toLowerCase() === s.toLowerCase());
+        if (found) return found.name;
+        return s.replace(/_/g, ' ');
+    }
+
+    function formatDateObjToMYT(dateObj) {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        // Convert to Malaysia Time (UTC+8)
+        const mytMs = dateObj.getTime() + (8 * 60 * 60 * 1000);
+        const myt = new Date(mytMs);
+        const year = myt.getUTCFullYear();
+        const monIdx = myt.getUTCMonth();
+        const day = String(myt.getUTCDate()).padStart(2, '0');
+        const hh = String(myt.getUTCHours()).padStart(2, '0');
+        const mm = String(myt.getUTCMinutes()).padStart(2, '0');
+        return {
+            timeStr: `${hh}:${mm}`,
+            dateStr: `${day} ${months[monIdx]} ${year}`
+        };
+    }
+
+    function parseRunTimestamp(tsStr, fallbackDate, folderName, mtime) {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        // 1. Check folderName suffix from HuggingFace server: predictions_<Estate>_YYYY-MM-DD_HHMMSS (UTC)
+        const fnMatch = String(folderName || '').match(/(\d{4})-(\d{2})-(\d{2})_(\d{2})(\d{2})(\d{2})$/);
+        if (fnMatch) {
+            const utcDate = new Date(Date.UTC(
+                parseInt(fnMatch[1], 10),
+                parseInt(fnMatch[2], 10) - 1,
+                parseInt(fnMatch[3], 10),
+                parseInt(fnMatch[4], 10),
+                parseInt(fnMatch[5], 10),
+                parseInt(fnMatch[6], 10)
+            ));
+            if (!isNaN(utcDate.getTime())) {
+                return formatDateObjToMYT(utcDate);
+            }
+        }
+
+        // 2. Check ISO timestamp or YYYY-MM-DD_HH:MM:SS
+        const raw = String(tsStr || '').trim();
+        if (raw) {
+            const parsedIso = new Date(raw);
+            if (!isNaN(parsedIso.getTime()) && (raw.endsWith('Z') || raw.includes('+'))) {
+                return formatDateObjToMYT(parsedIso);
+            }
+            const m = raw.match(/^(\d{4})-(\d{2})-(\d{2})[_T\s](\d{2}):?(\d{2})(?::?(\d{2}))?/);
+            if (m) {
+                // Server /api/prediction_history returns UTC timestamp in YYYY-MM-DD HH:MM:SS
+                const utcDate = new Date(Date.UTC(
+                    parseInt(m[1], 10),
+                    parseInt(m[2], 10) - 1,
+                    parseInt(m[3], 10),
+                    parseInt(m[4], 10),
+                    parseInt(m[5], 10),
+                    parseInt(m[6] || '0', 10)
+                ));
+                if (!isNaN(utcDate.getTime())) {
+                    return formatDateObjToMYT(utcDate);
+                }
+            }
+        }
+
+        // 3. Check mtime (epoch seconds)
+        if (mtime && Number(mtime) > 1000000000) {
+            const d = new Date(Number(mtime) * 1000);
+            if (!isNaN(d.getTime())) {
+                return formatDateObjToMYT(d);
+            }
+        }
+
+        // 4. Fallback YYYY-MM-DD
+        const dMatch = (raw || String(fallbackDate || '')).match(/^(\d{4})-(\d{2})-(\d{2})/);
+        if (dMatch) {
+            const monIdx = Math.max(0, Math.min(11, parseInt(dMatch[2], 10) - 1));
+            return {
+                timeStr: '—',
+                dateStr: `${dMatch[3]} ${months[monIdx]} ${dMatch[1]}`
+            };
+        }
+        return { timeStr: '—', dateStr: 'Recent Run' };
+    }
+
+    window.getSmartPalmNotifications = function () {
+        const runs = getCombinedRunHistory();
+        const readSet = getReadNotifSet();
+        const items = [];
+
+        // 1. Profile update notification
+        items.push({
+            id: 'notif-profile-update',
+            type: 'profile',
+            unread: !readSet.has('notif-profile-update'),
+            htmlText: `<b>Please update your profile</b>`,
+            plainText: 'Please update your profile',
+            subText: 'Account Settings • Complete your organization & contact profile',
+            timeAgo: 'Action Required',
+            whereStr: 'Account Profile',
+            href: 'notifications.html?id=notif-profile-update'
+        });
+
+        // 2. Completed prediction run notifications (true history only)
+        runs.forEach((r, idx) => {
+            const id = `notif-run-${r.folderName}`;
+            const estateLabel = formatEstateRunName(r.estateName);
+            const { timeStr, dateStr } = parseRunTimestamp(r.timestamp, r.acquisitionDate, r.folderName, r.mtime);
+            const whereStr = `outputs/${r.folderName}`;
+            const isDefaultUnread = idx < 4 && !readSet.has(id);
+            const blkCount = r.totalBlocks || resolveEstateBlockCount(r.shpKey, r.estateName, estateLabel);
+            const acqDate = r.acquisitionDate || dateStr;
+            const blkPart = blkCount ? `${blkCount} blocks • ` : '';
+            const sentinelPart = acqDate ? `Sentinel-2 (${acqDate})` : 'Sentinel-2 10m';
+
+            items.push({
+                id,
+                type: 'run',
+                unread: isDefaultUnread,
+                estateLabel,
+                shpKey: r.shpKey || r.estateName || '',
+                timeStr,
+                dateStr,
+                whereStr,
+                folderName: r.folderName,
+                totalBlocks: blkCount,
+                acquisitionDate: acqDate,
+                htmlText: `Run for <b>${estateLabel}</b> completed at <b>${timeStr}</b>, <b>${dateStr}</b>, saved in <b>${whereStr}</b>`,
+                plainText: `Run for ${estateLabel} completed at ${timeStr}, ${dateStr}, saved in ${whereStr}`,
+                subText: `${blkPart}${sentinelPart}`,
+                timeAgo: `${dateStr}, ${timeStr}`,
+                href: `notifications.html?id=${encodeURIComponent(id)}`
+            });
+        });
+
+        return items;
+    };
+
+    function renderTopNotifDropdown() {
+        const listEl = document.getElementById('sp-top-notif-dropdown-list');
+        const badgeEl = document.getElementById('sp-top-notif-badge');
+        const pillEl = document.getElementById('sp-notif-dd-unread-pill');
+        const items = window.getSmartPalmNotifications();
+        const unreadCount = items.filter(i => i.unread).length;
+
+        if (badgeEl) {
+            badgeEl.textContent = unreadCount;
+            badgeEl.style.display = unreadCount > 0 ? 'flex' : 'none';
+        }
+        if (pillEl) {
+            pillEl.textContent = `${unreadCount} New`;
+        }
+        if (!listEl) return;
+
+        // Show top 6 notifications inside the compact right-side dropdown
+        const dropdownItems = items.slice(0, 6);
+        listEl.innerHTML = dropdownItems.map(item => {
+            const iconSvg = item.type === 'profile'
+                ? `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`
+                : `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>`;
+
+            return `
+                <a href="${item.href}" class="sp-notif-dd-item ${item.unread ? 'unread' : ''}" onclick="handleNotifItemClick(event, '${item.id}', '${item.href}')">
+                    <div class="sp-notif-dd-icon ${item.type}">
+                        ${iconSvg}
+                    </div>
+                    <div class="sp-notif-dd-body">
+                        <div class="sp-notif-dd-text">${item.htmlText}</div>
+                        <div class="sp-notif-dd-sub">
+                            <span>${item.subText}</span>
+                        </div>
+                    </div>
+                    ${item.unread ? '<span class="sp-notif-dd-dot" title="Unread"></span>' : ''}
+                </a>
+            `;
+        }).join('');
+    }
+    window.renderTopNotifDropdown = renderTopNotifDropdown;
+
+    window.toggleTopNotifDropdown = function (event) {
+        if (event) event.stopPropagation();
+        const dd = document.getElementById('sp-top-notif-dropdown');
+        if (!dd) return;
+        const isOpen = dd.classList.toggle('open');
+        if (isOpen) {
+            renderTopNotifDropdown();
+        }
+    };
+
+    window.handleNotifItemClick = function (event, notifId, targetHref) {
+        const readSet = getReadNotifSet();
+        readSet.add(notifId);
+        saveReadNotifSet(readSet);
+        renderTopNotifDropdown();
+        if (targetHref) {
+            window.location.href = targetHref;
+        }
+    };
+
+    window.markAllNotificationsRead = function (event) {
+        if (event) event.stopPropagation();
+        const items = window.getSmartPalmNotifications();
+        const readSet = getReadNotifSet();
+        items.forEach(i => readSet.add(i.id));
+        saveReadNotifSet(readSet);
+        renderTopNotifDropdown();
+        renderFullNotificationsPage();
+    };
+
+    const initialUrlFilter = (typeof window !== 'undefined' && window.location && window.location.search)
+        ? new URLSearchParams(window.location.search).get('filter')
+        : null;
+    let activeNotifPageFilter = (initialUrlFilter === 'runs') ? 'runs' : 'all';
+    window._activeNotifFilter = activeNotifPageFilter;
+
+    window.filterFullNotificationsPage = function (filterMode, btnEl) {
+        if (filterMode) activeNotifPageFilter = filterMode;
+        window._activeNotifFilter = activeNotifPageFilter;
+        if (btnEl) {
+            document.querySelectorAll('.sp-notif-page-tab').forEach(b => b.classList.remove('active'));
+            btnEl.classList.add('active');
+        } else {
+            document.querySelectorAll('.sp-notif-page-tab').forEach(b => {
+                const mode = b.getAttribute('data-filter-mode');
+                if (mode) b.classList.toggle('active', mode === activeNotifPageFilter);
+            });
+        }
+        const headingEl = document.getElementById('sp-notif-page-heading');
+        if (headingEl) {
+            headingEl.textContent = activeNotifPageFilter === 'runs' ? 'Run History' : 'All Notifications';
+        }
+        renderFullNotificationsPage();
+    };
+
+    function renderFullNotificationsPage() {
+        const container = document.getElementById('sp-full-notifications-list');
+        if (!container) return;
+
+        // Sync tab highlight and heading if opened with ?filter=runs
+        document.querySelectorAll('.sp-notif-page-tab').forEach(b => {
+            const mode = b.getAttribute('data-filter-mode');
+            if (mode) b.classList.toggle('active', mode === activeNotifPageFilter);
+        });
+        const headingEl = document.getElementById('sp-notif-page-heading');
+        if (headingEl) {
+            headingEl.textContent = activeNotifPageFilter === 'runs' ? 'Run History' : 'All Notifications';
+        }
+
+        const searchInput = document.getElementById('sp-notif-page-search');
+        const query = (searchInput ? searchInput.value : '').trim().toLowerCase();
+        const urlParams = new URLSearchParams(window.location.search);
+        const highlightId = urlParams.get('id');
+
+        const allItems = window.getSmartPalmNotifications();
+        const totalEl = document.getElementById('sp-notif-page-total-count');
+        const unreadEl = document.getElementById('sp-notif-page-unread-count');
+
+        const filtered = allItems.filter(item => {
+            if (activeNotifPageFilter === 'runs' && item.type !== 'run') return false;
+            if (query && !item.plainText.toLowerCase().includes(query) && !item.subText.toLowerCase().includes(query)) {
+                return false;
+            }
+            return true;
+        });
+
+        if (totalEl) totalEl.textContent = activeNotifPageFilter === 'runs' ? allItems.filter(i => i.type === 'run').length : allItems.length;
+        if (unreadEl) unreadEl.textContent = allItems.filter(i => i.unread).length;
+
+        if (!filtered.length) {
+            container.innerHTML = `
+                <div style="padding: 42px 20px; text-align: left; color: #94a3b8; font-size: 14px;">
+                    ${activeNotifPageFilter === 'runs' ? 'No completed prediction runs found in history yet.' : 'No notifications match the selected filter.'}
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = filtered.map(item => {
+            const isHighlighted = highlightId && item.id === highlightId;
+            const iconSvg = item.type === 'profile'
+                ? `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`
+                : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>`;
+
+            const safeFolder = String(item.folderName || '').replace(/'/g, "\\'");
+            const safeEstate = String(item.estateLabel || '').replace(/'/g, "\\'");
+            const safeDate = String(item.acquisitionDate || '').replace(/'/g, "\\'");
+            const safeKey = String(item.shpKey || item.estateLabel || '').replace(/'/g, "\\'");
+
+            const actionBtnHtml = item.type === 'profile'
+                ? `<button type="button" class="sp-sched-btn" style="padding: 7px 14px; font-size: 12.5px;" onclick="openAuthModal('signin')">Update Profile</button>`
+                : `<button type="button" class="sp-sched-btn" title="Download Data" aria-label="Download Data" style="width: 36px; height: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 9px;" onclick="if(window.downloadSavedRunSixPageRasters){window.downloadSavedRunSixPageRasters('${safeFolder}','${safeEstate}','${safeDate}','${safeKey}');}"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></button>`;
+
+            return `
+                <div id="${item.id}" class="sp-notif-page-row ${item.unread ? 'unread' : ''} ${isHighlighted ? 'highlighted' : ''}">
+                    <div class="sp-notif-dd-icon ${item.type}" style="width: 38px; height: 38px; border-radius: 10px;">
+                        ${iconSvg}
+                    </div>
+                    <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px;">
+                        <div style="font-size: 14.5px; color: #f8fafc; line-height: 1.45;">
+                            ${item.htmlText}
+                        </div>
+                        <div style="font-size: 12.5px; color: #94a3b8; display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                            <span>${item.subText}</span>
+                            <span>•</span>
+                            <span style="color: #cbd5e1;">${item.timeAgo}</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; flex-shrink: 0;">
+                        ${actionBtnHtml}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+    window.renderFullNotificationsPage = renderFullNotificationsPage;
 
     // -------------------------------------------------------------------------
     // 7. WIFI SPEED CONNECTION LIVE MONITOR & TOP BAR SEARCH (Ctrl+Shift+F)
@@ -838,7 +1844,7 @@
                 dropdown.style.display = 'none';
                 return;
             }
-            const matches = getHomeData().estates.filter(e =>
+            const matches = getVisibleEstates().filter(e =>
                 e.name.toLowerCase().includes(q) ||
                 e.region.toLowerCase().includes(q) ||
                 e.zone.toLowerCase().includes(q)
@@ -871,16 +1877,17 @@
     }
 
     function populateDropdowns() {
-        const data = getHomeData();
+        const visibleClusters = getVisibleClusters();
+        const visibleEstates = getVisibleEstates();
         const hudSel = document.getElementById('sp-hud-estate-select');
         const nutSel = document.getElementById('sp-nut3m-estate-select');
         const schedSel = document.getElementById('sp-sched-estate');
 
         if (hudSel) {
-            const clusterOpts = ESTATE_OWNER_CLUSTERS.map(c =>
+            const clusterOpts = visibleClusters.map(c =>
                 `<option value="CLUSTER:${c.id}">🏢 ${c.ownerName} (${c.estateKeys.length} Estates)</option>`
             ).join('');
-            const groupOpts = ESTATE_OWNER_CLUSTERS.map(c => {
+            const groupOpts = visibleClusters.map(c => {
                 const items = c.estateKeys
                     .map(k => getEstateByKey(k))
                     .filter(Boolean)
@@ -888,27 +1895,85 @@
                     .join('');
                 return `<optgroup label="${c.ownerName}">${items}</optgroup>`;
             }).join('');
+            const allLabel = visibleClusters.length === 1
+                ? `🗺️ All ${visibleEstates.length} Maps (${visibleClusters[0].ownerShort} Overview)`
+                : `🗺️ All ${visibleEstates.length} Maps (Malaysia Overview)`;
             hudSel.innerHTML =
-                `<option value="ALL">🗺️ All 20 Maps (Malaysia Overview)</option>` +
+                `<option value="ALL">${allLabel}</option>` +
                 `<optgroup label="Estate Owner Clusters">${clusterOpts}</optgroup>` +
                 groupOpts;
         }
         if (nutSel) {
-            nutSel.innerHTML = data.estates.map(e => `<option value="${e.key}">${e.name}</option>`).join('');
-            nutSel.value = selectedEstateKey;
+            nutSel.innerHTML = visibleEstates.map(e => `<option value="${e.key}">${e.name}</option>`).join('');
+            if (visibleEstates.some(e => e.key === selectedEstateKey)) {
+                nutSel.value = selectedEstateKey;
+            }
         }
         if (schedSel) {
-            schedSel.innerHTML = data.estates.map(e => `<option value="${e.key}">${e.name}</option>`).join('');
-            schedSel.value = selectedEstateKey;
+            schedSel.innerHTML = visibleEstates.map(e => `<option value="${e.key}">${e.name}</option>`).join('');
+            if (visibleEstates.some(e => e.key === selectedEstateKey)) {
+                schedSel.value = selectedEstateKey;
+            }
         }
     }
+
+    window.refreshHomeDashboardForUser = function () {
+        injectCustomMapsIntoHomeData();
+        const visibleClusters = getVisibleClusters();
+        const visibleEstates = getVisibleEstates();
+
+        if (visibleClusters.length > 0) {
+            if (!visibleClusters.some(c => c.id === selectedOwnerClusterId)) {
+                selectedOwnerClusterId = visibleClusters[0].id;
+            }
+        }
+        if (visibleEstates.length > 0) {
+            if (!visibleEstates.some(e => e.key === selectedEstateKey)) {
+                selectedEstateKey = visibleEstates[0].key;
+            }
+        }
+
+        populateDropdowns();
+        if (homeMapInstance) {
+            renderAllBoundariesOnMap();
+            if (visibleClusters.length === 1 && visibleClusters[0].id) {
+                focusClusterOnMap(visibleClusters[0].id, false);
+            }
+        }
+        renderLeftEstateDirectory();
+        renderStressLeaderboardPanel();
+        renderRightNotificationsAndSchedules();
+
+        const curEst = getEstateByKey(selectedEstateKey);
+        if (curEst) {
+            updateMapFocusCallout(curEst);
+            render3MonthNutrientPanel(curEst);
+        }
+        renderCompanyStressCard(selectedOwnerClusterId);
+    };
 
     // -------------------------------------------------------------------------
     // 8. BOOTSTRAP ON DOM READY
     // -------------------------------------------------------------------------
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
+        if (typeof window.loadCustomMapsFromSupabase === 'function') {
+            try { await window.loadCustomMapsFromSupabase(); } catch (e) {}
+        }
+        injectCustomMapsIntoHomeData();
+        const visibleClusters = getVisibleClusters();
+        const visibleEstates = getVisibleEstates();
+        if (visibleClusters.length > 0) {
+            selectedOwnerClusterId = visibleClusters[0].id;
+        }
+        if (visibleEstates.length > 0) {
+            selectedEstateKey = visibleEstates[0].key;
+        }
+
         populateDropdowns();
         initHomeMap();
+        if (visibleClusters.length === 1 && visibleClusters[0].id) {
+            focusClusterOnMap(visibleClusters[0].id, false);
+        }
         renderLeftEstateDirectory();
         renderStressLeaderboardPanel();
         renderRightNotificationsAndSchedules();
@@ -916,10 +1981,20 @@
         window.spMeasureWifiSpeed();
         setInterval(window.spMeasureWifiSpeed, 30000);
 
+        // Close notification dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            const wrap = document.getElementById('sp-notif-dropdown-wrap');
+            const dd = document.getElementById('sp-top-notif-dropdown');
+            if (wrap && dd && !wrap.contains(e.target)) {
+                dd.classList.remove('open');
+            }
+        });
+
         const defaultEst = getEstateByKey(selectedEstateKey);
         if (defaultEst) {
             updateMapFocusCallout(defaultEst);
             render3MonthNutrientPanel(defaultEst);
         }
+        renderCompanyStressCard(selectedOwnerClusterId);
     });
 })();

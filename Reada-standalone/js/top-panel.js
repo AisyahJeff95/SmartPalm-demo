@@ -351,6 +351,9 @@
             document.body.appendChild(manualDiv);
         }
 
+        if (typeof window.PALMNEX_REQUIRE_LOGIN === 'undefined') {
+            window.PALMNEX_REQUIRE_LOGIN = true;
+        }
         if (!document.getElementById('auth-modal')) {
             const authDiv = document.createElement('div');
             authDiv.id = 'auth-modal';
@@ -358,7 +361,7 @@
             authDiv.style.cssText = 'display: none; align-items: center; justify-content: center; z-index: 9999999; position: fixed; inset: 0; background: rgba(0,0,0,0.68); backdrop-filter: blur(6px);';
             authDiv.innerHTML = `
                 <div class="modal-content" style="max-width: 440px; width: 90%; background: #141922; color: #f8fafc; border: 1px solid rgba(255,255,255,0.14); border-radius: 16px; padding: 24px; position: relative; box-shadow: 0 24px 60px rgba(0,0,0,0.75); font-family: 'Inter', sans-serif;">
-                    <button type="button" style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; color: #94a3b8; cursor: pointer;" onclick="closeAuthModal()">✕</button>
+                    <button type="button" id="auth-modal-close-btn" style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; color: #94a3b8; cursor: pointer;" onclick="closeAuthModal()">✕</button>
                     <div style="text-align: center; margin-bottom: 20px;">
                         <h3 style="margin: 0 0 6px 0; font-size: 20px; font-weight: 700; color: #ffffff;">Account Access</h3>
                         <p style="margin: 0; font-size: 13px; color: #94a3b8;">Sign in with your PalmnexReaDS username</p>
@@ -368,16 +371,16 @@
                     <form id="auth-form-signin" onsubmit="handleEmailSignIn(event)">
                         <div style="margin-bottom: 12px;">
                             <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #cbd5e1;">PalmnexReaDS Username or Email</label>
-                            <input type="text" id="signin-email" required placeholder="e.g. admin1 or email@palmnex.com.my" value="admin1" class="sp-sched-input" style="height: 38px; font-size: 13px;" />
+                            <input type="text" id="signin-email" required placeholder="e.g. admin1 or email@palmnex.com.my" class="sp-sched-input" style="height: 38px; font-size: 13px;" />
                         </div>
                         <div style="margin-bottom: 12px;">
                             <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #cbd5e1;">Estate Company Name</label>
-                            <input type="text" id="signin-company" placeholder="e.g. Palmnex Sdn Bhd / Benta Wawasan" value="Palmnex Sdn Bhd" class="sp-sched-input" style="height: 38px; font-size: 13px;" />
+                            <input type="text" id="signin-company" placeholder="e.g. Palmnex Sdn Bhd / Benta Wawasan" class="sp-sched-input" style="height: 38px; font-size: 13px;" />
                         </div>
                         <div style="margin-bottom: 16px;">
                             <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #cbd5e1;">Password</label>
                             <div style="position: relative; display: flex; align-items: center; width: 100%;">
-                                <input type="password" id="signin-password" required placeholder="••••••••" value="admin1" class="sp-sched-input" style="height: 38px; font-size: 13px; width: 100%; padding-right: 38px;" />
+                                <input type="password" id="signin-password" required placeholder="••••••••" class="sp-sched-input" style="height: 38px; font-size: 13px; width: 100%; padding-right: 38px;" />
                                 <button type="button" id="btn-toggle-signin-password" onclick="toggleAuthPasswordVisibility('signin-password', 'icon-eye-signin-password')" title="Show / Hide Password" style="position: absolute; right: 10px; background: none; border: none; color: #94a3b8; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center;">
                                     <svg id="icon-eye-signin-password" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#94a3b8;">
                                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -430,12 +433,20 @@
             const modal = document.getElementById('auth-modal');
             if (modal) {
                 modal.style.display = 'flex';
+                const closeBtn = document.getElementById('auth-modal-close-btn') || modal.querySelector('button[onclick*="closeAuthModal"]');
+                if (closeBtn) {
+                    const hasSession = Boolean(localStorage.getItem('palmnex_user_session'));
+                    closeBtn.style.display = (window.PALMNEX_REQUIRE_LOGIN && !hasSession) ? 'none' : 'block';
+                }
                 renderFallbackSessionBanner();
             }
         };
     }
     if (typeof window.closeAuthModal !== 'function') {
         window.closeAuthModal = function () {
+            if (window.PALMNEX_REQUIRE_LOGIN && !localStorage.getItem('palmnex_user_session')) {
+                return;
+            }
             const modal = document.getElementById('auth-modal');
             if (modal) modal.style.display = 'none';
         };
@@ -444,6 +455,11 @@
         window.updateTopNavUser = function (user) {
             const userEmailSpan = document.getElementById('nav-user-email');
             const avatarInitialsEl = document.querySelector('.sp-avatar-circle span:first-child');
+            if (!user) {
+                if (avatarInitialsEl) avatarInitialsEl.textContent = 'SI';
+                if (userEmailSpan) userEmailSpan.textContent = 'Sign In';
+                return;
+            }
             const rawUsername = (user && (user.username || user.user_metadata?.username || user.user_metadata?.full_name || user.email?.split('@')[0])) || 'Admin';
             const displayName = (rawUsername.toLowerCase() === 'admin1' || rawUsername === 'Lead Agronomist (Admin)') ? 'Admin' : rawUsername;
             const companyName = (user && (user.company || user.estate_company)) || 'Palmnex Sdn Bhd';
@@ -497,10 +513,16 @@
                 try { await client.auth.signOut(); } catch (e) {}
             }
             localStorage.removeItem('palmnex_user_session');
+            localStorage.removeItem('reada_logged_in');
             renderFallbackSessionBanner();
-            const defUser = { username: 'Admin', company: 'Palmnex Sdn Bhd', access_tier: 'C', storage_group: 'storage_all', email: 'admin1@palmnex.com.my' };
-            window.updateTopNavUser(defUser);
-            if (typeof window.applyModuleAccessControl === 'function') window.applyModuleAccessControl(defUser);
+            if (window.PALMNEX_REQUIRE_LOGIN !== false) {
+                window.updateTopNavUser(null);
+                if (typeof window.openAuthModal === 'function') window.openAuthModal('signin');
+            } else {
+                const defUser = { username: 'Admin', company: 'Palmnex Sdn Bhd', access_tier: 'C', storage_group: 'storage_all', email: 'admin1@palmnex.com.my' };
+                window.updateTopNavUser(defUser);
+                if (typeof window.applyModuleAccessControl === 'function') window.applyModuleAccessControl(defUser);
+            }
         };
     }
     if (typeof window.handleEmailSignIn !== 'function') {
@@ -648,6 +670,9 @@
                 window.updateTopNavUser(parsed);
                 if (typeof window.syncPalmnexSsoState === 'function') window.syncPalmnexSsoState(parsed);
                 if (typeof window.applyModuleAccessControl === 'function') window.applyModuleAccessControl(parsed);
+            } else if (window.PALMNEX_REQUIRE_LOGIN !== false) {
+                window.updateTopNavUser(null);
+                if (typeof window.openAuthModal === 'function') window.openAuthModal('signin');
             } else {
                 const defUser = { username: 'Admin', company: 'Palmnex Sdn Bhd', company_code: 'palmnex', access_tier: 'C', storage_group: 'storage_all', email: 'admin1@palmnex.com.my' };
                 window.updateTopNavUser(defUser);
@@ -655,7 +680,7 @@
                 if (typeof window.applyModuleAccessControl === 'function') window.applyModuleAccessControl(defUser);
             }
         } catch (e) {
-            window.updateTopNavUser({ username: 'Admin', company: 'Palmnex Sdn Bhd' });
+            window.updateTopNavUser(null);
         }
 
         // Global outside click listener for top bar dropdowns

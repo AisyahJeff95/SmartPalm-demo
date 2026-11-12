@@ -3,9 +3,8 @@
 // Connected Supabase Project: https://dkafzakyeuehvpkkhdsa.supabase.co
 // ============================================================================
 
-// Master Toggle: Keep `false` during demo presentations so login is optional via the Top Panel button.
-// Flip to `true` when ready to require login on startup across the entire demo.palmnex.com.my system.
-window.PALMNEX_REQUIRE_LOGIN = false;
+// Master Toggle: Require login on startup across the entire demo.palmnex.com.my system.
+window.PALMNEX_REQUIRE_LOGIN = true;
 
 // Card Click Handler: Direct navigation (or gated if PALMNEX_REQUIRE_LOGIN is enabled)
 function handleProtectedCardClick(targetUrl) {
@@ -125,8 +124,50 @@ function toggleAuthPasswordVisibility(inputId = 'signin-password', iconId = 'ico
 }
 window.toggleAuthPasswordVisibility = toggleAuthPasswordVisibility;
 
-// Ensure the Password input has the Eye Toggle button & updated label on every page
+// Ensure #auth-modal exists in the DOM and has the Eye Toggle button & updated label on every page
 function ensureAuthModalEnhancements() {
+    if (!document.getElementById('auth-modal') && document.body) {
+        const authDiv = document.createElement('div');
+        authDiv.id = 'auth-modal';
+        authDiv.className = 'modal-overlay';
+        authDiv.style.cssText = 'display: none; align-items: center; justify-content: center; z-index: 9999999; position: fixed; inset: 0; background: rgba(6, 9, 18, 0.82); backdrop-filter: blur(8px);';
+        authDiv.innerHTML = `
+            <div class="modal-content" style="max-width: 440px; width: 90%; background: #141922; color: #f8fafc; border: 1px solid rgba(255,255,255,0.14); border-radius: 16px; padding: 24px; position: relative; box-shadow: 0 24px 60px rgba(0,0,0,0.75); font-family: 'Inter', sans-serif;">
+                <button type="button" id="auth-modal-close-btn" style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; color: #94a3b8; cursor: pointer;" onclick="closeAuthModal()">✕</button>
+                <div style="text-align: center; margin-bottom: 20px;">
+                    <h3 style="margin: 0 0 6px 0; font-size: 20px; font-weight: 700; color: #ffffff;">Account Access</h3>
+                    <p style="margin: 0; font-size: 13px; color: #94a3b8;">Sign in with your PalmnexReaDS username</p>
+                </div>
+                <div id="auth-error-msg" style="display: none; background: rgba(239,68,68,0.15); color: #fca5a5; border: 1px solid #ef4444; padding: 10px; border-radius: 6px; font-size: 12px; margin-bottom: 14px;"></div>
+                <div id="auth-success-msg" style="display: none; background: rgba(16,185,129,0.15); color: #6ee7b7; border: 1px solid #10b981; padding: 10px; border-radius: 6px; font-size: 12px; margin-bottom: 14px;"></div>
+                <form id="auth-form-signin" onsubmit="handleEmailSignIn(event)">
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #cbd5e1;">PalmnexReaDS Username or Email</label>
+                        <input type="text" id="signin-email" required placeholder="e.g. adminbenta1 or admin1@palmnex.com.my" value="" class="sp-sched-input" style="height: 38px; font-size: 13px;" />
+                    </div>
+                    <div style="margin-bottom: 12px;">
+                        <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #cbd5e1;">Estate Company Name</label>
+                        <input type="text" id="signin-company" placeholder="e.g. Benta Wawasan Sdn Bhd" value="" class="sp-sched-input" style="height: 38px; font-size: 13px;" />
+                    </div>
+                    <div style="margin-bottom: 16px;">
+                        <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #cbd5e1;">Password</label>
+                        <div style="position: relative; display: flex; align-items: center; width: 100%;">
+                            <input type="password" id="signin-password" required placeholder="••••••••" value="" class="sp-sched-input" style="height: 38px; font-size: 13px; width: 100%; padding-right: 38px;" />
+                            <button type="button" id="btn-toggle-signin-password" onclick="toggleAuthPasswordVisibility('signin-password', 'icon-eye-signin-password')" title="Show / Hide Password" style="position: absolute; right: 10px; background: none; border: none; color: #94a3b8; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center;">
+                                <svg id="icon-eye-signin-password" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#94a3b8;">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" id="btn-auth-signin" class="sp-sched-btn" style="width: 100%; height: 40px; font-size: 14px;">Sign In</button>
+                </form>
+            </div>
+        `;
+        document.body.appendChild(authDiv);
+    }
+
     const passInput = document.getElementById('signin-password');
     if (passInput && !document.getElementById('btn-toggle-signin-password')) {
         const parent = passInput.parentNode;
@@ -281,9 +322,15 @@ function applyModuleAccessControl(user) {
     // 3. Enforce Direct URL Page Guard so restricted pages cannot be opened via URL bar
     enforceModulePageGuard(tier);
 
-    // 4. Filter Estate Dropdowns / Home Dashboard if client user is logged in
+    // 4. Filter Estate Dropdowns / Home Dashboard & Load User's Custom Uploaded Maps from Supabase
     if (typeof window.applyCompanyEstateIsolation === 'function') {
         window.applyCompanyEstateIsolation(user);
+    }
+    if (typeof window.loadCustomMapsFromSupabase === 'function') {
+        window.loadCustomMapsFromSupabase(user);
+    }
+    if (typeof window.refreshHomeDashboardForUser === 'function') {
+        window.refreshHomeDashboardForUser(user);
     }
 }
 window.applyModuleAccessControl = applyModuleAccessControl;
@@ -317,13 +364,17 @@ window.applyCompanyEstateIsolation = function (user) {
     const FGV_KEYS = new Set(['jengka24', 'jengka25', 'kota_gelanggi5', 'ppptar', 'fgv_triang']);
     const MPOB_KEYS = new Set(['geolocation_ish', 'polygon_ish', 'soil_series', 'sekinchan1poly', 'lahad_datu_combined', 'mpob_keratong', 'mpob_lahad_datu', 'mpob_kluang', 'mpob_ukm', 'mpob_sessang', 'mpob_hulu_padas', 'mpob_belaga']);
 
-    const isEstateAllowedForCompany = (val, text) => {
+    const isEstateAllowedForCompany = (val, text, optEl) => {
         if (isMasterAdmin) return true;
         if (!val) return true; // Keep placeholder option
+        if (optEl && optEl.getAttribute('data-custom-supabase') === 'true') {
+            const optGroup = optEl.getAttribute('data-storage-group') || '';
+            return !optGroup || optGroup === storageGroup;
+        }
         const vNorm = String(val).toLowerCase().replace(/shp$/i, '').replace(/[^a-z0-9_]/g, '');
         const tNorm = String(text || '').toLowerCase();
         // Always allow user's own uploaded custom maps
-        if (vNorm.startsWith('custom_') || vNorm.includes(companyCode) || tNorm.includes(companyCode)) return true;
+        if (vNorm.startsWith(`custom_${storageGroup}`) || vNorm.includes(companyCode) || tNorm.includes(companyCode)) return true;
         if (companyCode === 'benta' || companyCode.includes('benta')) {
             return BENTA_KEYS.has(vNorm) || tNorm.includes('benta');
         }
@@ -342,11 +393,166 @@ window.applyCompanyEstateIsolation = function (user) {
         if (!sel || !sel.options) return;
         Array.from(sel.options).forEach(opt => {
             if (!opt.value) return;
-            const allowed = isEstateAllowedForCompany(opt.value, opt.text);
+            const allowed = isEstateAllowedForCompany(opt.value, opt.text, opt);
             opt.style.display = allowed ? '' : 'none';
             opt.disabled = !allowed;
         });
     });
+};
+
+// ============================================================================
+// PHASE 2: PER-USER CUSTOM UPLOADED MAPS SYNC (`public.company_custom_maps`)
+// ============================================================================
+window.CUSTOM_SUPABASE_MAPS = window.CUSTOM_SUPABASE_MAPS || [];
+
+window.saveCustomMapToSupabase = async function (rawMapKey, mapName, geojsonData) {
+    try {
+        if (!geojsonData || !geojsonData.features || !geojsonData.features.length) return null;
+        const u = window.getCurrentPalmnexUser();
+        const storageGroup = window.getCurrentPalmnexStorageGroup() || 'storage_all';
+        const companyCode = window.getCurrentPalmnexCompanyCode() || 'palmnex';
+        const uploadedBy = (u && (u.username || u.email)) || 'Admin';
+
+        const cleanSlug = String(rawMapKey || mapName || 'estate')
+            .toLowerCase()
+            .replace(/^custom_/, '')
+            .replace(/[^a-z0-9_]+/g, '_')
+            .replace(/^_+|_+$/g, '');
+        const scopedKey = cleanSlug.startsWith(storageGroup)
+            ? `custom_${cleanSlug}`
+            : `custom_${storageGroup}_${cleanSlug}`;
+
+        const rowPayload = {
+            map_key: scopedKey,
+            map_name: mapName || `Custom: ${cleanSlug}`,
+            company_code: companyCode,
+            storage_group: storageGroup,
+            geojson_data: geojsonData,
+            uploaded_by: uploadedBy,
+            created_at: new Date().toISOString()
+        };
+
+        // 1. Save to local per-user storage cache immediately
+        const lsKey = `palmnex_custom_maps_${storageGroup}`;
+        try {
+            const existingRaw = localStorage.getItem(lsKey);
+            const list = existingRaw ? (JSON.parse(existingRaw) || []) : [];
+            const filtered = list.filter(item => item && item.map_key !== scopedKey);
+            filtered.unshift(rowPayload);
+            localStorage.setItem(lsKey, JSON.stringify(filtered.slice(0, 25)));
+        } catch (e) {}
+
+        // 2. Upsert to Supabase `public.company_custom_maps`
+        const client = typeof getSupabase === 'function' ? getSupabase() : null;
+        if (client) {
+            const { error } = await client
+                .from('company_custom_maps')
+                .upsert([rowPayload], { onConflict: 'storage_group,map_key' });
+            if (error) {
+                console.warn('[SmartPalm Custom Map Sync] Supabase upsert warning:', error.message);
+            }
+        }
+
+        // Refresh in-memory list & Home Dashboard
+        await window.loadCustomMapsFromSupabase(u);
+        return scopedKey;
+    } catch (err) {
+        console.warn('[SmartPalm Custom Map Sync] Exception:', err);
+        return null;
+    }
+};
+
+window.loadCustomMapsFromSupabase = async function (userOverride) {
+    try {
+        const u = userOverride || window.getCurrentPalmnexUser();
+        const storageGroup = u
+            ? (u.storage_group || resolveUserStorageGroup(u.username || u.email, u.company_code, u.access_tier))
+            : window.getCurrentPalmnexStorageGroup();
+        const isMasterAdmin = (!u || storageGroup === 'storage_all' || String(u.access_tier || 'C').toUpperCase() === 'C' && (u.company_code === 'palmnex' || !u.company_code));
+
+        // 1. Remove previously injected custom options from dropdowns so switching users is 100% isolated
+        ['map-select-comp', 'map-select-std', 'map-select-kpsm'].forEach(selId => {
+            const sel = document.getElementById(selId);
+            if (!sel) return;
+            Array.from(sel.querySelectorAll('option[data-custom-supabase="true"]')).forEach(opt => opt.remove());
+        });
+
+        // 2. Load local cache for this storageGroup first
+        const lsKey = `palmnex_custom_maps_${storageGroup}`;
+        let localMaps = [];
+        try {
+            const raw = localStorage.getItem(lsKey);
+            if (raw) localMaps = JSON.parse(raw) || [];
+        } catch (e) {}
+
+        // 3. Query Supabase `public.company_custom_maps`
+        let remoteMaps = [];
+        const client = typeof getSupabase === 'function' ? getSupabase() : null;
+        if (client) {
+            try {
+                let query = client
+                    .from('company_custom_maps')
+                    .select('map_key, map_name, company_code, storage_group, geojson_data, uploaded_by, created_at')
+                    .order('created_at', { ascending: false })
+                    .limit(50);
+                if (!isMasterAdmin && storageGroup) {
+                    query = query.eq('storage_group', storageGroup);
+                }
+                const { data, error } = await query;
+                if (!error && Array.isArray(data)) {
+                    remoteMaps = data;
+                }
+            } catch (e) {}
+        }
+
+        const mergedByKey = new Map();
+        [...remoteMaps, ...localMaps].forEach(row => {
+            if (!row || !row.map_key || !row.geojson_data) return;
+            if (!isMasterAdmin && row.storage_group && row.storage_group !== storageGroup) return;
+            if (!mergedByKey.has(row.map_key)) {
+                mergedByKey.set(row.map_key, row);
+            }
+        });
+
+        const finalMaps = Array.from(mergedByKey.values());
+        window.CUSTOM_SUPABASE_MAPS = finalMaps;
+
+        // 4. Register in REAL_MAPS_DATA and inject into map dropdowns
+        finalMaps.forEach(row => {
+            const key = row.map_key;
+            const geojson = row.geojson_data;
+            const ownerTag = (isMasterAdmin && row.uploaded_by && row.storage_group !== 'storage_all')
+                ? `[${row.uploaded_by}] `
+                : '';
+            const label = `📌 ${ownerTag}${row.map_name || key}`;
+            geojson.mapName = label;
+
+            if (typeof window.REAL_MAPS_DATA === 'object' && window.REAL_MAPS_DATA) {
+                window.REAL_MAPS_DATA[key] = geojson;
+            }
+
+            ['map-select-comp', 'map-select-std', 'map-select-kpsm'].forEach(selId => {
+                const sel = document.getElementById(selId);
+                if (!sel) return;
+                let existing = Array.from(sel.options).find(o => o.value === key);
+                if (!existing) {
+                    existing = document.createElement('option');
+                    existing.value = key;
+                    existing.setAttribute('data-custom-supabase', 'true');
+                    existing.setAttribute('data-storage-group', row.storage_group || storageGroup);
+                    sel.appendChild(existing);
+                }
+                existing.textContent = label;
+            });
+        });
+
+        if (typeof window.refreshHomeDashboardForUser === 'function') {
+            window.refreshHomeDashboardForUser(u);
+        }
+        return finalMaps;
+    } catch (e) {
+        return [];
+    }
 };
 
 // Open Auth Modal Dialog
@@ -355,6 +561,10 @@ function openAuthModal(defaultTab = 'signin') {
     const modal = document.getElementById('auth-modal');
     if (modal) {
         modal.style.display = 'flex';
+        const closeBtn = modal.querySelector('#auth-modal-close-btn, .auth-modal-close');
+        if (closeBtn) {
+            closeBtn.style.display = (window.PALMNEX_REQUIRE_LOGIN && !isUserAuthenticated()) ? 'none' : '';
+        }
         switchAuthTab(defaultTab || 'signin');
         renderAuthModalSessionBanner();
     }
