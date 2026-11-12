@@ -137,47 +137,47 @@ function ensureAuthModalEnhancements() {
         </aside>
 
         <!-- Right Main Area: Satellite Oil Palm Plantation Backdrop (Photo 3) & Centered Account Access Card -->
-        <div style="flex: 1; height: 100vh; position: relative; display: flex; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(135deg, rgba(8, 12, 20, 0.36) 0%, rgba(10, 15, 24, 0.46) 100%), url('login-bg.jpg') center/cover no-repeat; overflow-y: auto;">
-            <div class="modal-content" style="max-width: 410px; width: 100%; background: #121824; color: #f8fafc; border: 1px solid rgba(255,255,255,0.11); border-radius: 14px; padding: 32px 28px 24px 28px; position: relative; box-shadow: 0 24px 64px rgba(0,0,0,0.65); font-family: 'Inter', sans-serif;">
-                <button type="button" id="auth-modal-close-btn" style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 18px; color: #94a3b8; cursor: pointer;" onclick="closeAuthModal()" title="Close">✕</button>
+        <div style="flex: 1; height: 100vh; position: relative; display: flex; align-items: center; justify-content: center; padding: 32px; background: linear-gradient(135deg, rgba(8, 12, 20, 0.36) 0%, rgba(10, 15, 24, 0.46) 100%), url('login-bg.jpg') center/cover no-repeat; overflow-y: auto;">
+            <div class="modal-content" style="max-width: 480px; width: 100%; background: #121824; color: #f8fafc; border: 1px solid rgba(255,255,255,0.12); border-radius: 18px; padding: 42px 40px 32px 40px; position: relative; box-shadow: 0 28px 72px rgba(0,0,0,0.68); font-family: 'Inter', sans-serif;">
+                <button type="button" id="auth-modal-close-btn" style="position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 20px; color: #94a3b8; cursor: pointer;" onclick="closeAuthModal()" title="Close">✕</button>
 
-                <div style="text-align: center; margin-bottom: 22px;">
-                    <img src="MPOB-3.png" alt="MPOB PalmNex" style="height: 44px; width: auto; max-width: 230px; object-fit: contain; display: block; margin: 0 auto 14px auto;" />
-                    <h3 style="margin: 0 0 6px 0; font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 700; color: #ffffff; letter-spacing: -0.3px;">Account Access</h3>
-                    <p style="margin: 0 0 4px 0; font-size: 12.5px; color: #94a3b8;">Sign in to sync your PALMNEX data</p>
-                    <p style="margin: 0; font-size: 11.5px; font-weight: 600; color: #10b981;">SmartPalm: Precision Fertilization &amp; Monitoring System · MPOB</p>
+                <div style="text-align: center; margin-bottom: 30px;">
+                    <img src="MPOB-3.png" alt="MPOB PalmNex" style="height: 54px; width: auto; max-width: 270px; object-fit: contain; display: block; margin: 0 auto 18px auto;" />
+                    <h3 style="margin: 0 0 8px 0; font-family: 'Outfit', sans-serif; font-size: 26px; font-weight: 700; color: #ffffff; letter-spacing: -0.3px;">Account Access</h3>
+                    <p style="margin: 0 0 6px 0; font-size: 14px; color: #94a3b8;">Sign in to sync your PALMNEX data</p>
+                    <p style="margin: 0; font-size: 13px; font-weight: 600; color: #10b981;">SmartPalm: Precision Fertilization &amp; Monitoring System · MPOB</p>
                 </div>
 
-                <div id="auth-error-msg" style="display: none; background: rgba(239,68,68,0.14); color: #fca5a5; border: 1px solid rgba(239,68,68,0.45); padding: 10px 12px; border-radius: 8px; font-size: 12px; margin-bottom: 14px;"></div>
-                <div id="auth-success-msg" style="display: none; background: rgba(16,185,129,0.14); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.45); padding: 10px 12px; border-radius: 8px; font-size: 12px; margin-bottom: 14px;"></div>
+                <div id="auth-error-msg" style="display: none; background: rgba(239,68,68,0.14); color: #fca5a5; border: 1px solid rgba(239,68,68,0.45); padding: 12px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 18px;"></div>
+                <div id="auth-success-msg" style="display: none; background: rgba(16,185,129,0.14); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.45); padding: 12px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 18px;"></div>
 
                 <form id="auth-form-signin" onsubmit="handleEmailSignIn(event)">
-                    <div style="margin-bottom: 14px;">
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
-                            <label for="signin-email" style="font-size: 12px; font-weight: 600; color: #e2e8f0;">Username or Email</label>
-                            <span style="font-size: 11px; color: #64748b; font-weight: 500;">Supabase / MPOB</span>
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                            <label for="signin-email" style="font-size: 13.5px; font-weight: 600; color: #e2e8f0;">Username or Email</label>
+                            <span style="font-size: 12px; color: #64748b; font-weight: 500;">Supabase / MPOB</span>
                         </div>
                         <div style="position: relative; display: flex; align-items: center; width: 100%;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 12px; color: #64748b; pointer-events: none;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 14px; color: #64748b; pointer-events: none;">
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="12" cy="7" r="4"></circle>
                             </svg>
-                            <input type="text" id="signin-email" required placeholder="e.g. adminbenta1 or admin1" value="" class="sp-sched-input" style="height: 40px; font-size: 13px; width: 100%; padding-left: 36px; padding-right: 12px; background: #0c1017; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: #f8fafc;" />
+                            <input type="text" id="signin-email" required placeholder="e.g. adminbenta1 or admin1" value="" class="sp-sched-input" style="height: 48px; font-size: 14.5px; width: 100%; padding-left: 42px; padding-right: 14px; background: #0c1017; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; color: #f8fafc;" />
                         </div>
                     </div>
 
-                    <div style="margin-bottom: 14px;">
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
-                            <label for="signin-password" style="font-size: 12px; font-weight: 600; color: #e2e8f0;">Password</label>
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                            <label for="signin-password" style="font-size: 13.5px; font-weight: 600; color: #e2e8f0;">Password</label>
                         </div>
                         <div style="position: relative; display: flex; align-items: center; width: 100%;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 12px; color: #64748b; pointer-events: none;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position: absolute; left: 14px; color: #64748b; pointer-events: none;">
                                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                                 <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                             </svg>
-                            <input type="password" id="signin-password" required placeholder="••••••••" value="" class="sp-sched-input" style="height: 40px; font-size: 13px; width: 100%; padding-left: 36px; padding-right: 38px; background: #0c1017; border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; color: #f8fafc;" />
-                            <button type="button" id="btn-toggle-signin-password" onclick="toggleAuthPasswordVisibility('signin-password', 'icon-eye-signin-password')" title="Show / Hide Password" style="position: absolute; right: 10px; background: none; border: none; color: #94a3b8; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center;">
-                                <svg id="icon-eye-signin-password" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#94a3b8;">
+                            <input type="password" id="signin-password" required placeholder="••••••••" value="" class="sp-sched-input" style="height: 48px; font-size: 14.5px; width: 100%; padding-left: 42px; padding-right: 44px; background: #0c1017; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; color: #f8fafc;" />
+                            <button type="button" id="btn-toggle-signin-password" onclick="toggleAuthPasswordVisibility('signin-password', 'icon-eye-signin-password')" title="Show / Hide Password" style="position: absolute; right: 12px; background: none; border: none; color: #94a3b8; cursor: pointer; padding: 6px; display: flex; align-items: center; justify-content: center;">
+                                <svg id="icon-eye-signin-password" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#94a3b8;">
                                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                     <circle cx="12" cy="12" r="3"></circle>
                                 </svg>
@@ -185,16 +185,16 @@ function ensureAuthModalEnhancements() {
                         </div>
                     </div>
 
-                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; font-size: 12px; color: #94a3b8;">
-                        <label style="display: inline-flex; align-items: center; gap: 7px; cursor: pointer; user-select: none;">
-                            <input type="checkbox" checked style="accent-color: #10b981; width: 14px; height: 14px; cursor: pointer;" />
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; font-size: 13.5px; color: #94a3b8;">
+                        <label style="display: inline-flex; align-items: center; gap: 9px; cursor: pointer; user-select: none;">
+                            <input type="checkbox" checked style="accent-color: #10b981; width: 16px; height: 16px; cursor: pointer;" />
                             <span>Remember login session</span>
                         </label>
-                        <span style="font-size: 11px; color: #64748b; font-weight: 500;">V2.0 2026</span>
+                        <span style="font-size: 12.5px; color: #64748b; font-weight: 500;">V2.0 2026</span>
                     </div>
 
-                    <button type="submit" id="btn-auth-signin" style="width: 100%; height: 42px; font-size: 13.5px; font-weight: 600; color: #ffffff; background: #10b981; border: 1px solid #059669; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: none; transition: background 0.15s ease;">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <button type="submit" id="btn-auth-signin" style="width: 100%; height: 48px; font-size: 15px; font-weight: 600; color: #ffffff; background: #10b981; border: 1px solid #059669; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: none; transition: background 0.15s ease;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
                             <polyline points="10 17 15 12 10 7"></polyline>
                             <line x1="15" y1="12" x2="3" y2="12"></line>
@@ -203,8 +203,8 @@ function ensureAuthModalEnhancements() {
                     </button>
                 </form>
 
-                <div style="border-top: 1px solid rgba(255,255,255,0.08); margin-top: 20px; padding-top: 14px; display: flex; align-items: center; justify-content: center; gap: 8px; color: #64748b; font-size: 11px; line-height: 1.4; text-align: center;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+                <div style="border-top: 1px solid rgba(255,255,255,0.08); margin-top: 26px; padding-top: 18px; display: flex; align-items: center; justify-content: center; gap: 10px; color: #64748b; font-size: 12.5px; line-height: 1.5; text-align: center;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
                         <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                         <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                     </svg>
@@ -219,13 +219,13 @@ function ensureAuthModalEnhancements() {
         authDiv = document.createElement('div');
         authDiv.id = 'auth-modal';
         authDiv.className = 'modal-overlay';
-        authDiv.setAttribute('data-portal-v3', 'true');
+        authDiv.setAttribute('data-portal-v4', 'true');
         authDiv.style.cssText = 'display: none; flex-direction: row; align-items: stretch; justify-content: flex-start; z-index: 9999999; position: fixed; inset: 0; background: #0c1017; padding: 0;';
         authDiv.innerHTML = portalInnerMarkup;
         document.body.appendChild(authDiv);
-    } else if (!authDiv.hasAttribute('data-portal-v3')) {
+    } else if (!authDiv.hasAttribute('data-portal-v4')) {
         const wasOpen = authDiv.style.display === 'flex';
-        authDiv.setAttribute('data-portal-v3', 'true');
+        authDiv.setAttribute('data-portal-v4', 'true');
         authDiv.style.cssText = `display: ${wasOpen ? 'flex' : 'none'}; flex-direction: row; align-items: stretch; justify-content: flex-start; z-index: 9999999; position: fixed; inset: 0; background: #0c1017; padding: 0;`;
         authDiv.innerHTML = portalInnerMarkup;
     }
@@ -620,7 +620,7 @@ function renderAuthModalSessionBanner() {
     if (!banner) {
         banner = document.createElement('div');
         banner.id = 'auth-active-session-banner';
-        banner.style.cssText = 'display:none; align-items:center; justify-content:space-between; gap:10px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.35); padding:10px 12px; border-radius:8px; margin-bottom:14px; font-size:12px; color:#d1fae5;';
+        banner.style.cssText = 'display:none; align-items:center; justify-content:space-between; gap:14px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.35); padding:13px 16px; border-radius:10px; margin-bottom:20px; font-size:13.5px; color:#d1fae5;';
         formSignin.parentNode.insertBefore(banner, formSignin);
     }
     const saved = localStorage.getItem('palmnex_user_session');
@@ -631,10 +631,10 @@ function renderAuthModalSessionBanner() {
             const comp = u.company || u.estate_company || 'Palmnex Sdn Bhd';
             banner.innerHTML = `
                 <div>
-                    <div style="font-weight:700; color:#34d399;">Signed in as ${name}</div>
-                    <div style="font-size:11px; color:#94a3b8;">${comp}</div>
+                    <div style="font-weight:700; font-size:14px; color:#34d399; margin-bottom:2px;">Signed in as ${name}</div>
+                    <div style="font-size:12.5px; color:#94a3b8;">${comp}</div>
                 </div>
-                <button type="button" onclick="handleSignOut()" style="background:rgba(239,68,68,0.18); color:#fca5a5; border:1px solid rgba(239,68,68,0.45); border-radius:6px; padding:5px 10px; font-size:11px; font-weight:600; cursor:pointer; white-space:nowrap;">Sign Out</button>
+                <button type="button" onclick="handleSignOut()" style="background:rgba(239,68,68,0.18); color:#fca5a5; border:1px solid rgba(239,68,68,0.45); border-radius:8px; padding:7px 14px; font-size:12.5px; font-weight:600; cursor:pointer; white-space:nowrap;">Sign Out</button>
             `;
             banner.style.display = 'flex';
             return;
@@ -897,7 +897,7 @@ function setAuthLoading(loading) {
         btnSignin.disabled = loading;
         btnSignin.innerHTML = loading
             ? `<span>Verifying...</span>`
-            : `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg><span>Sign In</span>`;
+            : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg><span>Sign In</span>`;
     }
 }
 
