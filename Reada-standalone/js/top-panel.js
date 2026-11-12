@@ -371,11 +371,7 @@
                     <form id="auth-form-signin" onsubmit="handleEmailSignIn(event)">
                         <div style="margin-bottom: 12px;">
                             <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #cbd5e1;">PalmnexReaDS Username or Email</label>
-                            <input type="text" id="signin-email" required placeholder="e.g. admin1 or email@palmnex.com.my" class="sp-sched-input" style="height: 38px; font-size: 13px;" />
-                        </div>
-                        <div style="margin-bottom: 12px;">
-                            <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #cbd5e1;">Estate Company Name</label>
-                            <input type="text" id="signin-company" placeholder="e.g. Palmnex Sdn Bhd / Benta Wawasan" class="sp-sched-input" style="height: 38px; font-size: 13px;" />
+                            <input type="text" id="signin-email" required placeholder="e.g. adminbenta1 or admin1@palmnex.com.my" class="sp-sched-input" style="height: 38px; font-size: 13px;" />
                         </div>
                         <div style="margin-bottom: 16px;">
                             <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #cbd5e1;">Password</label>
@@ -394,6 +390,10 @@
                 </div>
             `;
             document.body.appendChild(authDiv);
+        }
+        const compInput = document.getElementById('signin-company');
+        if (compInput && compInput.parentNode) {
+            compInput.parentNode.style.display = 'none';
         }
     }
 

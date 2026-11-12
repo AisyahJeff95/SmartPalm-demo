@@ -159,13 +159,14 @@
         if (!customMaps.length) return;
 
         customMaps.forEach(m => {
-            if (!m || !m.map_key || !m.geojson) return;
+            const gj = m && (m.geojson_data || m.geojson);
+            if (!m || !m.map_key || !gj) return;
             const key = m.map_key;
-            data.boundaries[key] = m.geojson;
+            data.boundaries[key] = gj;
 
             const existingEst = data.estates.find(e => e.key === key);
-            const blocksCount = Number(m.total_blocks) || (m.geojson.features ? m.geojson.features.length : 1);
-            const center = computeGeoJsonCenter(m.geojson);
+            const blocksCount = Number(m.total_blocks) || (gj.features ? gj.features.length : 1);
+            const center = computeGeoJsonCenter(gj);
             const cleanTitle = String(m.map_name || key)
                 .replace(/^Custom:\s*/i, '')
                 .replace(/\s*\(\d+\s*blocks\)\s*$/i, '')
@@ -1896,7 +1897,7 @@
                 return `<optgroup label="${c.ownerName}">${items}</optgroup>`;
             }).join('');
             const allLabel = visibleClusters.length === 1
-                ? `🗺️ All ${visibleEstates.length} Maps (${visibleClusters[0].ownerShort} Overview)`
+                ? `🗺️ All ${visibleEstates.length} Maps (${visibleClusters[0].ownerShort || visibleClusters[0].ownerName} Overview)`
                 : `🗺️ All ${visibleEstates.length} Maps (Malaysia Overview)`;
             hudSel.innerHTML =
                 `<option value="ALL">${allLabel}</option>` +
@@ -1934,10 +1935,10 @@
         }
 
         populateDropdowns();
-        if (homeMapInstance) {
+        if (homeMap) {
             renderAllBoundariesOnMap();
-            if (visibleClusters.length === 1 && visibleClusters[0].id) {
-                focusClusterOnMap(visibleClusters[0].id, false);
+            if (visibleClusters.length === 1 && visibleClusters[0].id && typeof window.selectOwnerCluster === 'function') {
+                window.selectOwnerCluster(visibleClusters[0].id, true);
             }
         }
         renderLeftEstateDirectory();
@@ -1971,8 +1972,8 @@
 
         populateDropdowns();
         initHomeMap();
-        if (visibleClusters.length === 1 && visibleClusters[0].id) {
-            focusClusterOnMap(visibleClusters[0].id, false);
+        if (visibleClusters.length === 1 && visibleClusters[0].id && typeof window.selectOwnerCluster === 'function') {
+            window.selectOwnerCluster(visibleClusters[0].id, false);
         }
         renderLeftEstateDirectory();
         renderStressLeaderboardPanel();

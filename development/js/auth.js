@@ -145,10 +145,6 @@ function ensureAuthModalEnhancements() {
                         <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #cbd5e1;">PalmnexReaDS Username or Email</label>
                         <input type="text" id="signin-email" required placeholder="e.g. adminbenta1 or admin1@palmnex.com.my" value="" class="sp-sched-input" style="height: 38px; font-size: 13px;" />
                     </div>
-                    <div style="margin-bottom: 12px;">
-                        <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #cbd5e1;">Estate Company Name</label>
-                        <input type="text" id="signin-company" placeholder="e.g. Benta Wawasan Sdn Bhd" value="" class="sp-sched-input" style="height: 38px; font-size: 13px;" />
-                    </div>
                     <div style="margin-bottom: 16px;">
                         <label style="display: block; font-size: 12px; font-weight: 600; margin-bottom: 4px; color: #cbd5e1;">Password</label>
                         <div style="position: relative; display: flex; align-items: center; width: 100%;">
@@ -196,8 +192,8 @@ function ensureAuthModalEnhancements() {
     }
 
     const compInput = document.getElementById('signin-company');
-    if (compInput && compInput.previousElementSibling && compInput.previousElementSibling.tagName === 'LABEL') {
-        compInput.previousElementSibling.textContent = 'Estate Company Name';
+    if (compInput && compInput.parentNode) {
+        compInput.parentNode.style.display = 'none';
     }
 }
 
@@ -634,6 +630,24 @@ function switchAuthTab(tabName) {
     if (formSignup) formSignup.style.display = 'none';
 }
 
+function formatCompanyNameFromCode(companyCode) {
+    const code = String(companyCode || '').toLowerCase().trim();
+    const map = {
+        palmnex: 'Palmnex Sdn Bhd',
+        benta: 'Benta Wawasan Sdn Bhd',
+        benta_wawasan: 'Benta Wawasan Sdn Bhd',
+        fgv: 'FGV Holdings Berhad',
+        mpob: 'MPOB Research & SPOC',
+        sdguthrie: 'SD Guthrie Berhad',
+        klk: 'Kuala Lumpur Kepong Berhad',
+        ioi: 'IOI Corporation Berhad',
+        achijaya: 'Achi Jaya Plantations Sdn Bhd'
+    };
+    if (map[code]) return map[code];
+    if (!code) return 'Palmnex Sdn Bhd';
+    return `${code.charAt(0).toUpperCase() + code.slice(1)} Plantations`;
+}
+
 // Resolve user profile (username, company_code, company_name, access_tier, allowed_modules, storage_group) from Supabase `profiles` table
 async function enrichSupabaseUserProfile(user, fallbackCompany, rawUsernameFallback) {
     if (!user) return null;
@@ -641,16 +655,12 @@ async function enrichSupabaseUserProfile(user, fallbackCompany, rawUsernameFallb
     let rawUsername = user.username || meta.username || rawUsernameFallback || (user.email ? user.email.split('@')[0] : 'Admin');
     let displayUsername = (rawUsername.toLowerCase() === 'admin1' || rawUsername === 'Lead Agronomist (Admin)') ? 'Admin' : rawUsername;
 
-    const customTypedCompany = (fallbackCompany && fallbackCompany.trim() && fallbackCompany.trim() !== 'Palmnex Sdn Bhd')
-        ? fallbackCompany.trim()
-        : '';
-
     let companyCode = user.company_code || meta.company_code || deriveCompanyCodeFromUsername(rawUsername);
     const isPalmnexMaster = (companyCode === 'palmnex' || rawUsername.toLowerCase() === 'admin1' || rawUsername.toLowerCase().startsWith('adminpalmnex'));
     let accessTier = String(user.access_tier || meta.access_tier || (isPalmnexMaster ? 'C' : 'A')).toUpperCase();
     let allowedModules = Array.isArray(user.allowed_modules) ? user.allowed_modules : getAllowedModulesForTier(accessTier);
     let storageGroup = resolveUserStorageGroup(rawUsername, companyCode, accessTier, user.storage_group || meta.storage_group);
-    let company = customTypedCompany || user.company || user.estate_company || meta.estate_company || meta.company_name || (companyCode === 'palmnex' ? 'Palmnex Sdn Bhd' : `${companyCode.charAt(0).toUpperCase() + companyCode.slice(1)} Estate`);
+    let company = user.company || user.estate_company || meta.estate_company || meta.company_name || formatCompanyNameFromCode(companyCode);
 
     // Query Supabase `public.profiles` table
     const client = typeof getSupabase === 'function' ? getSupabase() : (typeof supabase !== 'undefined' ? supabase : null);
@@ -680,16 +690,11 @@ async function enrichSupabaseUserProfile(user, fallbackCompany, rawUsernameFallb
                     ? prof.allowed_modules
                     : getAllowedModulesForTier(accessTier);
                 storageGroup = resolveUserStorageGroup(rawUsername, companyCode, accessTier, prof.storage_group);
-                company = customTypedCompany || prof.estate_company || prof.company_name || company;
+                company = prof.estate_company || prof.company_name || company || formatCompanyNameFromCode(companyCode);
             }
         } catch (e) {
             // profiles table fallback
         }
-    }
-
-    const compInputEl = document.getElementById('signin-company');
-    if (compInputEl && company) {
-        compInputEl.value = company;
     }
 
     return Object.assign({}, user, {
@@ -707,7 +712,6 @@ async function enrichSupabaseUserProfile(user, fallbackCompany, rawUsernameFallb
 async function handleEmailSignIn(event) {
     if (event) event.preventDefault();
     const rawInput = document.getElementById('signin-email')?.value?.trim();
-    const companyInput = document.getElementById('signin-company')?.value?.trim() || 'Palmnex Sdn Bhd';
     const password = document.getElementById('signin-password')?.value;
 
     if (!rawInput || !password) {
@@ -727,8 +731,8 @@ async function handleEmailSignIn(event) {
         const adminUser = {
             email: rawInput.includes('@') ? rawInput : `${cleanInput}@palmnex.com.my`,
             username: displayUser,
-            company: companyInput || 'Palmnex Sdn Bhd',
-            estate_company: companyInput || 'Palmnex Sdn Bhd',
+            company: 'Palmnex Sdn Bhd',
+            estate_company: 'Palmnex Sdn Bhd',
             company_code: 'palmnex',
             access_tier: 'C',
             allowed_modules: getAllowedModulesForTier('C'),
@@ -739,17 +743,14 @@ async function handleEmailSignIn(event) {
         };
         localStorage.setItem('palmnex_user_session', JSON.stringify(adminUser));
         currentUser = adminUser;
-        syncPalmnexSsoState(adminUser);
-        updateTopNavUser(adminUser);
-        applyModuleAccessControl(adminUser);
-        renderAuthModalSessionBanner();
-        if (typeof window.refreshMergedHistory === 'function') window.refreshMergedHistory();
-        showAuthSuccess(`Welcome, ${displayUser}!`);
-        setTimeout(() => {
-            const successEl = document.getElementById('auth-success-msg');
-            if (successEl) successEl.style.display = 'none';
-            closeAuthModal();
-        }, 400);
+        closeAuthModal();
+        try { syncPalmnexSsoState(adminUser); } catch (e) {}
+        try { updateTopNavUser(adminUser); } catch (e) {}
+        try { applyModuleAccessControl(adminUser); } catch (e) { console.warn(e); }
+        try { renderAuthModalSessionBanner(); } catch (e) {}
+        if (typeof window.refreshMergedHistory === 'function') {
+            try { window.refreshMergedHistory(); } catch (e) {}
+        }
         return;
     }
 
@@ -776,26 +777,26 @@ async function handleEmailSignIn(event) {
         if (error) throw error;
 
         const plainUsername = rawInput.includes('@') ? rawInput.split('@')[0] : rawInput;
-        const enrichedUser = await enrichSupabaseUserProfile(data.user, companyInput, plainUsername);
+        const enrichedUser = await enrichSupabaseUserProfile(data.user, '', plainUsername);
         localStorage.setItem('palmnex_user_session', JSON.stringify(enrichedUser));
         currentUser = enrichedUser;
-        syncPalmnexSsoState(enrichedUser);
-        updateTopNavUser(enrichedUser);
-        applyModuleAccessControl(enrichedUser);
-        renderAuthModalSessionBanner();
-        if (typeof window.refreshMergedHistory === 'function') window.refreshMergedHistory();
-        showAuthSuccess(`Signed in as ${enrichedUser.username} (${enrichedUser.company}).`);
-        setTimeout(() => {
-            const successEl = document.getElementById('auth-success-msg');
-            if (successEl) successEl.style.display = 'none';
-            closeAuthModal();
-        }, 450);
+        closeAuthModal();
+        try { syncPalmnexSsoState(enrichedUser); } catch (e) {}
+        try { updateTopNavUser(enrichedUser); } catch (e) {}
+        try { applyModuleAccessControl(enrichedUser); } catch (e) { console.warn(e); }
+        try { renderAuthModalSessionBanner(); } catch (e) {}
+        if (typeof window.refreshMergedHistory === 'function') {
+            try { window.refreshMergedHistory(); } catch (e) {}
+        }
     } catch (err) {
         showAuthError(err.message || "Invalid PalmnexReaDS username or password.");
     } finally {
         setAuthLoading(false);
     }
 }
+window.handleEmailSignIn = handleEmailSignIn;
+window.openAuthModal = openAuthModal;
+window.closeAuthModal = closeAuthModal;
 
 // Sign Out User
 async function handleSignOut() {
