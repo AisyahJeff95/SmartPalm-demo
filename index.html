@@ -22,8 +22,8 @@
 
     <!-- Supabase JS Client & Auth Modules -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/supabase-config.js?v=20261112c"></script>
-    <script src="js/auth.js?v=20261112c"></script>
+    <script src="js/supabase-config.js?v=20261112d"></script>
+    <script src="js/auth.js?v=20261112d"></script>
 </head>
 <body class="sp-dark-home">
     <div class="cms-layout">
@@ -390,29 +390,21 @@
     </div>
 
     <!-- Supabase Auth Split-Screen Portal -->
-    <div id="auth-modal" class="modal-overlay" data-portal-v2="true" style="display: none; flex-direction: row; align-items: stretch; justify-content: flex-start; z-index: 9999999; position: fixed; inset: 0; background: #0c1017; padding: 0;">
-        <!-- Left Panel: Only Brand Logo (all navigation items hidden during sign-in) -->
-        <aside style="width: 248px; flex-shrink: 0; height: 100vh; background: #0c1017; border-right: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; select-none: none;">
-            <div style="padding: 20px 20px 18px 20px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; gap: 12px;">
-                <div style="width: 38px; height: 38px; border-radius: 8px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 4px;">
-                    <img src="MPOB-3.png" alt="MPOB Logo" style="width: 100%; height: 100%; object-fit: contain;" />
-                </div>
-                <div style="min-width: 0;">
-                    <div style="font-family: 'Outfit', sans-serif; font-size: 15.5px; font-weight: 700; color: #f8fafc; letter-spacing: -0.2px; line-height: 1.2;">PalmNex</div>
-                    <div style="font-family: 'Inter', sans-serif; font-size: 11px; color: #94a3b8; line-height: 1.3; margin-top: 2px;">SmartPalm Decision Support &amp; Monitoring System</div>
-                </div>
+    <div id="auth-modal" class="modal-overlay" data-portal-v3="true" style="display: none; flex-direction: row; align-items: stretch; justify-content: flex-start; z-index: 9999999; position: fixed; inset: 0; background: #0c1017; padding: 0;">
+        <!-- Left Panel: Only Brand Logo (wider to match Total Estate Company column, large clean logo without box/outline) -->
+        <aside style="width: 350px; flex-shrink: 0; height: 100vh; background: #0c1017; border-right: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; user-select: none;">
+            <div style="padding: 24px 28px 22px 28px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: flex-start;">
+                <img src="MPOB-3.png" alt="MPOB PalmNex" style="width: 100%; max-width: 268px; height: auto; object-fit: contain; display: block;" />
             </div>
         </aside>
 
-        <!-- Right Main Area: Formal Dark Plantation Backdrop & Centered Account Access Card -->
-        <div style="flex: 1; height: 100vh; position: relative; display: flex; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(135deg, rgba(10, 14, 22, 0.78) 0%, rgba(12, 18, 28, 0.84) 100%), url('reada-bg.jpg') center/cover no-repeat; overflow-y: auto;">
+        <!-- Right Main Area: Satellite Oil Palm Plantation Backdrop (Photo 3) & Centered Account Access Card -->
+        <div style="flex: 1; height: 100vh; position: relative; display: flex; align-items: center; justify-content: center; padding: 24px; background: linear-gradient(135deg, rgba(8, 12, 20, 0.36) 0%, rgba(10, 15, 24, 0.46) 100%), url('login-bg.jpg') center/cover no-repeat; overflow-y: auto;">
             <div class="modal-content" style="max-width: 410px; width: 100%; background: #121824; color: #f8fafc; border: 1px solid rgba(255,255,255,0.11); border-radius: 14px; padding: 32px 28px 24px 28px; position: relative; box-shadow: 0 24px 64px rgba(0,0,0,0.65); font-family: 'Inter', sans-serif;">
                 <button type="button" id="auth-modal-close-btn" style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 18px; color: #94a3b8; cursor: pointer;" onclick="closeAuthModal()" title="Close">✕</button>
 
                 <div style="text-align: center; margin-bottom: 22px;">
-                    <div style="width: 54px; height: 54px; margin: 0 auto 14px auto; border-radius: 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); display: flex; align-items: center; justify-content: center; padding: 7px;">
-                        <img src="MPOB-3.png" alt="MPOB PalmNex" style="width: 100%; height: 100%; object-fit: contain;" />
-                    </div>
+                    <img src="MPOB-3.png" alt="MPOB PalmNex" style="height: 44px; width: auto; max-width: 230px; object-fit: contain; display: block; margin: 0 auto 14px auto;" />
                     <h3 style="margin: 0 0 6px 0; font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 700; color: #ffffff; letter-spacing: -0.3px;" data-i18n="authModalTitle">Account Access</h3>
                     <p style="margin: 0 0 4px 0; font-size: 12.5px; color: #94a3b8;">Sign in to sync your PALMNEX data</p>
                     <p style="margin: 0; font-size: 11.5px; font-weight: 600; color: #10b981;">SmartPalm: Precision Fertilization &amp; Monitoring System · MPOB</p>
@@ -486,10 +478,10 @@
 
     <!-- External & Modular JS Scripts -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="js/i18n.js?v=20261112c"></script>
-    <script src="js/nav.js?v=20261112c"></script>
-    <script src="js/prediction_cache_history.js?v=20261112c"></script>
-    <script src="js/home_dashboard_data.js?v=20261112c"></script>
-    <script src="js/home_dashboard.js?v=20261112c"></script>
+    <script src="js/i18n.js?v=20261112d"></script>
+    <script src="js/nav.js?v=20261112d"></script>
+    <script src="js/prediction_cache_history.js?v=20261112d"></script>
+    <script src="js/home_dashboard_data.js?v=20261112d"></script>
+    <script src="js/home_dashboard.js?v=20261112d"></script>
 </body>
 </html>
