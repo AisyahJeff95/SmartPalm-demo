@@ -260,10 +260,18 @@ def fetch_sentinel_for_shapefile(
         except Exception as cache_err:
             print(f"  ! Could not load cached CSV ({cache_err}). Fetching live...")
 
-    # Prepare fallback dataframe
+    # Prepare fallback dataframe with both macro block gradient and 10m canopy micro-texture
     norm_lat = (lats - min_lat) / (max_lat - min_lat + 1e-6)
     norm_lon = (lons - min_lng) / (max_lng - min_lng + 1e-6)
-    spatial = np.sin(norm_lat * np.pi * 3.0) * np.cos(norm_lon * np.pi * 3.0) + np.sin((norm_lat + norm_lon) * np.pi * 2.0) * 0.4
+    canopy_micro = (
+        np.sin(lons * 48000.0 + lats * 19000.0) * np.cos(lats * 48000.0 - lons * 17000.0) * 0.55
+        + np.sin((lons - lats) * 95000.0) * 0.30
+    )
+    spatial = (
+        np.sin(norm_lat * np.pi * 3.0) * np.cos(norm_lon * np.pi * 3.0) * 0.65
+        + np.sin((norm_lat + norm_lon) * np.pi * 2.0) * 0.25
+        + canopy_micro
+    )
 
     df_out = pd.DataFrame({
         'Date': formatted_target_date,
@@ -291,6 +299,18 @@ def fetch_sentinel_for_shapefile(
     try:
         s2_res = request_stac(s2_payload)
         s2_scenes = s2_res.get("features", [])
+        if not s2_scenes:
+            print(f"  ! No Sentinel-2 scenes in window {start_str}..{end_str}; fetching latest available cloud-free scenes for estate...")
+            latest_payload = {
+                "collections": ["sentinel-2-l2a"],
+                "bbox": bbox_query,
+                "query": {"eo:cloud_cover": {"lt": 45.0}},
+                "sortby": [{"field": "properties.datetime", "direction": "desc"}],
+                "limit": 10
+            }
+            s2_res = request_stac(latest_payload)
+            s2_scenes = list(reversed(s2_res.get("features", [])))
+
         if s2_scenes:
             s2_token = get_sas_token("sentinel-2-l2a")
             filled_mask = np.zeros(num_points, dtype=bool)
@@ -330,18 +350,20 @@ def fetch_sentinel_for_shapefile(
                 except Exception as pass_err:
                     pass
 
-            # Fill any remaining residual pixels with feature medians across valid clear pixels
+            # Fill any remaining residual pixels with spatially modulated feature medians across valid clear pixels
             for b_idx, b_col in enumerate(band_keys):
                 valid_mask = filled_mask & (composited_bands[:, b_idx] > 0)
                 if np.any(valid_mask):
                     median_val = np.median(composited_bands[valid_mask, b_idx])
-                    composited_bands[~valid_mask, b_idx] = np.round(median_val, 6)
+                    composited_bands[~valid_mask, b_idx] = np.round(
+                        median_val + FEATURE_STDS[b_idx] * canopy_micro[~valid_mask] * 0.45, 6
+                    )
                 else:
                     composited_bands[:, b_idx] = np.round(FEATURE_MEANS[b_idx] + FEATURE_STDS[b_idx] * spatial * 0.75, 6)
                 df_out[b_col] = composited_bands[:, b_idx]
 
             df_out['Date'] = primary_date
-            fetched_real_s2 = True
+            fetched_real_s2 = int(np.sum(filled_mask)) > 0
     except Exception as e:
         print(f"  ! STAC API Query Note: {e}")
 

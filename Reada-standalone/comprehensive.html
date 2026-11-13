@@ -2625,6 +2625,12 @@ function handleDroneImageUpload(event) {
 // 4. Block Boundary Vectors & Labels (z-index 500)
 function ensureMapPanes(map) {
     if (!map) return;
+    if (!document.getElementById('smartpalm-raster-crisp-style')) {
+        const st = document.createElement('style');
+        st.id = 'smartpalm-raster-crisp-style';
+        st.textContent = '.leaflet-rasterPane-pane, .leaflet-rasterPane-pane img.leaflet-image-layer { image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges; image-rendering: pixelated; }';
+        document.head.appendChild(st);
+    }
     if (!map.getPane('dronePane')) {
         const dp = map.createPane('dronePane');
         dp.style.zIndex = 300;
@@ -2632,6 +2638,7 @@ function ensureMapPanes(map) {
     if (!map.getPane('rasterPane')) {
         const rp = map.createPane('rasterPane');
         rp.style.zIndex = 400;
+        rp.style.imageRendering = 'pixelated';
     }
     if (!map.getPane('boundaryPane')) {
         const bp = map.createPane('boundaryPane');

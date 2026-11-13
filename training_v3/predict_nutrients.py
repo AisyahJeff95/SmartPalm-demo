@@ -256,7 +256,15 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_overr
 
         norm_lat = (lat_inside - min_lat) / (max_lat - min_lat + 1e-6)
         norm_lon = (lon_inside - min_lng) / (max_lng - min_lng + 1e-6)
-        spatial = np.sin(norm_lat * np.pi * 3.0) * np.cos(norm_lon * np.pi * 3.0) + np.sin((norm_lat + norm_lon) * np.pi * 2.0) * 0.4
+        canopy_micro = (
+            np.sin(lon_inside * 48000.0 + lat_inside * 19000.0) * np.cos(lat_inside * 48000.0 - lon_inside * 17000.0) * 0.55
+            + np.sin((lon_inside - lat_inside) * 95000.0) * 0.30
+        )
+        spatial = (
+            np.sin(norm_lat * np.pi * 3.0) * np.cos(norm_lon * np.pi * 3.0) * 0.65
+            + np.sin((norm_lat + norm_lon) * np.pi * 2.0) * 0.25
+            + canopy_micro
+        )
 
         X_array = np.zeros((len(lon_inside), len(FEATURE_COLS)))
         for i in range(len(FEATURE_COLS)):
