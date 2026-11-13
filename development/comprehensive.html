@@ -3495,8 +3495,8 @@ function lockEnteredSatDate() {
                 </div>
             </div>
 
-            <!-- Section 2 Header: Fertilizer Recommendation -->
-            <div class="ui-section-title" style="margin-top: 10px;">Fertilizer Recommendation</div>
+            <!-- Section 2 Header: Fertilizer Information -->
+            <div class="ui-section-title" style="margin-top: 10px;">Fertilizer Information</div>
 
             <!-- Card 7: Enter Fertilizer Used/ To Use [Ratio] -->
             <div class="ui-card">
@@ -3553,15 +3553,31 @@ function lockEnteredSatDate() {
                 </div>
             </div>
 
-            <!-- Selected Block Status for Report -->
-            <div id="selected-block-report-hint" class="ui-hint-text" style="font-size: 13px; line-height: 1.4; color: #a1a1aa; margin-bottom: 8px; padding: 0 2px;">
-                * Click a single block on the dashboard map first to generate report.
+            <!-- Section 3 Header: Report -->
+            <div class="ui-section-title" style="margin-top: 10px;">Report</div>
+
+            <!-- Card 8: Report Configuration (Block Selection & Estate Name) -->
+            <div class="ui-card">
+                <div class="ui-card-label" style="margin-bottom: 8px;">Block Selection</div>
+                <!-- Selected Block Status for Report -->
+                <div id="selected-block-report-hint" class="ui-hint-text" style="font-size: 13px; line-height: 1.4; color: #a1a1aa; padding: 0 2px;">
+                    * Click a single block on the dashboard map first to generate report.
+                </div>
+
+                <!-- Optional: Desired Estate Name for Report -->
+                <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 12px; margin-top: 12px;">
+                    <div class="ui-card-label" style="margin-bottom: 8px;">Optional: Desired Estate Name for Report</div>
+                    <div class="ui-field-row">
+                        <input type="text" id="estate-name-input" class="ui-pill-input" placeholder="">
+                        <input type="checkbox" id="estate-name-lock-chk" class="ui-accent-checkbox" onchange="toggleLockInput(this, 'estate-name-input')" title="Lock / Unlock input">
+                    </div>
+                </div>
             </div>
 
             <!-- Generate Report Button -->
             <button class="ui-generate-report-btn" onclick="viewReportPDF(reportData.soilType || 'Standard')">Generate Report</button>
 
-            <!-- Card 3: Optional Drone Image Upload & Estate Name (Moved under Generate Report) -->
+            <!-- Card 3: Optional Drone Image Upload (Moved under Generate Report) -->
             <div class="ui-card" id="card-drone-upload" style="margin-top: 12px;">
                 <div class="ui-card-label" style="margin-bottom: 10px;">Optional:</div>
                 
@@ -3591,15 +3607,6 @@ function lockEnteredSatDate() {
                 </div>
 
                 <div class="ui-hint-text" id="drone-status-hint" style="margin-top: 4px;">* Upload high-resolution drone orthomosaic image to overlay on active map boundary.</div>
-
-                <!-- Estate Name (for report) -->
-                <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 10px; margin-top: 10px;">
-                    <div class="ui-sub-label" style="font-weight: 600; margin-bottom: 6px;">Estate Name (for report):</div>
-                    <div class="ui-field-row">
-                        <input type="text" id="estate-name-input" class="ui-pill-input" placeholder="">
-                        <input type="checkbox" id="estate-name-lock-chk" class="ui-accent-checkbox" onchange="toggleLockInput(this, 'estate-name-input')" title="Lock / Unlock input">
-                    </div>
-                </div>
             </div>
 
             <!-- Note & Disclaimer Section -->
