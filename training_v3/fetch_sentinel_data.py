@@ -291,12 +291,14 @@ def fetch_sentinel_for_shapefile(
         "bbox": bbox_query,
         "datetime": f"{start_str}/{end_str}",
         "query": {"eo:cloud_cover": {"lt": 60.0}},
-        "sortby": [{"field": "properties.datetime", "direction": "asc"}],
-        "limit": 10
+        "sortby": [{"field": "properties.datetime", "direction": "desc"}],
+        "limit": 6
     }
 
     fetched_real_s2 = False
     try:
+        from concurrent.futures import ThreadPoolExecutor
+
         s2_res = request_stac(s2_payload)
         s2_scenes = s2_res.get("features", [])
         if not s2_scenes:
@@ -306,17 +308,23 @@ def fetch_sentinel_for_shapefile(
                 "bbox": bbox_query,
                 "query": {"eo:cloud_cover": {"lt": 45.0}},
                 "sortby": [{"field": "properties.datetime", "direction": "desc"}],
-                "limit": 10
+                "limit": 6
             }
             s2_res = request_stac(latest_payload)
-            s2_scenes = list(reversed(s2_res.get("features", [])))
+            s2_scenes = s2_res.get("features", [])
 
         if s2_scenes:
+            primary_date = s2_scenes[0]['properties']['datetime'][:10]
+            # Sort by lowest cloud cover first and take the top 3 cleanest scenes
+            s2_scenes = sorted(
+                s2_scenes,
+                key=lambda s: float(s.get("properties", {}).get("eo:cloud_cover", 100.0))
+            )[:3]
+
             s2_token = get_sas_token("sentinel-2-l2a")
             filled_mask = np.zeros(num_points, dtype=bool)
             band_keys = list(S2_BAND_MAP.keys())
             composited_bands = np.zeros((num_points, len(band_keys)), dtype=np.float32)
-            primary_date = s2_scenes[-1]['properties']['datetime'][:10]
 
             for sc in s2_scenes:
                 scl_asset = sc["assets"].get("SCL")
@@ -330,22 +338,36 @@ def fetch_sentinel_for_shapefile(
                     clear_mask = (pt_scl == 4) | (pt_scl == 5) | (pt_scl == 6)
                     to_fill = clear_mask & (~filled_mask)
                     new_count = int(np.sum(to_fill))
-                    tot_count = int(np.sum(filled_mask)) + new_count
+                    min_useful = 1 if not np.any(filled_mask) else max(1, int(num_points * 0.05))
                     dt_str = sc["properties"]["datetime"][:10]
+
+                    if new_count < min_useful:
+                        print(f"  Pass {sc['id']} ({dt_str}) | Skipped (<5% new clear pixels: {new_count:,})")
+                        continue
+
+                    tot_count = int(np.sum(filled_mask)) + new_count
                     print(f"  Pass {sc['id']} ({dt_str}) | Added new clear pixels: {new_count:,} | Total clear composite: {tot_count:,}/{num_points:,} ({tot_count/num_points*100:.1f}%)")
 
-                    if new_count > 0:
-                        s2_assets = sc["assets"]
-                        for b_idx, (b_col, b_asset) in enumerate(S2_BAND_MAP.items()):
-                            if b_asset in s2_assets:
-                                b_url = sign_url(s2_assets[b_asset]["href"], s2_token)
-                                b_data, crs_b, win_tf_b = read_window_data(b_url, bbox_query)
-                                raw_vals = sample_coordinates(b_data, crs_b, win_tf_b, lons, lats)
-                                composited_bands[to_fill, b_idx] = np.round(raw_vals[to_fill].astype(np.float32) / 10000.0, 6)
-                        filled_mask[to_fill] = True
+                    s2_assets = sc["assets"]
+                    def _fetch_single_band(args_tuple):
+                        b_idx, b_col, b_asset = args_tuple
+                        if b_asset not in s2_assets:
+                            return b_idx, None
+                        b_url = sign_url(s2_assets[b_asset]["href"], s2_token)
+                        b_data, crs_b, win_tf_b = read_window_data(b_url, bbox_query)
+                        raw_vals = sample_coordinates(b_data, crs_b, win_tf_b, lons, lats)
+                        return b_idx, np.round(raw_vals[to_fill].astype(np.float32) / 10000.0, 6)
 
-                    if np.all(filled_mask):
-                        print("  🎉 100% of estate plot pixels composited cloud-free!")
+                    band_tasks = [(b_idx, b_col, b_asset) for b_idx, (b_col, b_asset) in enumerate(S2_BAND_MAP.items())]
+                    with ThreadPoolExecutor(max_workers=12) as pool:
+                        for b_idx, vals_arr in pool.map(_fetch_single_band, band_tasks):
+                            if vals_arr is not None:
+                                composited_bands[to_fill, b_idx] = vals_arr
+
+                    filled_mask[to_fill] = True
+
+                    if np.mean(filled_mask) >= 0.95:
+                        print("  🎉 >=95% of estate plot pixels composited cloud-free!")
                         break
                 except Exception as pass_err:
                     pass
