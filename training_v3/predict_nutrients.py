@@ -32,12 +32,13 @@ from PIL import Image
 from shapely.geometry import shape, Point, Polygon, MultiPolygon
 from shapely.ops import unary_union
 from shapely.prepared import prep
+import math
 import pyproj
 
 # Import function from SEPARATE Python script: fetch_sentinel_data.py
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, SCRIPT_DIR)
-from fetch_sentinel_data import fetch_sentinel_for_shapefile
+from fetch_sentinel_data import fetch_sentinel_for_shapefile, FEATURE_MEANS, FEATURE_STDS
 
 PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
 DEV_DIR = os.path.join(PROJECT_ROOT, "development")
@@ -220,14 +221,36 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_overr
 
     if df_grid is None or len(df_grid) == 0:
         print(f"  ! Fallback: Generating 10m spatial mesh grid for {estate_name}...")
-        cols, rows = 150, 150
-        lons = np.linspace(min_lng, max_lng, cols)
-        lats = np.linspace(max_lat, min_lat, rows)
+        avg_lat = (min_lat + max_lat) / 2.0
+        step_lat_fb = 10.0 / 110600.0
+        step_lng_fb = 10.0 / (110600.0 * math.cos(math.radians(avg_lat)))
+        cols_est = int(round((max_lng - min_lng) / step_lng_fb)) + 1
+        rows_est = int(round((max_lat - min_lat) / step_lat_fb)) + 1
+        max_dim_fb = max(cols_est, rows_est)
+        if max_dim_fb > 2200:
+            scale_fb = max_dim_fb / 2200.0
+            step_lng_fb *= scale_fb
+            step_lat_fb *= scale_fb
+
+        lons = np.arange(min_lng, max_lng + step_lng_fb * 0.5, step_lng_fb)
+        lats = np.arange(max_lat, min_lat - step_lat_fb * 0.5, -step_lat_fb)
         lon_grid, lat_grid = np.meshgrid(lons, lats)
         lon_flat = lon_grid.flatten()
         lat_flat = lat_grid.flatten()
 
-        inside_mask = [prep_poly.contains(Point(x, y)) for x, y in zip(lon_flat, lat_flat)]
+        try:
+            from rasterio.features import geometry_mask as _geom_mask
+            from shapely.geometry import mapping as _mapping
+            _c, _r = len(lons), len(lats)
+            _l = min_lng - step_lng_fb / 2.0
+            _rt = _l + _c * step_lng_fb
+            _t = max_lat + step_lat_fb / 2.0
+            _b = _t - _r * step_lat_fb
+            _tf = from_bounds(_l, _b, _rt, _t, _c, _r)
+            inside_mask = _geom_mask([_mapping(poly_union)], out_shape=(_r, _c), transform=_tf, invert=True).flatten()
+        except Exception:
+            inside_mask = [prep_poly.contains(Point(x, y)) for x, y in zip(lon_flat, lat_flat)]
+
         lon_inside = lon_flat[inside_mask]
         lat_inside = lat_flat[inside_mask]
 
@@ -313,16 +336,25 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_overr
     generated_files = [pred_csv_name, pred_csv_gz_name]
     raster_results = {}
 
+    BREAKS_MAP = {
+        'N':  [2.10, 2.30, 2.50, 2.70, 2.90],
+        'P':  [0.120, 0.135, 0.150, 0.165, 0.180],
+        'K':  [0.70, 0.85, 1.00, 1.15, 1.30],
+        'Mg': [0.20, 0.22, 0.24, 0.26, 0.28],
+        'Ca': [0.40, 0.50, 0.60, 0.75, 0.90],
+        'B':  [10.0, 15.0, 20.0, 30.0, 40.0],
+    }
+    PALETTE_RGBA = np.array([
+        COLOR_RED, COLOR_ORANGE, COLOR_YELLOW, COLOR_GREEN, COLOR_BLUE, COLOR_BROWN
+    ], dtype=np.uint8)
+
     for nut in TARGET_COLS:
         raster_grid = np.full((rows, cols), np.nan, dtype=np.float32)
         rgba_img = np.zeros((rows, cols, 4), dtype=np.uint8)
-        color_fn = COLOR_FUNCS[nut]
         vals = df_grid[nut].values
 
-        for r, c, v in zip(r_idx, c_idx, vals):
-            if 0 <= r < rows and 0 <= c < cols and v > 0:
-                raster_grid[r, c] = v
-                rgba_img[r, c] = color_fn(v)
+        valid_v = (r_idx >= 0) & (r_idx < rows) & (c_idx >= 0) & (c_idx < cols) & (vals > 0)
+        raster_grid[r_idx[valid_v], c_idx[valid_v]] = vals[valid_v]
 
         # Fill any missed interior pixels inside the polygon boundary (eliminates any rounding/grid gaps)
         if inside_poly_mask is not None and np.any(~np.isnan(raster_grid)):
@@ -347,9 +379,11 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_overr
                             if np.any(can_fill):
                                 raster_grid[can_fill] = shifted[can_fill]
                                 missing_interior = inside_poly_mask & np.isnan(raster_grid)
-                filled_coords = np.argwhere(inside_poly_mask & (~np.isnan(raster_grid)) & (rgba_img[:, :, 3] == 0))
-                for r, c in filled_coords:
-                    rgba_img[r, c] = color_fn(float(raster_grid[r, c]))
+
+        valid_px = (~np.isnan(raster_grid)) & (raster_grid > 0)
+        if np.any(valid_px):
+            bins = np.digitize(raster_grid[valid_px], BREAKS_MAP[nut], right=True)
+            rgba_img[valid_px] = PALETTE_RGBA[bins]
 
         raster_results[nut] = raster_grid
 
@@ -376,8 +410,8 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_overr
         generated_files.append(out_tif_name)
         print(f"  ✓ Exported Float GeoTIFF: {out_tif_name}")
 
-        # PNG Base64 Overlay (cap max dimension to 2000px so JSON response stays fast)
-        up = max(1, min(4, 2000 // max(cols, rows, 1)))
+        # PNG Base64 Overlay (cap max dimension to 3000px for crisp high-res rendering)
+        up = max(1, min(4, 3000 // max(cols, rows, 1)))
         img = Image.fromarray(rgba_img)
         if up > 1:
             img_resized = img.resize((cols * up, rows * up), Image.Resampling.NEAREST)
@@ -456,6 +490,8 @@ def run_predictions(shp_path=None, acquisition_date="06-Oct-2026", out_dir_overr
         bbox_indices = np.where(bbox_mask)[0]
 
         if len(bbox_indices) > 0:
+            if len(bbox_indices) > 500:
+                bbox_indices = bbox_indices[::max(1, len(bbox_indices) // 500)]
             block_prep = prep(poly)
             candidate_points = [Point(lngs[i], lats[i]) for i in bbox_indices]
             sub_mask = [block_prep.contains(pt) for pt in candidate_points]

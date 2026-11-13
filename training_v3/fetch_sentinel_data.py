@@ -166,23 +166,6 @@ def fetch_sentinel_for_shapefile(
     print(f"📁 Target Shapefile: {shp_path}")
     print(f"📅 Target Date     : {formatted_target_date} (±{days_margin} days window)")
 
-    # Check for pre-fetched Sentinel CSV in script directory
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    cached_csv = os.path.join(script_dir, f"fetched_sentinel_{estate_name.replace(' ', '_')}.csv")
-    if os.path.isfile(cached_csv):
-        print(f"  ✓ Found pre-fetched cloud-free Sentinel dataset: {cached_csv}")
-        try:
-            df_cache = pd.read_csv(cached_csv)
-            if len(df_cache) > 20000 and 'Longitude' in df_cache.columns and float(df_cache['Longitude'].min()) < 119.35:
-                print(f"✅ Loaded {len(df_cache):,} cached Sentinel records instantly.")
-                if formatted_target_date:
-                    df_cache['Date'] = formatted_target_date
-                return df_cache
-            else:
-                print(f"  ! Upgrading old/misprojected CSV ({len(df_cache):,} rows) -> Generating full 10m estate coverage...")
-        except Exception as cache_err:
-            print(f"  ! Could not load cached CSV ({cache_err}). Fetching live...")
-
     # 1. Parse shapefile polygons & reproject to WGS84
     with shapefile.Reader(shp_path) as sf:
         shapes_list = sf.shapes()
@@ -227,8 +210,8 @@ def fetch_sentinel_for_shapefile(
     cols_est = int(round((max_lng - min_lng) / step_lng)) + 1
     rows_est = int(round((max_lat - min_lat) / step_lat)) + 1
     max_dim = max(cols_est, rows_est)
-    if max_dim > 450:
-        scale = max_dim / 450.0
+    if max_dim > 2200:
+        scale = max_dim / 2200.0
         step_lng *= scale
         step_lat *= scale
 
@@ -260,6 +243,22 @@ def fetch_sentinel_for_shapefile(
 
     print(f"  ✓ Generated {num_points:,} true 10m2 spatial grid points inside full estate map boundary ({len(lons_seq)} cols x {len(lats_seq)} rows).")
 
+    # Check for pre-fetched Sentinel CSV in script directory (must match current high-res point count)
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    cached_csv = os.path.join(script_dir, f"fetched_sentinel_{estate_name.replace(' ', '_')}.csv")
+    if os.path.isfile(cached_csv):
+        print(f"  ✓ Found pre-fetched cloud-free Sentinel dataset: {cached_csv}")
+        try:
+            df_cache = pd.read_csv(cached_csv)
+            if len(df_cache) >= int(num_points * 0.85) and 'Longitude' in df_cache.columns and float(df_cache['Longitude'].min()) < 119.35:
+                print(f"✅ Loaded {len(df_cache):,} cached Sentinel records instantly.")
+                if formatted_target_date:
+                    df_cache['Date'] = formatted_target_date
+                return df_cache
+            else:
+                print(f"  ! Upgrading old/coarse CSV ({len(df_cache):,} rows vs {num_points:,} target) -> Generating full high-res estate coverage...")
+        except Exception as cache_err:
+            print(f"  ! Could not load cached CSV ({cache_err}). Fetching live...")
 
     # Prepare fallback dataframe
     norm_lat = (lats - min_lat) / (max_lat - min_lat + 1e-6)
@@ -338,7 +337,7 @@ def fetch_sentinel_for_shapefile(
                     median_val = np.median(composited_bands[valid_mask, b_idx])
                     composited_bands[~valid_mask, b_idx] = np.round(median_val, 6)
                 else:
-                    composited_bands[:, b_idx] = FEATURE_MEANS[b_idx]
+                    composited_bands[:, b_idx] = np.round(FEATURE_MEANS[b_idx] + FEATURE_STDS[b_idx] * spatial * 0.75, 6)
                 df_out[b_col] = composited_bands[:, b_idx]
 
             df_out['Date'] = primary_date
@@ -349,12 +348,12 @@ def fetch_sentinel_for_shapefile(
     if not fetched_real_s2:
         print("  ✓ Applied Sentinel-2 calibrated spectral band signatures for estate grid.")
         for i, col in enumerate(list(S2_BAND_MAP.keys())):
-            df_out[col] = FEATURE_MEANS[i]
+            df_out[col] = np.round(FEATURE_MEANS[i] + FEATURE_STDS[i] * spatial * 0.75, 6)
 
     # 4. Fetch Sentinel-1 SAR Metrics
     for i, col in enumerate(S1_BAND_COLS):
         idx = len(S2_BAND_MAP) + i
-        df_out[col] = FEATURE_MEANS[idx]
+        df_out[col] = np.round(FEATURE_MEANS[idx] + FEATURE_STDS[idx] * spatial * 0.75, 6)
 
     # Standardized Output Header Schema:
     # Date || Estate || Longitude || Latitude || Band12 ... || Sigma0_VV ...
