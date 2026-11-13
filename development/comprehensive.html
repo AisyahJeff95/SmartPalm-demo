@@ -6292,7 +6292,7 @@ function setPredictionModalProgress(pct, state, stepLabel) {
     }
 
     if (pill && state === 'running') {
-        pill.innerHTML = `<span style="filter:grayscale(1);">⏳</span> PROCESSING ${displayPct}%`;
+        pill.innerHTML = `<span style="filter:grayscale(1);">⏳</span> PROCESSING...`;
     }
 }
 
@@ -6355,8 +6355,8 @@ function openPredictionProgressModal(estateLabel, shpDisplay, targetDate, isReal
                         <div style="color:#a1a1aa; font-size:12.5px; margin-top:2px;">Estate: <strong style="color:#f4f4f5;">${estateLabel}</strong> · Mode: <span style="color:#e4e4e7; font-weight:600;">${modeBadge}</span></div>
                     </div>
                 </div>
-                <div id="pred-modal-status-pill" style="padding:5px 12px; border-radius:999px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.22); color:#f4f4f5; font-size:11px; font-weight:700; letter-spacing:0.5px; font-variant-numeric:tabular-nums;">
-                    <span style="filter:grayscale(1);">⏳</span> PROCESSING 5%
+                <div id="pred-modal-status-pill" style="padding:5px 12px; border-radius:999px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.22); color:#f4f4f5; font-size:11px; font-weight:700; letter-spacing:0.5px;">
+                    <span style="filter:grayscale(1);">⏳</span> PROCESSING...
                 </div>
             </div>
 
