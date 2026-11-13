@@ -2125,13 +2125,14 @@ function toggleLockInput(checkboxEl, targetInputId) {
     const target = document.getElementById(targetInputId);
     if (target) {
         target.disabled = checkboxEl.checked;
+        const isLight = target.dataset.theme === 'light' || targetInputId === 'estate-name-input';
         if (checkboxEl.checked) {
-            target.style.background = 'rgba(255, 255, 255, 0.03)';
-            target.style.color = '#71717a';
+            target.style.background = isLight ? '#e2e8f0' : 'rgba(255, 255, 255, 0.03)';
+            target.style.color = isLight ? '#64748b' : '#71717a';
             target.style.cursor = 'not-allowed';
         } else {
-            target.style.background = 'rgba(255, 255, 255, 0.06)';
-            target.style.color = '#f8fafc';
+            target.style.background = isLight ? '#f8fafc' : 'rgba(255, 255, 255, 0.06)';
+            target.style.color = isLight ? '#0f172a' : '#f8fafc';
             target.style.cursor = 'text';
         }
     }
@@ -3486,13 +3487,6 @@ function lockEnteredSatDate() {
                 </div>
 
                 <button class="ui-full-map-btn" onclick="openFullMapNutrientDialog()">View Full Map of Nutrient Detection</button>
-
-                <!-- Download .tif Raster Files Button -->
-                <div style="margin-top: 8px;">
-                    <button class="ui-upload-outline-btn" id="btn-download-rasters" onclick="downloadNutrientTifRasters()" style="width: 100%; justify-content: center; padding: 8px; font-weight: 600; border-color: rgba(255, 255, 255, 0.25); color: #f8fafc;">
-                        <span>📥</span> Download .tif Raster Files
-                    </button>
-                </div>
             </div>
 
             <!-- Section 2 Header: Fertilizer Information -->
@@ -3553,32 +3547,8 @@ function lockEnteredSatDate() {
                 </div>
             </div>
 
-            <!-- Section 3 Header: Report -->
-            <div class="ui-section-title" style="margin-top: 10px;">Report</div>
-
-            <!-- Card 8: Report Configuration (Block Selection & Estate Name) -->
-            <div class="ui-card">
-                <div class="ui-card-label" style="margin-bottom: 8px;">Block Selection</div>
-                <!-- Selected Block Status for Report -->
-                <div id="selected-block-report-hint" class="ui-hint-text" style="font-size: 13px; line-height: 1.4; color: #a1a1aa; padding: 0 2px;">
-                    * Click a single block on the dashboard map first to generate report.
-                </div>
-
-                <!-- Optional: Desired Estate Name for Report -->
-                <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 12px; margin-top: 12px;">
-                    <div class="ui-card-label" style="margin-bottom: 8px;">Optional: Desired Estate Name for Report</div>
-                    <div class="ui-field-row">
-                        <input type="text" id="estate-name-input" class="ui-pill-input" placeholder="">
-                        <input type="checkbox" id="estate-name-lock-chk" class="ui-accent-checkbox" onchange="toggleLockInput(this, 'estate-name-input')" title="Lock / Unlock input">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Generate Report Button -->
-            <button class="ui-generate-report-btn" onclick="viewReportPDF(reportData.soilType || 'Standard')">Generate Report</button>
-
-            <!-- Card 3: Optional Drone Image Upload (Moved under Generate Report) -->
-            <div class="ui-card" id="card-drone-upload" style="margin-top: 12px;">
+            <!-- Card 3: Optional Drone Image Upload -->
+            <div class="ui-card" id="card-drone-upload" style="margin-top: 2px;">
                 <div class="ui-card-label" style="margin-bottom: 10px;">Optional:</div>
                 
                 <div style="margin-bottom: 8px;">
@@ -3610,7 +3580,7 @@ function lockEnteredSatDate() {
             </div>
 
             <!-- Note & Disclaimer Section -->
-            <div class="ui-footer-notes" style="margin-top: 12px; margin-bottom: 16px; padding: 12px 14px; background: rgba(20, 24, 31, 0.88); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); font-size: 11px; color: #a1a1aa; line-height: 1.5; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;">
+            <div class="ui-footer-notes" style="margin-top: 2px; padding: 12px 14px; background: rgba(20, 24, 31, 0.88); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); font-size: 11px; color: #a1a1aa; line-height: 1.5; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;">
                 <div style="margin-bottom: 8px; color: #d4d4d8;">
                     * We are using Sentinel-1A, 2A, and 1C to produce the most precise nutrient detection data disregarding cloud cover and weather, with a 10-day range of updated data.
                 </div>
@@ -3621,6 +3591,40 @@ function lockEnteredSatDate() {
                     Sentinel real-time maps can be viewed using this link: 
                     <a href="https://browser.dataspace.copernicus.eu/" target="_blank" rel="noopener noreferrer" style="color: #ffffff; font-weight: 600; text-decoration: underline;">Copernicus Data Space EO Browser</a>
                 </div>
+            </div>
+
+            <!-- Section 3: Report (Admin) (White Background) -->
+            <div id="report-admin-section" style="margin-top: 10px; margin-bottom: 16px; background: #ffffff; border-radius: 14px; padding: 14px 16px; border: 1px solid #e2e8f0; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); color: #0f172a;">
+                <div class="ui-section-title" style="margin-top: 0; margin-bottom: 10px; color: #0f172a;">Report (Admin)</div>
+
+                <!-- Card 8: Report Configuration (Block Selection & Estate Name) -->
+                <div class="ui-card" style="background: #f8fafc; border: 1px solid #cbd5e1; box-shadow: none; color: #0f172a;">
+                    <div class="ui-card-label" style="margin-bottom: 8px; color: #0f172a;">Block Selection</div>
+                    <!-- Selected Block Status for Report -->
+                    <div id="selected-block-report-hint" class="ui-hint-text" style="font-size: 13px; line-height: 1.4; color: #475569; padding: 0 2px;">
+                        * Click a single block on the dashboard map first to generate report.
+                    </div>
+
+                    <!-- Optional: Desired Estate Name for Report -->
+                    <div style="border-top: 1px solid #e2e8f0; padding-top: 12px; margin-top: 12px;">
+                        <div class="ui-card-label" style="margin-bottom: 8px; color: #0f172a;">Optional: Desired Estate Name for Report</div>
+                        <div class="ui-field-row">
+                            <input type="text" id="estate-name-input" data-theme="light" class="ui-pill-input" placeholder="" style="background: #ffffff; border: 1px solid #cbd5e1; color: #0f172a;">
+                            <input type="checkbox" id="estate-name-lock-chk" class="ui-accent-checkbox" onchange="toggleLockInput(this, 'estate-name-input')" title="Lock / Unlock input">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Generate Report Button -->
+                <button class="ui-generate-report-btn" style="margin-bottom: 10px;" onclick="viewReportPDF(reportData.soilType || 'Standard')">Generate Report</button>
+
+                <!-- Download Raster (.tif) Files Button (Last inside Report Admin box) -->
+                <button type="button" id="btn-download-rasters" onclick="downloadNutrientTifRasters()"
+                    style="width: 100%; padding: 9px 12px; border-radius: 10px; background: #1e222a; color: #f8fafc; border: 1px solid #334155; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);"
+                    onmouseover="this.style.background='#0f172a'; this.style.borderColor='#475569'"
+                    onmouseout="this.style.background='#1e222a'; this.style.borderColor='#334155'">
+                    <span>📥 Download .tif Raster Files</span>
+                </button>
             </div>
 
         </div>
@@ -3924,45 +3928,45 @@ function lockEnteredSatDate() {
             if (!el) return;
             const filledSlots = selectedBlockSlots.filter(s => s && s.feature);
             if (hasClickedBlock && selectedBlock && filledSlots.length > 0) {
-                el.style.color = '#ffffff';
+                el.style.color = '#0f172a';
                 el.style.fontWeight = '600';
                 const firstSlot = selectedBlockSlots[0];
                 const firstName = (firstSlot && firstSlot.name) ? firstSlot.name : selectedBlock;
-                let html = `<div style="font-size: 13px; margin-bottom: 4px;">✓ Selected Block for Report (Page 1): <strong>${firstName}</strong></div>`;
+                let html = `<div style="font-size: 13px; margin-bottom: 4px; color: #0f172a;">✓ Selected Block for Report (Page 1): <strong>${firstName}</strong></div>`;
 
                 for (let i = 1; i < selectedBlockSlots.length; i++) {
                     const slot = selectedBlockSlots[i];
                     const isPending = (slot === null);
                     const isActive = (activeBlockSlotIndex === i);
                     if (isPending) {
-                        html += `<div onclick="window.setActiveBlockSlot(${i})" style="margin-top: 4px; padding: 4px 8px; border-radius: 5px; background: ${isActive ? 'rgba(16, 185, 129, 0.18)' : 'rgba(255,255,255,0.05)'}; border: 1px dashed ${isActive ? '#10b981' : '#52525b'}; color: ${isActive ? '#34d399' : '#a1a1aa'}; font-size: 12.5px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+                        html += `<div onclick="window.setActiveBlockSlot(${i})" style="margin-top: 4px; padding: 4px 8px; border-radius: 5px; background: ${isActive ? 'rgba(16, 185, 129, 0.14)' : '#f1f5f9'}; border: 1px dashed ${isActive ? '#059669' : '#94a3b8'}; color: ${isActive ? '#047857' : '#475569'}; font-size: 12.5px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
                             <span>${isActive ? '👉 Click another block on map...' : '+ Click to select block on map...'} (Block ${i + 1})</span>
-                            <span onclick="window.removeBlockSlot(${i}, event)" title="Remove slot" style="color: #9ca3af; font-weight: 700; font-size: 14px; padding: 0 4px; cursor: pointer;">×</span>
+                            <span onclick="window.removeBlockSlot(${i}, event)" title="Remove slot" style="color: #64748b; font-weight: 700; font-size: 14px; padding: 0 4px; cursor: pointer;">×</span>
                         </div>`;
                     } else {
-                        html += `<div onclick="window.setActiveBlockSlot(${i})" title="Click to re-select Block ${i + 1} on map" style="margin-top: 4px; padding: 4px 8px; border-radius: 5px; background: ${isActive ? 'rgba(16, 185, 129, 0.18)' : 'rgba(255,255,255,0.04)'}; border: 1px solid ${isActive ? '#10b981' : 'rgba(255,255,255,0.1)'}; color: #e4e4e7; font-size: 12.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
-                            <span>✓ Block ${i + 1}: <strong style="color: #34d399;">${slot.name}</strong></span>
-                            <span onclick="window.removeBlockSlot(${i}, event)" title="Remove block" style="color: #9ca3af; font-weight: 700; font-size: 14px; padding: 0 4px; cursor: pointer;">×</span>
+                        html += `<div onclick="window.setActiveBlockSlot(${i})" title="Click to re-select Block ${i + 1} on map" style="margin-top: 4px; padding: 4px 8px; border-radius: 5px; background: ${isActive ? 'rgba(16, 185, 129, 0.14)' : '#ffffff'}; border: 1px solid ${isActive ? '#059669' : '#cbd5e1'}; color: #0f172a; font-size: 12.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+                            <span>✓ Block ${i + 1}: <strong style="color: #059669;">${slot.name}</strong></span>
+                            <span onclick="window.removeBlockSlot(${i}, event)" title="Remove block" style="color: #64748b; font-weight: 700; font-size: 14px; padding: 0 4px; cursor: pointer;">×</span>
                         </div>`;
                     }
                 }
 
                 html += `<div style="margin-top: 6px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">`;
                 if (selectedBlockSlots.length < MAX_SELECTED_BLOCKS) {
-                    html += `<div onclick="window.addAnotherBlockSlot()" style="color: #10b981; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-block; user-select: none;">+ add another block</div>`;
+                    html += `<div onclick="window.addAnotherBlockSlot()" style="color: #059669; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-block; user-select: none;">+ add another block</div>`;
                 } else {
                     html += `<div></div>`;
                 }
-                html += `<button type="button" onclick="window.clearAllSelectedBlocks(event)" style="background: rgba(239, 68, 68, 0.14); border: 1px solid rgba(239, 68, 68, 0.38); color: #f87171; font-size: 11.5px; font-weight: 600; padding: 3px 10px; border-radius: 6px; cursor: pointer; user-select: none; transition: all 0.15s ease;" onmouseover="this.style.background='rgba(239,68,68,0.26)';this.style.color='#fca5a5';" onmouseout="this.style.background='rgba(239,68,68,0.14)';this.style.color='#f87171';">Clear All</button>`;
+                html += `<button type="button" onclick="window.clearAllSelectedBlocks(event)" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.35); color: #dc2626; font-size: 11.5px; font-weight: 600; padding: 3px 10px; border-radius: 6px; cursor: pointer; user-select: none; transition: all 0.15s ease;" onmouseover="this.style.background='rgba(239,68,68,0.2)';this.style.color='#b91c1c';" onmouseout="this.style.background='rgba(239,68,68,0.1)';this.style.color='#dc2626';">Clear All</button>`;
                 html += `</div>`;
 
                 if (filledSlots.length > 1) {
-                    html += `<div style="margin-top: 5px; font-size: 12px; line-height: 1.4; color: #a1a1aa; font-weight: 500;">Combined Report Block (${filledSlots.length}/${MAX_SELECTED_BLOCKS}): <strong style="color: #e4e4e7;">${selectedBlock}</strong></div>`;
+                    html += `<div style="margin-top: 5px; font-size: 12px; line-height: 1.4; color: #475569; font-weight: 500;">Combined Report Block (${filledSlots.length}/${MAX_SELECTED_BLOCKS}): <strong style="color: #0f172a;">${selectedBlock}</strong></div>`;
                 }
 
                 el.innerHTML = html;
             } else {
-                el.style.color = '#a1a1aa';
+                el.style.color = '#475569';
                 el.style.fontWeight = '400';
                 el.innerHTML = '* Click a single block on the dashboard map first to generate report.';
             }
@@ -6221,39 +6225,114 @@ function clearPredictionLogTimers() {
         clearInterval(window._PREDICTION_PROGRESS_INTERVAL);
         window._PREDICTION_PROGRESS_INTERVAL = null;
     }
+    if (window._PREDICTION_LIVE_TICKER) {
+        clearInterval(window._PREDICTION_LIVE_TICKER);
+        window._PREDICTION_LIVE_TICKER = null;
+    }
+    const liveLine = document.getElementById('pred-live-activity-line');
+    if (liveLine) liveLine.remove();
 }
 
-function setPredictionModalProgress(pct, state) {
+function setPredictionModalProgress(pct, state, stepLabel) {
     const bar = document.getElementById('pred-modal-progress-bar');
-    if (!bar) return;
+    const shimmer = document.getElementById('pred-modal-progress-shimmer');
+    const pctEl = document.getElementById('pred-modal-progress-pct');
+    const labelEl = document.getElementById('pred-modal-progress-label');
+    const pill = document.getElementById('pred-modal-status-pill');
+
     const clamped = Math.max(0, Math.min(100, Number(pct) || 0));
     window._PREDICTION_CURRENT_PCT = clamped;
-    bar.style.width = clamped + '%';
-    if (state === 'complete') {
-        bar.style.background = 'linear-gradient(90deg, #10b981 0%, #34d399 100%)';
-        bar.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.55)';
-    } else if (state === 'error') {
-        bar.style.background = 'linear-gradient(90deg, #ef4444 0%, #f87171 100%)';
-        bar.style.boxShadow = '0 0 10px rgba(239, 68, 68, 0.45)';
+    if (stepLabel) {
+        window._PREDICTION_CURRENT_STEP_LABEL = stepLabel;
+    }
+
+    if (bar) {
+        bar.style.width = clamped.toFixed(1) + '%';
+        if (state === 'complete') {
+            bar.style.background = 'linear-gradient(90deg, #10b981 0%, #34d399 100%)';
+            bar.style.boxShadow = '0 0 14px rgba(16, 185, 129, 0.65)';
+            if (shimmer) shimmer.style.display = 'none';
+        } else if (state === 'error') {
+            bar.style.background = 'linear-gradient(90deg, #ef4444 0%, #f87171 100%)';
+            bar.style.boxShadow = '0 0 12px rgba(239, 68, 68, 0.55)';
+            if (shimmer) shimmer.style.display = 'none';
+        } else {
+            if (shimmer) shimmer.style.display = 'block';
+        }
+    }
+
+    const elapsedSec = window._PREDICTION_MODAL_START_TS
+        ? ((performance.now() - window._PREDICTION_MODAL_START_TS) / 1000).toFixed(1)
+        : '0.0';
+    const displayPct = Math.round(clamped);
+
+    if (pctEl) {
+        if (state === 'complete') {
+            pctEl.textContent = `100% · Completed (${elapsedSec}s)`;
+            pctEl.style.color = '#4ade80';
+        } else if (state === 'error') {
+            pctEl.textContent = `Stopped (${elapsedSec}s)`;
+            pctEl.style.color = '#f87171';
+        } else {
+            pctEl.textContent = `${displayPct}% · ${elapsedSec}s`;
+            pctEl.style.color = '#38bdf8';
+        }
+    }
+
+    if (labelEl) {
+        if (state === 'complete') {
+            labelEl.textContent = '✓ All 6 foliar nutrient rasters & block summaries ready';
+            labelEl.style.color = '#4ade80';
+        } else if (state === 'error') {
+            labelEl.textContent = '⚠️ Prediction service connection interrupted';
+            labelEl.style.color = '#f87171';
+        } else if (window._PREDICTION_CURRENT_STEP_LABEL) {
+            labelEl.textContent = window._PREDICTION_CURRENT_STEP_LABEL;
+        }
+    }
+
+    if (pill && state === 'running') {
+        pill.innerHTML = `<span style="filter:grayscale(1);">⏳</span> PROCESSING ${displayPct}%`;
     }
 }
 
 function appendPredictionModalLog(lineText, color) {
     const logContainer = document.getElementById('prediction-terminal-log');
     if (!logContainer) return;
+    const liveLine = document.getElementById('pred-live-activity-line');
     const div = document.createElement('div');
     div.style.marginBottom = '4px';
     div.style.whiteSpace = 'pre-wrap';
     div.style.wordBreak = 'break-word';
     if (color) div.style.color = color;
     div.textContent = lineText;
-    logContainer.appendChild(div);
+    if (liveLine && liveLine.parentNode === logContainer) {
+        logContainer.insertBefore(div, liveLine);
+    } else {
+        logContainer.appendChild(div);
+    }
     logContainer.scrollTop = logContainer.scrollHeight;
 }
 
 function openPredictionProgressModal(estateLabel, shpDisplay, targetDate, isRealtime, bounds) {
     let modal = document.getElementById('smartpalm-prediction-modal');
     if (modal) modal.remove();
+
+    if (!document.getElementById('pred-modal-anim-styles')) {
+        const styleEl = document.createElement('style');
+        styleEl.id = 'pred-modal-anim-styles';
+        styleEl.textContent = `
+            @keyframes predBarStripeMove {
+                0% { background-position: 0 0, 0 0; }
+                100% { background-position: 36px 0, 200% 0; }
+            }
+            @keyframes predPulseDot {
+                0%, 100% { opacity: 1; transform: scale(1); }
+                50% { opacity: 0.4; transform: scale(0.85); }
+            }
+        `;
+        document.head.appendChild(styleEl);
+    }
 
     modal = document.createElement('div');
     modal.id = 'smartpalm-prediction-modal';
@@ -6276,16 +6355,27 @@ function openPredictionProgressModal(estateLabel, shpDisplay, targetDate, isReal
                         <div style="color:#a1a1aa; font-size:12.5px; margin-top:2px;">Estate: <strong style="color:#f4f4f5;">${estateLabel}</strong> · Mode: <span style="color:#e4e4e7; font-weight:600;">${modeBadge}</span></div>
                     </div>
                 </div>
-                <div id="pred-modal-status-pill" style="padding:5px 12px; border-radius:999px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.22); color:#f4f4f5; font-size:11px; font-weight:700; letter-spacing:0.5px;">
-                    <span style="filter:grayscale(1);">⏳</span> PROCESSING...
+                <div id="pred-modal-status-pill" style="padding:5px 12px; border-radius:999px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.22); color:#f4f4f5; font-size:11px; font-weight:700; letter-spacing:0.5px; font-variant-numeric:tabular-nums;">
+                    <span style="filter:grayscale(1);">⏳</span> PROCESSING 5%
                 </div>
             </div>
 
-            <div id="pred-modal-progress-track" style="width:100%; height:4px; background:#141821; overflow:hidden; position:relative; flex-shrink:0;">
-                <div id="pred-modal-progress-bar" style="width:3%; height:100%; background:linear-gradient(90deg, #0ea5e9 0%, #22d3ee 50%, #10b981 100%); box-shadow:0 0 10px rgba(34, 211, 238, 0.55); transition:width 0.9s cubic-bezier(0.22, 1, 0.36, 1), background 0.3s ease;"></div>
+            <div style="padding:10px 22px 12px 22px; background:#11151d; border-bottom:1px solid rgba(255,255,255,0.08);">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:7px; font-size:12px;">
+                    <div style="display:flex; align-items:center; gap:7px; color:#cbd5e1; font-weight:500;">
+                        <span style="width:7px; height:7px; border-radius:50%; background:#38bdf8; display:inline-block; animation:predPulseDot 1.2s ease-in-out infinite;"></span>
+                        <span id="pred-modal-progress-label">Initializing Sentinel-2 satellite pipeline...</span>
+                    </div>
+                    <div id="pred-modal-progress-pct" style="color:#38bdf8; font-weight:700; font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px; font-variant-numeric:tabular-nums;">5% · 0.0s</div>
+                </div>
+                <div id="pred-modal-progress-track" style="width:100%; height:9px; background:#1b2230; border-radius:999px; overflow:hidden; position:relative; flex-shrink:0; border:1px solid rgba(255,255,255,0.08); box-shadow:inset 0 1px 3px rgba(0,0,0,0.6);">
+                    <div id="pred-modal-progress-bar" style="width:5%; height:100%; border-radius:999px; background:linear-gradient(90deg, #0284c7 0%, #0ea5e9 40%, #22d3ee 75%, #10b981 100%); box-shadow:0 0 12px rgba(34, 211, 238, 0.6); transition:width 0.45s cubic-bezier(0.22, 1, 0.36, 1), background 0.3s ease; position:relative; overflow:hidden;">
+                        <div id="pred-modal-progress-shimmer" style="position:absolute; inset:0; background-image:linear-gradient(45deg, rgba(255,255,255,0.26) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.26) 50%, rgba(255,255,255,0.26) 75%, transparent 75%, transparent), linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.45) 50%, transparent 100%); background-size:36px 36px, 200% 100%; animation:predBarStripeMove 0.9s linear infinite;"></div>
+                    </div>
+                </div>
             </div>
 
-            <div id="prediction-terminal-log" style="padding:20px 24px; height:290px; overflow-y:auto; background:#07090d; color:#cbd5e1; font-family:'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size:13.5px; line-height:1.65; user-select:none;"></div>
+            <div id="prediction-terminal-log" style="padding:18px 24px; height:275px; overflow-y:auto; background:#07090d; color:#cbd5e1; font-family:'Inter', -apple-system, BlinkMacSystemFont, sans-serif; font-size:13.5px; line-height:1.65; user-select:none;"></div>
 
             <div style="padding:14px 22px; background:linear-gradient(145deg, #14171e 0%, #0e1116 100%); border-top:1px solid rgba(255,255,255,0.1); display:flex; align-items:center; justify-content:space-between; gap:12px;">
                 <div id="pred-modal-footer-note" style="color:#a1a1aa; font-size:12px;">
@@ -6306,43 +6396,71 @@ function openPredictionProgressModal(estateLabel, shpDisplay, targetDate, isReal
     document.body.appendChild(modal);
 
     clearPredictionLogTimers();
-    setPredictionModalProgress(5, 'running');
+    window._PREDICTION_MODAL_START_TS = performance.now();
+    window._PREDICTION_CURRENT_STEP_LABEL = 'Step 1: Preparing estate boundary & satellite imagery...';
+    setPredictionModalProgress(6, 'running', window._PREDICTION_CURRENT_STEP_LABEL);
+
+    // Create a live active bottom line inside the terminal so the log never looks frozen
+    const logContainer = document.getElementById('prediction-terminal-log');
+    if (logContainer) {
+        const liveDiv = document.createElement('div');
+        liveDiv.id = 'pred-live-activity-line';
+        liveDiv.style.cssText = 'margin-top:6px; padding-top:6px; border-top:1px dashed rgba(255,255,255,0.08); color:#38bdf8; font-weight:600; font-size:12.5px; font-variant-numeric:tabular-nums;';
+        liveDiv.textContent = '⠋ Connecting to Sentinel-2 satellite pipeline... (0.0s)';
+        logContainer.appendChild(liveDiv);
+    }
 
     const stagedLogs = [
-        { delay: 120,  pct: 12, text: `Step 1: Preparing estate boundary & satellite imagery...`, color: '#38bdf8' },
-        { delay: 550,  pct: 20, text: `  • Selected Estate : ${estateLabel}`, color: '#e2e8f0' },
-        { delay: 950,  pct: 28, text: `  • Analysis Date   : ${targetDate}`, color: '#fbbf24' },
-        { delay: 1700, pct: 38, text: `  ✓ Estate boundary and block zones verified.`, color: '#a7f3d0' },
-        { delay: 2900, pct: 50, text: `  ✓ Filtering cloud cover and preparing clear satellite view...`, color: '#cbd5e1' },
-        { delay: 4400, pct: 62, text: `✅ Satellite imagery ready for analysis.\n`, color: '#4ade80' },
-        { delay: 5400, pct: 72, text: `Step 2: Analyzing palm canopy & estimating foliar nutrients (N, P, K, Mg, Ca, B)...`, color: '#38bdf8' }
+        { delay: 120,   pct: 12, label: 'Step 1: Preparing estate boundary & satellite imagery...', text: `Step 1: Preparing estate boundary & satellite imagery...`, color: '#38bdf8' },
+        { delay: 550,   pct: 19, label: 'Step 1: Verifying estate block geometry...', text: `  • Selected Estate : ${estateLabel}`, color: '#e2e8f0' },
+        { delay: 950,   pct: 26, label: 'Step 1: Querying Sentinel-2 multispectral archive...', text: `  • Analysis Date   : ${targetDate}`, color: '#fbbf24' },
+        { delay: 1700,  pct: 35, label: 'Step 1: Validating block polygons & CRS bounds...', text: `  ✓ Estate boundary and block zones verified.`, color: '#a7f3d0' },
+        { delay: 2900,  pct: 46, label: 'Step 1: Filtering cloud cover & atmospheric correction...', text: `  ✓ Filtering cloud cover and preparing clear satellite view...`, color: '#cbd5e1' },
+        { delay: 4300,  pct: 56, label: 'Step 1 Complete: Multispectral bands ready.', text: `✅ Satellite imagery ready for analysis.\n`, color: '#4ade80' },
+        { delay: 5200,  pct: 64, label: 'Step 2: Analyzing palm canopy & foliar nutrients...', text: `Step 2: Analyzing palm canopy & estimating foliar nutrients (N, P, K, Mg, Ca, B)...`, color: '#38bdf8' },
+        { delay: 7200,  pct: 71, label: 'Step 2: Computing canopy vegetation indices (NDVI, NDRE, EVI)...', text: `  • Computing 10m canopy reflectance & vegetation indices...`, color: '#cbd5e1' },
+        { delay: 9600,  pct: 78, label: 'Step 2: Running AI model for Nitrogen (N%) & Phosphorus (P%)...', text: `  ✓ Estimating Nitrogen (N%) & Phosphorus (P%) foliar levels...`, color: '#a7f3d0' },
+        { delay: 12400, pct: 84, label: 'Step 2: Running AI model for Potassium (K%) & Magnesium (Mg%)...', text: `  ✓ Estimating Potassium (K%) & Magnesium (Mg%) foliar levels...`, color: '#a7f3d0' },
+        { delay: 15400, pct: 89, label: 'Step 2: Running AI model for Calcium (Ca%) & Boron (B ppm)...', text: `  ✓ Estimating Calcium (Ca%) & Boron (B ppm) foliar levels...`, color: '#a7f3d0' },
+        { delay: 18500, pct: 93, label: 'Step 3: Rendering 10m nutrient rasters & block statistics...', text: `Step 3: Generating high-resolution nutrient overlays & block statistics...`, color: '#38bdf8' }
     ];
 
     stagedLogs.forEach(item => {
         const tid = setTimeout(() => {
             if (window._PREDICTION_IS_RUNNING) {
                 appendPredictionModalLog(item.text, item.color);
-                setPredictionModalProgress(item.pct, 'running');
+                setPredictionModalProgress(item.pct, 'running', item.label);
             }
         }, item.delay);
         window._PREDICTION_LOG_TIMERS.push(tid);
     });
 
-    const creepTimer = setTimeout(() => {
-        if (!window._PREDICTION_IS_RUNNING) return;
-        window._PREDICTION_PROGRESS_INTERVAL = setInterval(() => {
-            if (!window._PREDICTION_IS_RUNNING) {
-                clearInterval(window._PREDICTION_PROGRESS_INTERVAL);
-                window._PREDICTION_PROGRESS_INTERVAL = null;
-                return;
-            }
-            const cur = window._PREDICTION_CURRENT_PCT || 72;
-            if (cur < 94) {
-                setPredictionModalProgress(cur + Math.max(0.18, (94 - cur) * 0.035), 'running');
-            }
-        }, 650);
-    }, 5700);
-    window._PREDICTION_LOG_TIMERS.push(creepTimer);
+    const spinnerFrames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+    let frameIdx = 0;
+
+    window._PREDICTION_LIVE_TICKER = setInterval(() => {
+        if (!window._PREDICTION_IS_RUNNING) {
+            clearInterval(window._PREDICTION_LIVE_TICKER);
+            window._PREDICTION_LIVE_TICKER = null;
+            return;
+        }
+        frameIdx = (frameIdx + 1) % spinnerFrames.length;
+        const cur = window._PREDICTION_CURRENT_PCT || 6;
+        // Smooth continuous creep so percentage never freezes
+        const nextPct = cur < 98.4 ? (cur + Math.max(0.08, (98.6 - cur) * 0.014)) : cur;
+        setPredictionModalProgress(nextPct, 'running');
+
+        const liveLine = document.getElementById('pred-live-activity-line');
+        if (liveLine) {
+            const elapsedSec = window._PREDICTION_MODAL_START_TS
+                ? ((performance.now() - window._PREDICTION_MODAL_START_TS) / 1000).toFixed(1)
+                : '0.0';
+            const stepText = window._PREDICTION_CURRENT_STEP_LABEL || 'Processing satellite nutrient models...';
+            liveLine.textContent = `${spinnerFrames[frameIdx]} ${stepText} (${elapsedSec}s elapsed)`;
+            const logEl = document.getElementById('prediction-terminal-log');
+            if (logEl) logEl.scrollTop = logEl.scrollHeight;
+        }
+    }, 220);
 }
 
 function cancelPredictionRunAndClose() {
