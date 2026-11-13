@@ -423,10 +423,57 @@
         if (!homeMap) return;
         if (dir === 'in') homeMap.zoomIn();
         else if (dir === 'out') homeMap.zoomOut();
-        else if (dir === 'reset') {
-            homeMap.flyTo([4.35, 109.2], 6, { duration: 1.1 });
+        else if (dir === 'all_malaysia') {
+            homeMap.flyTo([4.35, 109.2], 6, { duration: 1.0 });
             const sel = document.getElementById('sp-hud-estate-select');
             if (sel) sel.value = 'ALL';
+        } else if (dir === 'recenter' || dir === 'reset') {
+            const sel = document.getElementById('sp-hud-estate-select');
+            const val = sel ? sel.value : '';
+
+            // 1. If a specific estate map is selected in the HUD dropdown, re-center to that estate
+            if (val && val !== 'ALL' && !val.startsWith('CLUSTER:')) {
+                const layer = boundaryLayersByKey[val];
+                const est = getEstateByKey(val);
+                if (layer && layer.getBounds && layer.getBounds().isValid()) {
+                    homeMap.flyToBounds(layer.getBounds(), { padding: [60, 60], maxZoom: 14, duration: 0.9 });
+                    return;
+                } else if (est && est.center) {
+                    homeMap.flyTo(est.center, 13, { duration: 0.9 });
+                    return;
+                }
+            }
+
+            // 2. If an estate company cluster is selected, re-center to that company's boundaries
+            const clusterId = (val && val.startsWith('CLUSTER:'))
+                ? val.replace('CLUSTER:', '')
+                : (val === 'ALL' ? '' : selectedOwnerClusterId);
+            if (clusterId) {
+                const cluster = getOwnerClusterById(clusterId);
+                if (cluster && Array.isArray(cluster.estateKeys) && cluster.estateKeys.length) {
+                    let combinedBounds = null;
+                    cluster.estateKeys.forEach(k => {
+                        const lyr = boundaryLayersByKey[k];
+                        if (lyr && lyr.getBounds) {
+                            const b = lyr.getBounds();
+                            if (b && b.isValid()) {
+                                if (!combinedBounds) {
+                                    combinedBounds = L.latLngBounds(b.getSouthWest(), b.getNorthEast());
+                                } else {
+                                    combinedBounds.extend(b);
+                                }
+                            }
+                        }
+                    });
+                    if (combinedBounds && combinedBounds.isValid()) {
+                        homeMap.flyToBounds(combinedBounds, { padding: [55, 55], maxZoom: 13, duration: 0.9 });
+                        return;
+                    }
+                }
+            }
+
+            // 3. Fallback: re-center to all Malaysia overview
+            homeMap.flyTo([4.35, 109.2], 6, { duration: 0.9 });
         }
     };
 

@@ -198,6 +198,68 @@ Object.defineProperty(window, 'RASTER_GRID_DATA', { get() { return window._RASTE
             return result;
         }
 
+        function recenterLeafletMapToActiveBoundary(mode) {
+            const targetMap = (mode === 'std') ? mapStd : mapComp;
+            if (!targetMap) return;
+            targetMap.invalidateSize();
+
+            let activeBoundary = (mode === 'std')
+                ? (stdBoundaryLayer || compBoundaryLayer)
+                : (compBoundaryLayer || stdBoundaryLayer);
+
+            if (activeBoundary && typeof activeBoundary.getBounds === 'function') {
+                const b = activeBoundary.getBounds();
+                if (b && typeof b.isValid === 'function' && b.isValid()) {
+                    targetMap.flyToBounds(b, { padding: [40, 40], maxZoom: 16, duration: 0.75 });
+                    return;
+                }
+            }
+            targetMap.flyTo(lahadDatuCoords, 15, { duration: 0.75 });
+        }
+
+        function attachMiddleRecenterZoomButton(mapInstance, mode) {
+            if (!mapInstance) return;
+            const container = (mapInstance.zoomControl && typeof mapInstance.zoomControl.getContainer === 'function')
+                ? mapInstance.zoomControl.getContainer()
+                : (mapInstance.getContainer ? mapInstance.getContainer().querySelector('.leaflet-control-zoom') : null);
+            if (!container || container.querySelector('.leaflet-control-zoom-recenter')) return;
+
+            const zoomOutBtn = container.querySelector('.leaflet-control-zoom-out');
+            const recenterBtn = document.createElement('a');
+            recenterBtn.className = 'leaflet-control-zoom-recenter';
+            recenterBtn.href = '#';
+            recenterBtn.title = 'Re-center to Selected Map';
+            recenterBtn.setAttribute('role', 'button');
+            recenterBtn.setAttribute('aria-label', 'Re-center to Selected Map');
+            recenterBtn.style.cssText = 'display:flex;align-items:center;justify-content:center;width:30px;height:30px;line-height:30px;background:#ffffff;color:#111827;border-bottom:1px solid #ccc;cursor:pointer;text-decoration:none;transition:background 0.15s ease;';
+            recenterBtn.innerHTML = `
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="display:block;pointer-events:none;">
+                    <circle cx="12" cy="12" r="7"></circle>
+                    <circle cx="12" cy="12" r="2.2" fill="currentColor"></circle>
+                    <line x1="12" y1="2" x2="12" y2="5"></line>
+                    <line x1="12" y1="19" x2="12" y2="22"></line>
+                    <line x1="2" y1="12" x2="5" y2="12"></line>
+                    <line x1="19" y1="12" x2="22" y2="12"></line>
+                </svg>
+            `;
+            recenterBtn.addEventListener('mouseenter', () => { recenterBtn.style.backgroundColor = '#f4f4f4'; });
+            recenterBtn.addEventListener('mouseleave', () => { recenterBtn.style.backgroundColor = '#ffffff'; });
+
+            if (typeof L !== 'undefined' && L.DomEvent) {
+                L.DomEvent.disableClickPropagation(recenterBtn);
+                L.DomEvent.on(recenterBtn, 'click', function (e) {
+                    L.DomEvent.stop(e);
+                    recenterLeafletMapToActiveBoundary(mode);
+                });
+            }
+
+            if (zoomOutBtn) {
+                container.insertBefore(recenterBtn, zoomOutBtn);
+            } else {
+                container.appendChild(recenterBtn);
+            }
+        }
+
         // Initialize maps
         window.addEventListener('DOMContentLoaded', () => {
             if (typeof L === 'undefined') {
@@ -208,6 +270,7 @@ Object.defineProperty(window, 'RASTER_GRID_DATA', { get() { return window._RASTE
             let mapCompEl = document.getElementById('map-comprehensive-element');
             if (mapCompEl) {
                 mapComp = L.map('map-comprehensive-element', { zoomControl: true }).setView(lahadDatuCoords, 15);
+                attachMiddleRecenterZoomButton(mapComp, 'comp');
                 L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
                     maxZoom: 20,
                     subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
@@ -223,6 +286,7 @@ Object.defineProperty(window, 'RASTER_GRID_DATA', { get() { return window._RASTE
             let mapStdEl = document.getElementById('map-standard-element');
             if (mapStdEl) {
                 mapStd = L.map('map-standard-element', { zoomControl: true }).setView(lahadDatuCoords, 15);
+                attachMiddleRecenterZoomButton(mapStd, 'std');
                 L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
                     maxZoom: 20,
                     subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],

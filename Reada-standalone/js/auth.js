@@ -136,9 +136,13 @@ function ensureAuthModalEnhancements() {
             </div>
         </aside>
 
-        <!-- Right Main Area: Satellite Oil Palm Plantation Backdrop (Photo 3) & Centered Account Access Card -->
-        <div style="flex: 1; height: 100vh; position: relative; display: flex; align-items: center; justify-content: center; padding: 32px; background: linear-gradient(135deg, rgba(8, 12, 20, 0.36) 0%, rgba(10, 15, 24, 0.46) 100%), url('login-bg.jpg') center/cover no-repeat; overflow-y: auto;">
-            <div class="modal-content" style="max-width: 480px; width: 100%; background: #121824; color: #f8fafc; border: 1px solid rgba(255,255,255,0.12); border-radius: 18px; padding: 42px 40px 32px 40px; position: relative; box-shadow: 0 28px 72px rgba(0,0,0,0.68); font-family: 'Inter', sans-serif;">
+        <!-- Right Main Area: Animated Satellite Oil Palm Plantation Movie Backdrop & Centered Account Access Card -->
+        <div style="flex: 1; height: 100vh; position: relative; display: flex; align-items: center; justify-content: center; padding: 32px; background: linear-gradient(135deg, rgba(8, 12, 20, 0.34) 0%, rgba(10, 15, 24, 0.44) 100%), url('login-bg.jpg') center/cover no-repeat; overflow-y: auto; overflow-x: hidden;">
+            <video autoplay loop muted playsinline poster="login-bg.jpg" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; pointer-events: none;">
+                <source src="login-bg.mp4" type="video/mp4" />
+            </video>
+            <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(8, 12, 20, 0.30) 0%, rgba(10, 15, 24, 0.42) 100%); z-index: 1; pointer-events: none;"></div>
+            <div class="modal-content" style="max-width: 480px; width: 100%; background: rgba(18, 24, 36, 0.94); backdrop-filter: blur(8px); color: #f8fafc; border: 1px solid rgba(255,255,255,0.12); border-radius: 18px; padding: 42px 40px 32px 40px; position: relative; z-index: 2; box-shadow: 0 28px 72px rgba(0,0,0,0.68); font-family: 'Inter', sans-serif;">
                 <button type="button" id="auth-modal-close-btn" style="position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 20px; color: #94a3b8; cursor: pointer;" onclick="closeAuthModal()" title="Close">✕</button>
 
                 <div style="text-align: center; margin-bottom: 30px;">
@@ -219,13 +223,13 @@ function ensureAuthModalEnhancements() {
         authDiv = document.createElement('div');
         authDiv.id = 'auth-modal';
         authDiv.className = 'modal-overlay';
-        authDiv.setAttribute('data-portal-v4', 'true');
+        authDiv.setAttribute('data-portal-v5', 'true');
         authDiv.style.cssText = 'display: none; flex-direction: row; align-items: stretch; justify-content: flex-start; z-index: 9999999; position: fixed; inset: 0; background: #0c1017; padding: 0;';
         authDiv.innerHTML = portalInnerMarkup;
         document.body.appendChild(authDiv);
-    } else if (!authDiv.hasAttribute('data-portal-v4')) {
+    } else if (!authDiv.hasAttribute('data-portal-v5')) {
         const wasOpen = authDiv.style.display === 'flex';
-        authDiv.setAttribute('data-portal-v4', 'true');
+        authDiv.setAttribute('data-portal-v5', 'true');
         authDiv.style.cssText = `display: ${wasOpen ? 'flex' : 'none'}; flex-direction: row; align-items: stretch; justify-content: flex-start; z-index: 9999999; position: fixed; inset: 0; background: #0c1017; padding: 0;`;
         authDiv.innerHTML = portalInnerMarkup;
     }
