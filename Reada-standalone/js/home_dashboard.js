@@ -89,24 +89,33 @@
             const username = String(u.username || (u.email ? u.email.split('@')[0] : 'Admin')).trim();
             const lowerUser = username.toLowerCase();
             const companyName = String(u.company || u.estate_company || u.company_name || 'Estate Company').trim();
-            const rawCode = String(u.company_code || '').toLowerCase().trim() ||
-                lowerUser.replace(/^admin([a-z0-9_-]+?)(\d*)$/, '$1');
-            const storageGroup = String(
-                u.storage_group ||
-                (typeof window.getCurrentPalmnexStorageGroup === 'function' ? window.getCurrentPalmnexStorageGroup() : '') ||
-                `storage_${lowerUser}`
-            ).toLowerCase().trim();
+            const rawCode = (
+                String(u.company_code || '').toLowerCase().trim() ||
+                lowerUser.replace(/^(?:admin)?([a-z_-]+?)(\d*)$/, '$1')
+            ).replace(/\d+$/g, '') || 'palmnex';
             const accessTier = String(
                 u.access_tier ||
                 (typeof window.getCurrentPalmnexAccessTier === 'function' ? window.getCurrentPalmnexAccessTier() : 'A')
             ).toUpperCase().trim();
+            const storageGroup = (accessTier === 'A' || accessTier === 'B')
+                ? `storage_${lowerUser}`
+                : String(
+                    u.storage_group ||
+                    (typeof window.getCurrentPalmnexStorageGroup === 'function' ? window.getCurrentPalmnexStorageGroup() : '') ||
+                    (accessTier === 'C' ? 'storage_all' : `storage_${lowerUser}`)
+                ).toLowerCase().trim();
 
-            const isMasterAdmin =
-                storageGroup === 'storage_all' ||
-                rawCode === 'palmnex' ||
-                lowerUser === 'admin' ||
-                lowerUser === 'admin1' ||
-                lowerUser.startsWith('adminpalmnex');
+            const isMasterAdmin = (accessTier === 'A' || accessTier === 'B')
+                ? false
+                : (
+                    accessTier === 'C' ||
+                    storageGroup === 'storage_all' ||
+                    rawCode === 'palmnex' ||
+                    lowerUser === 'admin' ||
+                    lowerUser === 'admin1' ||
+                    lowerUser.startsWith('adminpalmnex') ||
+                    lowerUser.startsWith('palmnex')
+                );
 
             return {
                 isMasterAdmin,

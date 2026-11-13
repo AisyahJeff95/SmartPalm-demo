@@ -2,24 +2,21 @@
 -- PALMNEX SMARTPALM & PALMNEXREADS — SUPABASE RBAC & PRIVATE USER STORAGE
 -- Supabase Project: https://dkafzakyeuehvpkkhdsa.supabase.co
 --
--- STORAGE & ACCESS RULES:
--- 1. Per-User Private Storage (`storage_<username>`):
---    Even within the same company, every client user gets their OWN isolated
---    storage group so they cannot see each other's maps or progress:
---      • adminbenta1@palmnex.com.my    -> storage_adminbenta1
---      • adminbenta2@palmnex.com.my    -> storage_adminbenta2
---      • adminachijaya1@palmnex.com.my -> storage_adminachijaya1
--- 2. Palmnex Master Admin (`storage_all` + Tier 'C'):
---      • admin1@palmnex.com.my
---      • adminpalmnex1@palmnex.com.my, adminpalmnex2@palmnex.com.my, etc.
---      • Or any user in `public.profiles` with `company_code = 'palmnex'` and `access_tier = 'C'`
---      -> Assigned `storage_all` (can view/manage ALL users' maps and progress).
--- 3. Access Tiers (Completely Hidden UI for restricted modules):
---      • Tier 'A' (Standard Only)       : ['home', 'standard']
---                                         (Comprehensive, PalmNexReaDS, KPSM hidden)
---      • Tier 'B' (Comprehensive+ReaDS) : ['home', 'comprehensive', 'palmnexreads']
---                                         (Standard, KPSM hidden)
---      • Tier 'C' (Full Access / Admin) : ['home', 'comprehensive', 'standard', 'palmnexreads', 'kpsm']
+-- ACCOUNT FORMAT, STORAGE & ACCESS RULES:
+-- 1. Client Account Format (`<company><number>@palmnex.com.my`) — Tier 'A' & Tier 'B' (Client View):
+--    No need to write 'admin' prefix. Every client user gets their OWN isolated
+--    storage group (`storage_<username>`) and Client View:
+--      • benta1@palmnex.com.my    -> company_code = 'benta',    storage_group = 'storage_benta1'
+--      • benta2@palmnex.com.my    -> company_code = 'benta',    storage_group = 'storage_benta2'
+--      • fgv1@palmnex.com.my      -> company_code = 'fgv',      storage_group = 'storage_fgv1'
+--      • achijaya1@palmnex.com.my -> company_code = 'achijaya', storage_group = 'storage_achijaya1'
+-- 2. Admin Account — Tier 'C' (Admin View + `storage_all`):
+--      • admin1@palmnex.com.my, palmnex1@palmnex.com.my, or any user with `access_tier = 'C'`
+--      -> Assigned `storage_all` and Admin View (can view all client maps/submissions and generate PDF reports).
+-- 3. Access Tiers:
+--      • Tier 'A' (Client View — Standard Only)       : ['home', 'standard']
+--      • Tier 'B' (Client View — Comprehensive+ReaDS) : ['home', 'comprehensive', 'palmnexreads']
+--      • Tier 'C' (Admin View  — Full System Access)  : ['home', 'comprehensive', 'standard', 'palmnexreads', 'kpsm']
 -- ============================================================================
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
@@ -45,9 +42,10 @@ END;
 $$;
 
 -- 2. Helper: Auto-extract company code from any username / email
---    e.g. 'adminbenta1@palmnex.com.my'   -> 'benta'
---         'adminpalmnex1@palmnex.com.my' -> 'palmnex'
---         'admin1@palmnex.com.my'        -> 'palmnex'
+--    e.g. 'benta1@palmnex.com.my'    -> 'benta'
+--         'fgv2@palmnex.com.my'      -> 'fgv'
+--         'achijaya1@palmnex.com.my' -> 'achijaya'
+--         'admin1@palmnex.com.my'    -> 'palmnex'
 CREATE OR REPLACE FUNCTION public.extract_company_code(p_email_or_username TEXT)
 RETURNS TEXT
 LANGUAGE plpgsql
@@ -59,25 +57,21 @@ DECLARE
 BEGIN
     v_user := LOWER(TRIM(SPLIT_PART(COALESCE(p_email_or_username, ''), '@', 1)));
 
-    IF v_user IN ('admin', 'admin1', 'superadmin', 'palmnex') OR v_user LIKE 'adminpalmnex%' THEN
+    IF v_user IN ('admin', 'admin1', 'superadmin', 'palmnex') OR v_user LIKE 'adminpalmnex%' OR v_user LIKE 'palmnex%' THEN
         RETURN 'palmnex';
     END IF;
 
-    v_match := regexp_match(v_user, '^admin([a-z0-9_]+?)[0-9]*$');
+    -- Match <company><number> (e.g. benta1, fgv2, achijaya1) as well as legacy admin<company><number>
+    v_match := regexp_match(v_user, '^(?:admin)?([a-z_]+?)[0-9]*$');
     IF v_match IS NOT NULL AND v_match[1] IS NOT NULL AND v_match[1] <> '' THEN
         RETURN v_match[1];
     END IF;
 
-    v_match := regexp_match(v_user, '^([a-z_]+?)[0-9]+$');
-    IF v_match IS NOT NULL AND v_match[1] IS NOT NULL AND v_match[1] <> '' THEN
-        RETURN v_match[1];
-    END IF;
-
-    RETURN COALESCE(NULLIF(v_user, ''), 'palmnex');
+    RETURN COALESCE(NULLIF(regexp_replace(v_user, '[0-9]+$', ''), ''), 'palmnex');
 END;
 $$;
 
--- 3. Helper: Resolve per-user private storage (`storage_<username>`) vs Master Admin (`storage_all`)
+-- 3. Helper: Resolve per-user private storage (`storage_<username>` for Client Tiers A & B) vs Master Admin (`storage_all` for Tier C)
 CREATE OR REPLACE FUNCTION public.resolve_user_storage_group(p_username TEXT, p_company_code TEXT, p_tier TEXT)
 RETURNS TEXT
 LANGUAGE plpgsql
@@ -88,10 +82,12 @@ DECLARE
     v_clean_comp TEXT := LOWER(TRIM(COALESCE(p_company_code, '')));
     v_clean_tier TEXT := UPPER(TRIM(COALESCE(p_tier, 'A')));
 BEGIN
-    IF v_clean_comp = 'palmnex' AND v_clean_tier = 'C' THEN
-        RETURN 'storage_all';
+    -- Tier A and Tier B are Client View with isolated per-user storage (e.g. storage_benta1)
+    IF v_clean_tier IN ('A', 'B') THEN
+        RETURN 'storage_' || COALESCE(NULLIF(v_clean_user, ''), 'client');
     END IF;
-    IF v_clean_user IN ('admin', 'admin1', 'superadmin') OR v_clean_user LIKE 'adminpalmnex%' THEN
+    -- Tier C is Admin View (storage_all)
+    IF v_clean_tier = 'C' OR v_clean_comp = 'palmnex' OR v_clean_user IN ('admin', 'admin1', 'superadmin') OR v_clean_user LIKE 'adminpalmnex%' OR v_clean_user LIKE 'palmnex%' THEN
         RETURN 'storage_all';
     END IF;
     RETURN 'storage_' || COALESCE(NULLIF(v_clean_user, ''), 'default');

@@ -389,7 +389,7 @@
                                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                         <circle cx="12" cy="7" r="4"></circle>
                                     </svg>
-                                    <input type="text" id="signin-email" required placeholder="e.g. adminbenta1 or admin1" value="" class="sp-sched-input" style="height: 48px; font-size: 14.5px; width: 100%; padding-left: 42px; padding-right: 14px; background: #0c1017; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; color: #f8fafc;" />
+                                    <input type="text" id="signin-email" required placeholder="e.g. benta1@palmnex.com.my or admin1" value="" class="sp-sched-input" style="height: 48px; font-size: 14.5px; width: 100%; padding-left: 42px; padding-right: 14px; background: #0c1017; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; color: #f8fafc;" />
                                 </div>
                             </div>
                             <div style="margin-bottom: 20px;">
@@ -628,7 +628,7 @@
                     let accessTier = 'A';
                     let storageGroup = `storage_${plainUser.toLowerCase()}`;
                     let companyName = companyInput;
-                    let companyCode = plainUser.toLowerCase().replace(/^admin([a-z0-9_-]+?)(\d*)$/, '$1') || 'client';
+                    let companyCode = plainUser.toLowerCase().replace(/^(?:admin)?([a-z_-]+?)(\d*)$/, '$1').replace(/\d+$/g, '') || 'client';
                     try {
                         const { data: prof } = await client
                             .from('profiles')
@@ -637,8 +637,10 @@
                             .maybeSingle();
                         if (prof) {
                             accessTier = String(prof.access_tier || 'A').toUpperCase();
-                            companyCode = prof.company_code || companyCode;
-                            storageGroup = prof.storage_group || storageGroup;
+                            companyCode = (prof.company_code || companyCode).toLowerCase().replace(/\d+$/g, '') || companyCode;
+                            storageGroup = (accessTier === 'A' || accessTier === 'B')
+                                ? `storage_${plainUser.toLowerCase()}`
+                                : (accessTier === 'C' ? 'storage_all' : (prof.storage_group || storageGroup));
                             companyName = (companyInput && companyInput !== 'Palmnex Sdn Bhd') ? companyInput : (prof.estate_company || prof.company_name || companyName);
                         }
                     } catch (e) {}

@@ -26,17 +26,18 @@ function isUserAuthenticated() {
     return !!saved;
 }
 
-// Helper: Derive company_code from username/email (e.g. adminbenta1 -> benta, admin1 -> palmnex)
+// Helper: Derive company_code from username/email (e.g. benta1@palmnex.com.my -> benta, fgv2@palmnex.com.my -> fgv, admin1 -> palmnex)
 function deriveCompanyCodeFromUsername(rawUserOrEmail) {
     const clean = String(rawUserOrEmail || '').trim().toLowerCase().split('@')[0];
-    if (!clean || clean === 'admin' || clean === 'admin1' || clean === 'superadmin' || clean.startsWith('adminpalmnex')) {
+    if (!clean || clean === 'admin' || clean === 'admin1' || clean === 'superadmin' || clean.startsWith('adminpalmnex') || clean.startsWith('palmnex')) {
         return 'palmnex';
     }
-    const m = clean.match(/^admin([a-z0-9_-]+?)(\d*)$/);
+    // Match <company><number> (e.g. benta1, fgv2, achijaya1) as well as legacy admin<company><number>
+    const m = clean.match(/^(?:admin)?([a-z_-]+?)(\d*)$/);
     if (m && m[1]) {
-        return m[1];
+        return m[1].replace(/^_+|_+$/g, '') || 'palmnex';
     }
-    return clean.replace(/[^a-z0-9_-]/g, '') || 'palmnex';
+    return clean.replace(/\d+$/g, '').replace(/[^a-z0-9_-]/g, '') || 'palmnex';
 }
 
 // Helper: Allowed modules array for Access Tier A, B, C
@@ -47,19 +48,30 @@ function getAllowedModulesForTier(tier) {
     return ['home', 'comprehensive', 'standard', 'palmnexreads', 'kpsm'];
 }
 
-// Helper: Resolve private per-user storage_group (storage_<username>) vs Master Admin (storage_all)
+// Helper: Resolve private per-user storage_group (storage_<username> for Client Tiers A & B) vs Master Admin (storage_all for Tier C)
 function resolveUserStorageGroup(rawUsername, companyCode, tier, dbStorageGroup) {
     const cleanUser = String(rawUsername || '').trim().toLowerCase().split('@')[0].replace(/[^a-z0-9_-]/g, '');
     const cleanCompany = String(companyCode || '').trim().toLowerCase();
-    const t = String(tier || 'C').toUpperCase();
+    const t = String(tier || '').trim().toUpperCase();
 
+    // Tier A and Tier B are always Client View with isolated per-user storage (e.g. storage_benta1)
+    if (t === 'A' || t === 'B') {
+        if (dbStorageGroup && dbStorageGroup !== 'storage_all' && dbStorageGroup !== `storage_${cleanCompany}`) {
+            return dbStorageGroup;
+        }
+        return `storage_${cleanUser || 'client'}`;
+    }
+
+    // Tier C is Admin View (storage_all)
     if (
+        t === 'C' ||
         !cleanUser ||
         cleanUser === 'admin' ||
         cleanUser === 'admin1' ||
         cleanUser === 'superadmin' ||
         cleanUser.startsWith('adminpalmnex') ||
-        (cleanCompany === 'palmnex' && t === 'C')
+        cleanUser.startsWith('palmnex') ||
+        cleanCompany === 'palmnex'
     ) {
         return 'storage_all';
     }
@@ -166,7 +178,7 @@ function ensureAuthModalEnhancements() {
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="12" cy="7" r="4"></circle>
                             </svg>
-                            <input type="text" id="signin-email" required placeholder="e.g. adminbenta1 or admin1" value="" class="sp-sched-input" style="height: 48px; font-size: 14.5px; width: 100%; padding-left: 42px; padding-right: 14px; background: #0c1017; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; color: #f8fafc;" />
+                            <input type="text" id="signin-email" required placeholder="e.g. benta1@palmnex.com.my or admin1" value="" class="sp-sched-input" style="height: 48px; font-size: 14.5px; width: 100%; padding-left: 42px; padding-right: 14px; background: #0c1017; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; color: #f8fafc;" />
                         </div>
                     </div>
 
@@ -360,6 +372,9 @@ function applyModuleAccessControl(user) {
     if (typeof window.applyCompanyEstateIsolation === 'function') {
         window.applyCompanyEstateIsolation(user);
     }
+    if (typeof window.applyClientOrAdminReportRoleUI === 'function') {
+        window.applyClientOrAdminReportRoleUI(user);
+    }
     if (typeof window.loadCustomMapsFromSupabase === 'function') {
         window.loadCustomMapsFromSupabase(user);
     }
@@ -368,6 +383,36 @@ function applyModuleAccessControl(user) {
     }
 }
 window.applyModuleAccessControl = applyModuleAccessControl;
+
+// Determine if the user is a Palmnex Master Admin (Tier C = Admin View; Tier A & B = Client View)
+window.isPalmnexMasterAdmin = function (userOverride) {
+    const u = userOverride || window.getCurrentPalmnexUser();
+    if (!u) return !window.PALMNEX_REQUIRE_LOGIN;
+    const tier = String(u.access_tier || '').trim().toUpperCase();
+    // Access Tier A and B are Client View
+    if (tier === 'A' || tier === 'B') {
+        return false;
+    }
+    // Access Tier C is Admin View
+    if (tier === 'C') {
+        return true;
+    }
+    const rawName = String(u.username || u.email || '').trim().toLowerCase().split('@')[0];
+    const companyCode = String(u.company_code || deriveCompanyCodeFromUsername(rawName) || '').toLowerCase();
+    const storageGroup = String(u.storage_group || resolveUserStorageGroup(rawName, companyCode, u.access_tier) || '').toLowerCase();
+    if (
+        rawName === 'admin' ||
+        rawName === 'admin1' ||
+        rawName === 'superadmin' ||
+        rawName.startsWith('adminpalmnex') ||
+        rawName.startsWith('palmnex') ||
+        companyCode === 'palmnex' ||
+        storageGroup === 'storage_all'
+    ) {
+        return true;
+    }
+    return false;
+};
 
 function enforceModulePageGuard(tierInput) {
     const tier = String(tierInput || window.getCurrentPalmnexAccessTier() || 'C').toUpperCase();
@@ -392,7 +437,7 @@ window.applyCompanyEstateIsolation = function (user) {
     const activeUser = user || window.getCurrentPalmnexUser();
     const storageGroup = activeUser ? (activeUser.storage_group || resolveUserStorageGroup(activeUser.username, activeUser.company_code, activeUser.access_tier)) : 'storage_all';
     const companyCode = activeUser ? (activeUser.company_code || deriveCompanyCodeFromUsername(activeUser.username || activeUser.email)) : 'palmnex';
-    const isMasterAdmin = (!activeUser || storageGroup === 'storage_all' || companyCode === 'palmnex' || String(activeUser.access_tier || 'C').toUpperCase() === 'C');
+    const isMasterAdmin = window.isPalmnexMasterAdmin(activeUser);
 
     const BENTA_KEYS = new Set(['agathis', 'belian', 'binuang', 'gaharu', 'kapur', 'keruing', 'menggaris', 'merbau', 'ramin', 'selanganbatu', 'seraya', 'benta_wawasan']);
     const FGV_KEYS = new Set(['jengka24', 'jengka25', 'kota_gelanggi5', 'ppptar', 'fgv_triang']);
@@ -407,8 +452,8 @@ window.applyCompanyEstateIsolation = function (user) {
         }
         const vNorm = String(val).toLowerCase().replace(/shp$/i, '').replace(/[^a-z0-9_]/g, '');
         const tNorm = String(text || '').toLowerCase();
-        // Always allow user's own uploaded custom maps
-        if (vNorm.startsWith(`custom_${storageGroup}`) || vNorm.includes(companyCode) || tNorm.includes(companyCode)) return true;
+        // Always allow user's own uploaded custom maps or saved submissions
+        if (vNorm.startsWith(`custom_${storageGroup}`) || vNorm.startsWith(`sub_${storageGroup}`) || vNorm.includes(companyCode) || tNorm.includes(companyCode)) return true;
         if (companyCode === 'benta' || companyCode.includes('benta')) {
             return BENTA_KEYS.has(vNorm) || tNorm.includes('benta');
         }
@@ -435,9 +480,10 @@ window.applyCompanyEstateIsolation = function (user) {
 };
 
 // ============================================================================
-// PHASE 2: PER-USER CUSTOM UPLOADED MAPS SYNC (`public.company_custom_maps`)
+// PHASE 2: PER-USER CUSTOM UPLOADED MAPS & CLIENT INPUT SUBMISSIONS (`public.company_custom_maps`)
 // ============================================================================
 window.CUSTOM_SUPABASE_MAPS = window.CUSTOM_SUPABASE_MAPS || [];
+window.CLIENT_SUBMISSIONS_BY_MAP_KEY = window.CLIENT_SUBMISSIONS_BY_MAP_KEY || {};
 
 window.saveCustomMapToSupabase = async function (rawMapKey, mapName, geojsonData) {
     try {
@@ -455,6 +501,11 @@ window.saveCustomMapToSupabase = async function (rawMapKey, mapName, geojsonData
         const scopedKey = cleanSlug.startsWith(storageGroup)
             ? `custom_${cleanSlug}`
             : `custom_${storageGroup}_${cleanSlug}`;
+
+        // Preserve any existing client_submission on this custom map
+        if (window.CLIENT_SUBMISSIONS_BY_MAP_KEY && window.CLIENT_SUBMISSIONS_BY_MAP_KEY[scopedKey] && !geojsonData.client_submission) {
+            geojsonData.client_submission = window.CLIENT_SUBMISSIONS_BY_MAP_KEY[scopedKey];
+        }
 
         const rowPayload = {
             map_key: scopedKey,
@@ -496,13 +547,118 @@ window.saveCustomMapToSupabase = async function (rawMapKey, mapName, geojsonData
     }
 };
 
+// Lightweight (< 2 KB) Client Input Submission saver for both custom maps and built-in maps
+window.saveClientMapSubmissionToSupabase = async function (rawMapKey, mapDisplayName, submissionPayload) {
+    try {
+        if (!rawMapKey || !submissionPayload) return null;
+        const u = window.getCurrentPalmnexUser();
+        const storageGroup = window.getCurrentPalmnexStorageGroup() || 'storage_all';
+        const companyCode = window.getCurrentPalmnexCompanyCode() || 'palmnex';
+        const uploadedBy = (u && (u.username || u.email)) || 'Client';
+
+        // Resolve underlying base map key if user currently selected a `sub_...` option
+        const existingSub = window.CLIENT_SUBMISSIONS_BY_MAP_KEY[rawMapKey];
+        const baseMapKey = (existingSub && existingSub.base_map_key)
+            ? existingSub.base_map_key
+            : String(rawMapKey).replace(/^sub_storage_[a-z0-9_]+?_/, '');
+
+        const isCustomMap = String(baseMapKey).startsWith('custom_');
+        const targetRowKey = isCustomMap
+            ? baseMapKey
+            : `sub_${storageGroup}_${baseMapKey}`;
+
+        const cleanDisplayName = String(mapDisplayName || baseMapKey)
+            .replace(/^[📌📋]\s*(\[[^\]]+\]\s*)?/, '')
+            .replace(/\s*\(Client Inputs\)$/i, '')
+            .trim();
+
+        const enrichedSubmission = Object.assign({}, submissionPayload, {
+            base_map_key: baseMapKey,
+            submission_map_key: targetRowKey,
+            map_display_name: cleanDisplayName,
+            submitted_by: uploadedBy,
+            company_code: companyCode,
+            company_name: (u && u.company) || companyCode.toUpperCase(),
+            storage_group: storageGroup,
+            submitted_at: new Date().toISOString()
+        });
+
+        // Cache in memory by both targetRowKey and baseMapKey
+        window.CLIENT_SUBMISSIONS_BY_MAP_KEY[targetRowKey] = enrichedSubmission;
+        window.CLIENT_SUBMISSIONS_BY_MAP_KEY[baseMapKey] = enrichedSubmission;
+
+        // Also cache in global localStorage index (`palmnex_client_submissions_all`) so Admin on same browser sees it immediately
+        try {
+            const allSubsRaw = localStorage.getItem('palmnex_client_submissions_all');
+            const allSubs = allSubsRaw ? (JSON.parse(allSubsRaw) || {}) : {};
+            allSubs[targetRowKey] = enrichedSubmission;
+            allSubs[baseMapKey] = enrichedSubmission;
+            localStorage.setItem('palmnex_client_submissions_all', JSON.stringify(allSubs));
+        } catch (e) {}
+
+        let geojsonPayload = null;
+        if (isCustomMap && window.REAL_MAPS_DATA && window.REAL_MAPS_DATA[baseMapKey]) {
+            geojsonPayload = Object.assign({}, window.REAL_MAPS_DATA[baseMapKey], {
+                client_submission: enrichedSubmission
+            });
+        } else {
+            // Zero-bloat (< 2 KB) metadata-only FeatureCollection referencing the built-in estate key
+            geojsonPayload = {
+                type: 'FeatureCollection',
+                is_submission_only: true,
+                base_map_key: baseMapKey,
+                mapName: `${cleanDisplayName} (Client Inputs)`,
+                features: [],
+                client_submission: enrichedSubmission
+            };
+        }
+
+        const rowPayload = {
+            map_key: targetRowKey,
+            map_name: isCustomMap ? cleanDisplayName : `${cleanDisplayName} (Client Inputs)`,
+            company_code: companyCode,
+            storage_group: storageGroup,
+            geojson_data: geojsonPayload,
+            uploaded_by: uploadedBy,
+            created_at: new Date().toISOString()
+        };
+
+        // 1. Save to local per-user storage cache
+        const lsKey = `palmnex_custom_maps_${storageGroup}`;
+        try {
+            const existingRaw = localStorage.getItem(lsKey);
+            const list = existingRaw ? (JSON.parse(existingRaw) || []) : [];
+            const filtered = list.filter(item => item && item.map_key !== targetRowKey);
+            filtered.unshift(rowPayload);
+            localStorage.setItem(lsKey, JSON.stringify(filtered.slice(0, 35)));
+        } catch (e) {}
+
+        // 2. Upsert to Supabase `public.company_custom_maps`
+        const client = typeof getSupabase === 'function' ? getSupabase() : null;
+        if (client) {
+            const { error } = await client
+                .from('company_custom_maps')
+                .upsert([rowPayload], { onConflict: 'storage_group,map_key' });
+            if (error) {
+                console.warn('[SmartPalm Client Submission Sync] Supabase upsert warning:', error.message);
+            }
+        }
+
+        await window.loadCustomMapsFromSupabase(u);
+        return enrichedSubmission;
+    } catch (err) {
+        console.warn('[SmartPalm Client Submission Sync] Exception:', err);
+        return null;
+    }
+};
+
 window.loadCustomMapsFromSupabase = async function (userOverride) {
     try {
         const u = userOverride || window.getCurrentPalmnexUser();
         const storageGroup = u
             ? (u.storage_group || resolveUserStorageGroup(u.username || u.email, u.company_code, u.access_tier))
             : window.getCurrentPalmnexStorageGroup();
-        const isMasterAdmin = (!u || storageGroup === 'storage_all' || String(u.access_tier || 'C').toUpperCase() === 'C' && (u.company_code === 'palmnex' || !u.company_code));
+        const isMasterAdmin = window.isPalmnexMasterAdmin(u);
 
         // 1. Remove previously injected custom options from dropdowns so switching users is 100% isolated
         ['map-select-comp', 'map-select-std', 'map-select-kpsm'].forEach(selId => {
@@ -511,12 +667,36 @@ window.loadCustomMapsFromSupabase = async function (userOverride) {
             Array.from(sel.querySelectorAll('option[data-custom-supabase="true"]')).forEach(opt => opt.remove());
         });
 
-        // 2. Load local cache for this storageGroup first
-        const lsKey = `palmnex_custom_maps_${storageGroup}`;
+        // 2. Load local cache for this storageGroup (or all storage groups if Master Admin)
         let localMaps = [];
         try {
-            const raw = localStorage.getItem(lsKey);
-            if (raw) localMaps = JSON.parse(raw) || [];
+            if (isMasterAdmin) {
+                for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    if (k && k.startsWith('palmnex_custom_maps_')) {
+                        const arr = JSON.parse(localStorage.getItem(k) || '[]');
+                        if (Array.isArray(arr)) localMaps.push(...arr);
+                    }
+                }
+            } else {
+                const lsKey = `palmnex_custom_maps_${storageGroup}`;
+                const raw = localStorage.getItem(lsKey);
+                if (raw) localMaps = JSON.parse(raw) || [];
+            }
+        } catch (e) {}
+
+        // Also seed window.CLIENT_SUBMISSIONS_BY_MAP_KEY from localStorage index if present
+        try {
+            const allSubsRaw = localStorage.getItem('palmnex_client_submissions_all');
+            if (allSubsRaw) {
+                const parsedSubs = JSON.parse(allSubsRaw) || {};
+                Object.keys(parsedSubs).forEach(k => {
+                    const sub = parsedSubs[k];
+                    if (sub && (isMasterAdmin || !sub.storage_group || sub.storage_group === storageGroup)) {
+                        window.CLIENT_SUBMISSIONS_BY_MAP_KEY[k] = sub;
+                    }
+                });
+            }
         } catch (e) {}
 
         // 3. Query Supabase `public.company_custom_maps`
@@ -528,7 +708,7 @@ window.loadCustomMapsFromSupabase = async function (userOverride) {
                     .from('company_custom_maps')
                     .select('map_key, map_name, company_code, storage_group, geojson_data, uploaded_by, created_at')
                     .order('created_at', { ascending: false })
-                    .limit(50);
+                    .limit(80);
                 if (!isMasterAdmin && storageGroup) {
                     query = query.eq('storage_group', storageGroup);
                 }
@@ -551,14 +731,47 @@ window.loadCustomMapsFromSupabase = async function (userOverride) {
         const finalMaps = Array.from(mergedByKey.values());
         window.CUSTOM_SUPABASE_MAPS = finalMaps;
 
-        // 4. Register in REAL_MAPS_DATA and inject into map dropdowns
+        // 4. Register in REAL_MAPS_DATA, index client submissions, and inject into map dropdowns
         finalMaps.forEach(row => {
             const key = row.map_key;
             const geojson = row.geojson_data;
+            const isSubOnly = Boolean(geojson && geojson.is_submission_only);
+            const clientSub = geojson && geojson.client_submission ? geojson.client_submission : null;
+
+            if (clientSub) {
+                window.CLIENT_SUBMISSIONS_BY_MAP_KEY[key] = clientSub;
+                if (clientSub.base_map_key && !window.CLIENT_SUBMISSIONS_BY_MAP_KEY[clientSub.base_map_key]) {
+                    window.CLIENT_SUBMISSIONS_BY_MAP_KEY[clientSub.base_map_key] = clientSub;
+                }
+            }
+
             const ownerTag = (isMasterAdmin && row.uploaded_by && row.storage_group !== 'storage_all')
                 ? `[${row.uploaded_by}] `
                 : '';
-            const label = `📌 ${ownerTag}${row.map_name || key}`;
+
+            if (isSubOnly) {
+                const baseKey = geojson.base_map_key || clientSub?.base_map_key || '';
+                const label = `📋 ${ownerTag}${row.map_name || key}`;
+                ['map-select-comp', 'map-select-std'].forEach(selId => {
+                    const sel = document.getElementById(selId);
+                    if (!sel) return;
+                    let existing = Array.from(sel.options).find(o => o.value === key);
+                    if (!existing) {
+                        existing = document.createElement('option');
+                        existing.value = key;
+                        existing.setAttribute('data-custom-supabase', 'true');
+                        existing.setAttribute('data-storage-group', row.storage_group || storageGroup);
+                        if (baseKey) existing.setAttribute('data-base-map-key', baseKey);
+                        existing.setAttribute('data-has-client-submission', 'true');
+                        sel.appendChild(existing);
+                    }
+                    existing.textContent = label;
+                });
+                return;
+            }
+
+            const subBadge = clientSub ? ' 📋' : '';
+            const label = `📌 ${ownerTag}${row.map_name || key}${subBadge}`;
             geojson.mapName = label;
 
             if (typeof window.REAL_MAPS_DATA === 'object' && window.REAL_MAPS_DATA) {
@@ -574,6 +787,7 @@ window.loadCustomMapsFromSupabase = async function (userOverride) {
                     existing.value = key;
                     existing.setAttribute('data-custom-supabase', 'true');
                     existing.setAttribute('data-storage-group', row.storage_group || storageGroup);
+                    if (clientSub) existing.setAttribute('data-has-client-submission', 'true');
                     sel.appendChild(existing);
                 }
                 existing.textContent = label;
@@ -693,8 +907,8 @@ async function enrichSupabaseUserProfile(user, fallbackCompany, rawUsernameFallb
     let rawUsername = user.username || meta.username || rawUsernameFallback || (user.email ? user.email.split('@')[0] : 'Admin');
     let displayUsername = (rawUsername.toLowerCase() === 'admin1' || rawUsername === 'Lead Agronomist (Admin)') ? 'Admin' : rawUsername;
 
-    let companyCode = user.company_code || meta.company_code || deriveCompanyCodeFromUsername(rawUsername);
-    const isPalmnexMaster = (companyCode === 'palmnex' || rawUsername.toLowerCase() === 'admin1' || rawUsername.toLowerCase().startsWith('adminpalmnex'));
+    let companyCode = deriveCompanyCodeFromUsername(user.company_code || meta.company_code || rawUsername);
+    const isPalmnexMaster = (companyCode === 'palmnex' || rawUsername.toLowerCase() === 'admin1' || rawUsername.toLowerCase().startsWith('adminpalmnex') || rawUsername.toLowerCase().startsWith('palmnex'));
     let accessTier = String(user.access_tier || meta.access_tier || (isPalmnexMaster ? 'C' : 'A')).toUpperCase();
     let allowedModules = Array.isArray(user.allowed_modules) ? user.allowed_modules : getAllowedModulesForTier(accessTier);
     let storageGroup = resolveUserStorageGroup(rawUsername, companyCode, accessTier, user.storage_group || meta.storage_group);
@@ -722,13 +936,16 @@ async function enrichSupabaseUserProfile(user, fallbackCompany, rawUsernameFallb
             if (prof) {
                 rawUsername = prof.username || rawUsername;
                 displayUsername = (rawUsername.toLowerCase() === 'admin1') ? 'Admin' : (prof.username || prof.full_name || displayUsername);
-                companyCode = prof.company_code || companyCode;
+                companyCode = deriveCompanyCodeFromUsername(prof.company_code || companyCode || rawUsername);
                 accessTier = String(prof.access_tier || accessTier).toUpperCase();
                 allowedModules = Array.isArray(prof.allowed_modules) && prof.allowed_modules.length
                     ? prof.allowed_modules
                     : getAllowedModulesForTier(accessTier);
                 storageGroup = resolveUserStorageGroup(rawUsername, companyCode, accessTier, prof.storage_group);
-                company = prof.estate_company || prof.company_name || company || formatCompanyNameFromCode(companyCode);
+                const rawProfComp = prof.estate_company || prof.company_name || '';
+                company = (rawProfComp && rawProfComp.toLowerCase() !== rawUsername.toLowerCase() && rawProfComp.toLowerCase() !== (prof.company_code || '').toLowerCase())
+                    ? rawProfComp
+                    : formatCompanyNameFromCode(companyCode);
             }
         } catch (e) {
             // profiles table fallback
@@ -761,7 +978,7 @@ async function handleEmailSignIn(event) {
 
     // 1. Instant check for standard PalmnexReaDS / SmartPalm Master Admin demo credentials (admin1, mpob1998, porim1998)
     const isDemoAdminPass = (password === 'admin1' || password === 'mpob1998' || password === 'porim1998');
-    const isPalmnexAdminUser = (cleanInput === 'admin1' || cleanInput === 'admin' || cleanInput === 'admin1@palmnex.com.my' || cleanInput === 'admin1@palmnex.mpob.gov.my' || cleanInput.startsWith('adminpalmnex'));
+    const isPalmnexAdminUser = (cleanInput === 'admin1' || cleanInput === 'admin' || cleanInput === 'admin1@palmnex.com.my' || cleanInput === 'admin1@palmnex.mpob.gov.my' || cleanInput.startsWith('adminpalmnex') || cleanInput.startsWith('palmnex'));
     if (isDemoAdminPass && isPalmnexAdminUser) {
         const displayUser = (cleanInput === 'admin1' || cleanInput === 'admin' || cleanInput.startsWith('admin1@'))
             ? 'Admin'
