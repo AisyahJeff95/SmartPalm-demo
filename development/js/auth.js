@@ -441,6 +441,7 @@ window.applyCompanyEstateIsolation = function (user) {
 
     const BENTA_KEYS = new Set(['agathis', 'belian', 'binuang', 'gaharu', 'kapur', 'keruing', 'menggaris', 'merbau', 'ramin', 'selanganbatu', 'seraya', 'benta_wawasan']);
     const FGV_KEYS = new Set(['jengka24', 'jengka25', 'kota_gelanggi5', 'ppptar', 'fgv_triang']);
+    const SSB_KEYS = new Set(['boundary_mpob', 'ssb', 'sabah_softwoods']);
     const MPOB_KEYS = new Set(['geolocation_ish', 'polygon_ish', 'soil_series', 'sekinchan1poly', 'lahad_datu_combined', 'mpob_keratong', 'mpob_lahad_datu', 'mpob_kluang', 'mpob_ukm', 'mpob_sessang', 'mpob_hulu_padas', 'mpob_belaga']);
 
     const isEstateAllowedForCompany = (val, text, optEl) => {
@@ -460,6 +461,9 @@ window.applyCompanyEstateIsolation = function (user) {
         if (companyCode === 'fgv' || companyCode.includes('fgv')) {
             return FGV_KEYS.has(vNorm) || tNorm.includes('fgv') || tNorm.includes('jengka');
         }
+        if (companyCode === 'ssb' || companyCode.includes('ssb') || companyCode.includes('softwood')) {
+            return SSB_KEYS.has(vNorm) || tNorm.includes('softwood') || tNorm.includes('ssb');
+        }
         if (companyCode === 'mpob' || companyCode.includes('mpob')) {
             return MPOB_KEYS.has(vNorm) || tNorm.includes('mpob') || tNorm.includes('spoc');
         }
@@ -475,6 +479,16 @@ window.applyCompanyEstateIsolation = function (user) {
             const allowed = isEstateAllowedForCompany(opt.value, opt.text, opt);
             opt.style.display = allowed ? '' : 'none';
             opt.disabled = !allowed;
+        });
+        Array.from(sel.querySelectorAll('optgroup')).forEach(grp => {
+            if (isMasterAdmin) {
+                grp.style.display = '';
+                grp.disabled = false;
+                return;
+            }
+            const hasVisibleOption = Array.from(grp.querySelectorAll('option')).some(o => !o.disabled && o.style.display !== 'none');
+            grp.style.display = hasVisibleOption ? '' : 'none';
+            grp.disabled = !hasVisibleOption;
         });
     });
 };
@@ -660,11 +674,14 @@ window.loadCustomMapsFromSupabase = async function (userOverride) {
             : window.getCurrentPalmnexStorageGroup();
         const isMasterAdmin = window.isPalmnexMasterAdmin(u);
 
-        // 1. Remove previously injected custom options from dropdowns so switching users is 100% isolated
+        // 1. Remove previously injected custom options & dynamic company optgroups so switching users is 100% isolated
         ['map-select-comp', 'map-select-std', 'map-select-kpsm'].forEach(selId => {
             const sel = document.getElementById(selId);
             if (!sel) return;
             Array.from(sel.querySelectorAll('option[data-custom-supabase="true"]')).forEach(opt => opt.remove());
+            Array.from(sel.querySelectorAll('optgroup[data-custom-optgroup="true"]')).forEach(grp => {
+                if (grp.children.length === 0) grp.remove();
+            });
         });
 
         // 2. Load local cache for this storageGroup (or all storage groups if Master Admin)
@@ -731,7 +748,7 @@ window.loadCustomMapsFromSupabase = async function (userOverride) {
         const finalMaps = Array.from(mergedByKey.values());
         window.CUSTOM_SUPABASE_MAPS = finalMaps;
 
-        // 4. Register in REAL_MAPS_DATA, index client submissions, and inject into map dropdowns
+        // 4. Register in REAL_MAPS_DATA, index client submissions by base estate key, and inject custom maps into their Company <optgroup>
         finalMaps.forEach(row => {
             const key = row.map_key;
             const geojson = row.geojson_data;
@@ -740,39 +757,36 @@ window.loadCustomMapsFromSupabase = async function (userOverride) {
 
             if (clientSub) {
                 window.CLIENT_SUBMISSIONS_BY_MAP_KEY[key] = clientSub;
-                if (clientSub.base_map_key && !window.CLIENT_SUBMISSIONS_BY_MAP_KEY[clientSub.base_map_key]) {
-                    window.CLIENT_SUBMISSIONS_BY_MAP_KEY[clientSub.base_map_key] = clientSub;
+                const baseKey = clientSub.base_map_key || (geojson && geojson.base_map_key) || '';
+                if (baseKey && !window.CLIENT_SUBMISSIONS_BY_MAP_KEY[baseKey]) {
+                    window.CLIENT_SUBMISSIONS_BY_MAP_KEY[baseKey] = clientSub;
+                }
+                if (baseKey) {
+                    ['map-select-comp', 'map-select-std'].forEach(selId => {
+                        const sel = document.getElementById(selId);
+                        if (!sel) return;
+                        const builtInOpt = Array.from(sel.options).find(o => o.value === baseKey);
+                        if (builtInOpt) {
+                            builtInOpt.setAttribute('data-has-client-submission', 'true');
+                        }
+                    });
                 }
             }
 
-            const ownerTag = (isMasterAdmin && row.uploaded_by && row.storage_group !== 'storage_all')
-                ? `[${row.uploaded_by}] `
-                : '';
-
-            if (isSubOnly) {
-                const baseKey = geojson.base_map_key || clientSub?.base_map_key || '';
-                const label = `📋 ${ownerTag}${row.map_name || key}`;
-                ['map-select-comp', 'map-select-std'].forEach(selId => {
-                    const sel = document.getElementById(selId);
-                    if (!sel) return;
-                    let existing = Array.from(sel.options).find(o => o.value === key);
-                    if (!existing) {
-                        existing = document.createElement('option');
-                        existing.value = key;
-                        existing.setAttribute('data-custom-supabase', 'true');
-                        existing.setAttribute('data-storage-group', row.storage_group || storageGroup);
-                        if (baseKey) existing.setAttribute('data-base-map-key', baseKey);
-                        existing.setAttribute('data-has-client-submission', 'true');
-                        sel.appendChild(existing);
-                    }
-                    existing.textContent = label;
-                });
+            // Do not create duplicate "📋 ... (Client Inputs)" options in Select Map;
+            // selecting the estate directly under its Company optgroup loads the client's saved inputs.
+            if (isSubOnly || String(key).startsWith('sub_')) {
                 return;
             }
 
-            const subBadge = clientSub ? ' 📋' : '';
-            const label = `📌 ${ownerTag}${row.map_name || key}${subBadge}`;
-            geojson.mapName = label;
+            const rowCompanyCode = deriveCompanyCodeFromUsername(row.company_code || row.uploaded_by || 'palmnex');
+            const rowCompanyName = formatCompanyNameFromCode(rowCompanyCode);
+            const cleanMapName = String(row.map_name || key)
+                .replace(/^[📌📋]\s*(\[[^\]]+\]\s*)?/, '')
+                .replace(/\s*\(Client Inputs\)$/i, '')
+                .trim();
+
+            geojson.mapName = cleanMapName;
 
             if (typeof window.REAL_MAPS_DATA === 'object' && window.REAL_MAPS_DATA) {
                 window.REAL_MAPS_DATA[key] = geojson;
@@ -788,12 +802,26 @@ window.loadCustomMapsFromSupabase = async function (userOverride) {
                     existing.setAttribute('data-custom-supabase', 'true');
                     existing.setAttribute('data-storage-group', row.storage_group || storageGroup);
                     if (clientSub) existing.setAttribute('data-has-client-submission', 'true');
-                    sel.appendChild(existing);
+
+                    // Segregate custom uploaded map under its Company <optgroup>
+                    let targetOptgroup = sel.querySelector(`optgroup[data-company-group="${rowCompanyCode}"]`);
+                    if (!targetOptgroup) {
+                        targetOptgroup = document.createElement('optgroup');
+                        targetOptgroup.label = rowCompanyName;
+                        targetOptgroup.setAttribute('data-company-group', rowCompanyCode);
+                        targetOptgroup.setAttribute('data-custom-optgroup', 'true');
+                        sel.appendChild(targetOptgroup);
+                    }
+                    targetOptgroup.appendChild(existing);
                 }
-                existing.textContent = label;
+                existing.textContent = cleanMapName;
             });
         });
 
+        window.applyCompanyEstateIsolation(u);
+        if (typeof window.applyClientOrAdminReportRoleUI === 'function') {
+            window.applyClientOrAdminReportRoleUI();
+        }
         if (typeof window.refreshHomeDashboardForUser === 'function') {
             window.refreshHomeDashboardForUser(u);
         }

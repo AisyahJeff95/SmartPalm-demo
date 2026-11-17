@@ -3260,27 +3260,35 @@ function lockEnteredSatDate() {
                     <label class="ui-input-label">Select Map:</label>
                     <select class="ui-select-input" id="map-select-comp" onchange="onMapSelectChanged(this.value)">
                         <option value="" selected>-- Select Map Boundary --</option>
-                        <option value="boundary_mpob">Sabah Softwoods SSB</option>
-                        <option value="lahad_datu_combined">Lahad Datu - Boundary + 36 Trial Plots</option>
-                        <option value="seraya">Seraya with block boundary</option>
-                        <option value="agathis">Agathis</option>
-                        <option value="belian">Belian</option>
-                        <option value="binuang">Binuang</option>
-                        <option value="gaharu">Gaharu</option>
-                        <option value="kapur">Kapur</option>
-                        <option value="keruing">Keruing</option>
-                        <option value="menggaris">Menggaris</option>
-                        <option value="merbau">Merbau</option>
-                        <option value="ramin">Ramin</option>
-                        <option value="selanganbatu">Selangan Batu</option>
-                        <option value="sekinchan1poly">Sekinchan 1 Poly</option>
-                        <option value="jengka24">Ladang Jengka 24</option>
-                        <option value="jengka25">Ladang Jengka 25</option>
-                        <option value="kota_gelanggi5">Ladang Kota Gelanggi 5</option>
-                        <option value="ppptar">Ladang PPPTAR</option>
-                        <option value="geolocation_ish">GEOLOCATION ISH SPOC A7</option>
-                        <option value="polygon_ish">POLYGON ISH SPOC A7</option>
-                        <option value="soil_series">SOIL SERIES SPOC A7</option>
+                        <optgroup label="Benta Wawasan Sdn Bhd" data-company-group="benta">
+                            <option value="agathis">Agathis</option>
+                            <option value="belian">Belian</option>
+                            <option value="binuang">Binuang</option>
+                            <option value="gaharu">Gaharu</option>
+                            <option value="kapur">Kapur</option>
+                            <option value="keruing">Keruing</option>
+                            <option value="menggaris">Menggaris</option>
+                            <option value="merbau">Merbau</option>
+                            <option value="ramin">Ramin</option>
+                            <option value="selanganbatu">Selangan Batu</option>
+                            <option value="seraya">Seraya with block boundary</option>
+                        </optgroup>
+                        <optgroup label="FGV Holdings Berhad" data-company-group="fgv">
+                            <option value="jengka24">Ladang Jengka 24</option>
+                            <option value="jengka25">Ladang Jengka 25</option>
+                            <option value="kota_gelanggi5">Ladang Kota Gelanggi 5</option>
+                            <option value="ppptar">Ladang PPPTAR</option>
+                        </optgroup>
+                        <optgroup label="Sabah Softwoods Berhad" data-company-group="ssb">
+                            <option value="boundary_mpob">Sabah Softwoods SSB</option>
+                        </optgroup>
+                        <optgroup label="MPOB Research &amp; SPOC" data-company-group="mpob">
+                            <option value="lahad_datu_combined">Lahad Datu - Boundary + 36 Trial Plots</option>
+                            <option value="sekinchan1poly">Sekinchan 1 Poly</option>
+                            <option value="geolocation_ish">GEOLOCATION ISH SPOC A7</option>
+                            <option value="polygon_ish">POLYGON ISH SPOC A7</option>
+                            <option value="soil_series">SOIL SERIES SPOC A7</option>
+                        </optgroup>
                     </select>
                     <button id="delete-map-btn-comp" class="ui-delete-btn" style="display:none;" onclick="deleteCurrentMap()" title="Delete map">🗑️</button>
                 </div>
@@ -3616,15 +3624,11 @@ function lockEnteredSatDate() {
                 </div>
             </div>
 
-            <!-- Section 3: Report (Admin) / Estate & Block Submission (Client) (White Background) -->
+            <!-- Section 3: Report (Admin) / Save Information (Client) (White Background) -->
             <div id="report-admin-section" style="margin-top: 10px; margin-bottom: 16px; background: #ffffff; border-radius: 14px; padding: 14px 16px; border: 1px solid #e2e8f0; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); color: #0f172a;">
                 <div id="report-admin-section-title" class="ui-section-title" style="margin-top: 0; margin-bottom: 10px; color: #0f172a;">Report (Admin)</div>
 
-                <!-- Client Submission Summary Banner (Visible when saved client inputs exist for selected map) -->
-                <div id="admin-client-submission-banner" style="display: none; margin-bottom: 10px; padding: 10px 12px; border-radius: 10px; background: #f0fdf4; border: 1px solid #86efac; color: #14532d; font-size: 11.5px; line-height: 1.45;">
-                </div>
-
-                <!-- Card 8: Report Configuration (Block Selection, Estate Name & Client Remarks) -->
+                <!-- Card 8: Report Configuration (Block Selection, Estate Name & Client Message) -->
                 <div class="ui-card" style="background: #f8fafc; border: 1px solid #cbd5e1; box-shadow: none; color: #0f172a;">
                     <div class="ui-card-label" style="margin-bottom: 8px; color: #0f172a;">Block Selection</div>
                     <!-- Selected Block Status for Report -->
@@ -3641,25 +3645,22 @@ function lockEnteredSatDate() {
                         </div>
                     </div>
 
-                    <!-- Client Notes / Remarks for Admin -->
+                    <!-- Client Message / Notes -->
                     <div style="border-top: 1px solid #e2e8f0; padding-top: 10px; margin-top: 10px;">
-                        <div class="ui-card-label" style="margin-bottom: 6px; color: #0f172a;">Client Notes / Remarks for Admin</div>
-                        <textarea id="client-remarks-input" rows="2" placeholder="Optional: Enter field observations, priority blocks, or notes for Admin..." style="width: 100%; border-radius: 8px; padding: 7px 10px; background: #ffffff; border: 1px solid #cbd5e1; color: #0f172a; font-size: 12px; font-family: inherit; resize: vertical; box-sizing: border-box;"></textarea>
+                        <div id="client-remarks-label" class="ui-card-label" style="margin-bottom: 6px; color: #0f172a;">Client Notes / Remarks</div>
+                        <textarea id="client-remarks-input" rows="2" placeholder="Optional: Enter desired blocks grouping or notes for report production..." style="width: 100%; border-radius: 8px; padding: 7px 10px; background: #ffffff; border: 1px solid #cbd5e1; color: #0f172a; font-size: 12px; font-family: inherit; resize: vertical; box-sizing: border-box;"></textarea>
                     </div>
                 </div>
 
-                <!-- Save & Submit Inputs to Admin Button (Primary action for Client; also available for Admin to save snapshot) -->
-                <div id="client-submission-actions-wrap" style="margin-bottom: 10px;">
+                <!-- Client-Only Save Information Button (Hidden on Admin View) -->
+                <div id="client-submission-actions-wrap" style="display: none; margin-bottom: 10px;">
                     <button type="button" id="btn-save-client-inputs" onclick="saveClientInputsToAdmin(false)"
                         style="width: 100%; padding: 10px 12px; border-radius: 10px; background: #15803d; color: #ffffff; border: 1px solid #166534; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; box-shadow: 0 2px 6px rgba(21, 128, 61, 0.25);"
                         onmouseover="this.style.background='#166534'"
                         onmouseout="this.style.background='#15803d'">
-                        <span>📤 Save &amp; Submit Inputs to Admin</span>
+                        <span>Save this information</span>
                     </button>
                     <div id="client-submit-status-msg" style="display: none; margin-top: 6px; font-size: 11.5px; font-weight: 600; color: #15803d; text-align: center;"></div>
-                    <div id="client-report-policy-note" style="display: none; margin-top: 8px; padding: 8px 10px; border-radius: 8px; background: #f1f5f9; border: 1px solid #cbd5e1; color: #334155; font-size: 11px; line-height: 1.45;">
-                        <strong style="color: #0f172a;">📋 Report Policy:</strong> Full Fertilizer Recommendation Reports are generated by <strong>Palmnex Admin</strong> and issued <strong>3 times a year</strong> to clients. You can use this dashboard anytime to monitor nutrients, run predictions, and submit your updated estate inputs above.
-                    </div>
                 </div>
 
                 <!-- Admin-Only Report & Raster Download Actions -->
@@ -4021,7 +4022,7 @@ function lockEnteredSatDate() {
                 el.style.fontWeight = '400';
                 el.innerHTML = isAdmin
                     ? '* Click a single block on the dashboard map first to generate report.'
-                    : '* Click block(s) on the dashboard map to include in your submission to Admin.';
+                    : '* Click block(s) on the dashboard map to save for report production.';
             }
         }
 
@@ -5856,6 +5857,8 @@ function lockEnteredSatDate() {
         // =========================================================================
         // CLIENT INPUT SUBMISSION & ADMIN AUTO-POPULATE / ROLE RESTRICTION ENGINE
         // =========================================================================
+        const DEFAULT_ADMIN_NO_CLIENT_NOTES_MSG = 'no specific blocks grouping desired by client. Please proceed to generate overall estate report.';
+
         window.applyClientOrAdminReportRoleUI = function (userOverride) {
             const isAdmin = (typeof window.isPalmnexMasterAdmin === 'function')
                 ? window.isPalmnexMasterAdmin(userOverride)
@@ -5863,7 +5866,7 @@ function lockEnteredSatDate() {
 
             const titleEl = document.getElementById('report-admin-section-title');
             if (titleEl) {
-                titleEl.textContent = isAdmin ? 'Report (Admin)' : 'Estate & Block Submission';
+                titleEl.textContent = isAdmin ? 'Report (Admin)' : 'Save Information';
             }
 
             const adminActionsWrap = document.getElementById('admin-report-actions-wrap');
@@ -5871,16 +5874,37 @@ function lockEnteredSatDate() {
                 adminActionsWrap.style.display = isAdmin ? 'block' : 'none';
             }
 
-            const policyNoteEl = document.getElementById('client-report-policy-note');
-            if (policyNoteEl) {
-                policyNoteEl.style.display = isAdmin ? 'none' : 'block';
+            const clientActionsWrap = document.getElementById('client-submission-actions-wrap');
+            if (clientActionsWrap) {
+                clientActionsWrap.style.display = isAdmin ? 'none' : 'block';
             }
 
             const saveBtn = document.getElementById('btn-save-client-inputs');
             if (saveBtn) {
-                saveBtn.innerHTML = isAdmin
-                    ? '<span>💾 Save Estate Inputs Snapshot</span>'
-                    : '<span>📤 Save &amp; Submit Inputs to Admin</span>';
+                saveBtn.innerHTML = '<span>Save this information</span>';
+            }
+
+            const remarksLabelEl = document.getElementById('client-remarks-label');
+            if (remarksLabelEl) {
+                remarksLabelEl.textContent = isAdmin ? 'Message from Client' : 'Client Notes / Remarks';
+            }
+
+            const remarksEl = document.getElementById('client-remarks-input');
+            if (remarksEl) {
+                if (isAdmin) {
+                    remarksEl.readOnly = true;
+                    remarksEl.style.background = '#f1f5f9';
+                    if (!remarksEl.value || !remarksEl.value.trim()) {
+                        remarksEl.value = DEFAULT_ADMIN_NO_CLIENT_NOTES_MSG;
+                    }
+                } else {
+                    remarksEl.readOnly = false;
+                    remarksEl.style.background = '#ffffff';
+                    remarksEl.placeholder = 'Optional: Enter desired blocks grouping or notes for report production...';
+                    if (remarksEl.value === DEFAULT_ADMIN_NO_CLIENT_NOTES_MSG) {
+                        remarksEl.value = '';
+                    }
+                }
             }
 
             if (typeof updateSelectedBlockReportHint === 'function') {
@@ -5954,6 +5978,9 @@ function lockEnteredSatDate() {
                 }))
                 : [];
 
+            const rawRemarks = getVal('client-remarks-input', '').trim();
+            const cleanRemarks = (rawRemarks === DEFAULT_ADMIN_NO_CLIENT_NOTES_MSG) ? '' : rawRemarks;
+
             return {
                 satelliteMode: isRealtime ? 'realtime' : 'archive',
                 satelliteDate: satDate,
@@ -5964,7 +5991,7 @@ function lockEnteredSatDate() {
                 fertilizer: fertilizer,
                 selectedBlocks: filledBlocks,
                 estateName: getVal('estate-name-input', ''),
-                clientRemarks: getVal('client-remarks-input', '')
+                clientRemarks: cleanRemarks
             };
         };
 
@@ -5990,7 +6017,7 @@ function lockEnteredSatDate() {
             if (statusEl) {
                 statusEl.style.display = 'block';
                 statusEl.style.color = '#0284c7';
-                statusEl.textContent = '⏳ Saving & syncing inputs to Admin...';
+                statusEl.textContent = '⏳ Saving your information...';
             }
 
             let saved = null;
@@ -5999,70 +6026,23 @@ function lockEnteredSatDate() {
             }
 
             if (statusEl) {
-                const timeStr = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
                 statusEl.style.display = 'block';
                 statusEl.style.color = '#15803d';
-                statusEl.textContent = `✓ Saved & submitted to Admin (${timeStr})`;
-            }
-
-            if (saved && typeof window.renderAdminClientSubmissionBanner === 'function') {
-                window.renderAdminClientSubmissionBanner(saved);
+                statusEl.textContent = '✓ Your information is saved in the database for report production.';
             }
 
             if (!isAutoSave) {
-                const isAdmin = (typeof window.isPalmnexMasterAdmin === 'function') ? window.isPalmnexMasterAdmin() : true;
-                const blocksStr = (payload.selectedBlocks && payload.selectedBlocks.length)
-                    ? payload.selectedBlocks.map(b => b.name).join(', ')
-                    : 'All Estate Blocks';
-                alert(
-                    isAdmin
-                        ? `✓ Estate inputs snapshot saved for "${payload.estateName || optText}"!\nSelected Blocks: ${blocksStr}`
-                        : `✓ Your estate inputs have been saved & submitted to Palmnex Admin!\n\n• Map: ${payload.estateName || optText}\n• Selected Blocks: ${blocksStr}\n• Soil Type: ${payload.soilType}\n\nAdmin will automatically see all your entered parameters when opening your map.`
-                );
+                alert('Your information is saved in the database for report production.');
             }
             return saved;
         };
 
-        window.renderAdminClientSubmissionBanner = function (sub) {
+        window.renderAdminClientSubmissionBanner = function () {
             const banner = document.getElementById('admin-client-submission-banner');
-            if (!banner) return;
-            if (!sub) {
+            if (banner) {
                 banner.style.display = 'none';
                 banner.innerHTML = '';
-                return;
             }
-
-            const dtStr = sub.submitted_at
-                ? new Date(sub.submitted_at).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })
-                : 'Recently';
-            const blocksList = (Array.isArray(sub.selectedBlocks) && sub.selectedBlocks.length > 0)
-                ? sub.selectedBlocks.map(b => b.name).join(', ')
-                : (sub.reportData && sub.reportData.blockName ? sub.reportData.blockName : 'None clicked');
-            const f = sub.fertilizer || {};
-            const fertRatioStr = (f.n || f.p || f.k || f.mg || f.b)
-                ? `${f.n || 0} : ${f.p || 0} : ${f.k || 0} : ${f.mg || 0} : ${f.b || 0}`
-                : (f.listLabel || 'Default / Suggested');
-            const dosageStr = f.currentDosageKgPalmYr ? `${f.currentDosageKgPalmYr} kg/palm/yr` : 'Not specified';
-            const lastAppStr = f.lastAppliedDate || 'Not specified';
-            const rd = sub.reportData || {};
-            const soilSummary = `${sub.soilType || 'Inland'} (Age: ${rd.palmAge || 12}y, Density: ${rd.density || 148}/ha, Rain: ${rd.rainfall || 2000}mm, SOA: ${rd.nRate !== undefined ? rd.nRate : 1.0} kg, KCl: ${rd.kRate !== undefined ? rd.kRate : 3.0} kg)`;
-
-            banner.style.display = 'block';
-            banner.innerHTML = `
-                <div style="font-weight: 800; color: #14532d; font-size: 12px; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center;">
-                    <span>📋 Client Submitted Inputs Loaded</span>
-                    <span style="font-size: 10.5px; font-weight: 700; background: #bbf7d0; color: #166534; padding: 1px 6px; border-radius: 4px;">${sub.submitted_by || 'Client'}</span>
-                </div>
-                <div style="display: grid; grid-template-columns: 1fr; gap: 2px; color: #166534; font-size: 11px;">
-                    <div><strong>Submitted:</strong> ${dtStr} (${sub.company_name || sub.company_code || 'Client'})</div>
-                    <div><strong>Selected Blocks:</strong> ${blocksList}</div>
-                    <div><strong>Soil &amp; OPENS:</strong> ${soilSummary}</div>
-                    <div><strong>Fertilizer Ratio:</strong> ${fertRatioStr}</div>
-                    <div><strong>Current Dosage:</strong> ${dosageStr} &nbsp;|&nbsp; <strong>Last Applied:</strong> ${lastAppStr}</div>
-                    ${sub.estateName ? `<div><strong>Desired Estate Name:</strong> ${sub.estateName}</div>` : ''}
-                    ${sub.clientRemarks ? `<div style="margin-top: 3px; padding: 4px 7px; background: #ffffff; border-left: 3px solid #16a34a; border-radius: 4px; color: #0f172a;"><strong>Client Remarks:</strong> ${sub.clientRemarks}</div>` : ''}
-                </div>
-            `;
         };
 
         window.applyClientSubmissionToDashboard = function (sub) {
@@ -6070,11 +6050,14 @@ function lockEnteredSatDate() {
                 const el = document.getElementById(id);
                 if (el && val !== undefined && val !== null) el.value = val;
             };
+            const isAdmin = (typeof window.isPalmnexMasterAdmin === 'function')
+                ? window.isPalmnexMasterAdmin()
+                : true;
 
             if (!sub) {
-                window.renderAdminClientSubmissionBanner(null);
                 const statusEl = document.getElementById('client-submit-status-msg');
                 if (statusEl) statusEl.style.display = 'none';
+                setInputVal('client-remarks-input', isAdmin ? DEFAULT_ADMIN_NO_CLIENT_NOTES_MSG : '');
                 return;
             }
 
@@ -6154,7 +6137,10 @@ function lockEnteredSatDate() {
 
             // 5. Desired Estate Name & Client Remarks
             setInputVal('estate-name-input', sub.estateName || '');
-            setInputVal('client-remarks-input', sub.clientRemarks || '');
+            const cleanClientMsg = (sub.clientRemarks && String(sub.clientRemarks).trim() !== '' && sub.clientRemarks !== DEFAULT_ADMIN_NO_CLIENT_NOTES_MSG)
+                ? String(sub.clientRemarks).trim()
+                : '';
+            setInputVal('client-remarks-input', isAdmin ? (cleanClientMsg || DEFAULT_ADMIN_NO_CLIENT_NOTES_MSG) : cleanClientMsg);
 
             // 6. Restore Selected Blocks on the Map
             if (Array.isArray(sub.selectedBlocks) && sub.selectedBlocks.length > 0 && compBoundaryLayer && typeof compBoundaryLayer.eachLayer === 'function') {
@@ -7560,9 +7546,8 @@ window.runRfrPredictionFlow = runRfrPredictionFlow;
             // Role Restriction: Only Palmnex Master Admin can generate full PDF Reports
             if (typeof window.isPalmnexMasterAdmin === 'function' && !window.isPalmnexMasterAdmin()) {
                 if (typeof window.saveClientInputsToAdmin === 'function') {
-                    window.saveClientInputsToAdmin(true);
+                    window.saveClientInputsToAdmin(false);
                 }
-                alert("📋 Report Generation (Admin Only)\n\nFull Fertilizer Recommendation Reports are generated by Palmnex Admin and issued 3 times a year to clients.\n\nYour entered block, soil, and fertilizer inputs have been saved and submitted to Admin!");
                 return;
             }
 

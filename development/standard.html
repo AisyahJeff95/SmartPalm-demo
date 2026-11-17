@@ -3143,27 +3143,35 @@ function toggleSatDataMode(mode) {
                     <label class="ui-input-label">Select Map:</label>
                     <select class="ui-select-input" id="map-select-comp" onchange="onMapSelectChanged(this.value)">
                         <option value="" selected>-- Select Map Boundary --</option>
-                        <option value="boundary_mpob">Sabah Softwoods SSB</option>
-                        <option value="lahad_datu_combined">Lahad Datu - Boundary + 36 Trial Plots</option>
-                        <option value="seraya">Seraya with block boundary</option>
-                        <option value="agathis">Agathis</option>
-                        <option value="belian">Belian</option>
-                        <option value="binuang">Binuang</option>
-                        <option value="gaharu">Gaharu</option>
-                        <option value="kapur">Kapur</option>
-                        <option value="keruing">Keruing</option>
-                        <option value="menggaris">Menggaris</option>
-                        <option value="merbau">Merbau</option>
-                        <option value="ramin">Ramin</option>
-                        <option value="selanganbatu">Selangan Batu</option>
-                        <option value="sekinchan1poly">Sekinchan 1 Poly</option>
-                        <option value="jengka24">Ladang Jengka 24</option>
-                        <option value="jengka25">Ladang Jengka 25</option>
-                        <option value="kota_gelanggi5">Ladang Kota Gelanggi 5</option>
-                        <option value="ppptar">Ladang PPPTAR</option>
-                        <option value="geolocation_ish">GEOLOCATION ISH SPOC A7</option>
-                        <option value="polygon_ish">POLYGON ISH SPOC A7</option>
-                        <option value="soil_series">SOIL SERIES SPOC A7</option>
+                        <optgroup label="Benta Wawasan Sdn Bhd" data-company-group="benta">
+                            <option value="agathis">Agathis</option>
+                            <option value="belian">Belian</option>
+                            <option value="binuang">Binuang</option>
+                            <option value="gaharu">Gaharu</option>
+                            <option value="kapur">Kapur</option>
+                            <option value="keruing">Keruing</option>
+                            <option value="menggaris">Menggaris</option>
+                            <option value="merbau">Merbau</option>
+                            <option value="ramin">Ramin</option>
+                            <option value="selanganbatu">Selangan Batu</option>
+                            <option value="seraya">Seraya with block boundary</option>
+                        </optgroup>
+                        <optgroup label="FGV Holdings Berhad" data-company-group="fgv">
+                            <option value="jengka24">Ladang Jengka 24</option>
+                            <option value="jengka25">Ladang Jengka 25</option>
+                            <option value="kota_gelanggi5">Ladang Kota Gelanggi 5</option>
+                            <option value="ppptar">Ladang PPPTAR</option>
+                        </optgroup>
+                        <optgroup label="Sabah Softwoods Berhad" data-company-group="ssb">
+                            <option value="boundary_mpob">Sabah Softwoods SSB</option>
+                        </optgroup>
+                        <optgroup label="MPOB Research &amp; SPOC" data-company-group="mpob">
+                            <option value="lahad_datu_combined">Lahad Datu - Boundary + 36 Trial Plots</option>
+                            <option value="sekinchan1poly">Sekinchan 1 Poly</option>
+                            <option value="geolocation_ish">GEOLOCATION ISH SPOC A7</option>
+                            <option value="polygon_ish">POLYGON ISH SPOC A7</option>
+                            <option value="soil_series">SOIL SERIES SPOC A7</option>
+                        </optgroup>
                     </select>
                     <button id="delete-map-btn-comp" class="ui-delete-btn" style="display:none;" onclick="deleteCurrentMap()" title="Delete map">🗑️</button>
                 </div>
