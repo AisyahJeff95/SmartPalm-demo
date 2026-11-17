@@ -432,64 +432,283 @@ function enforceModulePageGuard(tierInput) {
     }
 }
 
-// Filter estate dropdown (#map-select-comp / #map-select-std) based on user's company_code & storage_group
+// Ordered built-in estates per company for <company><number>@palmnex.com.my mapping & shapefile matching
+const COMPANY_ORDERED_ESTATES = {
+    benta: ['agathis', 'belian', 'binuang', 'gaharu', 'kapur', 'keruing', 'menggaris', 'merbau', 'ramin', 'selanganbatu', 'seraya'],
+    fgv: ['jengka24', 'jengka25', 'kota_gelanggi5', 'ppptar'],
+    ssb: ['boundary_mpob'],
+    mpob: ['lahad_datu_combined', 'sekinchan1poly', 'geolocation_ish', 'polygon_ish', 'soil_series']
+};
+
+window.resolveBuiltInKeyFromNameOrKey = function (rawStr, compCode) {
+    if (!rawStr) return '';
+    const norm = String(rawStr)
+        .toLowerCase()
+        .replace(/^custom[_\s:]*/i, '')
+        .replace(/^storage_[a-z0-9_]+?_/i, '')
+        .replace(/\(\d+\s*blocks?\)/gi, '')
+        .replace(/\.shp$/i, '')
+        .replace(/[^a-z0-9]/g, '');
+    if (!norm) return '';
+
+    const cCode = String(compCode || '').toLowerCase();
+    const candidatePools = [];
+    if (cCode && COMPANY_ORDERED_ESTATES[cCode]) {
+        candidatePools.push(COMPANY_ORDERED_ESTATES[cCode]);
+    }
+    Object.values(COMPANY_ORDERED_ESTATES).forEach(arr => {
+        if (!candidatePools.includes(arr)) candidatePools.push(arr);
+    });
+
+    for (const pool of candidatePools) {
+        for (const key of pool) {
+            const kNorm = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+            if (norm === kNorm || norm.startsWith(kNorm) || norm.includes(kNorm)) {
+                return key;
+            }
+        }
+    }
+    return '';
+};
+
+window.registerClientUploadedEstate = function (estateKey, userOverride) {
+    try {
+        if (!estateKey) return;
+        const u = userOverride || window.getCurrentPalmnexUser();
+        if (window.isPalmnexMasterAdmin(u)) return;
+        const storageGroup = u
+            ? (u.storage_group || resolveUserStorageGroup(u.username || u.email, u.company_code, u.access_tier))
+            : window.getCurrentPalmnexStorageGroup();
+        const companyCode = u
+            ? (u.company_code || deriveCompanyCodeFromUsername(u.username || u.email))
+            : window.getCurrentPalmnexCompanyCode();
+        if (!storageGroup || storageGroup === 'storage_all') return;
+
+        const resolvedKey = window.resolveBuiltInKeyFromNameOrKey(estateKey, companyCode) || estateKey;
+        const lsKey = `palmnex_owned_estates_${storageGroup}`;
+        let list = [];
+        try {
+            const raw = localStorage.getItem(lsKey);
+            if (raw) list = JSON.parse(raw) || [];
+        } catch (e) {}
+        if (!Array.isArray(list)) list = [];
+        if (!list.includes(resolvedKey)) list.push(resolvedKey);
+        if (resolvedKey !== estateKey && !list.includes(estateKey)) list.push(estateKey);
+        localStorage.setItem(lsKey, JSON.stringify(list));
+    } catch (e) {}
+};
+
+window.getClientOwnedEstatesSet = function (userOverride) {
+    const activeUser = userOverride || window.getCurrentPalmnexUser();
+    const rawUsername = String((activeUser && (activeUser.username || activeUser.email)) || '').trim().toLowerCase().split('@')[0];
+    const companyCode = activeUser
+        ? (activeUser.company_code || deriveCompanyCodeFromUsername(rawUsername))
+        : 'palmnex';
+    const storageGroup = activeUser
+        ? (activeUser.storage_group || resolveUserStorageGroup(rawUsername, companyCode, activeUser.access_tier))
+        : 'storage_all';
+
+    const ownedSet = new Set();
+    if (window.isPalmnexMasterAdmin(activeUser)) {
+        return ownedSet;
+    }
+
+    // 1. Check explicitly uploaded estates for this client account in localStorage
+    try {
+        const rawOwned = localStorage.getItem(`palmnex_owned_estates_${storageGroup}`);
+        if (rawOwned) {
+            const arr = JSON.parse(rawOwned);
+            if (Array.isArray(arr)) {
+                arr.forEach(k => {
+                    if (!k) return;
+                    ownedSet.add(k);
+                    const matched = window.resolveBuiltInKeyFromNameOrKey(k, companyCode);
+                    if (matched) ownedSet.add(matched);
+                });
+            }
+        }
+    } catch (e) {}
+
+    // 2. Check custom uploaded .shp maps in memory or per-user localStorage cache (excluding submission-only metadata rows)
+    const customList = [];
+    if (Array.isArray(window.CUSTOM_SUPABASE_MAPS)) {
+        customList.push(...window.CUSTOM_SUPABASE_MAPS);
+    }
+    try {
+        const rawLocal = localStorage.getItem(`palmnex_custom_maps_${storageGroup}`);
+        if (rawLocal) {
+            const parsed = JSON.parse(rawLocal);
+            if (Array.isArray(parsed)) customList.push(...parsed);
+        }
+    } catch (e) {}
+
+    customList.forEach(row => {
+        if (!row || !row.map_key) return;
+        const rowGroup = String(row.storage_group || '').toLowerCase();
+        if (rowGroup && rowGroup !== storageGroup) return;
+        const isSubOnly = Boolean((row.geojson_data && row.geojson_data.is_submission_only) || String(row.map_key).startsWith('sub_'));
+        if (isSubOnly) return;
+
+        ownedSet.add(row.map_key);
+        const matched = window.resolveBuiltInKeyFromNameOrKey(row.map_name || row.map_key, companyCode);
+        if (matched) ownedSet.add(matched);
+    });
+
+    // 3. If client hasn't uploaded a different estate .shp, map <company><number>@palmnex.com.my to its assigned estate
+    //    e.g., benta1 -> agathis, benta2 -> belian, ..., fgv1 -> jengka24, ssb1 -> boundary_mpob
+    if (ownedSet.size === 0) {
+        const numMatch = rawUsername.match(/(\d+)$/);
+        const acctNum = numMatch ? Math.max(1, parseInt(numMatch[1], 10)) : 1;
+        let compKey = companyCode;
+        if (companyCode.includes('benta')) compKey = 'benta';
+        else if (companyCode.includes('fgv')) compKey = 'fgv';
+        else if (companyCode.includes('ssb') || companyCode.includes('softwood')) compKey = 'ssb';
+        else if (companyCode.includes('mpob')) compKey = 'mpob';
+
+        const orderedList = COMPANY_ORDERED_ESTATES[compKey] || [];
+        if (orderedList.length > 0) {
+            const assignedKey = orderedList[(acctNum - 1) % orderedList.length];
+            if (assignedKey) ownedSet.add(assignedKey);
+        }
+    }
+
+    return ownedSet;
+};
+
+// Snapshot & restore canonical built-in <optgroup> elements on a <select> so we can safely remove other companies' <optgroup>s from DOM for clients
+window.restoreCanonicalSelectOptgroups = function (sel) {
+    if (!sel) return;
+    if (!sel._canonicalBuiltInOptgroups) {
+        const builtInGroups = Array.from(sel.querySelectorAll('optgroup:not([data-custom-optgroup="true"])'));
+        if (builtInGroups.length > 0) {
+            sel._canonicalBuiltInOptgroups = builtInGroups.map(grp => {
+                const clone = grp.cloneNode(true);
+                Array.from(clone.querySelectorAll('option[data-custom-supabase="true"]')).forEach(o => o.remove());
+                Array.from(clone.querySelectorAll('option')).forEach(o => {
+                    o.disabled = false;
+                    o.style.display = '';
+                });
+                return clone;
+            });
+        }
+    }
+    if (!sel._canonicalBuiltInOptgroups || sel._canonicalBuiltInOptgroups.length === 0) return;
+
+    // Preserve any currently injected custom options (with their parent company group info)
+    const customOptionsInfo = [];
+    Array.from(sel.querySelectorAll('option[data-custom-supabase="true"]')).forEach(opt => {
+        const parentGrp = opt.parentElement && opt.parentElement.tagName === 'OPTGROUP' ? opt.parentElement : null;
+        customOptionsInfo.push({
+            node: opt.cloneNode(true),
+            companyGroup: (opt.getAttribute('data-company-group') || (parentGrp && parentGrp.getAttribute('data-company-group')) || '').toLowerCase(),
+            companyLabel: (parentGrp && parentGrp.label) || ''
+        });
+    });
+
+    const prevVal = sel.value;
+
+    // Remove all existing optgroups and non-placeholder options
+    Array.from(sel.querySelectorAll('optgroup')).forEach(g => g.remove());
+    Array.from(sel.querySelectorAll('option')).forEach(o => {
+        if (o.value !== '') o.remove();
+    });
+
+    // Re-append fresh clones of all canonical built-in optgroups
+    sel._canonicalBuiltInOptgroups.forEach(canonGrp => {
+        sel.appendChild(canonGrp.cloneNode(true));
+    });
+
+    // Re-attach custom options into their respective company optgroup
+    customOptionsInfo.forEach(info => {
+        const grpCode = info.companyGroup || 'custom';
+        let targetGrp = sel.querySelector(`optgroup[data-company-group="${grpCode}"]`);
+        if (!targetGrp) {
+            targetGrp = document.createElement('optgroup');
+            targetGrp.label = info.companyLabel || formatCompanyNameFromCode(grpCode);
+            targetGrp.setAttribute('data-company-group', grpCode);
+            targetGrp.setAttribute('data-custom-optgroup', 'true');
+            sel.appendChild(targetGrp);
+        }
+        if (!Array.from(targetGrp.querySelectorAll('option')).some(o => o.value === info.node.value)) {
+            targetGrp.appendChild(info.node);
+        }
+    });
+
+    if (prevVal && Array.from(sel.options).some(o => o.value === prevVal)) {
+        sel.value = prevVal;
+    }
+};
+
+// Filter estate dropdown (#map-select-comp / #map-select-std) based on user's company_code & storage_group:
+// - Admin (Tier C): sees all companies and all estates enabled.
+// - Client (Tier A & B):
+//     1) Estates from OTHER companies are completely removed from the dropdown DOM (100% hidden).
+//     2) Estates from the SAME company are shown under their company header, with ONLY the client's own estate(s) enabled and all other estates of the same company greyed out (disabled).
 window.applyCompanyEstateIsolation = function (user) {
     const activeUser = user || window.getCurrentPalmnexUser();
     const storageGroup = activeUser ? (activeUser.storage_group || resolveUserStorageGroup(activeUser.username, activeUser.company_code, activeUser.access_tier)) : 'storage_all';
     const companyCode = activeUser ? (activeUser.company_code || deriveCompanyCodeFromUsername(activeUser.username || activeUser.email)) : 'palmnex';
     const isMasterAdmin = window.isPalmnexMasterAdmin(activeUser);
+    const ownedEstatesSet = window.getClientOwnedEstatesSet(activeUser);
 
-    const BENTA_KEYS = new Set(['agathis', 'belian', 'binuang', 'gaharu', 'kapur', 'keruing', 'menggaris', 'merbau', 'ramin', 'selanganbatu', 'seraya', 'benta_wawasan']);
-    const FGV_KEYS = new Set(['jengka24', 'jengka25', 'kota_gelanggi5', 'ppptar', 'fgv_triang']);
-    const SSB_KEYS = new Set(['boundary_mpob', 'ssb', 'sabah_softwoods']);
-    const MPOB_KEYS = new Set(['geolocation_ish', 'polygon_ish', 'soil_series', 'sekinchan1poly', 'lahad_datu_combined', 'mpob_keratong', 'mpob_lahad_datu', 'mpob_kluang', 'mpob_ukm', 'mpob_sessang', 'mpob_hulu_padas', 'mpob_belaga']);
-
-    const isEstateAllowedForCompany = (val, text, optEl) => {
-        if (isMasterAdmin) return true;
-        if (!val) return true; // Keep placeholder option
-        if (optEl && optEl.getAttribute('data-custom-supabase') === 'true') {
-            const optGroup = optEl.getAttribute('data-storage-group') || '';
-            return !optGroup || optGroup === storageGroup;
-        }
-        const vNorm = String(val).toLowerCase().replace(/shp$/i, '').replace(/[^a-z0-9_]/g, '');
-        const tNorm = String(text || '').toLowerCase();
-        // Always allow user's own uploaded custom maps or saved submissions
-        if (vNorm.startsWith(`custom_${storageGroup}`) || vNorm.startsWith(`sub_${storageGroup}`) || vNorm.includes(companyCode) || tNorm.includes(companyCode)) return true;
-        if (companyCode === 'benta' || companyCode.includes('benta')) {
-            return BENTA_KEYS.has(vNorm) || tNorm.includes('benta');
-        }
-        if (companyCode === 'fgv' || companyCode.includes('fgv')) {
-            return FGV_KEYS.has(vNorm) || tNorm.includes('fgv') || tNorm.includes('jengka');
-        }
-        if (companyCode === 'ssb' || companyCode.includes('ssb') || companyCode.includes('softwood')) {
-            return SSB_KEYS.has(vNorm) || tNorm.includes('softwood') || tNorm.includes('ssb');
-        }
-        if (companyCode === 'mpob' || companyCode.includes('mpob')) {
-            return MPOB_KEYS.has(vNorm) || tNorm.includes('mpob') || tNorm.includes('spoc');
-        }
-        // For new companies (e.g. achijaya), only show estates matching their company_code or custom uploads
+    const doesGroupMatchCompany = (grpCodeRaw) => {
+        const grpCode = String(grpCodeRaw || '').toLowerCase();
+        if (!grpCode) return false;
+        if (grpCode === companyCode) return true;
+        if (companyCode.includes('benta') && grpCode === 'benta') return true;
+        if (companyCode.includes('fgv') && grpCode === 'fgv') return true;
+        if ((companyCode.includes('ssb') || companyCode.includes('softwood')) && grpCode === 'ssb') return true;
+        if (companyCode.includes('mpob') && grpCode === 'mpob') return true;
         return false;
     };
 
     ['map-select-comp', 'map-select-std', 'map-select-kpsm'].forEach(selId => {
         const sel = document.getElementById(selId);
         if (!sel || !sel.options) return;
-        Array.from(sel.options).forEach(opt => {
-            if (!opt.value) return;
-            const allowed = isEstateAllowedForCompany(opt.value, opt.text, opt);
-            opt.style.display = allowed ? '' : 'none';
-            opt.disabled = !allowed;
-        });
-        Array.from(sel.querySelectorAll('optgroup')).forEach(grp => {
-            if (isMasterAdmin) {
-                grp.style.display = '';
+
+        const prevVal = sel.value;
+        window.restoreCanonicalSelectOptgroups(sel);
+
+        if (isMasterAdmin) {
+            Array.from(sel.querySelectorAll('optgroup')).forEach(grp => {
                 grp.disabled = false;
-                return;
+                grp.style.display = '';
+            });
+            Array.from(sel.options).forEach(opt => {
+                opt.disabled = false;
+                opt.style.display = '';
+            });
+            if (prevVal && Array.from(sel.options).some(o => o.value === prevVal)) {
+                sel.value = prevVal;
             }
-            const hasVisibleOption = Array.from(grp.querySelectorAll('option')).some(o => !o.disabled && o.style.display !== 'none');
-            grp.style.display = hasVisibleOption ? '' : 'none';
-            grp.disabled = !hasVisibleOption;
+            return;
+        }
+
+        // Client View:
+        // 1. Completely remove <optgroup> elements of OTHER companies from the DOM so native macOS <select> never shows them
+        Array.from(sel.querySelectorAll('optgroup')).forEach(grp => {
+            const grpCode = grp.getAttribute('data-company-group') || '';
+            if (!doesGroupMatchCompany(grpCode)) {
+                grp.remove();
+            } else {
+                grp.disabled = false;
+                grp.style.display = '';
+            }
         });
+
+        // 2. Within the client's SAME company <optgroup>, enable ONLY the client's estate(s) and grey out (disable) all other estates in the same company
+        Array.from(sel.options).forEach(opt => {
+            if (!opt.value) return; // Keep "-- Select Map Boundary --" placeholder enabled
+            const isCustomForUser = opt.getAttribute('data-custom-supabase') === 'true' &&
+                (!opt.getAttribute('data-storage-group') || opt.getAttribute('data-storage-group') === storageGroup);
+            const isOwned = ownedEstatesSet.has(opt.value) || isCustomForUser;
+            opt.disabled = !isOwned;
+            opt.style.display = '';
+        });
+
+        // 3. If the previously selected option was from another company or is now disabled, reset selection to placeholder
+        const stillValidOpt = Array.from(sel.options).find(o => o.value === prevVal && !o.disabled);
+        sel.value = stillValidOpt ? prevVal : '';
     });
 };
 
@@ -515,6 +734,9 @@ window.saveCustomMapToSupabase = async function (rawMapKey, mapName, geojsonData
         const scopedKey = cleanSlug.startsWith(storageGroup)
             ? `custom_${cleanSlug}`
             : `custom_${storageGroup}_${cleanSlug}`;
+
+        // Record this uploaded estate as owned by this client account
+        window.registerClientUploadedEstate(rawMapKey || mapName || scopedKey, u);
 
         // Preserve any existing client_submission on this custom map
         if (window.CLIENT_SUBMISSIONS_BY_MAP_KEY && window.CLIENT_SUBMISSIONS_BY_MAP_KEY[scopedKey] && !geojsonData.client_submission) {
@@ -674,14 +896,13 @@ window.loadCustomMapsFromSupabase = async function (userOverride) {
             : window.getCurrentPalmnexStorageGroup();
         const isMasterAdmin = window.isPalmnexMasterAdmin(u);
 
-        // 1. Remove previously injected custom options & dynamic company optgroups so switching users is 100% isolated
+        // 1. Restore canonical built-in optgroups & remove previously injected custom options so switching users is 100% isolated
         ['map-select-comp', 'map-select-std', 'map-select-kpsm'].forEach(selId => {
             const sel = document.getElementById(selId);
             if (!sel) return;
             Array.from(sel.querySelectorAll('option[data-custom-supabase="true"]')).forEach(opt => opt.remove());
-            Array.from(sel.querySelectorAll('optgroup[data-custom-optgroup="true"]')).forEach(grp => {
-                if (grp.children.length === 0) grp.remove();
-            });
+            Array.from(sel.querySelectorAll('optgroup[data-custom-optgroup="true"]')).forEach(grp => grp.remove());
+            window.restoreCanonicalSelectOptgroups(sel);
         });
 
         // 2. Load local cache for this storageGroup (or all storage groups if Master Admin)
@@ -761,16 +982,6 @@ window.loadCustomMapsFromSupabase = async function (userOverride) {
                 if (baseKey && !window.CLIENT_SUBMISSIONS_BY_MAP_KEY[baseKey]) {
                     window.CLIENT_SUBMISSIONS_BY_MAP_KEY[baseKey] = clientSub;
                 }
-                if (baseKey) {
-                    ['map-select-comp', 'map-select-std'].forEach(selId => {
-                        const sel = document.getElementById(selId);
-                        if (!sel) return;
-                        const builtInOpt = Array.from(sel.options).find(o => o.value === baseKey);
-                        if (builtInOpt) {
-                            builtInOpt.setAttribute('data-has-client-submission', 'true');
-                        }
-                    });
-                }
             }
 
             // Do not create duplicate "📋 ... (Client Inputs)" options in Select Map;
@@ -783,8 +994,22 @@ window.loadCustomMapsFromSupabase = async function (userOverride) {
             const rowCompanyName = formatCompanyNameFromCode(rowCompanyCode);
             const cleanMapName = String(row.map_name || key)
                 .replace(/^[📌📋]\s*(\[[^\]]+\]\s*)?/, '')
+                .replace(/^Custom:\s*/i, '')
+                .replace(/\s*\(\d+\s*blocks?\)\s*$/i, '')
                 .replace(/\s*\(Client Inputs\)$/i, '')
                 .trim();
+
+            // Check if this uploaded shapefile corresponds to an existing built-in estate (e.g., "agathis")
+            const matchedBuiltIn = window.resolveBuiltInKeyFromNameOrKey(cleanMapName || key, rowCompanyCode);
+            if (matchedBuiltIn) {
+                if (typeof window.REAL_MAPS_DATA === 'object' && window.REAL_MAPS_DATA && geojson && Array.isArray(geojson.features) && geojson.features.length > 0) {
+                    window.REAL_MAPS_DATA[matchedBuiltIn] = geojson;
+                }
+                if (clientSub && !window.CLIENT_SUBMISSIONS_BY_MAP_KEY[matchedBuiltIn]) {
+                    window.CLIENT_SUBMISSIONS_BY_MAP_KEY[matchedBuiltIn] = clientSub;
+                }
+                return;
+            }
 
             geojson.mapName = cleanMapName;
 
@@ -801,6 +1026,7 @@ window.loadCustomMapsFromSupabase = async function (userOverride) {
                     existing.value = key;
                     existing.setAttribute('data-custom-supabase', 'true');
                     existing.setAttribute('data-storage-group', row.storage_group || storageGroup);
+                    existing.setAttribute('data-company-group', rowCompanyCode);
                     if (clientSub) existing.setAttribute('data-has-client-submission', 'true');
 
                     // Segregate custom uploaded map under its Company <optgroup>

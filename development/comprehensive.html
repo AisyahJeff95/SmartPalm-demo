@@ -2125,7 +2125,7 @@ function toggleLockInput(checkboxEl, targetInputId) {
     const target = document.getElementById(targetInputId);
     if (target) {
         target.disabled = checkboxEl.checked;
-        const isLight = target.dataset.theme === 'light' || targetInputId === 'estate-name-input';
+        const isLight = target.dataset.theme === 'light';
         if (checkboxEl.checked) {
             target.style.background = isLight ? '#e2e8f0' : 'rgba(255, 255, 255, 0.03)';
             target.style.color = isLight ? '#64748b' : '#71717a';
@@ -3576,9 +3576,36 @@ function lockEnteredSatDate() {
                         <input type="date" class="ui-date-input" id="fert-last-applied-date-input" style="flex: 1;">
                     </div>
                 </div>
+
+                <!-- Client Save Button for Fertilizer Information -->
+                <div id="client-save-fert-wrap" class="client-only-save-wrap" style="display: none; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 10px; margin-top: 10px;">
+                    <button type="button" class="ui-full-map-btn" onclick="saveClientInputsToAdmin(false, 'fert')">Save this information</button>
+                    <div id="client-submit-status-fert" class="client-submit-status-inline" style="display: none; margin-top: 6px; font-size: 11px; font-weight: 600; color: #4ade80; text-align: center;"></div>
+                </div>
             </div>
 
-            <!-- Card 3: Optional Drone Image Upload -->
+            <!-- Client-Only Section: Estate Block Grouping (Dark UI) -->
+            <div id="client-block-grouping-section" style="display: none;">
+                <div class="ui-section-title" style="margin-top: 10px;">Estate Block Grouping</div>
+                <div class="ui-card" style="margin-top: 8px;">
+                    <div class="ui-card-label" style="margin-bottom: 8px;">Block Selection</div>
+                    <div id="client-selected-block-hint" class="ui-hint-text" style="font-size: 13px; line-height: 1.4; color: #a1a1aa; padding: 0 2px;">
+                        * Click block(s) on the dashboard map to group for report production.
+                    </div>
+
+                    <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 10px; margin-top: 10px;">
+                        <div class="ui-card-label" style="margin-bottom: 6px;">Client Notes / Remarks</div>
+                        <textarea id="client-remarks-dark-input" rows="2" placeholder="Optional: Enter desired blocks grouping or notes for report production..." oninput="const adminRem = document.getElementById('client-remarks-input'); if (adminRem) adminRem.value = this.value;" style="width: 100%; border-radius: 10px; padding: 8px 10px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.16); color: #f8fafc; font-size: 12px; font-family: inherit; resize: vertical; box-sizing: border-box; outline: none;"></textarea>
+                    </div>
+
+                    <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 10px; margin-top: 10px;">
+                        <button type="button" class="ui-full-map-btn" onclick="saveClientInputsToAdmin(false, 'blocks')">Save this information</button>
+                        <div id="client-submit-status-blocks" class="client-submit-status-inline" style="display: none; margin-top: 6px; font-size: 11px; font-weight: 600; color: #4ade80; text-align: center;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3: Optional Drone Image Upload & Desired Estate Name -->
             <div class="ui-card" id="card-drone-upload" style="margin-top: 2px;">
                 <div class="ui-card-label" style="margin-bottom: 10px;">Optional:</div>
                 
@@ -3608,6 +3635,21 @@ function lockEnteredSatDate() {
                 </div>
 
                 <div class="ui-hint-text" id="drone-status-hint" style="margin-top: 4px;">* Upload high-resolution drone orthomosaic image to overlay on active map boundary.</div>
+
+                <!-- Optional: Desired Estate Name for Report (Grouped inside Optional card) -->
+                <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 10px; margin-top: 10px;">
+                    <div class="ui-card-label" style="margin-bottom: 8px;">Optional: Desired Estate Name for Report</div>
+                    <div class="ui-field-row">
+                        <input type="text" id="estate-name-input" class="ui-pill-input" placeholder="Enter desired estate name for report...">
+                        <input type="checkbox" id="estate-name-lock-chk" class="ui-accent-checkbox" onchange="toggleLockInput(this, 'estate-name-input')" title="Lock / Unlock input">
+                    </div>
+                </div>
+
+                <!-- Client Save Button for Optional Section -->
+                <div id="client-save-optional-wrap" class="client-only-save-wrap" style="display: none; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 10px; margin-top: 10px;">
+                    <button type="button" class="ui-full-map-btn" onclick="saveClientInputsToAdmin(false, 'optional')">Save this information</button>
+                    <div id="client-submit-status-optional" class="client-submit-status-inline" style="display: none; margin-top: 6px; font-size: 11px; font-weight: 600; color: #4ade80; text-align: center;"></div>
+                </div>
             </div>
 
             <!-- Note & Disclaimer Section -->
@@ -3624,11 +3666,11 @@ function lockEnteredSatDate() {
                 </div>
             </div>
 
-            <!-- Section 3: Report (Admin) / Save Information (Client) (White Background) -->
+            <!-- Section 3: Report (Admin) (White Background — Admin View Only) -->
             <div id="report-admin-section" style="margin-top: 10px; margin-bottom: 16px; background: #ffffff; border-radius: 14px; padding: 14px 16px; border: 1px solid #e2e8f0; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); color: #0f172a;">
                 <div id="report-admin-section-title" class="ui-section-title" style="margin-top: 0; margin-bottom: 10px; color: #0f172a;">Report (Admin)</div>
 
-                <!-- Card 8: Report Configuration (Block Selection, Estate Name & Client Message) -->
+                <!-- Card 8: Report Configuration (Block Selection & Message from Client Directly Below) -->
                 <div class="ui-card" style="background: #f8fafc; border: 1px solid #cbd5e1; box-shadow: none; color: #0f172a;">
                     <div class="ui-card-label" style="margin-bottom: 8px; color: #0f172a;">Block Selection</div>
                     <!-- Selected Block Status for Report -->
@@ -3636,31 +3678,11 @@ function lockEnteredSatDate() {
                         * Click a single block on the dashboard map first to generate report.
                     </div>
 
-                    <!-- Optional: Desired Estate Name for Report -->
-                    <div style="border-top: 1px solid #e2e8f0; padding-top: 12px; margin-top: 12px;">
-                        <div class="ui-card-label" style="margin-bottom: 8px; color: #0f172a;">Optional: Desired Estate Name for Report</div>
-                        <div class="ui-field-row">
-                            <input type="text" id="estate-name-input" data-theme="light" class="ui-pill-input" placeholder="" style="background: #ffffff; border: 1px solid #cbd5e1; color: #0f172a;">
-                            <input type="checkbox" id="estate-name-lock-chk" class="ui-accent-checkbox" onchange="toggleLockInput(this, 'estate-name-input')" title="Lock / Unlock input">
-                        </div>
-                    </div>
-
-                    <!-- Client Message / Notes -->
+                    <!-- Message from Client (Directly under Block Selection) -->
                     <div style="border-top: 1px solid #e2e8f0; padding-top: 10px; margin-top: 10px;">
-                        <div id="client-remarks-label" class="ui-card-label" style="margin-bottom: 6px; color: #0f172a;">Client Notes / Remarks</div>
-                        <textarea id="client-remarks-input" rows="2" placeholder="Optional: Enter desired blocks grouping or notes for report production..." style="width: 100%; border-radius: 8px; padding: 7px 10px; background: #ffffff; border: 1px solid #cbd5e1; color: #0f172a; font-size: 12px; font-family: inherit; resize: vertical; box-sizing: border-box;"></textarea>
+                        <div id="client-remarks-label" class="ui-card-label" style="margin-bottom: 6px; color: #0f172a;">Message from Client</div>
+                        <textarea id="client-remarks-input" rows="2" readonly placeholder="" style="width: 100%; border-radius: 8px; padding: 7px 10px; background: #f1f5f9; border: 1px solid #cbd5e1; color: #0f172a; font-size: 12px; font-family: inherit; resize: vertical; box-sizing: border-box;"></textarea>
                     </div>
-                </div>
-
-                <!-- Client-Only Save Information Button (Hidden on Admin View) -->
-                <div id="client-submission-actions-wrap" style="display: none; margin-bottom: 10px;">
-                    <button type="button" id="btn-save-client-inputs" onclick="saveClientInputsToAdmin(false)"
-                        style="width: 100%; padding: 10px 12px; border-radius: 10px; background: #15803d; color: #ffffff; border: 1px solid #166534; font-size: 13px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; box-shadow: 0 2px 6px rgba(21, 128, 61, 0.25);"
-                        onmouseover="this.style.background='#166534'"
-                        onmouseout="this.style.background='#15803d'">
-                        <span>Save this information</span>
-                    </button>
-                    <div id="client-submit-status-msg" style="display: none; margin-top: 6px; font-size: 11.5px; font-weight: 600; color: #15803d; text-align: center;"></div>
                 </div>
 
                 <!-- Admin-Only Report & Raster Download Actions -->
@@ -3975,55 +3997,74 @@ function lockEnteredSatDate() {
         };
 
         function updateSelectedBlockReportHint() {
-            const el = document.getElementById('selected-block-report-hint');
-            if (!el) return;
+            const adminEl = document.getElementById('selected-block-report-hint');
+            const clientEl = document.getElementById('client-selected-block-hint');
             const filledSlots = selectedBlockSlots.filter(s => s && s.feature);
-            if (hasClickedBlock && selectedBlock && filledSlots.length > 0) {
-                el.style.color = '#0f172a';
-                el.style.fontWeight = '600';
-                const firstSlot = selectedBlockSlots[0];
-                const firstName = (firstSlot && firstSlot.name) ? firstSlot.name : selectedBlock;
-                let html = `<div style="font-size: 13px; margin-bottom: 4px; color: #0f172a;">✓ Selected Block for Report (Page 1): <strong>${firstName}</strong></div>`;
 
-                for (let i = 1; i < selectedBlockSlots.length; i++) {
-                    const slot = selectedBlockSlots[i];
-                    const isPending = (slot === null);
-                    const isActive = (activeBlockSlotIndex === i);
-                    if (isPending) {
-                        html += `<div onclick="window.setActiveBlockSlot(${i})" style="margin-top: 4px; padding: 4px 8px; border-radius: 5px; background: ${isActive ? 'rgba(16, 185, 129, 0.14)' : '#f1f5f9'}; border: 1px dashed ${isActive ? '#059669' : '#94a3b8'}; color: ${isActive ? '#047857' : '#475569'}; font-size: 12.5px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
-                            <span>${isActive ? '👉 Click another block on map...' : '+ Click to select block on map...'} (Block ${i + 1})</span>
-                            <span onclick="window.removeBlockSlot(${i}, event)" title="Remove slot" style="color: #64748b; font-weight: 700; font-size: 14px; padding: 0 4px; cursor: pointer;">×</span>
-                        </div>`;
-                    } else {
-                        html += `<div onclick="window.setActiveBlockSlot(${i})" title="Click to re-select Block ${i + 1} on map" style="margin-top: 4px; padding: 4px 8px; border-radius: 5px; background: ${isActive ? 'rgba(16, 185, 129, 0.14)' : '#ffffff'}; border: 1px solid ${isActive ? '#059669' : '#cbd5e1'}; color: #0f172a; font-size: 12.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
-                            <span>✓ Block ${i + 1}: <strong style="color: #059669;">${slot.name}</strong></span>
-                            <span onclick="window.removeBlockSlot(${i}, event)" title="Remove block" style="color: #64748b; font-weight: 700; font-size: 14px; padding: 0 4px; cursor: pointer;">×</span>
-                        </div>`;
+            const renderHintForTheme = (el, isDarkTheme) => {
+                if (!el) return;
+                if (hasClickedBlock && selectedBlock && filledSlots.length > 0) {
+                    const primaryText = isDarkTheme ? '#f8fafc' : '#0f172a';
+                    const secondaryText = isDarkTheme ? '#cbd5e1' : '#475569';
+                    const accentGreen = isDarkTheme ? '#34d399' : '#059669';
+                    const pendingBgActive = isDarkTheme ? 'rgba(16, 185, 129, 0.18)' : 'rgba(16, 185, 129, 0.14)';
+                    const pendingBgIdle = isDarkTheme ? 'rgba(255, 255, 255, 0.05)' : '#f1f5f9';
+                    const pendingBorderActive = isDarkTheme ? '#34d399' : '#059669';
+                    const pendingBorderIdle = isDarkTheme ? 'rgba(255, 255, 255, 0.22)' : '#94a3b8';
+                    const pendingTextActive = isDarkTheme ? '#6ee7b7' : '#047857';
+                    const filledBgIdle = isDarkTheme ? 'rgba(255, 255, 255, 0.06)' : '#ffffff';
+                    const filledBorderIdle = isDarkTheme ? 'rgba(255, 255, 255, 0.16)' : '#cbd5e1';
+                    const removeColor = isDarkTheme ? '#94a3b8' : '#64748b';
+                    const clearBtnColor = isDarkTheme ? '#f87171' : '#dc2626';
+
+                    el.style.color = primaryText;
+                    el.style.fontWeight = '600';
+                    const firstSlot = selectedBlockSlots[0];
+                    const firstName = (firstSlot && firstSlot.name) ? firstSlot.name : selectedBlock;
+                    let html = `<div style="font-size: 13px; margin-bottom: 4px; color: ${primaryText};">✓ Selected Block for Report (Page 1): <strong>${firstName}</strong></div>`;
+
+                    for (let i = 1; i < selectedBlockSlots.length; i++) {
+                        const slot = selectedBlockSlots[i];
+                        const isPending = (slot === null);
+                        const isActive = (activeBlockSlotIndex === i);
+                        if (isPending) {
+                            html += `<div onclick="window.setActiveBlockSlot(${i})" style="margin-top: 4px; padding: 4px 8px; border-radius: 5px; background: ${isActive ? pendingBgActive : pendingBgIdle}; border: 1px dashed ${isActive ? pendingBorderActive : pendingBorderIdle}; color: ${isActive ? pendingTextActive : secondaryText}; font-size: 12.5px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+                                <span>${isActive ? '👉 Click another block on map...' : '+ Click to select block on map...'} (Block ${i + 1})</span>
+                                <span onclick="window.removeBlockSlot(${i}, event)" title="Remove slot" style="color: ${removeColor}; font-weight: 700; font-size: 14px; padding: 0 4px; cursor: pointer;">×</span>
+                            </div>`;
+                        } else {
+                            html += `<div onclick="window.setActiveBlockSlot(${i})" title="Click to re-select Block ${i + 1} on map" style="margin-top: 4px; padding: 4px 8px; border-radius: 5px; background: ${isActive ? pendingBgActive : filledBgIdle}; border: 1px solid ${isActive ? pendingBorderActive : filledBorderIdle}; color: ${primaryText}; font-size: 12.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+                                <span>✓ Block ${i + 1}: <strong style="color: ${accentGreen};">${slot.name}</strong></span>
+                                <span onclick="window.removeBlockSlot(${i}, event)" title="Remove block" style="color: ${removeColor}; font-weight: 700; font-size: 14px; padding: 0 4px; cursor: pointer;">×</span>
+                            </div>`;
+                        }
                     }
-                }
 
-                html += `<div style="margin-top: 6px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">`;
-                if (selectedBlockSlots.length < MAX_SELECTED_BLOCKS) {
-                    html += `<div onclick="window.addAnotherBlockSlot()" style="color: #059669; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-block; user-select: none;">+ add another block</div>`;
+                    html += `<div style="margin-top: 6px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">`;
+                    if (selectedBlockSlots.length < MAX_SELECTED_BLOCKS) {
+                        html += `<div onclick="window.addAnotherBlockSlot()" style="color: ${accentGreen}; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-block; user-select: none;">+ add another block</div>`;
+                    } else {
+                        html += `<div></div>`;
+                    }
+                    html += `<button type="button" onclick="window.clearAllSelectedBlocks(event)" style="background: rgba(239, 68, 68, 0.14); border: 1px solid rgba(239, 68, 68, 0.38); color: ${clearBtnColor}; font-size: 11.5px; font-weight: 600; padding: 3px 10px; border-radius: 6px; cursor: pointer; user-select: none; transition: all 0.15s ease;">Clear All</button>`;
+                    html += `</div>`;
+
+                    if (filledSlots.length > 1) {
+                        html += `<div style="margin-top: 5px; font-size: 12px; line-height: 1.4; color: ${secondaryText}; font-weight: 500;">Combined Report Block (${filledSlots.length}/${MAX_SELECTED_BLOCKS}): <strong style="color: ${primaryText};">${selectedBlock}</strong></div>`;
+                    }
+
+                    el.innerHTML = html;
                 } else {
-                    html += `<div></div>`;
+                    el.style.color = isDarkTheme ? '#a1a1aa' : '#475569';
+                    el.style.fontWeight = '400';
+                    el.innerHTML = isDarkTheme
+                        ? '* Click block(s) on the dashboard map to group for report production.'
+                        : '* Click a single block on the dashboard map first to generate report.';
                 }
-                html += `<button type="button" onclick="window.clearAllSelectedBlocks(event)" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.35); color: #dc2626; font-size: 11.5px; font-weight: 600; padding: 3px 10px; border-radius: 6px; cursor: pointer; user-select: none; transition: all 0.15s ease;" onmouseover="this.style.background='rgba(239,68,68,0.2)';this.style.color='#b91c1c';" onmouseout="this.style.background='rgba(239,68,68,0.1)';this.style.color='#dc2626';">Clear All</button>`;
-                html += `</div>`;
+            };
 
-                if (filledSlots.length > 1) {
-                    html += `<div style="margin-top: 5px; font-size: 12px; line-height: 1.4; color: #475569; font-weight: 500;">Combined Report Block (${filledSlots.length}/${MAX_SELECTED_BLOCKS}): <strong style="color: #0f172a;">${selectedBlock}</strong></div>`;
-                }
-
-                el.innerHTML = html;
-            } else {
-                const isAdmin = (typeof window.isPalmnexMasterAdmin === 'function') ? window.isPalmnexMasterAdmin() : true;
-                el.style.color = '#475569';
-                el.style.fontWeight = '400';
-                el.innerHTML = isAdmin
-                    ? '* Click a single block on the dashboard map first to generate report.'
-                    : '* Click block(s) on the dashboard map to save for report production.';
-            }
+            renderHintForTheme(adminEl, false);
+            renderHintForTheme(clientEl, true);
         }
 
         // Permanent Soil Series Spatial Identification (MPOB Reconnaissance Soil Malaysia Data)
@@ -5148,13 +5189,19 @@ function lockEnteredSatDate() {
                         });
 
                         let baseName = window._UPLOADED_SHP_NAME || 'Uploaded_Estate';
-                        let customKey = 'custom_' + baseName.toLowerCase().replace(/[^a-z0-9]+/g, '_') + '_' + geojson.features.length + 'b';
-                        let mapDisplayName = `Custom: ${baseName} (${geojson.features.length} blocks)`;
+                        let matchedBuiltInKey = (typeof window.resolveBuiltInKeyFromNameOrKey === 'function')
+                            ? window.resolveBuiltInKeyFromNameOrKey(baseName)
+                            : '';
+                        let customKey = matchedBuiltInKey || ('custom_' + baseName.toLowerCase().replace(/[^a-z0-9]+/g, '_') + '_' + geojson.features.length + 'b');
+                        let mapDisplayName = matchedBuiltInKey ? baseName : `Custom: ${baseName} (${geojson.features.length} blocks)`;
                         geojson.mapName = mapDisplayName;
                         REAL_MAPS_DATA[customKey] = geojson;
+                        if (typeof window.registerClientUploadedEstate === 'function') {
+                            window.registerClientUploadedEstate(customKey);
+                        }
                         if (typeof window.saveCustomMapToSupabase === 'function') {
                             window.saveCustomMapToSupabase(customKey, mapDisplayName, geojson).then(savedKey => {
-                                if (savedKey && savedKey !== customKey) {
+                                if (savedKey && savedKey !== customKey && !matchedBuiltInKey) {
                                     REAL_MAPS_DATA[savedKey] = geojson;
                                 }
                             });
@@ -5165,6 +5212,10 @@ function lockEnteredSatDate() {
                         window.DYNAMIC_PREDICTION_RASTERS = null;
                         window.DYNAMIC_PREDICTION_GRIDS = null;
 
+                        if (typeof window.applyCompanyEstateIsolation === 'function') {
+                            window.applyCompanyEstateIsolation();
+                        }
+
                         ['map-select-comp', 'map-select-std', 'map-select-kpsm'].forEach(selectId => {
                             let select = document.getElementById(selectId);
                             if (select) {
@@ -5172,9 +5223,12 @@ function lockEnteredSatDate() {
                                 if (!existingOpt) {
                                     existingOpt = document.createElement('option');
                                     existingOpt.value = customKey;
-                                    select.appendChild(existingOpt);
+                                    existingOpt.innerText = mapDisplayName;
+                                    const firstGrp = select.querySelector('optgroup');
+                                    if (firstGrp) firstGrp.appendChild(existingOpt);
+                                    else select.appendChild(existingOpt);
                                 }
-                                existingOpt.innerText = mapDisplayName;
+                                existingOpt.disabled = false;
                                 existingOpt.selected = true;
                                 select.value = customKey;
                             }
@@ -5864,9 +5918,14 @@ function lockEnteredSatDate() {
                 ? window.isPalmnexMasterAdmin(userOverride)
                 : true;
 
+            const reportAdminSection = document.getElementById('report-admin-section');
+            if (reportAdminSection) {
+                reportAdminSection.style.display = isAdmin ? 'block' : 'none';
+            }
+
             const titleEl = document.getElementById('report-admin-section-title');
             if (titleEl) {
-                titleEl.textContent = isAdmin ? 'Report (Admin)' : 'Save Information';
+                titleEl.textContent = 'Report (Admin)';
             }
 
             const adminActionsWrap = document.getElementById('admin-report-actions-wrap');
@@ -5874,36 +5933,30 @@ function lockEnteredSatDate() {
                 adminActionsWrap.style.display = isAdmin ? 'block' : 'none';
             }
 
-            const clientActionsWrap = document.getElementById('client-submission-actions-wrap');
-            if (clientActionsWrap) {
-                clientActionsWrap.style.display = isAdmin ? 'none' : 'block';
+            const clientBlockGroupingSec = document.getElementById('client-block-grouping-section');
+            if (clientBlockGroupingSec) {
+                clientBlockGroupingSec.style.display = isAdmin ? 'none' : 'block';
             }
 
-            const saveBtn = document.getElementById('btn-save-client-inputs');
-            if (saveBtn) {
-                saveBtn.innerHTML = '<span>Save this information</span>';
-            }
+            document.querySelectorAll('.client-only-save-wrap').forEach(el => {
+                el.style.display = isAdmin ? 'none' : 'block';
+            });
 
             const remarksLabelEl = document.getElementById('client-remarks-label');
             if (remarksLabelEl) {
-                remarksLabelEl.textContent = isAdmin ? 'Message from Client' : 'Client Notes / Remarks';
+                remarksLabelEl.textContent = 'Message from Client';
             }
 
             const remarksEl = document.getElementById('client-remarks-input');
+            const darkRemarksEl = document.getElementById('client-remarks-dark-input');
             if (remarksEl) {
-                if (isAdmin) {
-                    remarksEl.readOnly = true;
-                    remarksEl.style.background = '#f1f5f9';
-                    if (!remarksEl.value || !remarksEl.value.trim()) {
-                        remarksEl.value = DEFAULT_ADMIN_NO_CLIENT_NOTES_MSG;
-                    }
-                } else {
-                    remarksEl.readOnly = false;
-                    remarksEl.style.background = '#ffffff';
-                    remarksEl.placeholder = 'Optional: Enter desired blocks grouping or notes for report production...';
-                    if (remarksEl.value === DEFAULT_ADMIN_NO_CLIENT_NOTES_MSG) {
-                        remarksEl.value = '';
-                    }
+                remarksEl.readOnly = true;
+                remarksEl.style.background = '#f1f5f9';
+                const darkVal = (darkRemarksEl && darkRemarksEl.value) ? darkRemarksEl.value.trim() : '';
+                if (darkVal) {
+                    remarksEl.value = darkVal;
+                } else if (!remarksEl.value || !remarksEl.value.trim()) {
+                    remarksEl.value = DEFAULT_ADMIN_NO_CLIENT_NOTES_MSG;
                 }
             }
 
@@ -5978,7 +6031,9 @@ function lockEnteredSatDate() {
                 }))
                 : [];
 
-            const rawRemarks = getVal('client-remarks-input', '').trim();
+            const darkRem = getVal('client-remarks-dark-input', '').trim();
+            const adminRem = getVal('client-remarks-input', '').trim();
+            const rawRemarks = darkRem || ((adminRem === DEFAULT_ADMIN_NO_CLIENT_NOTES_MSG) ? '' : adminRem);
             const cleanRemarks = (rawRemarks === DEFAULT_ADMIN_NO_CLIENT_NOTES_MSG) ? '' : rawRemarks;
 
             return {
@@ -5995,7 +6050,7 @@ function lockEnteredSatDate() {
             };
         };
 
-        window.saveClientInputsToAdmin = async function (isAutoSave) {
+        window.saveClientInputsToAdmin = async function (isAutoSave, sectionKey) {
             const selEl = document.getElementById('map-select-comp') || document.getElementById('map-select-std');
             const activeMapKey = selEl ? selEl.value : '';
             if (!activeMapKey) {
@@ -6013,23 +6068,32 @@ function lockEnteredSatDate() {
                 payload.map_display_name = payload.estateName.trim();
             }
 
-            const statusEl = document.getElementById('client-submit-status-msg');
-            if (statusEl) {
-                statusEl.style.display = 'block';
-                statusEl.style.color = '#0284c7';
-                statusEl.textContent = '⏳ Saving your information...';
-            }
+            const statusIds = sectionKey
+                ? [`client-submit-status-${sectionKey}`]
+                : ['client-submit-status-fert', 'client-submit-status-blocks', 'client-submit-status-optional'];
+
+            statusIds.forEach(id => {
+                const statusEl = document.getElementById(id);
+                if (statusEl) {
+                    statusEl.style.display = 'block';
+                    statusEl.style.color = '#38bdf8';
+                    statusEl.textContent = '⏳ Saving your information...';
+                }
+            });
 
             let saved = null;
             if (typeof window.saveClientMapSubmissionToSupabase === 'function') {
                 saved = await window.saveClientMapSubmissionToSupabase(activeMapKey, payload.estateName || optText, payload);
             }
 
-            if (statusEl) {
-                statusEl.style.display = 'block';
-                statusEl.style.color = '#15803d';
-                statusEl.textContent = '✓ Your information is saved in the database for report production.';
-            }
+            statusIds.forEach(id => {
+                const statusEl = document.getElementById(id);
+                if (statusEl) {
+                    statusEl.style.display = 'block';
+                    statusEl.style.color = '#4ade80';
+                    statusEl.textContent = '✓ Your information is saved in the database for report production.';
+                }
+            });
 
             if (!isAutoSave) {
                 alert('Your information is saved in the database for report production.');
@@ -6055,9 +6119,14 @@ function lockEnteredSatDate() {
                 : true;
 
             if (!sub) {
-                const statusEl = document.getElementById('client-submit-status-msg');
-                if (statusEl) statusEl.style.display = 'none';
+                document.querySelectorAll('.client-submit-status-inline').forEach(el => {
+                    el.style.display = 'none';
+                });
+                setInputVal('client-remarks-dark-input', '');
                 setInputVal('client-remarks-input', isAdmin ? DEFAULT_ADMIN_NO_CLIENT_NOTES_MSG : '');
+                if (typeof updateSelectedBlockReportHint === 'function') {
+                    updateSelectedBlockReportHint();
+                }
                 return;
             }
 
@@ -6140,9 +6209,10 @@ function lockEnteredSatDate() {
             const cleanClientMsg = (sub.clientRemarks && String(sub.clientRemarks).trim() !== '' && sub.clientRemarks !== DEFAULT_ADMIN_NO_CLIENT_NOTES_MSG)
                 ? String(sub.clientRemarks).trim()
                 : '';
+            setInputVal('client-remarks-dark-input', cleanClientMsg);
             setInputVal('client-remarks-input', isAdmin ? (cleanClientMsg || DEFAULT_ADMIN_NO_CLIENT_NOTES_MSG) : cleanClientMsg);
 
-            // 6. Restore Selected Blocks on the Map
+            // 6. Restore Selected Blocks on the Map (or allow Admin to freely select blocks if client did not specify)
             if (Array.isArray(sub.selectedBlocks) && sub.selectedBlocks.length > 0 && compBoundaryLayer && typeof compBoundaryLayer.eachLayer === 'function') {
                 selectedBlockSlots = [];
                 sub.selectedBlocks.forEach(savedBlk => {
@@ -6172,7 +6242,11 @@ function lockEnteredSatDate() {
                     syncSelectedBlocksState();
                     updateSelectedBlockReportHint();
                     refreshCombinedBlockNutrientsAndDisplays();
+                } else {
+                    updateSelectedBlockReportHint();
                 }
+            } else {
+                updateSelectedBlockReportHint();
             }
 
             // 7. Render Admin Summary Banner

@@ -4806,13 +4806,19 @@ function toggleSatDataMode(mode) {
                         });
 
                         let baseName = window._UPLOADED_SHP_NAME || 'Uploaded_Estate';
-                        let customKey = 'custom_' + baseName.toLowerCase().replace(/[^a-z0-9]+/g, '_') + '_' + geojson.features.length + 'b';
-                        let mapDisplayName = `Custom: ${baseName} (${geojson.features.length} blocks)`;
+                        let matchedBuiltInKey = (typeof window.resolveBuiltInKeyFromNameOrKey === 'function')
+                            ? window.resolveBuiltInKeyFromNameOrKey(baseName)
+                            : '';
+                        let customKey = matchedBuiltInKey || ('custom_' + baseName.toLowerCase().replace(/[^a-z0-9]+/g, '_') + '_' + geojson.features.length + 'b');
+                        let mapDisplayName = matchedBuiltInKey ? baseName : `Custom: ${baseName} (${geojson.features.length} blocks)`;
                         geojson.mapName = mapDisplayName;
                         REAL_MAPS_DATA[customKey] = geojson;
+                        if (typeof window.registerClientUploadedEstate === 'function') {
+                            window.registerClientUploadedEstate(customKey);
+                        }
                         if (typeof window.saveCustomMapToSupabase === 'function') {
                             window.saveCustomMapToSupabase(customKey, mapDisplayName, geojson).then(savedKey => {
-                                if (savedKey && savedKey !== customKey) {
+                                if (savedKey && savedKey !== customKey && !matchedBuiltInKey) {
                                     REAL_MAPS_DATA[savedKey] = geojson;
                                 }
                             });
@@ -4823,6 +4829,10 @@ function toggleSatDataMode(mode) {
                         window.DYNAMIC_PREDICTION_RASTERS = null;
                         window.DYNAMIC_PREDICTION_GRIDS = null;
 
+                        if (typeof window.applyCompanyEstateIsolation === 'function') {
+                            window.applyCompanyEstateIsolation();
+                        }
+
                         ['map-select-comp', 'map-select-std', 'map-select-kpsm'].forEach(selectId => {
                             let select = document.getElementById(selectId);
                             if (select) {
@@ -4830,9 +4840,12 @@ function toggleSatDataMode(mode) {
                                 if (!existingOpt) {
                                     existingOpt = document.createElement('option');
                                     existingOpt.value = customKey;
-                                    select.appendChild(existingOpt);
+                                    existingOpt.innerText = mapDisplayName;
+                                    const firstGrp = select.querySelector('optgroup');
+                                    if (firstGrp) firstGrp.appendChild(existingOpt);
+                                    else select.appendChild(existingOpt);
                                 }
-                                existingOpt.innerText = mapDisplayName;
+                                existingOpt.disabled = false;
                                 existingOpt.selected = true;
                                 select.value = customKey;
                             }
