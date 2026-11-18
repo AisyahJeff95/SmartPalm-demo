@@ -319,6 +319,42 @@
         setElText('sp-acc-dd-company', companyName);
         setElText('sp-acc-dd-email', email);
         setElText('sp-acc-dd-tier-badge', roleLabel);
+
+        // Sync custom uploaded profile picture into top bar avatar and dropdown avatar
+        try {
+            const avatarKey = `palmnex_profile_avatar_${rawUsername.toLowerCase()}`;
+            const savedAvatar = localStorage.getItem(avatarKey) || localStorage.getItem('palmnex_profile_avatar_default');
+            const ddAvatar = document.querySelector('.sp-acc-dd-avatar');
+            const topAvatar = document.querySelector('.sp-profile-btn .sp-avatar-circle');
+
+            if (savedAvatar) {
+                if (ddAvatar) {
+                    ddAvatar.style.backgroundImage = `url(${savedAvatar})`;
+                    ddAvatar.style.backgroundSize = 'cover';
+                    ddAvatar.style.backgroundPosition = 'center';
+                    const initEl = document.getElementById('sp-acc-dd-avatar-initials');
+                    if (initEl) initEl.style.display = 'none';
+                }
+                if (topAvatar) {
+                    topAvatar.style.backgroundImage = `url(${savedAvatar})`;
+                    topAvatar.style.backgroundSize = 'cover';
+                    topAvatar.style.backgroundPosition = 'center';
+                    const spanInit = topAvatar.querySelector('span:not(.sp-avatar-status)');
+                    if (spanInit) spanInit.style.display = 'none';
+                }
+            } else {
+                if (ddAvatar) {
+                    ddAvatar.style.backgroundImage = '';
+                    const initEl = document.getElementById('sp-acc-dd-avatar-initials');
+                    if (initEl) initEl.style.display = '';
+                }
+                if (topAvatar) {
+                    topAvatar.style.backgroundImage = '';
+                    const spanInit = topAvatar.querySelector('span:not(.sp-avatar-status)');
+                    if (spanInit) spanInit.style.display = '';
+                }
+            }
+        } catch (e) {}
     };
 
     function ensureAccountHoverDropdown() {
@@ -633,34 +669,6 @@
                     <span class="sp-acc-dd-item-text">
                         <span class="sp-acc-dd-item-title">Settings</span>
                         <span class="sp-acc-dd-item-sub">System &amp; quota settings</span>
-                    </span>
-                </button>
-                <div class="sp-acc-dd-divider"></div>
-                <a href="profile.html#organization" class="sp-acc-dd-item" onclick="window.closeAccountDropdown()">
-                    <span class="sp-acc-dd-item-icon">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
-                    </span>
-                    <span class="sp-acc-dd-item-text">
-                        <span class="sp-acc-dd-item-title">Organization &amp; Estates</span>
-                        <span class="sp-acc-dd-item-sub">Company profile &amp; assigned boundaries</span>
-                    </span>
-                </a>
-                <a href="notifications.html" class="sp-acc-dd-item" onclick="window.closeAccountDropdown()">
-                    <span class="sp-acc-dd-item-icon">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                    </span>
-                    <span class="sp-acc-dd-item-text">
-                        <span class="sp-acc-dd-item-title">Notifications &amp; Alerts</span>
-                        <span class="sp-acc-dd-item-sub">Schedules &amp; system notifications</span>
-                    </span>
-                </a>
-                <button type="button" class="sp-acc-dd-item" onclick="window.closeAccountDropdown(); if(typeof openAuthModal==='function') openAuthModal('signin');">
-                    <span class="sp-acc-dd-item-icon">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
-                    </span>
-                    <span class="sp-acc-dd-item-text">
-                        <span class="sp-acc-dd-item-title">Switch Account</span>
-                        <span class="sp-acc-dd-item-sub">Sign in with another account</span>
                     </span>
                 </button>
             </div>
