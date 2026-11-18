@@ -3605,6 +3605,40 @@ function lockEnteredSatDate() {
                 </div>
             </div>
 
+            <!-- Section 3: Report (Admin) (White Background — Admin View Only, placed before Optional card) -->
+            <div id="report-admin-section" style="margin-top: 10px; margin-bottom: 10px; background: #ffffff; border-radius: 14px; padding: 14px 16px; border: 1px solid #e2e8f0; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); color: #0f172a;">
+                <div id="report-admin-section-title" class="ui-section-title" style="margin-top: 0; margin-bottom: 10px; color: #0f172a;">Report (Admin)</div>
+
+                <!-- Card 8: Report Configuration (Block Selection & Message from Client Directly Below) -->
+                <div class="ui-card" style="background: #f8fafc; border: 1px solid #cbd5e1; box-shadow: none; color: #0f172a;">
+                    <div class="ui-card-label" style="margin-bottom: 8px; color: #0f172a;">Block Selection</div>
+                    <!-- Selected Block Status for Report -->
+                    <div id="selected-block-report-hint" class="ui-hint-text" style="font-size: 13px; line-height: 1.4; color: #475569; padding: 0 2px;">
+                        * Click a single block on the dashboard map first to generate report.
+                    </div>
+
+                    <!-- Message from Client (Directly under Block Selection) -->
+                    <div style="border-top: 1px solid #e2e8f0; padding-top: 10px; margin-top: 10px;">
+                        <div id="client-remarks-label" class="ui-card-label" style="margin-bottom: 6px; color: #0f172a;">Message from Client</div>
+                        <textarea id="client-remarks-input" rows="2" readonly placeholder="" style="width: 100%; border-radius: 8px; padding: 7px 10px; background: #f1f5f9; border: 1px solid #cbd5e1; color: #0f172a; font-size: 12px; font-family: inherit; resize: vertical; box-sizing: border-box;"></textarea>
+                    </div>
+                </div>
+
+                <!-- Admin-Only Report & Raster Download Actions -->
+                <div id="admin-report-actions-wrap">
+                    <!-- Generate Report Button -->
+                    <button id="btn-generate-report-admin" class="ui-generate-report-btn" style="margin-bottom: 10px;" onclick="viewReportPDF(reportData.soilType || 'Standard')">Generate Report</button>
+
+                    <!-- Download Raster (.tif) Files Button (Last inside Report Admin box) -->
+                    <button type="button" id="btn-download-rasters" onclick="downloadNutrientTifRasters()"
+                        style="width: 100%; padding: 9px 12px; border-radius: 10px; background: #1e222a; color: #f8fafc; border: 1px solid #334155; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);"
+                        onmouseover="this.style.background='#0f172a'; this.style.borderColor='#475569'"
+                        onmouseout="this.style.background='#1e222a'; this.style.borderColor='#334155'">
+                        <span>📥 Download .tif Raster Files</span>
+                    </button>
+                </div>
+            </div>
+
             <!-- Card 3: Optional Drone Image Upload & Desired Estate Name -->
             <div class="ui-card" id="card-drone-upload" style="margin-top: 2px;">
                 <div class="ui-card-label" style="margin-bottom: 10px;">Optional:</div>
@@ -3653,7 +3687,7 @@ function lockEnteredSatDate() {
             </div>
 
             <!-- Note & Disclaimer Section -->
-            <div class="ui-footer-notes" style="margin-top: 2px; padding: 12px 14px; background: rgba(20, 24, 31, 0.88); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); font-size: 11px; color: #a1a1aa; line-height: 1.5; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;">
+            <div class="ui-footer-notes" style="margin-top: 2px; margin-bottom: 16px; padding: 12px 14px; background: rgba(20, 24, 31, 0.88); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1); font-size: 11px; color: #a1a1aa; line-height: 1.5; font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;">
                 <div style="margin-bottom: 8px; color: #d4d4d8;">
                     * We are using Sentinel-1A, 2A, and 1C to produce the most precise nutrient detection data disregarding cloud cover and weather, with a 10-day range of updated data.
                 </div>
@@ -3663,40 +3697,6 @@ function lockEnteredSatDate() {
                 <div>
                     Sentinel real-time maps can be viewed using this link: 
                     <a href="https://browser.dataspace.copernicus.eu/" target="_blank" rel="noopener noreferrer" style="color: #ffffff; font-weight: 600; text-decoration: underline;">Copernicus Data Space EO Browser</a>
-                </div>
-            </div>
-
-            <!-- Section 3: Report (Admin) (White Background — Admin View Only) -->
-            <div id="report-admin-section" style="margin-top: 10px; margin-bottom: 16px; background: #ffffff; border-radius: 14px; padding: 14px 16px; border: 1px solid #e2e8f0; box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35); color: #0f172a;">
-                <div id="report-admin-section-title" class="ui-section-title" style="margin-top: 0; margin-bottom: 10px; color: #0f172a;">Report (Admin)</div>
-
-                <!-- Card 8: Report Configuration (Block Selection & Message from Client Directly Below) -->
-                <div class="ui-card" style="background: #f8fafc; border: 1px solid #cbd5e1; box-shadow: none; color: #0f172a;">
-                    <div class="ui-card-label" style="margin-bottom: 8px; color: #0f172a;">Block Selection</div>
-                    <!-- Selected Block Status for Report -->
-                    <div id="selected-block-report-hint" class="ui-hint-text" style="font-size: 13px; line-height: 1.4; color: #475569; padding: 0 2px;">
-                        * Click a single block on the dashboard map first to generate report.
-                    </div>
-
-                    <!-- Message from Client (Directly under Block Selection) -->
-                    <div style="border-top: 1px solid #e2e8f0; padding-top: 10px; margin-top: 10px;">
-                        <div id="client-remarks-label" class="ui-card-label" style="margin-bottom: 6px; color: #0f172a;">Message from Client</div>
-                        <textarea id="client-remarks-input" rows="2" readonly placeholder="" style="width: 100%; border-radius: 8px; padding: 7px 10px; background: #f1f5f9; border: 1px solid #cbd5e1; color: #0f172a; font-size: 12px; font-family: inherit; resize: vertical; box-sizing: border-box;"></textarea>
-                    </div>
-                </div>
-
-                <!-- Admin-Only Report & Raster Download Actions -->
-                <div id="admin-report-actions-wrap">
-                    <!-- Generate Report Button -->
-                    <button id="btn-generate-report-admin" class="ui-generate-report-btn" style="margin-bottom: 10px;" onclick="viewReportPDF(reportData.soilType || 'Standard')">Generate Report</button>
-
-                    <!-- Download Raster (.tif) Files Button (Last inside Report Admin box) -->
-                    <button type="button" id="btn-download-rasters" onclick="downloadNutrientTifRasters()"
-                        style="width: 100%; padding: 9px 12px; border-radius: 10px; background: #1e222a; color: #f8fafc; border: 1px solid #334155; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all 0.2s; box-shadow: 0 2px 6px rgba(15, 23, 42, 0.15);"
-                        onmouseover="this.style.background='#0f172a'; this.style.borderColor='#475569'"
-                        onmouseout="this.style.background='#1e222a'; this.style.borderColor='#334155'">
-                        <span>📥 Download .tif Raster Files</span>
-                    </button>
                 </div>
             </div>
 

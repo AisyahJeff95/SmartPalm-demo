@@ -1,5 +1,5 @@
 ===============================================================================
-PALMNEX SMARTPALM & PALMNEXREADS — SUPABASE USER & ACCESS SETUP GUIDE
+PALMNEX SMARTPALM & PALMNEXREADS — SUPABASE USER & ACCESS SETUP GUIDE (V2.0)
 Supabase Project: https://dkafzakyeuehvpkkhdsa.supabase.co
 ===============================================================================
 
@@ -15,12 +15,15 @@ Supabase Project: https://dkafzakyeuehvpkkhdsa.supabase.co
       (Or personal emails like aisyah@palmnex.com.my — just set `company_code`
       to `palmnex` and `access_tier` to `C` in the `profiles` table.)
 
-   B) For Client Company Accounts:
-      - admin<company><number>@palmnex.com.my
+   B) For Client Company Accounts (`<company><number>@palmnex.com.my`):
+      - Format: <company><number>@palmnex.com.my
+        (Legacy `admin<company><number>@palmnex.com.my` is also supported)
       Examples:
-      - Company Benta    : adminbenta1@palmnex.com.my ... adminbenta10@palmnex.com.my
-      - Company Achijaya : adminachijaya1@palmnex.com.my ... adminachijaya10@palmnex.com.my
-      - Company FGV      : adminfgv1@palmnex.com.my ... adminfgv10@palmnex.com.my
+      - Benta Wawasan Sdn Bhd       : benta1@palmnex.com.my ... benta11@palmnex.com.my
+      - FGV Holdings Berhad         : fgv1@palmnex.com.my ... fgv4@palmnex.com.my
+      - Sabah Softwoods Berhad      : ssb1@palmnex.com.my
+      - Achi Jaya Plantations       : achijaya1@palmnex.com.my ... achijaya10@palmnex.com.my
+      - MPOB Research & SPOC        : mpob1@palmnex.com.my ... mpob5@palmnex.com.my
 
 4) Enter their password, make sure "Auto Confirm User?" is CHECKED, and click
    "Create user".
@@ -28,48 +31,100 @@ Supabase Project: https://dkafzakyeuehvpkkhdsa.supabase.co
    their row in the `profiles` table.)
 
 
-2. HOW SUPABASE AUTOMATICALLY DETECTS USERNAMES & PRIVATE STORAGE
+2. AUTOMATIC USERNAME DETECTION, PRIVATE STORAGE & ESTATE ISOLATION
 -------------------------------------------------------------------------------
 As soon as you create (or rename) a user in Authentication -> Users, the
 database trigger (`on_auth_user_created`) automatically populates their row in:
    Table Editor -> `profiles`
 
-Each client user is automatically assigned their OWN PRIVATE STORAGE so users
-cannot see each other's uploaded maps or progress (even within the same company):
+Each client user is automatically assigned their OWN PRIVATE STORAGE (`storage_<username>`)
+and isolated to their own estate(s):
 
-- `adminbenta1`    -> `company_code`: `benta`    | `storage_group`: `storage_adminbenta1` (Private)
-- `adminbenta2`    -> `company_code`: `benta`    | `storage_group`: `storage_adminbenta2` (Private)
-- `adminachijaya1` -> `company_code`: `achijaya` | `storage_group`: `storage_adminachijaya1` (Private)
-- `adminpalmnex1`  -> `company_code`: `palmnex`  | `storage_group`: `storage_all` (Master Admin - sees ALL)
-- `admin1`         -> `company_code`: `palmnex`  | `storage_group`: `storage_all` (Master Admin - sees ALL)
+- `benta1`       -> `company_code`: `benta`    | `storage_group`: `storage_benta1` (Private)
+- `benta2`       -> `company_code`: `benta`    | `storage_group`: `storage_benta2` (Private)
+- `fgv1`         -> `company_code`: `fgv`      | `storage_group`: `storage_fgv1` (Private)
+- `achijaya1`    -> `company_code`: `achijaya` | `storage_group`: `storage_achijaya1` (Private)
+- `adminpalmnex1`-> `company_code`: `palmnex`  | `storage_group`: `storage_all` (Master Admin - sees ALL)
+- `admin1`       -> `company_code`: `palmnex`  | `storage_group`: `storage_all` (Master Admin - sees ALL)
+
+COMPANY & ESTATE DROPDOWN ISOLATION RULES:
+1) Estates from OTHER companies are completely hidden (removed from the
+   dropdown menu) for all client accounts (`Access A` & `Access B`).
+2) Estates from the SAME company remain visible under the company's header
+   (e.g., "Benta Wawasan Sdn Bhd"), but:
+   - ONLY the client's own assigned/uploaded estate is enabled and selectable
+     (e.g., `benta1` can select `Agathis`, or any `.shp` boundary uploaded by `benta1`).
+   - All other estates belonging to the same company (e.g., `Belian`, `Ramin`,
+     `Seraya`, etc.) are GREYED OUT (`disabled`) so the client cannot access them.
+   - Ordered built-in estate mapping per account number:
+     * Benta (`benta1`..`benta11`):
+       1=Agathis, 2=Belian, 3=Binuang, 4=Gaharu, 5=Kapur, 6=Keruing,
+       7=Menggaris, 8=Merbau, 9=Ramin, 10=Selangan Batu, 11=Seraya
+     * FGV (`fgv1`..`fgv4`):
+       1=Jengka 24, 2=Jengka 25, 3=Kota Gelanggi 5, 4=PPPTAR
+     * Sabah Softwoods (`ssb1`):
+       1=Sabah Softwoods Berhad (Boundary MPOB)
+     * MPOB (`mpob1`..`mpob5`):
+       1=MPOB Lahad Datu, 2=Sekinchan, 3=Geolocation ISH, 4=Polygon ISH, 5=Soil Series
+3) Master Admins (`Access C`, `storage_all`) see ALL companies and ALL estates
+   enabled, segregated cleanly under their Company `<optgroup>` headers.
 
 
-3. HOW TO ASSIGN ACCESS TIER (A, B, OR C) IN TABLE EDITOR
+3. HOW TO ASSIGN ACCESS TIER (A, B, OR C) & CLIENT VS. ADMIN WORKFLOW
 -------------------------------------------------------------------------------
 1) Go to Supabase Dashboard -> Table Editor -> `profiles`
 2) Find the user row and double-click the `access_tier` column to set `A`, `B`, or `C`:
 
-   * Tier A (`A`) — Standard Only:
+   * Tier A (`A`) — Client View (Standard Only):
      - Visible & Allowed : Home, Standard Fert
      - Completely Hidden : Comprehensive Fert, PalmNexReaDS, KPSM System
 
-   * Tier B (`B`) — Comprehensive + PalmNexReaDS:
+   * Tier B (`B`) — Client View (Comprehensive + PalmNexReaDS):
      - Visible & Allowed : Home, Comprehensive Fert, PalmNexReaDS (Auto-SSO)
      - Completely Hidden : Standard Fert, KPSM System
+     - Client View Workflow (Comprehensive Fert):
+       * Clients can upload `.shp`/`.dbf` boundaries, run predictions, enter
+         Soil Data (Inland/Coastal EDS), enter Fertilizer Information (Ratio /
+         MPOB List / Current Dosage / Last Applied Date), select blocks & enter
+         notes under the dark `Estate Block Grouping` section, and upload
+         optional Drone overlays or Desired Estate Name under `Optional:`.
+       * Clicking `Save this information` under `Fertilizer Information`,
+         `Estate Block Grouping`, or `Optional:` saves all inputs to Supabase
+         (`public.company_custom_maps`) and displays:
+         "Your information is saved in the database for report production."
+       * Full PDF Report generation (`Report (Admin)`) and `.tif` raster
+         downloads are hidden from Client View.
 
-   * Tier C (`C`) — Full Access (Palmnex Admin):
+   * Tier C (`C`) — Master Admin View (Full Access — Palmnex Admin):
      - Visible & Allowed : ALL modules (Home, Comprehensive, Standard, PalmNexReaDS, KPSM)
-     - Storage           : `storage_all` (can view all users' maps and progress)
+     - Storage           : `storage_all` (can view all companies, estates, and client submissions)
+     - Admin View Workflow (Comprehensive Fert):
+       * Selecting an estate in `Select Map:` automatically populates all saved
+         client inputs (Satellite mode/date, Soil EDS inputs, Fertilizer ratio,
+         dosage & date, Desired Estate Name, selected blocks, and client notes).
+       * Displays the white `Report (Admin)` card (positioned above the
+         `Optional:` card) containing:
+         1. `Block Selection` (Admin can freely select/modify blocks on the map
+            even if the client did not specify any blocks)
+         2. `Message from Client` directly under `Block Selection` (displays the
+            client's remarks, or defaults to: "no specific blocks grouping
+            desired by client. Please proceed to generate overall estate report.")
+         3. `Generate Report` (full multi-page PDF report preview & download)
+         4. `Download .tif Raster Files`
 
 3) (Optional) Double-click `company_name` to customize the company display name
    shown in the dashboard welcome banner (e.g., "Benta Wawasan Sdn Bhd").
 
 
-4. HOW USERS SIGN IN ON THE WEBSITE (`demo.palmnex.com.my`)
+4. HOW USERS SIGN IN & SESSION RESET BEHAVIOR (`demo.palmnex.com.my`)
 -------------------------------------------------------------------------------
 - Users do NOT need to register.
-- In the login box, they can type just their plain username (e.g. `adminbenta1`,
-  `adminpalmnex1`, or `admin1`) or full email (`adminbenta1@palmnex.com.my`)
+- In the login portal, users can type either their plain username (e.g. `benta1`,
+  `fgv1`, `adminpalmnex1`, or `admin1`) or full email (`benta1@palmnex.com.my`)
   and their password.
 - The system automatically appends `@palmnex.com.my` if `@` is omitted.
+- Every time a new login occurs, the system automatically cancels any active
+  in-memory progress on the current page and redirects the user cleanly to the
+  Home dashboard (`index.html`), while all database-saved records in Supabase
+  remain preserved as usual.
 ===============================================================================

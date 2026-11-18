@@ -1217,6 +1217,40 @@ async function enrichSupabaseUserProfile(user, fallbackCompany, rawUsernameFallb
     });
 }
 
+// Cancel all current in-memory UI progress (running predictions, selected maps/blocks, modals, sessionStorage)
+// while preserving all database-saved records in Supabase and localStorage caches.
+window.cancelAllInMemoryProgress = function () {
+    try {
+        if (typeof window.cancelPredictionRunAndClose === 'function') {
+            window.cancelPredictionRunAndClose();
+        }
+    } catch (e) {}
+    try {
+        window._UPLOADED_SHP_BUFFER = null;
+        window._UPLOADED_DBF_BUFFER = null;
+        window._UPLOADED_SHP_NAME = '';
+    } catch (e) {}
+    try {
+        if (typeof window.closeEdsDialogs === 'function') {
+            window.closeEdsDialogs();
+        }
+    } catch (e) {}
+    try {
+        if (typeof onMapSelectChanged === 'function') {
+            onMapSelectChanged('');
+        }
+    } catch (e) {}
+    try {
+        sessionStorage.clear();
+    } catch (e) {}
+};
+
+// Redirect to Home page (index.html) after every new login so all previous page progress is cancelled
+function redirectToHomeAfterLogin() {
+    window.cancelAllInMemoryProgress();
+    window.location.replace('index.html');
+}
+
 // Sign In with PalmnexReaDS Username or Email & Password (connected to https://dkafzakyeuehvpkkhdsa.supabase.co)
 async function handleEmailSignIn(event) {
     if (event) event.preventDefault();
@@ -1257,9 +1291,7 @@ async function handleEmailSignIn(event) {
         try { updateTopNavUser(adminUser); } catch (e) {}
         try { applyModuleAccessControl(adminUser); } catch (e) { console.warn(e); }
         try { renderAuthModalSessionBanner(); } catch (e) {}
-        if (typeof window.refreshMergedHistory === 'function') {
-            try { window.refreshMergedHistory(); } catch (e) {}
-        }
+        redirectToHomeAfterLogin();
         return;
     }
 
@@ -1294,9 +1326,7 @@ async function handleEmailSignIn(event) {
         try { updateTopNavUser(enrichedUser); } catch (e) {}
         try { applyModuleAccessControl(enrichedUser); } catch (e) { console.warn(e); }
         try { renderAuthModalSessionBanner(); } catch (e) {}
-        if (typeof window.refreshMergedHistory === 'function') {
-            try { window.refreshMergedHistory(); } catch (e) {}
-        }
+        redirectToHomeAfterLogin();
     } catch (err) {
         showAuthError(err.message || "Invalid PalmnexReaDS username or password.");
     } finally {
@@ -1309,6 +1339,7 @@ window.closeAuthModal = closeAuthModal;
 
 // Sign Out User
 async function handleSignOut() {
+    window.cancelAllInMemoryProgress();
     const client = typeof getSupabase === 'function' ? getSupabase() : (typeof supabase !== 'undefined' ? supabase : null);
     if (client && client.auth) {
         try {
