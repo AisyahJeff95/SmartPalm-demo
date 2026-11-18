@@ -988,12 +988,20 @@
             let candidateSteps = [];
 
             if (isComp) {
+                const nutCard = document.getElementById('comp-n-val') ? document.getElementById('comp-n-val').closest('.ui-card') : null;
+                const fertCard = document.getElementById('fert-list-input') ? document.getElementById('fert-list-input').closest('.ui-card') : null;
+                const clientBlockSec = document.getElementById('client-block-grouping-section');
+                const adminReportSec = document.getElementById('report-admin-section');
+                const activeBlockOrReportCard = (clientBlockSec && clientBlockSec.offsetParent !== null)
+                    ? (clientBlockSec.querySelector('.ui-card') || clientBlockSec)
+                    : adminReportSec;
+
                 candidateSteps = [
                     {
                         element: '#card-map-file-selection',
                         popover: {
-                            title: '1. Map File Selection',
-                            description: 'Select an existing estate boundary from the dropdown or upload custom .shp and .dbf boundary files to render blocks on the interactive map.',
+                            title: 'Step 1: Map File Selection',
+                            description: 'Start at the top card: select your Estate Map Boundary from the dropdown list, or upload your estate .shp and .dbf files one by one.',
                             side: 'right',
                             align: 'start'
                         }
@@ -1001,44 +1009,35 @@
                     {
                         element: '#card-satellite-data',
                         popover: {
-                            title: '2. Satellite Data & EDS Soil Type',
-                            description: 'Choose Real-time or Previous Sentinel-2 imagery dates, inspect the detected soil type, and enter Inland or Alluvial/Coastal soil parameters.',
+                            title: 'Step 2: Satellite Data, Soil Type & Run Prediction',
+                            description: 'Next, select Real-time or Previous satellite date, enter your Soil Type data (Inland or Alluvial/Coastal), and click "Run Prediction" to compute foliar nutrients.',
                             side: 'right',
                             align: 'start'
                         }
                     },
                     {
-                        element: '#btn-run-prediction',
+                        element: nutCard,
                         popover: {
-                            title: '3. Run AI Foliar Nutrient Prediction',
-                            description: 'Click Run Prediction to execute the Random Forest AI model on Sentinel-1 & Sentinel-2 bands and generate block-level foliar N, P, K, Mg, Ca, and B diagnostics.',
+                            title: 'Step 3: Nutrient Detection',
+                            description: 'Review the predicted N (%), P (%), K (%), Mg (%), Ca (%), and B (ppm) foliar values here, or click "View Full Map of Nutrient Detection".',
                             side: 'right',
-                            align: 'center'
-                        }
-                    },
-                    {
-                        element: '.leaflet-nutrient-selector',
-                        popover: {
-                            title: '4. Nutrient Heatmap Layer Selector',
-                            description: 'Toggle between N%, P%, K%, Mg%, Ca%, and B (ppm) detection rasters on the map and inspect the critical agronomy color thresholds.',
-                            side: 'left',
                             align: 'start'
                         }
                     },
                     {
-                        element: '#fert-list-input',
+                        element: fertCard,
                         popover: {
-                            title: '5. Fertilizer Formulation & Ratio',
-                            description: 'Enter custom N:P:K:Mg:B ratios or choose a standard MPOB Fertilizer formulation (F1, F1 Xtra K, F2 Super K, F3, F4, etc.) and log current dosage.',
+                            title: 'Step 4: Fertilizer Information (Click "Save this information")',
+                            description: 'Enter your N:P:K:Mg:B fertilizer ratio (or select an MPOB fertilizer from the list), fill in Current Dosage and Last Applied Date, then MUST click "Save this information" at the bottom of this card.',
                             side: 'right',
-                            align: 'center'
+                            align: 'start'
                         }
                     },
                     {
-                        element: '#report-admin-section, #client-block-grouping-section',
+                        element: activeBlockOrReportCard,
                         popover: {
-                            title: '6. Block Selection & Agronomy Report',
-                            description: 'Click block(s) on the map to group or inspect, review client remarks, and click Generate Report to produce the official MPOB Fertilization PDF Report.',
+                            title: 'Step 5: Estate Block Grouping & Report (Click "Save this information")',
+                            description: 'Click block(s) on the map to group for report production, enter your Client Notes / Remarks, and click "Save this information" (or "Generate Report" for Admin).',
                             side: 'right',
                             align: 'start'
                         }
@@ -1046,8 +1045,8 @@
                     {
                         element: '#card-drone-upload',
                         popover: {
-                            title: '7. Optional Drone Overlay & Report Name',
-                            description: 'Optionally upload high-resolution drone orthomosaics (.tif/.png/.jpg) and customize the Estate Name printed on the report.',
+                            title: 'Step 6: Optional Drone & Estate Name (Click "Save this information")',
+                            description: 'Finally, optionally upload a Drone Image (.tif/.png/.jpg), set Date Taken, enter your Desired Estate Name for Report, and click "Save this information" to save all your entries!',
                             side: 'right',
                             align: 'start'
                         }
@@ -1055,20 +1054,23 @@
                     {
                         element: '.sp-top-nav-pills',
                         popover: {
-                            title: '8. Switch Pages Anytime!',
-                            description: 'Click Standard Fert, Home, or KPSM System in the top bar to continue the walkthrough on that page, or click End Tutorial at the bottom right.',
+                            title: 'Step 7: Switch Pages Anytime!',
+                            description: 'You can click Standard Fert, Home, or any tab in the top bar to continue the walkthrough on that page, or click "End Tutorial" at the bottom right.',
                             side: 'bottom',
                             align: 'start'
                         }
                     }
                 ];
             } else if (isStd) {
+                const nutCardStd = document.getElementById('comp-n-val') ? document.getElementById('comp-n-val').closest('.ui-card') : null;
+                const fertCardStd = document.getElementById('fert-list-input') ? document.getElementById('fert-list-input').closest('.ui-card') : null;
+
                 candidateSteps = [
                     {
                         element: '#card-map-file-selection',
                         popover: {
-                            title: '1. Estate Boundary Selection',
-                            description: 'Select your target estate boundary from the dropdown or upload .shp / .dbf files to load the plantation blocks.',
+                            title: 'Step 1: Map File Selection',
+                            description: 'First, select your Estate Map Boundary from the dropdown or upload your .shp and .dbf boundary files.',
                             side: 'right',
                             align: 'start'
                         }
@@ -1076,53 +1078,53 @@
                     {
                         element: '#card-satellite-data',
                         popover: {
-                            title: '2. Satellite Date & Soil Type',
-                            description: 'Select Real-time or historical Sentinel-2 dates and verify the MPOB Reconnaissance Soil Type for the estate.',
+                            title: 'Step 2: Satellite Data, Soil Type & Run Prediction',
+                            description: 'Next, choose Real-time or Previous satellite date, check the Soil Type, and click "Run Prediction".',
                             side: 'right',
                             align: 'start'
                         }
                     },
                     {
-                        element: '#btn-run-prediction',
+                        element: nutCardStd,
                         popover: {
-                            title: '3. Run Standard Nutrient Prediction',
-                            description: 'Click Run Prediction to evaluate block-level foliar N, P, K, Mg, Ca, and B values across the selected estate.',
+                            title: 'Step 3: Nutrient Detection',
+                            description: 'Inspect the predicted N, P, K, Mg, Ca, and B foliar values and download .tif raster files if needed.',
                             side: 'right',
-                            align: 'center'
-                        }
-                    },
-                    {
-                        element: '.leaflet-nutrient-selector',
-                        popover: {
-                            title: '4. Interactive Nutrient Layers',
-                            description: 'Switch between N, P, K, Mg, Ca, and B heatmap layers on the satellite map and click any block polygon to view its values.',
-                            side: 'left',
                             align: 'start'
                         }
                     },
                     {
-                        element: '#fert-list-input',
+                        element: fertCardStd,
                         popover: {
-                            title: '5. Standard Fertilizer Recommendation',
-                            description: 'Specify custom N:P:K:Mg ratios or select an MPOB compound fertilizer formulation to compute corrective fertilizer rates.',
+                            title: 'Step 4: Fertilizer Recommendation Ratio',
+                            description: 'Enter your N:P:K:Mg fertilizer ratio or select an MPOB Fertilizer formulation from the list.',
                             side: 'right',
-                            align: 'center'
+                            align: 'start'
                         }
                     },
                     {
                         element: '.ui-generate-report-btn',
                         popover: {
-                            title: '6. Generate Standard Fertilization Report',
-                            description: 'Click a block on the map and click Generate Report to export the Standard Fertilization Recommendation PDF.',
+                            title: 'Step 5: Generate Report',
+                            description: 'Click a single block on the map and click "Generate Report" to view and print your Standard Fertilization PDF Report.',
                             side: 'right',
                             align: 'center'
                         }
                     },
                     {
+                        element: '#card-drone-upload',
+                        popover: {
+                            title: 'Step 6: Optional Estate Name & Drone Image',
+                            description: 'Optionally enter your custom Estate Name for the report or upload a drone orthomosaic overlay.',
+                            side: 'right',
+                            align: 'start'
+                        }
+                    },
+                    {
                         element: '.sp-top-nav-pills',
                         popover: {
-                            title: '7. Explore Other Dashboards',
-                            description: 'Click Comprehensive Fert, Home, or any module tab above to continue the walkthrough there, or click End Tutorial at the bottom right.',
+                            title: 'Step 7: Explore Other Dashboards',
+                            description: 'Click Comprehensive Fert, Home, or any module tab above to continue the walkthrough there, or click "End Tutorial" at the bottom right.',
                             side: 'bottom',
                             align: 'start'
                         }
@@ -1222,7 +1224,7 @@
                         element: '#sp-account-dropdown-wrap',
                         popover: {
                             title: '6. Account, History & Settings Menu',
-                            description: 'Hover over your account badge to open Profile, Prediction & Run History, System Settings, Organization & Estates, and Log Out.',
+                            description: 'Hover over your account badge to open Profile, History, Settings, and Log Out.',
                             side: 'bottom',
                             align: 'end'
                         }
@@ -1241,14 +1243,21 @@
 
             // Filter to only elements that exist and are visible on the current page
             return candidateSteps.filter(step => {
-                if (!step.element) return true;
-                const el = document.querySelector(step.element);
+                if (!step.element) return false;
+                const el = (typeof step.element === 'string') ? document.querySelector(step.element) : step.element;
                 return Boolean(el && el.offsetParent !== null);
             }).map(step => {
-                const el = document.querySelector(step.element);
+                const el = (typeof step.element === 'string') ? document.querySelector(step.element) : step.element;
                 return {
-                    element: el || step.element,
-                    popover: step.popover
+                    element: el,
+                    popover: step.popover,
+                    onHighlightStarted: (highlightedEl) => {
+                        if (highlightedEl && typeof highlightedEl.scrollIntoView === 'function') {
+                            try {
+                                highlightedEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            } catch (e) {}
+                        }
+                    }
                 };
             });
         }
