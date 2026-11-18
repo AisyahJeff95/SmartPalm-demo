@@ -282,8 +282,417 @@
         };
     }
 
-    // Inject missing modals (#sp-settings-modal, #manual-modal, #auth-modal) and Clock History button so buttons work on every page
+    let _accountDropdownHoverTimer = null;
+
+    window.closeAccountDropdown = function () {
+        const dd = document.getElementById('sp-top-account-dropdown');
+        const wrap = document.getElementById('sp-account-dropdown-wrap');
+        if (dd) dd.classList.remove('open');
+        if (wrap) wrap.classList.remove('open');
+    };
+
+    window.refreshAccountDropdownUI = function (userOverride) {
+        let user = userOverride;
+        if (!user) {
+            try {
+                const raw = localStorage.getItem('palmnex_user_session');
+                if (raw) user = JSON.parse(raw);
+            } catch (e) {}
+        }
+
+        const rawUsername = (user && (user.username || user.user_metadata?.username || user.user_metadata?.full_name || user.email?.split('@')[0])) || 'Admin';
+        const displayName = (rawUsername.toLowerCase() === 'admin1' || rawUsername === 'Lead Agronomist (Admin)') ? 'Admin' : rawUsername;
+        const companyName = (user && (user.company || user.estate_company || user.user_metadata?.estate_company || user.user_metadata?.company_name)) || 'Palmnex Sdn Bhd';
+        const email = (user && user.email) || `${rawUsername.toLowerCase()}@palmnex.com.my`;
+        const tier = String((user && user.access_tier) || 'C').toUpperCase();
+        const roleLabel = tier === 'C'
+            ? 'Access Tier C • Master Admin'
+            : (tier === 'B' ? 'Access Tier B • Client View' : 'Access Tier A • Client View');
+        const initials = displayName.slice(0, 2).toUpperCase();
+
+        const setElText = (id, txt) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = txt;
+        };
+        setElText('sp-acc-dd-avatar-initials', initials);
+        setElText('sp-acc-dd-name', displayName);
+        setElText('sp-acc-dd-company', companyName);
+        setElText('sp-acc-dd-email', email);
+        setElText('sp-acc-dd-tier-badge', roleLabel);
+    };
+
+    function ensureAccountHoverDropdown() {
+        if (!document.getElementById('sp-account-hover-dropdown-styles')) {
+            const styleEl = document.createElement('style');
+            styleEl.id = 'sp-account-hover-dropdown-styles';
+            styleEl.textContent = `
+                .sp-account-dropdown-wrap {
+                    position: relative;
+                    display: inline-flex;
+                    align-items: center;
+                }
+                .sp-account-dropdown-wrap .sp-profile-caret {
+                    font-size: 9px;
+                    opacity: 0.7;
+                    margin-left: 2px;
+                    transition: transform 0.2s ease;
+                }
+                .sp-account-dropdown-wrap.open .sp-profile-caret,
+                .sp-account-dropdown-wrap:hover .sp-profile-caret {
+                    transform: rotate(180deg);
+                    opacity: 1;
+                }
+                .sp-top-account-dropdown {
+                    display: none;
+                    position: absolute;
+                    top: calc(100% + 10px);
+                    right: 0;
+                    width: 295px;
+                    background: rgba(16, 20, 27, 0.98);
+                    backdrop-filter: blur(22px);
+                    -webkit-backdrop-filter: blur(22px);
+                    border: 1px solid rgba(255, 255, 255, 0.16);
+                    border-radius: 14px;
+                    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.78);
+                    z-index: 10000003;
+                    flex-direction: column;
+                    overflow: visible;
+                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+                    user-select: none;
+                }
+                /* Invisible hover bridge so moving mouse from pill to dropdown never loses hover */
+                .sp-top-account-dropdown::before {
+                    content: '';
+                    position: absolute;
+                    top: -14px;
+                    left: 0;
+                    right: 0;
+                    height: 14px;
+                    background: transparent;
+                }
+                .sp-top-account-dropdown.open {
+                    display: flex;
+                }
+                .sp-acc-dd-header {
+                    padding: 14px 16px 12px 16px;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+                    background: rgba(255, 255, 255, 0.025);
+                    border-radius: 14px 14px 0 0;
+                    display: flex;
+                    align-items: flex-start;
+                    gap: 12px;
+                }
+                .sp-acc-dd-avatar {
+                    width: 38px;
+                    height: 38px;
+                    border-radius: 50%;
+                    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+                    border: 1px solid rgba(255, 255, 255, 0.28);
+                    color: #ffffff;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 13px;
+                    font-weight: 700;
+                    flex-shrink: 0;
+                    position: relative;
+                    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.28);
+                }
+                .sp-acc-dd-avatar-dot {
+                    position: absolute;
+                    bottom: 0;
+                    right: 0;
+                    width: 9px;
+                    height: 9px;
+                    border-radius: 50%;
+                    background: #34d399;
+                    border: 1.5px solid #10141b;
+                }
+                .sp-acc-dd-user-info {
+                    flex: 1;
+                    min-width: 0;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 2px;
+                }
+                .sp-acc-dd-name {
+                    font-size: 13.5px;
+                    font-weight: 700;
+                    color: #ffffff;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+                .sp-acc-dd-company {
+                    font-size: 11.5px;
+                    font-weight: 600;
+                    color: #34d399;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+                .sp-acc-dd-email {
+                    font-size: 11px;
+                    color: #94a3b8;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                }
+                .sp-acc-dd-tier-badge {
+                    display: inline-flex;
+                    align-items: center;
+                    align-self: flex-start;
+                    margin-top: 5px;
+                    padding: 2px 8px;
+                    border-radius: 999px;
+                    background: rgba(255, 255, 255, 0.08);
+                    border: 1px solid rgba(255, 255, 255, 0.14);
+                    color: #e2e8f0;
+                    font-size: 10px;
+                    font-weight: 600;
+                    letter-spacing: 0.2px;
+                }
+                .sp-acc-dd-menu {
+                    padding: 6px;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 2px;
+                }
+                .sp-acc-dd-item {
+                    display: flex;
+                    align-items: center;
+                    gap: 11px;
+                    padding: 9px 10px;
+                    border-radius: 9px;
+                    color: #e2e8f0;
+                    text-decoration: none;
+                    background: transparent;
+                    border: none;
+                    width: 100%;
+                    text-align: left;
+                    font-family: inherit;
+                    cursor: pointer;
+                    transition: all 0.15s ease;
+                    box-sizing: border-box;
+                }
+                .sp-acc-dd-item:hover {
+                    background: rgba(255, 255, 255, 0.08);
+                    color: #ffffff;
+                }
+                .sp-acc-dd-item-icon {
+                    width: 28px;
+                    height: 28px;
+                    border-radius: 7px;
+                    background: rgba(255, 255, 255, 0.06);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: #cbd5e1;
+                    flex-shrink: 0;
+                    transition: all 0.15s ease;
+                }
+                .sp-acc-dd-item:hover .sp-acc-dd-item-icon {
+                    background: rgba(16, 185, 129, 0.16);
+                    border-color: rgba(16, 185, 129, 0.38);
+                    color: #34d399;
+                }
+                .sp-acc-dd-item-text {
+                    flex: 1;
+                    min-width: 0;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 1px;
+                }
+                .sp-acc-dd-item-title {
+                    font-size: 12.5px;
+                    font-weight: 600;
+                    color: #f8fafc;
+                    line-height: 1.25;
+                }
+                .sp-acc-dd-item-sub {
+                    font-size: 10.5px;
+                    color: #94a3b8;
+                    line-height: 1.25;
+                }
+                .sp-acc-dd-divider {
+                    height: 1px;
+                    background: rgba(255, 255, 255, 0.08);
+                    margin: 4px 6px;
+                }
+                .sp-acc-dd-footer {
+                    padding: 6px 8px 8px 8px;
+                    border-top: 1px solid rgba(255, 255, 255, 0.08);
+                    background: rgba(255, 255, 255, 0.015);
+                    border-radius: 0 0 14px 14px;
+                }
+                .sp-acc-dd-logout-btn {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 8px;
+                    width: 100%;
+                    padding: 8px 12px;
+                    border-radius: 9px;
+                    background: rgba(239, 68, 68, 0.14);
+                    border: 1px solid rgba(239, 68, 68, 0.36);
+                    color: #fca5a5;
+                    font-size: 12.5px;
+                    font-weight: 600;
+                    font-family: inherit;
+                    cursor: pointer;
+                    transition: all 0.15s ease;
+                }
+                .sp-acc-dd-logout-btn:hover {
+                    background: rgba(239, 68, 68, 0.24);
+                    border-color: rgba(239, 68, 68, 0.55);
+                    color: #ffffff;
+                }
+            `;
+            document.head.appendChild(styleEl);
+        }
+
+        const profileBtn = document.querySelector('.sp-profile-btn');
+        if (!profileBtn || document.getElementById('sp-top-account-dropdown')) return;
+
+        // Remove native title tooltip so it doesn't overlap the hover dropdown
+        profileBtn.removeAttribute('title');
+
+        if (!profileBtn.querySelector('.sp-profile-caret')) {
+            const caret = document.createElement('span');
+            caret.className = 'sp-profile-caret';
+            caret.textContent = '▾';
+            profileBtn.appendChild(caret);
+        }
+
+        const wrap = document.createElement('div');
+        wrap.className = 'sp-account-dropdown-wrap';
+        wrap.id = 'sp-account-dropdown-wrap';
+        profileBtn.parentNode.insertBefore(wrap, profileBtn);
+        wrap.appendChild(profileBtn);
+
+        const dd = document.createElement('div');
+        dd.id = 'sp-top-account-dropdown';
+        dd.className = 'sp-top-account-dropdown';
+        dd.innerHTML = `
+            <div class="sp-acc-dd-header">
+                <div class="sp-acc-dd-avatar">
+                    <span id="sp-acc-dd-avatar-initials">AD</span>
+                    <span class="sp-acc-dd-avatar-dot"></span>
+                </div>
+                <div class="sp-acc-dd-user-info">
+                    <div class="sp-acc-dd-name" id="sp-acc-dd-name">Admin</div>
+                    <div class="sp-acc-dd-company" id="sp-acc-dd-company">Palmnex Sdn Bhd</div>
+                    <div class="sp-acc-dd-email" id="sp-acc-dd-email">admin1@palmnex.com.my</div>
+                    <div class="sp-acc-dd-tier-badge" id="sp-acc-dd-tier-badge">Access Tier C • Master Admin</div>
+                </div>
+            </div>
+            <div class="sp-acc-dd-menu">
+                <a href="profile.html" class="sp-acc-dd-item" onclick="window.closeAccountDropdown()">
+                    <span class="sp-acc-dd-item-icon">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </span>
+                    <span class="sp-acc-dd-item-text">
+                        <span class="sp-acc-dd-item-title">My Profile</span>
+                        <span class="sp-acc-dd-item-sub">Account details, role &amp; security</span>
+                    </span>
+                </a>
+                <a href="profile.html#organization" class="sp-acc-dd-item" onclick="window.closeAccountDropdown()">
+                    <span class="sp-acc-dd-item-icon">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
+                    </span>
+                    <span class="sp-acc-dd-item-text">
+                        <span class="sp-acc-dd-item-title">Organization &amp; Estates</span>
+                        <span class="sp-acc-dd-item-sub">Company profile &amp; assigned boundaries</span>
+                    </span>
+                </a>
+                <a href="notifications.html?filter=runs" class="sp-acc-dd-item" onclick="window.closeAccountDropdown()">
+                    <span class="sp-acc-dd-item-icon">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    </span>
+                    <span class="sp-acc-dd-item-text">
+                        <span class="sp-acc-dd-item-title">Prediction &amp; Run History</span>
+                        <span class="sp-acc-dd-item-sub">Saved satellite nutrient predictions</span>
+                    </span>
+                </a>
+                <a href="notifications.html" class="sp-acc-dd-item" onclick="window.closeAccountDropdown()">
+                    <span class="sp-acc-dd-item-icon">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                    </span>
+                    <span class="sp-acc-dd-item-text">
+                        <span class="sp-acc-dd-item-title">Notifications &amp; Alerts</span>
+                        <span class="sp-acc-dd-item-sub">Schedules &amp; system notifications</span>
+                    </span>
+                </a>
+                <div class="sp-acc-dd-divider"></div>
+                <button type="button" class="sp-acc-dd-item" onclick="window.closeAccountDropdown(); const sm=document.getElementById('sp-settings-modal'); if(sm) sm.style.display='flex';">
+                    <span class="sp-acc-dd-item-icon">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    </span>
+                    <span class="sp-acc-dd-item-text">
+                        <span class="sp-acc-dd-item-title">System &amp; Quota Settings</span>
+                        <span class="sp-acc-dd-item-sub">Basemap &amp; weekly prediction limit</span>
+                    </span>
+                </button>
+                <button type="button" class="sp-acc-dd-item" onclick="window.closeAccountDropdown(); if(typeof openAuthModal==='function') openAuthModal('signin');">
+                    <span class="sp-acc-dd-item-icon">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+                    </span>
+                    <span class="sp-acc-dd-item-text">
+                        <span class="sp-acc-dd-item-title">Switch Account</span>
+                        <span class="sp-acc-dd-item-sub">Sign in with another account</span>
+                    </span>
+                </button>
+            </div>
+            <div class="sp-acc-dd-footer">
+                <button type="button" class="sp-acc-dd-logout-btn" onclick="window.closeAccountDropdown(); if(typeof handleSignOut==='function') handleSignOut();">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    <span>Log Out</span>
+                </button>
+            </div>
+        `;
+        wrap.appendChild(dd);
+
+        const openDropdown = () => {
+            if (_accountDropdownHoverTimer) {
+                clearTimeout(_accountDropdownHoverTimer);
+                _accountDropdownHoverTimer = null;
+            }
+            window.refreshAccountDropdownUI();
+            dd.classList.add('open');
+            wrap.classList.add('open');
+        };
+
+        const scheduleCloseDropdown = () => {
+            if (_accountDropdownHoverTimer) clearTimeout(_accountDropdownHoverTimer);
+            _accountDropdownHoverTimer = setTimeout(() => {
+                dd.classList.remove('open');
+                wrap.classList.remove('open');
+            }, 160);
+        };
+
+        wrap.addEventListener('mouseenter', openDropdown);
+        wrap.addEventListener('mouseleave', scheduleCloseDropdown);
+
+        profileBtn.onclick = function (ev) {
+            if (ev) ev.stopPropagation();
+            if (dd.classList.contains('open')) {
+                window.closeAccountDropdown();
+            } else {
+                openDropdown();
+            }
+        };
+
+        window.refreshAccountDropdownUI();
+    }
+
+    // Inject missing modals (#sp-settings-modal, #manual-modal, #auth-modal), Account Hover Dropdown, and Clock History button so buttons work on every page
     function ensureTopPanelModals() {
+        ensureAccountHoverDropdown();
         const rightControls = document.querySelector('.sp-top-right-controls');
         if (rightControls && !document.getElementById('sp-top-history-btn')) {
             const histBtn = document.createElement('a');
@@ -356,7 +765,7 @@
         }
         if (typeof ensureAuthModalEnhancements === 'function') {
             ensureAuthModalEnhancements();
-        } else if (!document.getElementById('auth-modal') || !document.getElementById('auth-modal').hasAttribute('data-portal-v5')) {
+        } else if (!document.getElementById('auth-modal') || !document.getElementById('auth-modal').hasAttribute('data-portal-v6')) {
             const portalInnerMarkup = `
                 <aside style="width: 350px; flex-shrink: 0; height: 100vh; background: #0c1017; border-right: 1px solid rgba(255,255,255,0.08); display: flex; flex-direction: column; user-select: none;">
                     <div style="padding: 24px 28px 22px 28px; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: flex-start;">
@@ -389,7 +798,7 @@
                                         <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                         <circle cx="12" cy="7" r="4"></circle>
                                     </svg>
-                                    <input type="text" id="signin-email" required placeholder="e.g. benta1@palmnex.com.my or admin1" value="" class="sp-sched-input" style="height: 48px; font-size: 14.5px; width: 100%; padding-left: 42px; padding-right: 14px; background: #0c1017; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; color: #f8fafc;" />
+                                    <input type="text" id="signin-email" required placeholder="Enter your username or email" value="" class="sp-sched-input" style="height: 48px; font-size: 14.5px; width: 100%; padding-left: 42px; padding-right: 14px; background: #0c1017; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; color: #f8fafc;" />
                                 </div>
                             </div>
                             <div style="margin-bottom: 20px;">
@@ -441,13 +850,13 @@
                 authDiv = document.createElement('div');
                 authDiv.id = 'auth-modal';
                 authDiv.className = 'modal-overlay';
-                authDiv.setAttribute('data-portal-v5', 'true');
+                authDiv.setAttribute('data-portal-v6', 'true');
                 authDiv.style.cssText = 'display: none; flex-direction: row; align-items: stretch; justify-content: flex-start; z-index: 9999999; position: fixed; inset: 0; background: #0c1017; padding: 0;';
                 authDiv.innerHTML = portalInnerMarkup;
                 document.body.appendChild(authDiv);
             } else {
                 const wasOpen = authDiv.style.display === 'flex';
-                authDiv.setAttribute('data-portal-v5', 'true');
+                authDiv.setAttribute('data-portal-v6', 'true');
                 authDiv.style.cssText = `display: ${wasOpen ? 'flex' : 'none'}; flex-direction: row; align-items: stretch; justify-content: flex-start; z-index: 9999999; position: fixed; inset: 0; background: #0c1017; padding: 0;`;
                 authDiv.innerHTML = portalInnerMarkup;
             }
@@ -515,6 +924,7 @@
             if (!user) {
                 if (avatarInitialsEl) avatarInitialsEl.textContent = 'SI';
                 if (userEmailSpan) userEmailSpan.textContent = 'Sign In';
+                if (typeof window.refreshAccountDropdownUI === 'function') window.refreshAccountDropdownUI(null);
                 return;
             }
             const rawUsername = (user && (user.username || user.user_metadata?.username || user.user_metadata?.full_name || user.email?.split('@')[0])) || 'Admin';
@@ -523,6 +933,7 @@
 
             if (avatarInitialsEl) avatarInitialsEl.textContent = displayName.slice(0, 2).toUpperCase();
             if (userEmailSpan) userEmailSpan.textContent = `${displayName} • ${companyName}`;
+            if (typeof window.refreshAccountDropdownUI === 'function') window.refreshAccountDropdownUI(user);
         };
     }
     if (typeof window.applyModuleAccessControl !== 'function') {
@@ -752,6 +1163,10 @@
             if (notifWrap && !notifWrap.contains(ev.target)) {
                 const dd = document.getElementById('sp-top-notif-dropdown');
                 if (dd) dd.classList.remove('open');
+            }
+            const accWrap = document.getElementById('sp-account-dropdown-wrap');
+            if (accWrap && !accWrap.contains(ev.target)) {
+                window.closeAccountDropdown();
             }
             const searchBox = document.querySelector('.sp-search-box');
             const resultsBox = document.getElementById('sp-search-results-dropdown');

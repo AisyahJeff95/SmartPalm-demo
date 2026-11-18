@@ -1436,6 +1436,9 @@ function updateTopNavUser(user) {
         if (profileDropdown) profileDropdown.style.display = 'none';
         if (userEmailSpan) userEmailSpan.textContent = window.PALMNEX_REQUIRE_LOGIN ? 'Sign In Required' : 'Admin • Palmnex Sdn Bhd';
     }
+    if (typeof window.refreshAccountDropdownUI === 'function') {
+        window.refreshAccountDropdownUI(user);
+    }
 }
 
 // Enforce full-system login gate only when window.PALMNEX_REQUIRE_LOGIN === true
