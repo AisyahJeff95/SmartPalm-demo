@@ -738,27 +738,85 @@
             document.body.appendChild(settingsDiv);
         }
 
-        if (!document.getElementById('manual-modal')) {
-            const manualDiv = document.createElement('div');
+        const walkthroughModalMarkup = `
+            <div class="modal-content" style="max-width: 440px; width: 92%; background: #141922; color: #f8fafc; border: 1px solid rgba(255,255,255,0.16); border-radius: 18px; padding: 28px 26px 22px 26px; position: relative; box-shadow: 0 28px 68px rgba(0,0,0,0.82); font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; text-align: center;">
+                <button type="button" style="position: absolute; top: 14px; right: 16px; background: none; border: none; font-size: 19px; color: #94a3b8; cursor: pointer;" onclick="window.handleWalkthroughPromptChoice('no')" title="Close">✕</button>
+                <div style="width: 52px; height: 52px; border-radius: 14px; background: rgba(16, 185, 129, 0.14); border: 1px solid rgba(16, 185, 129, 0.35); color: #34d399; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px auto; box-shadow: 0 8px 20px rgba(16, 185, 129, 0.18);">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                </div>
+                <h3 style="margin: 0 0 10px 0; font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 700; color: #ffffff; line-height: 1.35;">
+                    Would you like a walkthrough Tour of MPOBPALMNEX System?
+                </h3>
+                <p style="margin: 0 0 22px 0; font-size: 13px; color: #94a3b8; line-height: 1.55;">
+                    Explore a step-by-step guided tour of the SmartPalm Command Center, Satellite Foliar Nutrient Prediction, EDS Soil &amp; Fertilizer Calculation, and Report Production.
+                </p>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 18px;">
+                    <button type="button" onclick="window.handleWalkthroughPromptChoice('no')" style="flex: 1; height: 42px; border-radius: 10px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.16); color: #e2e8f0; font-size: 13.5px; font-weight: 600; font-family: inherit; cursor: pointer; transition: all 0.15s ease;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
+                        No
+                    </button>
+                    <button type="button" onclick="window.handleWalkthroughPromptChoice('yes')" style="flex: 1; height: 42px; border-radius: 10px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: 1px solid #34d399; color: #ffffff; font-size: 13.5px; font-weight: 700; font-family: inherit; cursor: pointer; box-shadow: 0 6px 16px rgba(16, 185, 129, 0.32); transition: all 0.15s ease;" onmouseover="this.style.filter='brightness(1.08)'" onmouseout="this.style.filter='none'">
+                        Yes
+                    </button>
+                </div>
+                <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 12px; display: flex; align-items: center; justify-content: center;">
+                    <label style="display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: #94a3b8; cursor: pointer; user-select: none;">
+                        <input type="checkbox" id="sp-walkthrough-dont-ask-chk" onchange="try { if (this.checked) localStorage.setItem('palmnex_walkthrough_dont_ask_v1', 'true'); else localStorage.removeItem('palmnex_walkthrough_dont_ask_v1'); } catch(e){}" style="width: 15px; height: 15px; accent-color: #10b981; cursor: pointer;" />
+                        <span>Don't ask me again</span>
+                    </label>
+                </div>
+            </div>
+        `;
+
+        let manualDiv = document.getElementById('manual-modal');
+        if (!manualDiv) {
+            manualDiv = document.createElement('div');
             manualDiv.id = 'manual-modal';
             manualDiv.className = 'modal-overlay';
+            manualDiv.setAttribute('data-walkthrough-v1', 'true');
             manualDiv.style.cssText = 'display: none; align-items: center; justify-content: center; z-index: 9999999; position: fixed; inset: 0; background: rgba(0,0,0,0.68); backdrop-filter: blur(6px);';
-            manualDiv.innerHTML = `
-                <div class="modal-content" style="max-width: 600px; width: 90%; background: #141922; color: #f8fafc; border: 1px solid rgba(255,255,255,0.14); border-radius: 16px; padding: 24px; position: relative; box-shadow: 0 24px 60px rgba(0,0,0,0.75); font-family: 'Inter', sans-serif;">
-                    <button type="button" style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; color: #94a3b8; cursor: pointer;" onclick="document.getElementById('manual-modal').style.display='none'">✕</button>
-                    <h3 style="margin-top: 0; font-family: 'Outfit', sans-serif; font-size: 20px; color: #ffffff;">User Manual — SmartPalm Command Center</h3>
-                    <div style="font-family: 'Inter', sans-serif; font-size: 13.5px; color: #cbd5e1; line-height: 1.6; max-height: 60vh; overflow-y: auto;">
-                        <h4 style="color:#ffffff;">1. Command Center Map (All 20 Comprehensive Boundaries)</h4>
-                        <p>Click any estate pin or boundary on the dark map (or select from the Left Panel / Top Search) to zoom to its blocks and inspect its Stress Rating and 3-Month N, P, K, Mg, Ca, B trend.</p>
-                        <h4 style="color:#ffffff;">2. Fertilizer Application Schedule &amp; Prediction Reminders</h4>
-                        <p>Click <b>+ Schedule Fertilizer</b> in the Right Panel to log your fertilizer application date. SmartPalm automatically schedules the follow-up satellite prediction (+30, +45, or +60 days post-application).</p>
-                        <h4 style="color:#ffffff;">3. Comprehensive &amp; Standard Fertilizer Modules</h4>
-                        <p>Use the Top Panel pills or Left Sidebar to open Comprehensive Fertilizer, Standard Fertilizer, PalmNexReaDS, or KPSM Monitoring System.</p>
-                    </div>
-                </div>
-            `;
+            manualDiv.innerHTML = walkthroughModalMarkup;
             document.body.appendChild(manualDiv);
+        } else if (!manualDiv.hasAttribute('data-walkthrough-v1')) {
+            const wasOpen = manualDiv.style.display === 'flex';
+            manualDiv.setAttribute('data-walkthrough-v1', 'true');
+            manualDiv.style.cssText = `display: ${wasOpen ? 'flex' : 'none'}; align-items: center; justify-content: center; z-index: 9999999; position: fixed; inset: 0; background: rgba(0,0,0,0.68); backdrop-filter: blur(6px);`;
+            manualDiv.innerHTML = walkthroughModalMarkup;
         }
+
+        const dontAskChk = document.getElementById('sp-walkthrough-dont-ask-chk');
+        if (dontAskChk) {
+            dontAskChk.checked = (localStorage.getItem('palmnex_walkthrough_dont_ask_v1') === 'true');
+        }
+
+        window.openWalkthroughPromptModal = function () {
+            const m = document.getElementById('manual-modal');
+            if (!m) return;
+            const chk = document.getElementById('sp-walkthrough-dont-ask-chk');
+            if (chk) {
+                chk.checked = (localStorage.getItem('palmnex_walkthrough_dont_ask_v1') === 'true');
+            }
+            m.style.display = 'flex';
+        };
+
+        window.handleWalkthroughPromptChoice = function (choice) {
+            const chk = document.getElementById('sp-walkthrough-dont-ask-chk');
+            try {
+                if (chk && chk.checked) {
+                    localStorage.setItem('palmnex_walkthrough_dont_ask_v1', 'true');
+                }
+                sessionStorage.setItem('palmnex_walkthrough_shown_this_session', 'true');
+            } catch (e) {}
+
+            const m = document.getElementById('manual-modal');
+            if (m) m.style.display = 'none';
+
+            if (choice === 'yes') {
+                window.location.href = 'walkthrough.html';
+            }
+        };
 
         if (typeof window.PALMNEX_REQUIRE_LOGIN === 'undefined') {
             window.PALMNEX_REQUIRE_LOGIN = true;
@@ -1140,6 +1198,21 @@
                 window.updateTopNavUser(parsed);
                 if (typeof window.syncPalmnexSsoState === 'function') window.syncPalmnexSsoState(parsed);
                 if (typeof window.applyModuleAccessControl === 'function') window.applyModuleAccessControl(parsed);
+
+                // Auto-popup Walkthrough Tour prompt when opening the website (unless "Don't ask me again" is checked)
+                const pathLower = (window.location.pathname || '').toLowerCase();
+                const isHomeOrEntry = (pathLower === '/' || pathLower.endsWith('/index.html') || pathLower.endsWith('/development/') || !sessionStorage.getItem('palmnex_walkthrough_shown_this_session'));
+                const isWalkthroughPage = pathLower.includes('walkthrough.html');
+                const dontAsk = localStorage.getItem('palmnex_walkthrough_dont_ask_v1') === 'true';
+                if (!dontAsk && !isWalkthroughPage && isHomeOrEntry && typeof window.openWalkthroughPromptModal === 'function') {
+                    sessionStorage.setItem('palmnex_walkthrough_shown_this_session', 'true');
+                    setTimeout(() => {
+                        const authModal = document.getElementById('auth-modal');
+                        if (!authModal || authModal.style.display !== 'flex') {
+                            window.openWalkthroughPromptModal();
+                        }
+                    }, 350);
+                }
             } else if (window.PALMNEX_REQUIRE_LOGIN !== false) {
                 window.updateTopNavUser(null);
                 if (typeof window.openAuthModal === 'function') window.openAuthModal('signin');
