@@ -350,6 +350,210 @@ body.sp-dark-home .cms-top-panel {
     border: 1.5px solid #0b0e12;
 }
 
+/* Top-Right Notification Dropdown */
+.sp-notif-dropdown-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.sp-top-notif-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    width: 380px;
+    background: rgba(16, 20, 27, 0.97);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 14px;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, 0.75);
+    z-index: 10000002;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.sp-top-notif-dropdown.open {
+    display: flex;
+}
+
+.sp-notif-dd-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.sp-notif-dd-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #f8fafc;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sp-notif-dd-count-pill {
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    color: #e2e8f0;
+}
+
+.sp-notif-dd-mark-btn {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 11.5px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 2px 4px;
+    transition: color 0.15s ease;
+}
+
+.sp-notif-dd-mark-btn:hover {
+    color: #ffffff;
+}
+
+.sp-notif-dd-list {
+    max-height: 330px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.sp-notif-dd-list::-webkit-scrollbar {
+    width: 4px;
+}
+
+.sp-notif-dd-list::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.16);
+    border-radius: 999px;
+}
+
+.sp-notif-dd-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 11px;
+    padding: 12px 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    text-decoration: none;
+    color: #f8fafc;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    position: relative;
+}
+
+.sp-notif-dd-item:last-child {
+    border-bottom: none;
+}
+
+.sp-notif-dd-item:hover {
+    background: rgba(255, 255, 255, 0.07);
+}
+
+.sp-notif-dd-item.unread {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.sp-notif-dd-item.unread:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.sp-notif-dd-icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #e2e8f0;
+    margin-top: 1px;
+}
+
+.sp-notif-dd-icon.profile {
+    background: rgba(245, 158, 11, 0.14);
+    border-color: rgba(245, 158, 11, 0.32);
+    color: #fbbf24;
+}
+
+.sp-notif-dd-icon.run {
+    background: rgba(16, 185, 129, 0.14);
+    border-color: rgba(16, 185, 129, 0.32);
+    color: #34d399;
+}
+
+.sp-notif-dd-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.sp-notif-dd-text {
+    font-size: 12.5px;
+    line-height: 1.45;
+    color: #e2e8f0;
+    font-weight: 400;
+}
+
+.sp-notif-dd-text b {
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.sp-notif-dd-sub {
+    font-size: 11px;
+    color: #94a3b8;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.sp-notif-dd-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #38bdf8;
+    flex-shrink: 0;
+    margin-top: 6px;
+}
+
+.sp-notif-dd-footer {
+    padding: 10px 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
+    text-align: center;
+}
+
+.sp-notif-dd-view-all {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    color: #f8fafc;
+    font-size: 12.5px;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 4px 0;
+    transition: color 0.15s ease;
+}
+
+.sp-notif-dd-view-all:hover {
+    color: #38bdf8;
+}
+
 /* Profile Login Pill */
 .sp-profile-btn {
     display: flex;
@@ -474,7 +678,7 @@ body.sp-dark-home .cms-main-content {
     width: 100%;
     height: 100%;
     display: grid;
-    grid-template-columns: 425px 1fr;
+    grid-template-columns: 455px 1fr;
     grid-template-rows: 1fr;
     gap: 14px;
     padding: 12px;
@@ -530,32 +734,34 @@ body.sp-dark-home .cms-main-content {
     border-top-color: rgba(14, 18, 24, 0.94) !important;
 }
 
-/* Estate Pin Marker on Map (Circular Dot Only, No Text) */
+/* Estate Pin Marker on Map (Smaller Dot, No Outline, Red Glow) */
 .sp-estate-pin {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 18px;
-    height: 18px;
+    width: 8px;
+    height: 8px;
     padding: 0;
     border-radius: 50%;
-    background: rgba(14, 18, 24, 0.9);
-    border: 1.5px solid rgba(255, 255, 255, 0.28);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
+    background: #ef4444;
+    border: none;
+    outline: none;
+    box-shadow: 0 0 8px 3px rgba(239, 68, 68, 0.88), 0 0 16px 6px rgba(239, 68, 68, 0.45);
     transform: translate(-50%, -50%);
-    transition: transform 0.2s ease, border-color 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .sp-estate-pin:hover {
-    transform: translate(-50%, -50%) scale(1.18);
-    border-color: #ffffff;
+    transform: translate(-50%, -50%) scale(1.35);
+    box-shadow: 0 0 11px 4px rgba(239, 68, 68, 1), 0 0 22px 8px rgba(239, 68, 68, 0.65);
     z-index: 9999 !important;
 }
 
 .sp-estate-pin-dot {
-    width: 7px;
-    height: 7px;
+    width: 4px;
+    height: 4px;
     border-radius: 50%;
+    background: #fecaca;
     flex-shrink: 0;
 }
 
@@ -587,6 +793,23 @@ body.sp-dark-home .cms-main-content {
     min-height: 0;
 }
 
+.sp-left-column-header {
+    padding: 4px 6px 2px 6px;
+    flex-shrink: 0;
+}
+
+.sp-left-main-title {
+    margin: 0;
+    font-family: 'Outfit', 'Inter', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: #ffffff;
+    letter-spacing: -0.5px;
+    line-height: 1.15;
+    text-shadow: none;
+    background: transparent;
+}
+
 /* Region filter pills at top of Left Column */
 .sp-region-strip {
     display: grid;
@@ -604,7 +827,7 @@ body.sp-dark-home .cms-main-content {
     background: transparent;
     border: none;
     color: var(--sp-text-secondary);
-    font-size: 11px;
+    font-size: 13px;
     font-weight: 600;
     padding: 6px 4px;
     border-radius: 999px;
@@ -639,7 +862,7 @@ body.sp-dark-home .cms-main-content {
 }
 
 .sp-card-title {
-    font-size: 13px;
+    font-size: 15px;
     font-weight: 600;
     color: var(--sp-text-primary);
     letter-spacing: -0.1px;
@@ -649,25 +872,25 @@ body.sp-dark-home .cms-main-content {
 }
 
 .sp-card-subtitle {
-    font-size: 11px;
+    font-size: 13px;
     color: var(--sp-text-secondary);
 }
 
 .sp-status-duo-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 8px;
 }
 
 .sp-status-tile {
     background: rgba(255, 255, 255, 0.035);
     border: 1px solid var(--sp-border);
     border-radius: 14px;
-    padding: 12px 14px;
+    padding: 8px 13px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    gap: 10px;
+    gap: 5px;
     cursor: pointer;
     transition: all 0.2s ease;
 }
@@ -684,14 +907,14 @@ body.sp-dark-home .cms-main-content {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .sp-status-icon-circle.online {
     background: rgba(255, 255, 255, 0.1);
     color: #ffffff;
     box-shadow: none;
-    font-size: 10px;
+    font-size: 12px;
 }
 
 .sp-status-icon-circle.offline {
@@ -707,14 +930,14 @@ body.sp-dark-home .cms-main-content {
 }
 
 .sp-status-label {
-    font-size: 11.5px;
+    font-size: 13.5px;
     color: var(--sp-text-secondary);
     font-weight: 500;
 }
 
 .sp-status-num {
     font-family: 'Outfit', sans-serif;
-    font-size: 26px;
+    font-size: 28px;
     font-weight: 700;
     color: var(--sp-text-primary);
     line-height: 1;
@@ -795,7 +1018,7 @@ body.sp-dark-home .cms-main-content {
 }
 
 .sp-estate-row-name {
-    font-size: 12.5px;
+    font-size: 14.5px;
     font-weight: 600;
     color: var(--sp-text-primary);
     white-space: nowrap;
@@ -804,13 +1027,13 @@ body.sp-dark-home .cms-main-content {
 }
 
 .sp-estate-row-meta {
-    font-size: 10.5px;
+    font-size: 12.5px;
     font-weight: 400;
     color: var(--sp-text-secondary);
 }
 
 .sp-estate-owner-sublist {
-    font-size: 10.5px;
+    font-size: 12.5px;
     font-weight: 400;
     color: var(--sp-text-secondary);
     line-height: 1.45;
@@ -826,7 +1049,7 @@ body.sp-dark-home .cms-main-content {
 }
 
 .sp-stress-pill-mini {
-    font-size: 10.5px;
+    font-size: 12.5px;
     font-weight: 700;
     padding: 2px 7px;
     border-radius: 999px;
@@ -885,9 +1108,11 @@ body.sp-dark-home .cms-main-content {
 
 .sp-map-top-hud {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
+    flex-direction: row;
+    justify-content: space-between;
     align-items: flex-start;
+    gap: 16px;
+    width: 100%;
 }
 
 .sp-welcome-banner {
@@ -947,6 +1172,377 @@ body.sp-dark-home .cms-main-content {
     line-height: 1.55;
     color: #cbd5e1;
     font-weight: 400;
+}
+
+#sp-kpi-company-count {
+    font-size: 33px;
+}
+
+/* Top-Right 3 Separated Cards Stack: 1. Overall Nutrient Level, 2. Overall Stress Level, 3. Stress Areas */
+.sp-company-cards-stack {
+    pointer-events: auto;
+    width: 286px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.sp-company-subcard {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 14px 16px;
+    border-radius: 16px;
+    background: rgba(18, 22, 28, 0.86);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.52);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.sp-comp-section-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.65px;
+    color: #94a3b8;
+}
+
+.sp-stress-areas-card {
+    background: rgba(14, 19, 28, 0.42) !important;
+    backdrop-filter: blur(12px) saturate(140%) !important;
+    -webkit-backdrop-filter: blur(12px) saturate(140%) !important;
+    border: 1px solid rgba(255, 255, 255, 0.18) !important;
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
+}
+
+.sp-comp-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.sp-comp-card-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.sp-comp-card-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #ffffff;
+    flex-shrink: 0;
+}
+
+.sp-comp-card-name {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.15px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sp-comp-card-count {
+    font-size: 11px;
+    font-weight: 500;
+    color: #94a3b8;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* Top Horizontal Bar Chart (N, P, K, Mg, B, Ca) */
+.sp-comp-nutrient-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.sp-comp-bar-row {
+    display: grid;
+    grid-template-columns: 24px 1fr 56px;
+    align-items: center;
+    gap: 9px;
+}
+
+.sp-comp-bar-label {
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #e2e8f0;
+    letter-spacing: 0.1px;
+}
+
+.sp-comp-bar-track {
+    position: relative;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.08);
+    overflow: hidden;
+}
+
+.sp-comp-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.45) 0%, #ffffff 100%);
+    transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.sp-comp-bar-val {
+    font-family: 'Outfit', sans-serif;
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #cbd5e1;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.sp-comp-card-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.08);
+    width: 100%;
+}
+
+/* Card 2: Circular Stress Graphic */
+.sp-comp-stress-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 2px 0;
+}
+
+.sp-comp-circle-wrap {
+    position: relative;
+    width: 74px;
+    height: 74px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.sp-comp-ring-svg {
+    width: 74px;
+    height: 74px;
+    transform: rotate(-90deg);
+}
+
+.sp-comp-ring-bg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.09);
+    stroke-width: 6.5;
+}
+
+.sp-comp-ring-prog {
+    fill: none;
+    stroke: #ffffff;
+    stroke-width: 6.5;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.55s cubic-bezier(0.22, 1, 0.36, 1), stroke 0.3s ease;
+}
+
+.sp-comp-ring-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.sp-comp-ring-val {
+    font-family: 'Outfit', sans-serif;
+    font-size: 16.5px;
+    font-weight: 700;
+    color: #ffffff;
+    letter-spacing: -0.3px;
+    line-height: 1;
+}
+
+.sp-comp-stress-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+}
+
+.sp-comp-stress-label {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: #94a3b8;
+    letter-spacing: 0.1px;
+}
+
+.sp-comp-stress-badge {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: #f8fafc;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.09);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* Card 3: Sleek Translucent Geospatial Stress Choropleth Map */
+.sp-comp-geo-section {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.sp-comp-geo-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.sp-comp-geo-select {
+    flex: 1;
+    min-width: 0;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    color: #f8fafc;
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 5px 8px;
+    font-family: inherit;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.18s ease;
+}
+
+.sp-comp-geo-select:hover,
+.sp-comp-geo-select:focus {
+    border-color: rgba(255, 255, 255, 0.28);
+}
+
+.sp-comp-geo-select option {
+    background: #12161c;
+    color: #f8fafc;
+}
+
+.sp-comp-geo-mode-btn {
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 7px;
+    color: #cbd5e1;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 7px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.sp-comp-geo-mode-btn:hover,
+.sp-comp-geo-mode-btn.active {
+    background: rgba(255, 255, 255, 0.18);
+    color: #ffffff;
+}
+
+.sp-comp-geo-map-box {
+    position: relative;
+    width: 100%;
+    height: 132px;
+    border-radius: 12px;
+    background: rgba(8, 12, 18, 0.28);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: inset 0 0 22px rgba(0, 0, 0, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.sp-comp-geo-svg-holder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+.sp-comp-geo-svg-holder svg {
+    width: 100%;
+    height: 100%;
+    overflow: visible;
+    filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.6));
+}
+
+.sp-comp-geo-svg-holder path,
+.sp-comp-geo-svg-holder circle {
+    transition: opacity 0.15s ease, stroke-width 0.15s ease;
+}
+
+.sp-comp-geo-svg-holder path:hover,
+.sp-comp-geo-svg-holder circle:hover {
+    opacity: 0.96;
+    stroke: #ffffff !important;
+    stroke-width: 1.4px !important;
+}
+
+.sp-comp-geo-tooltip {
+    position: absolute;
+    bottom: 6px;
+    left: 8px;
+    right: 8px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background: rgba(14, 18, 24, 0.92);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #f8fafc;
+    font-size: 10.5px;
+    font-weight: 600;
+    text-align: center;
+    pointer-events: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.sp-comp-geo-legend {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    font-size: 10.5px;
+    font-weight: 500;
+    color: #cbd5e1;
+}
+
+.sp-comp-legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.sp-comp-legend-item i {
+    width: 7px;
+    height: 7px;
+    border-radius: 2px;
+    display: inline-block;
+}
+
+.sp-comp-geo-disclaimer {
+    font-size: 9.8px;
+    line-height: 1.38;
+    color: rgba(203, 213, 225, 0.78);
+    font-style: italic;
+    margin-top: 1px;
+    padding-top: 6px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .sp-map-hero-title {

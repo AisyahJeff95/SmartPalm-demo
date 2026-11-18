@@ -756,13 +756,21 @@
 
         // Sync Estate Selector & Render Geospatial Stress Map under the circular stress chart
         const geoSel = document.getElementById('sp-comp-geo-select');
-        const activeEstKey = cluster.estateKeys.includes(selectedEstateKey)
-            ? selectedEstateKey
+        const ctx = getCurrentUserContext();
+        const ownedSet = (!ctx.isMasterAdmin && typeof window.getClientOwnedEstatesSet === 'function')
+            ? window.getClientOwnedEstatesSet()
+            : null;
+        const firstOwnedKey = (ownedSet && ownedSet.size > 0)
+            ? (cluster.estateKeys.find(k => ownedSet.has(k)) || cluster.estateKeys[0])
             : cluster.estateKeys[0];
+        const activeEstKey = (cluster.estateKeys.includes(selectedEstateKey) && (!ownedSet || ownedSet.size === 0 || ownedSet.has(selectedEstateKey)))
+            ? selectedEstateKey
+            : firstOwnedKey;
         if (geoSel) {
-            geoSel.innerHTML = estates.map(e =>
-                `<option value="${e.key}">${e.name}</option>`
-            ).join('');
+            geoSel.innerHTML = estates.map(e => {
+                const isDisabled = Boolean(ownedSet && ownedSet.size > 0 && !ownedSet.has(e.key));
+                return `<option value="${e.key}"${isDisabled ? ' disabled' : ''}>${e.name}</option>`;
+            }).join('');
             geoSel.value = activeEstKey;
         }
         renderCompanyGeoStressMap(activeEstKey);
@@ -1936,6 +1944,10 @@
     function populateDropdowns() {
         const visibleClusters = getVisibleClusters();
         const visibleEstates = getVisibleEstates();
+        const ctx = getCurrentUserContext();
+        const ownedSet = (!ctx.isMasterAdmin && typeof window.getClientOwnedEstatesSet === 'function')
+            ? window.getClientOwnedEstatesSet()
+            : null;
         const hudSel = document.getElementById('sp-hud-estate-select');
         const nutSel = document.getElementById('sp-nut3m-estate-select');
         const schedSel = document.getElementById('sp-sched-estate');
@@ -1948,7 +1960,10 @@
                 const items = c.estateKeys
                     .map(k => getEstateByKey(k))
                     .filter(Boolean)
-                    .map(e => `<option value="${e.key}">${e.name} (${e.region})</option>`)
+                    .map(e => {
+                        const isDisabled = Boolean(ownedSet && ownedSet.size > 0 && !ownedSet.has(e.key));
+                        return `<option value="${e.key}"${isDisabled ? ' disabled' : ''}>${e.name} (${e.region})</option>`;
+                    })
                     .join('');
                 return `<optgroup label="${c.ownerName}">${items}</optgroup>`;
             }).join('');
@@ -1961,13 +1976,19 @@
                 groupOpts;
         }
         if (nutSel) {
-            nutSel.innerHTML = visibleEstates.map(e => `<option value="${e.key}">${e.name}</option>`).join('');
+            nutSel.innerHTML = visibleEstates.map(e => {
+                const isDisabled = Boolean(ownedSet && ownedSet.size > 0 && !ownedSet.has(e.key));
+                return `<option value="${e.key}"${isDisabled ? ' disabled' : ''}>${e.name}</option>`;
+            }).join('');
             if (visibleEstates.some(e => e.key === selectedEstateKey)) {
                 nutSel.value = selectedEstateKey;
             }
         }
         if (schedSel) {
-            schedSel.innerHTML = visibleEstates.map(e => `<option value="${e.key}">${e.name}</option>`).join('');
+            schedSel.innerHTML = visibleEstates.map(e => {
+                const isDisabled = Boolean(ownedSet && ownedSet.size > 0 && !ownedSet.has(e.key));
+                return `<option value="${e.key}"${isDisabled ? ' disabled' : ''}>${e.name}</option>`;
+            }).join('');
             if (visibleEstates.some(e => e.key === selectedEstateKey)) {
                 schedSel.value = selectedEstateKey;
             }
@@ -1978,6 +1999,10 @@
         injectCustomMapsIntoHomeData();
         const visibleClusters = getVisibleClusters();
         const visibleEstates = getVisibleEstates();
+        const ctx = getCurrentUserContext();
+        const ownedSet = (!ctx.isMasterAdmin && typeof window.getClientOwnedEstatesSet === 'function')
+            ? window.getClientOwnedEstatesSet()
+            : null;
 
         if (visibleClusters.length > 0) {
             if (!visibleClusters.some(c => c.id === selectedOwnerClusterId)) {
@@ -1985,7 +2010,12 @@
             }
         }
         if (visibleEstates.length > 0) {
-            if (!visibleEstates.some(e => e.key === selectedEstateKey)) {
+            const preferredEst = (ownedSet && ownedSet.size > 0)
+                ? visibleEstates.find(e => ownedSet.has(e.key))
+                : null;
+            if (preferredEst && (!ownedSet.has(selectedEstateKey))) {
+                selectedEstateKey = preferredEst.key;
+            } else if (!visibleEstates.some(e => e.key === selectedEstateKey)) {
                 selectedEstateKey = visibleEstates[0].key;
             }
         }
@@ -2019,11 +2049,18 @@
         injectCustomMapsIntoHomeData();
         const visibleClusters = getVisibleClusters();
         const visibleEstates = getVisibleEstates();
+        const ctx = getCurrentUserContext();
+        const ownedSet = (!ctx.isMasterAdmin && typeof window.getClientOwnedEstatesSet === 'function')
+            ? window.getClientOwnedEstatesSet()
+            : null;
         if (visibleClusters.length > 0) {
             selectedOwnerClusterId = visibleClusters[0].id;
         }
         if (visibleEstates.length > 0) {
-            selectedEstateKey = visibleEstates[0].key;
+            const preferredEst = (ownedSet && ownedSet.size > 0)
+                ? visibleEstates.find(e => ownedSet.has(e.key))
+                : null;
+            selectedEstateKey = preferredEst ? preferredEst.key : visibleEstates[0].key;
         }
 
         populateDropdowns();

@@ -552,6 +552,26 @@
             document.head.appendChild(styleEl);
         }
 
+        const rightControls = document.querySelector('.sp-top-right-controls');
+        if (rightControls) {
+            // Remove standalone Settings and History buttons from top bar (now inside Account dropdown)
+            rightControls.querySelectorAll('button[onclick*="sp-settings-modal"], #sp-top-history-btn, a[href*="filter=runs"]').forEach(el => {
+                el.style.display = 'none';
+            });
+            // Ensure User Manual button opens the Walkthrough Tour prompt modal
+            rightControls.querySelectorAll('button[onclick*="manual-modal"]').forEach(btn => {
+                btn.onclick = function (ev) {
+                    if (ev) ev.preventDefault();
+                    if (typeof window.openWalkthroughPromptModal === 'function') {
+                        window.openWalkthroughPromptModal();
+                    } else {
+                        const m = document.getElementById('manual-modal');
+                        if (m) m.style.display = 'flex';
+                    }
+                };
+            });
+        }
+
         const profileBtn = document.querySelector('.sp-profile-btn');
         if (!profileBtn || document.getElementById('sp-top-account-dropdown')) return;
 
@@ -593,17 +613,8 @@
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     </span>
                     <span class="sp-acc-dd-item-text">
-                        <span class="sp-acc-dd-item-title">My Profile</span>
+                        <span class="sp-acc-dd-item-title">Profile</span>
                         <span class="sp-acc-dd-item-sub">Account details, role &amp; security</span>
-                    </span>
-                </a>
-                <a href="profile.html#organization" class="sp-acc-dd-item" onclick="window.closeAccountDropdown()">
-                    <span class="sp-acc-dd-item-icon">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
-                    </span>
-                    <span class="sp-acc-dd-item-text">
-                        <span class="sp-acc-dd-item-title">Organization &amp; Estates</span>
-                        <span class="sp-acc-dd-item-sub">Company profile &amp; assigned boundaries</span>
                     </span>
                 </a>
                 <a href="notifications.html?filter=runs" class="sp-acc-dd-item" onclick="window.closeAccountDropdown()">
@@ -611,8 +622,27 @@
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                     </span>
                     <span class="sp-acc-dd-item-text">
-                        <span class="sp-acc-dd-item-title">Prediction &amp; Run History</span>
-                        <span class="sp-acc-dd-item-sub">Saved satellite nutrient predictions</span>
+                        <span class="sp-acc-dd-item-title">History</span>
+                        <span class="sp-acc-dd-item-sub">Prediction &amp; run history</span>
+                    </span>
+                </a>
+                <button type="button" class="sp-acc-dd-item" onclick="window.closeAccountDropdown(); const sm=document.getElementById('sp-settings-modal'); if(sm) sm.style.display='flex';">
+                    <span class="sp-acc-dd-item-icon">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    </span>
+                    <span class="sp-acc-dd-item-text">
+                        <span class="sp-acc-dd-item-title">Settings</span>
+                        <span class="sp-acc-dd-item-sub">System &amp; quota settings</span>
+                    </span>
+                </button>
+                <div class="sp-acc-dd-divider"></div>
+                <a href="profile.html#organization" class="sp-acc-dd-item" onclick="window.closeAccountDropdown()">
+                    <span class="sp-acc-dd-item-icon">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/></svg>
+                    </span>
+                    <span class="sp-acc-dd-item-text">
+                        <span class="sp-acc-dd-item-title">Organization &amp; Estates</span>
+                        <span class="sp-acc-dd-item-sub">Company profile &amp; assigned boundaries</span>
                     </span>
                 </a>
                 <a href="notifications.html" class="sp-acc-dd-item" onclick="window.closeAccountDropdown()">
@@ -624,16 +654,6 @@
                         <span class="sp-acc-dd-item-sub">Schedules &amp; system notifications</span>
                     </span>
                 </a>
-                <div class="sp-acc-dd-divider"></div>
-                <button type="button" class="sp-acc-dd-item" onclick="window.closeAccountDropdown(); const sm=document.getElementById('sp-settings-modal'); if(sm) sm.style.display='flex';">
-                    <span class="sp-acc-dd-item-icon">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                    </span>
-                    <span class="sp-acc-dd-item-text">
-                        <span class="sp-acc-dd-item-title">System &amp; Quota Settings</span>
-                        <span class="sp-acc-dd-item-sub">Basemap &amp; weekly prediction limit</span>
-                    </span>
-                </button>
                 <button type="button" class="sp-acc-dd-item" onclick="window.closeAccountDropdown(); if(typeof openAuthModal==='function') openAuthModal('signin');">
                     <span class="sp-acc-dd-item-icon">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
@@ -690,26 +710,9 @@
         window.refreshAccountDropdownUI();
     }
 
-    // Inject missing modals (#sp-settings-modal, #manual-modal, #auth-modal), Account Hover Dropdown, and Clock History button so buttons work on every page
+    // Inject missing modals (#sp-settings-modal, #manual-modal, #auth-modal) and Account Hover Dropdown so buttons work on every page
     function ensureTopPanelModals() {
         ensureAccountHoverDropdown();
-        const rightControls = document.querySelector('.sp-top-right-controls');
-        if (rightControls && !document.getElementById('sp-top-history-btn')) {
-            const histBtn = document.createElement('a');
-            histBtn.href = 'notifications.html?filter=runs';
-            histBtn.target = '_blank';
-            histBtn.className = 'sp-icon-btn';
-            histBtn.id = 'sp-top-history-btn';
-            histBtn.title = 'Run History';
-            histBtn.style.textDecoration = 'none';
-            histBtn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
-            const notifWrap = document.getElementById('sp-notif-dropdown-wrap');
-            if (notifWrap && notifWrap.parentNode === rightControls) {
-                rightControls.insertBefore(histBtn, notifWrap);
-            } else {
-                rightControls.appendChild(histBtn);
-            }
-        }
 
         if (!document.getElementById('sp-settings-modal')) {
             const settingsDiv = document.createElement('div');
@@ -751,7 +754,7 @@
                     Would you like a walkthrough Tour of MPOBPALMNEX System?
                 </h3>
                 <p style="margin: 0 0 22px 0; font-size: 13px; color: #94a3b8; line-height: 1.55;">
-                    Explore a step-by-step guided tour of the SmartPalm Command Center, Satellite Foliar Nutrient Prediction, EDS Soil &amp; Fertilizer Calculation, and Report Production.
+                    Start an interactive step-by-step spotlight tour across the Home Command Center, Comprehensive &amp; Standard Fertilization Dashboards, and any page you click.
                 </p>
                 <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 18px;">
                     <button type="button" onclick="window.handleWalkthroughPromptChoice('no')" style="flex: 1; height: 42px; border-radius: 10px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.16); color: #e2e8f0; font-size: 13.5px; font-weight: 600; font-family: inherit; cursor: pointer; transition: all 0.15s ease;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
@@ -775,13 +778,13 @@
             manualDiv = document.createElement('div');
             manualDiv.id = 'manual-modal';
             manualDiv.className = 'modal-overlay';
-            manualDiv.setAttribute('data-walkthrough-v1', 'true');
+            manualDiv.setAttribute('data-walkthrough-v2', 'true');
             manualDiv.style.cssText = 'display: none; align-items: center; justify-content: center; z-index: 9999999; position: fixed; inset: 0; background: rgba(0,0,0,0.68); backdrop-filter: blur(6px);';
             manualDiv.innerHTML = walkthroughModalMarkup;
             document.body.appendChild(manualDiv);
-        } else if (!manualDiv.hasAttribute('data-walkthrough-v1')) {
+        } else if (!manualDiv.hasAttribute('data-walkthrough-v2')) {
             const wasOpen = manualDiv.style.display === 'flex';
-            manualDiv.setAttribute('data-walkthrough-v1', 'true');
+            manualDiv.setAttribute('data-walkthrough-v2', 'true');
             manualDiv.style.cssText = `display: ${wasOpen ? 'flex' : 'none'}; align-items: center; justify-content: center; z-index: 9999999; position: fixed; inset: 0; background: rgba(0,0,0,0.68); backdrop-filter: blur(6px);`;
             manualDiv.innerHTML = walkthroughModalMarkup;
         }
@@ -790,6 +793,513 @@
         if (dontAskChk) {
             dontAskChk.checked = (localStorage.getItem('palmnex_walkthrough_dont_ask_v1') === 'true');
         }
+
+        // Inject Driver.js styles & multi-page tutorial overrides
+        if (!document.getElementById('sp-driverjs-custom-styles')) {
+            const drvStyle = document.createElement('style');
+            drvStyle.id = 'sp-driverjs-custom-styles';
+            drvStyle.textContent = `
+                /* Allow clicking Top Navigation & Left Sidebar at any point during the tutorial to jump between pages */
+                body.sp-driver-tour-active .cms-top-panel,
+                body.sp-driver-tour-active .cms-sidebar {
+                    z-index: 10000005 !important;
+                    pointer-events: auto !important;
+                }
+                .driver-popover {
+                    background: #ffffff !important;
+                    color: #0f172a !important;
+                    border-radius: 12px !important;
+                    padding: 18px 20px !important;
+                    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(15, 23, 42, 0.1) !important;
+                    max-width: 360px !important;
+                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+                    z-index: 10000008 !important;
+                }
+                .driver-popover-title {
+                    font-family: 'Outfit', 'Inter', sans-serif !important;
+                    font-size: 17px !important;
+                    font-weight: 800 !important;
+                    color: #0f172a !important;
+                    margin-bottom: 6px !important;
+                    line-height: 1.3 !important;
+                }
+                .driver-popover-description {
+                    font-size: 13.5px !important;
+                    color: #334155 !important;
+                    line-height: 1.55 !important;
+                    margin-bottom: 14px !important;
+                }
+                .driver-popover-progress-text {
+                    font-size: 12px !important;
+                    font-weight: 600 !important;
+                    color: #64748b !important;
+                }
+                .driver-popover-footer button {
+                    border-radius: 7px !important;
+                    padding: 6px 13px !important;
+                    font-size: 12.5px !important;
+                    font-weight: 700 !important;
+                    font-family: 'Inter', sans-serif !important;
+                    text-shadow: none !important;
+                    cursor: pointer !important;
+                    transition: all 0.15s ease !important;
+                }
+                .driver-popover-next-btn {
+                    background: #0f172a !important;
+                    color: #ffffff !important;
+                    border: 1px solid #0f172a !important;
+                }
+                .driver-popover-next-btn:hover {
+                    background: #1e293b !important;
+                }
+                .driver-popover-prev-btn {
+                    background: #f1f5f9 !important;
+                    color: #334155 !important;
+                    border: 1px solid #cbd5e1 !important;
+                }
+                .driver-popover-prev-btn:hover {
+                    background: #e2e8f0 !important;
+                }
+                #sp-end-tutorial-floating-wrap {
+                    display: none;
+                    position: fixed;
+                    bottom: 24px;
+                    right: 24px;
+                    z-index: 10000010;
+                    align-items: center;
+                    gap: 10px;
+                    background: rgba(15, 20, 28, 0.96);
+                    backdrop-filter: blur(14px);
+                    -webkit-backdrop-filter: blur(14px);
+                    border: 1px solid rgba(255, 255, 255, 0.18);
+                    border-radius: 999px;
+                    padding: 7px 9px 7px 14px;
+                    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.78);
+                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+                    user-select: none;
+                }
+                #sp-end-tutorial-floating-wrap.active {
+                    display: inline-flex;
+                }
+                .sp-tour-status-label {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 7px;
+                    font-size: 12px;
+                    font-weight: 600;
+                    color: #cbd5e1;
+                    cursor: pointer;
+                }
+                .sp-tour-status-dot {
+                    width: 8px;
+                    height: 8px;
+                    border-radius: 50%;
+                    background: #10b981;
+                    box-shadow: 0 0 8px #10b981;
+                }
+                .sp-end-tutorial-btn {
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 6px;
+                    padding: 8px 16px;
+                    border-radius: 999px;
+                    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+                    border: 1px solid #f87171;
+                    color: #ffffff;
+                    font-size: 12.5px;
+                    font-weight: 700;
+                    font-family: inherit;
+                    cursor: pointer;
+                    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
+                    transition: all 0.15s ease;
+                }
+                .sp-end-tutorial-btn:hover {
+                    filter: brightness(1.1);
+                    transform: translateY(-1px);
+                }
+            `;
+            document.head.appendChild(drvStyle);
+        }
+
+        if (!document.getElementById('sp-end-tutorial-floating-wrap')) {
+            const floatWrap = document.createElement('div');
+            floatWrap.id = 'sp-end-tutorial-floating-wrap';
+            floatWrap.innerHTML = `
+                <span class="sp-tour-status-label" onclick="window.startPalmnexDriverTourForCurrentPage()" title="Click to replay walkthrough steps on this page">
+                    <span class="sp-tour-status-dot"></span>
+                    <span>Walkthrough Active (Click any page tab)</span>
+                </span>
+                <button type="button" class="sp-end-tutorial-btn" onclick="window.endPalmnexTutorial()">
+                    <span>✕</span>
+                    <span>End Tutorial</span>
+                </button>
+            `;
+            document.body.appendChild(floatWrap);
+        }
+
+        function ensureDriverJsLoaded(callback) {
+            if (window.driver && window.driver.js && typeof window.driver.js.driver === 'function') {
+                callback(window.driver.js.driver);
+                return;
+            }
+            if (!document.getElementById('sp-driverjs-css')) {
+                const link = document.createElement('link');
+                link.id = 'sp-driverjs-css';
+                link.rel = 'stylesheet';
+                link.href = 'https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.css';
+                document.head.appendChild(link);
+            }
+            const existingScript = document.getElementById('sp-driverjs-script');
+            if (existingScript) {
+                existingScript.addEventListener('load', () => {
+                    if (window.driver && window.driver.js && typeof window.driver.js.driver === 'function') {
+                        callback(window.driver.js.driver);
+                    }
+                });
+                return;
+            }
+            const s = document.createElement('script');
+            s.id = 'sp-driverjs-script';
+            s.src = 'https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js';
+            s.onload = () => {
+                if (window.driver && window.driver.js && typeof window.driver.js.driver === 'function') {
+                    callback(window.driver.js.driver);
+                }
+            };
+            document.head.appendChild(s);
+        }
+
+        function buildStepsForCurrentPage() {
+            const pathLower = (window.location.pathname || '').toLowerCase();
+            const isComp = pathLower.includes('comprehensive');
+            const isStd = pathLower.includes('standard');
+            const isNotif = pathLower.includes('notifications');
+            const isKpsm = pathLower.includes('kpsm');
+            const isProfile = pathLower.includes('profile');
+
+            let candidateSteps = [];
+
+            if (isComp) {
+                candidateSteps = [
+                    {
+                        element: '#card-map-file-selection',
+                        popover: {
+                            title: '1. Map File Selection',
+                            description: 'Select an existing estate boundary from the dropdown or upload custom .shp and .dbf boundary files to render blocks on the interactive map.',
+                            side: 'right',
+                            align: 'start'
+                        }
+                    },
+                    {
+                        element: '#card-satellite-data',
+                        popover: {
+                            title: '2. Satellite Data & EDS Soil Type',
+                            description: 'Choose Real-time or Previous Sentinel-2 imagery dates, inspect the detected soil type, and enter Inland or Alluvial/Coastal soil parameters.',
+                            side: 'right',
+                            align: 'start'
+                        }
+                    },
+                    {
+                        element: '#btn-run-prediction',
+                        popover: {
+                            title: '3. Run AI Foliar Nutrient Prediction',
+                            description: 'Click Run Prediction to execute the Random Forest AI model on Sentinel-1 & Sentinel-2 bands and generate block-level foliar N, P, K, Mg, Ca, and B diagnostics.',
+                            side: 'right',
+                            align: 'center'
+                        }
+                    },
+                    {
+                        element: '.leaflet-nutrient-selector',
+                        popover: {
+                            title: '4. Nutrient Heatmap Layer Selector',
+                            description: 'Toggle between N%, P%, K%, Mg%, Ca%, and B (ppm) detection rasters on the map and inspect the critical agronomy color thresholds.',
+                            side: 'left',
+                            align: 'start'
+                        }
+                    },
+                    {
+                        element: '#fert-list-input',
+                        popover: {
+                            title: '5. Fertilizer Formulation & Ratio',
+                            description: 'Enter custom N:P:K:Mg:B ratios or choose a standard MPOB Fertilizer formulation (F1, F1 Xtra K, F2 Super K, F3, F4, etc.) and log current dosage.',
+                            side: 'right',
+                            align: 'center'
+                        }
+                    },
+                    {
+                        element: '#report-admin-section, #client-block-grouping-section',
+                        popover: {
+                            title: '6. Block Selection & Agronomy Report',
+                            description: 'Click block(s) on the map to group or inspect, review client remarks, and click Generate Report to produce the official MPOB Fertilization PDF Report.',
+                            side: 'right',
+                            align: 'start'
+                        }
+                    },
+                    {
+                        element: '#card-drone-upload',
+                        popover: {
+                            title: '7. Optional Drone Overlay & Report Name',
+                            description: 'Optionally upload high-resolution drone orthomosaics (.tif/.png/.jpg) and customize the Estate Name printed on the report.',
+                            side: 'right',
+                            align: 'start'
+                        }
+                    },
+                    {
+                        element: '.sp-top-nav-pills',
+                        popover: {
+                            title: '8. Switch Pages Anytime!',
+                            description: 'Click Standard Fert, Home, or KPSM System in the top bar to continue the walkthrough on that page, or click End Tutorial at the bottom right.',
+                            side: 'bottom',
+                            align: 'start'
+                        }
+                    }
+                ];
+            } else if (isStd) {
+                candidateSteps = [
+                    {
+                        element: '#card-map-file-selection',
+                        popover: {
+                            title: '1. Estate Boundary Selection',
+                            description: 'Select your target estate boundary from the dropdown or upload .shp / .dbf files to load the plantation blocks.',
+                            side: 'right',
+                            align: 'start'
+                        }
+                    },
+                    {
+                        element: '#card-satellite-data',
+                        popover: {
+                            title: '2. Satellite Date & Soil Type',
+                            description: 'Select Real-time or historical Sentinel-2 dates and verify the MPOB Reconnaissance Soil Type for the estate.',
+                            side: 'right',
+                            align: 'start'
+                        }
+                    },
+                    {
+                        element: '#btn-run-prediction',
+                        popover: {
+                            title: '3. Run Standard Nutrient Prediction',
+                            description: 'Click Run Prediction to evaluate block-level foliar N, P, K, Mg, Ca, and B values across the selected estate.',
+                            side: 'right',
+                            align: 'center'
+                        }
+                    },
+                    {
+                        element: '.leaflet-nutrient-selector',
+                        popover: {
+                            title: '4. Interactive Nutrient Layers',
+                            description: 'Switch between N, P, K, Mg, Ca, and B heatmap layers on the satellite map and click any block polygon to view its values.',
+                            side: 'left',
+                            align: 'start'
+                        }
+                    },
+                    {
+                        element: '#fert-list-input',
+                        popover: {
+                            title: '5. Standard Fertilizer Recommendation',
+                            description: 'Specify custom N:P:K:Mg ratios or select an MPOB compound fertilizer formulation to compute corrective fertilizer rates.',
+                            side: 'right',
+                            align: 'center'
+                        }
+                    },
+                    {
+                        element: '.ui-generate-report-btn',
+                        popover: {
+                            title: '6. Generate Standard Fertilization Report',
+                            description: 'Click a block on the map and click Generate Report to export the Standard Fertilization Recommendation PDF.',
+                            side: 'right',
+                            align: 'center'
+                        }
+                    },
+                    {
+                        element: '.sp-top-nav-pills',
+                        popover: {
+                            title: '7. Explore Other Dashboards',
+                            description: 'Click Comprehensive Fert, Home, or any module tab above to continue the walkthrough there, or click End Tutorial at the bottom right.',
+                            side: 'bottom',
+                            align: 'start'
+                        }
+                    }
+                ];
+            } else if (isNotif) {
+                candidateSteps = [
+                    {
+                        element: '.cms-main-content',
+                        popover: {
+                            title: '1. Notifications & Prediction Run History',
+                            description: 'Review all saved satellite nutrient prediction runs, upcoming fertilizer application reminders, and system alerts in one place.',
+                            side: 'top',
+                            align: 'center'
+                        }
+                    },
+                    {
+                        element: '.sp-top-nav-pills',
+                        popover: {
+                            title: '2. Continue Walkthrough on Any Page',
+                            description: 'Click Home, Comprehensive Fert, or Standard Fert in the top bar to tour another module, or click End Tutorial at the bottom right.',
+                            side: 'bottom',
+                            align: 'start'
+                        }
+                    }
+                ];
+            } else if (isKpsm || isProfile) {
+                candidateSteps = [
+                    {
+                        element: '.cms-main-content, body',
+                        popover: {
+                            title: '1. Module Overview',
+                            description: 'Use this workspace to manage smallholder cooperatives, estate boundaries, and account settings.',
+                            side: 'bottom',
+                            align: 'center'
+                        }
+                    },
+                    {
+                        element: '.sp-top-nav-pills',
+                        popover: {
+                            title: '2. Navigate Across Modules',
+                            description: 'Click Home, Comprehensive Fert, or Standard Fert in the top bar to continue the walkthrough, or click End Tutorial at the bottom right.',
+                            side: 'bottom',
+                            align: 'start'
+                        }
+                    }
+                ];
+            } else {
+                // Default: Home Page (index.html)
+                candidateSteps = [
+                    {
+                        element: '.sp-top-nav-pills',
+                        popover: {
+                            title: '1. Top Navigation & Modules',
+                            description: 'Switch seamlessly between the Home Command Center, Comprehensive Fertilization, Standard Fertilization, PalmNexReaDS, and KPSM System. You can click any module tab at any time to continue the tour on that page!',
+                            side: 'bottom',
+                            align: 'start'
+                        }
+                    },
+                    {
+                        element: '.sp-total-estate-card',
+                        popover: {
+                            title: '2. Total Estate Company & Online Status',
+                            description: 'View total monitored plantation companies, active online estates, total hectares, and block counts at a glance.',
+                            side: 'right',
+                            align: 'start'
+                        }
+                    },
+                    {
+                        element: '.sp-estate-directory-card',
+                        popover: {
+                            title: '3. Browse All Estates Directory',
+                            description: 'Click any company cluster or estate card in this list to automatically zoom the interactive satellite map to its boundaries.',
+                            side: 'right',
+                            align: 'start'
+                        }
+                    },
+                    {
+                        element: '#sp-welcome-banner',
+                        popover: {
+                            title: '4. Active User & Organization Session',
+                            description: 'Displays your active MPOB PalmNex account, company assignment, and access permissions.',
+                            side: 'bottom',
+                            align: 'start'
+                        }
+                    },
+                    {
+                        element: '#sp-company-stress-card',
+                        popover: {
+                            title: '5. Overall Nutrient & Canopy Stress Analytics',
+                            description: 'Inspect company-wide N, P, K, Mg, Ca, and B foliar levels, overall canopy stress percentage, and interactive block stress choropleth maps.',
+                            side: 'left',
+                            align: 'start'
+                        }
+                    },
+                    {
+                        element: '#sp-account-dropdown-wrap',
+                        popover: {
+                            title: '6. Account, History & Settings Menu',
+                            description: 'Hover over your account badge to open Profile, Prediction & Run History, System Settings, Organization & Estates, and Log Out.',
+                            side: 'bottom',
+                            align: 'end'
+                        }
+                    },
+                    {
+                        element: '.sp-top-nav-pills',
+                        popover: {
+                            title: '7. Click Any Dashboard to Continue!',
+                            description: 'Click Comprehensive Fert or Standard Fert in the top bar now to continue the interactive walkthrough on that page, or click End Tutorial at the bottom right anytime.',
+                            side: 'bottom',
+                            align: 'start'
+                        }
+                    }
+                ];
+            }
+
+            // Filter to only elements that exist and are visible on the current page
+            return candidateSteps.filter(step => {
+                if (!step.element) return true;
+                const el = document.querySelector(step.element);
+                return Boolean(el && el.offsetParent !== null);
+            }).map(step => {
+                const el = document.querySelector(step.element);
+                return {
+                    element: el || step.element,
+                    popover: step.popover
+                };
+            });
+        }
+
+        let _activeDriverInstance = null;
+
+        window.startPalmnexDriverTourForCurrentPage = function () {
+            try {
+                sessionStorage.setItem('palmnex_tour_active_v1', 'true');
+            } catch (e) {}
+
+            document.body.classList.add('sp-driver-tour-active');
+            const floatWrap = document.getElementById('sp-end-tutorial-floating-wrap');
+            if (floatWrap) floatWrap.classList.add('active');
+
+            ensureDriverJsLoaded((driverFn) => {
+                if (_activeDriverInstance && typeof _activeDriverInstance.destroy === 'function') {
+                    try { _activeDriverInstance.destroy(); } catch (e) {}
+                }
+                const steps = buildStepsForCurrentPage();
+                if (!steps.length) return;
+
+                _activeDriverInstance = driverFn({
+                    showProgress: true,
+                    animate: true,
+                    allowClose: true,
+                    overlayOpacity: 0.58,
+                    stagePadding: 8,
+                    stageRadius: 10,
+                    nextBtnText: 'Next →',
+                    prevBtnText: '← Previous',
+                    doneBtnText: 'Done (Page)',
+                    steps: steps,
+                    onDestroyed: () => {
+                        // Keep the bottom-right "End Tutorial" bar visible if palmnex_tour_active_v1 is still true
+                        // so the user can freely click Comprehensive / Standard / any page to continue the tour
+                        const stillActive = sessionStorage.getItem('palmnex_tour_active_v1') === 'true';
+                        if (!stillActive) {
+                            document.body.classList.remove('sp-driver-tour-active');
+                            if (floatWrap) floatWrap.classList.remove('active');
+                        }
+                    }
+                });
+                _activeDriverInstance.drive();
+            });
+        };
+
+        window.endPalmnexTutorial = function () {
+            try {
+                sessionStorage.removeItem('palmnex_tour_active_v1');
+            } catch (e) {}
+            if (_activeDriverInstance && typeof _activeDriverInstance.destroy === 'function') {
+                try { _activeDriverInstance.destroy(); } catch (e) {}
+                _activeDriverInstance = null;
+            }
+            document.body.classList.remove('sp-driver-tour-active');
+            const floatWrap = document.getElementById('sp-end-tutorial-floating-wrap');
+            if (floatWrap) floatWrap.classList.remove('active');
+        };
 
         window.openWalkthroughPromptModal = function () {
             const m = document.getElementById('manual-modal');
@@ -814,7 +1324,7 @@
             if (m) m.style.display = 'none';
 
             if (choice === 'yes') {
-                window.location.href = 'walkthrough.html';
+                window.startPalmnexDriverTourForCurrentPage();
             }
         };
 
@@ -1199,13 +1709,26 @@
                 if (typeof window.syncPalmnexSsoState === 'function') window.syncPalmnexSsoState(parsed);
                 if (typeof window.applyModuleAccessControl === 'function') window.applyModuleAccessControl(parsed);
 
-                // Auto-popup Walkthrough Tour prompt when opening the website (unless "Don't ask me again" is checked)
+                // If an interactive Driver.js tutorial is currently active across pages, automatically start the steps for this page
                 const pathLower = (window.location.pathname || '').toLowerCase();
-                const isHomeOrEntry = (pathLower === '/' || pathLower.endsWith('/index.html') || pathLower.endsWith('/development/') || !sessionStorage.getItem('palmnex_walkthrough_shown_this_session'));
-                const isWalkthroughPage = pathLower.includes('walkthrough.html');
+                const isHomePage = (
+                    pathLower === '/' ||
+                    pathLower.endsWith('/index.html') ||
+                    pathLower.endsWith('/development/') ||
+                    pathLower.endsWith('/reada-standalone/')
+                );
+                const isTourActive = sessionStorage.getItem('palmnex_tour_active_v1') === 'true';
                 const dontAsk = localStorage.getItem('palmnex_walkthrough_dont_ask_v1') === 'true';
-                if (!dontAsk && !isWalkthroughPage && isHomeOrEntry && typeof window.openWalkthroughPromptModal === 'function') {
-                    sessionStorage.setItem('palmnex_walkthrough_shown_this_session', 'true');
+
+                if (isTourActive && typeof window.startPalmnexDriverTourForCurrentPage === 'function') {
+                    setTimeout(() => {
+                        const authModal = document.getElementById('auth-modal');
+                        if (!authModal || authModal.style.display !== 'flex') {
+                            window.startPalmnexDriverTourForCurrentPage();
+                        }
+                    }, 380);
+                } else if (isHomePage && !dontAsk && typeof window.openWalkthroughPromptModal === 'function') {
+                    // Auto-popup Walkthrough Tour prompt ONLY on the Home page (unless "Don't ask me again" is checked)
                     setTimeout(() => {
                         const authModal = document.getElementById('auth-modal');
                         if (!authModal || authModal.style.display !== 'flex') {

@@ -3143,27 +3143,35 @@ function toggleSatDataMode(mode) {
                     <label class="ui-input-label">Select Map:</label>
                     <select class="ui-select-input" id="map-select-comp" onchange="onMapSelectChanged(this.value)">
                         <option value="" selected>-- Select Map Boundary --</option>
-                        <option value="boundary_mpob">Sabah Softwoods SSB</option>
-                        <option value="lahad_datu_combined">Lahad Datu - Boundary + 36 Trial Plots</option>
-                        <option value="seraya">Seraya with block boundary</option>
-                        <option value="agathis">Agathis</option>
-                        <option value="belian">Belian</option>
-                        <option value="binuang">Binuang</option>
-                        <option value="gaharu">Gaharu</option>
-                        <option value="kapur">Kapur</option>
-                        <option value="keruing">Keruing</option>
-                        <option value="menggaris">Menggaris</option>
-                        <option value="merbau">Merbau</option>
-                        <option value="ramin">Ramin</option>
-                        <option value="selanganbatu">Selangan Batu</option>
-                        <option value="sekinchan1poly">Sekinchan 1 Poly</option>
-                        <option value="jengka24">Ladang Jengka 24</option>
-                        <option value="jengka25">Ladang Jengka 25</option>
-                        <option value="kota_gelanggi5">Ladang Kota Gelanggi 5</option>
-                        <option value="ppptar">Ladang PPPTAR</option>
-                        <option value="geolocation_ish">GEOLOCATION ISH SPOC A7</option>
-                        <option value="polygon_ish">POLYGON ISH SPOC A7</option>
-                        <option value="soil_series">SOIL SERIES SPOC A7</option>
+                        <optgroup label="Benta Wawasan Sdn Bhd" data-company-group="benta">
+                            <option value="agathis">Agathis</option>
+                            <option value="belian">Belian</option>
+                            <option value="binuang">Binuang</option>
+                            <option value="gaharu">Gaharu</option>
+                            <option value="kapur">Kapur</option>
+                            <option value="keruing">Keruing</option>
+                            <option value="menggaris">Menggaris</option>
+                            <option value="merbau">Merbau</option>
+                            <option value="ramin">Ramin</option>
+                            <option value="selanganbatu">Selangan Batu</option>
+                            <option value="seraya">Seraya with block boundary</option>
+                        </optgroup>
+                        <optgroup label="FGV Holdings Berhad" data-company-group="fgv">
+                            <option value="jengka24">Ladang Jengka 24</option>
+                            <option value="jengka25">Ladang Jengka 25</option>
+                            <option value="kota_gelanggi5">Ladang Kota Gelanggi 5</option>
+                            <option value="ppptar">Ladang PPPTAR</option>
+                        </optgroup>
+                        <optgroup label="Sabah Softwoods Berhad" data-company-group="ssb">
+                            <option value="boundary_mpob">Sabah Softwoods SSB</option>
+                        </optgroup>
+                        <optgroup label="MPOB Research &amp; SPOC" data-company-group="mpob">
+                            <option value="lahad_datu_combined">Lahad Datu - Boundary + 36 Trial Plots</option>
+                            <option value="sekinchan1poly">Sekinchan 1 Poly</option>
+                            <option value="geolocation_ish">GEOLOCATION ISH SPOC A7</option>
+                            <option value="polygon_ish">POLYGON ISH SPOC A7</option>
+                            <option value="soil_series">SOIL SERIES SPOC A7</option>
+                        </optgroup>
                     </select>
                     <button id="delete-map-btn-comp" class="ui-delete-btn" style="display:none;" onclick="deleteCurrentMap()" title="Delete map">🗑️</button>
                 </div>
@@ -4798,13 +4806,19 @@ function toggleSatDataMode(mode) {
                         });
 
                         let baseName = window._UPLOADED_SHP_NAME || 'Uploaded_Estate';
-                        let customKey = 'custom_' + baseName.toLowerCase().replace(/[^a-z0-9]+/g, '_') + '_' + geojson.features.length + 'b';
-                        let mapDisplayName = `Custom: ${baseName} (${geojson.features.length} blocks)`;
+                        let matchedBuiltInKey = (typeof window.resolveBuiltInKeyFromNameOrKey === 'function')
+                            ? window.resolveBuiltInKeyFromNameOrKey(baseName)
+                            : '';
+                        let customKey = matchedBuiltInKey || ('custom_' + baseName.toLowerCase().replace(/[^a-z0-9]+/g, '_') + '_' + geojson.features.length + 'b');
+                        let mapDisplayName = matchedBuiltInKey ? baseName : `Custom: ${baseName} (${geojson.features.length} blocks)`;
                         geojson.mapName = mapDisplayName;
                         REAL_MAPS_DATA[customKey] = geojson;
+                        if (typeof window.registerClientUploadedEstate === 'function') {
+                            window.registerClientUploadedEstate(customKey);
+                        }
                         if (typeof window.saveCustomMapToSupabase === 'function') {
                             window.saveCustomMapToSupabase(customKey, mapDisplayName, geojson).then(savedKey => {
-                                if (savedKey && savedKey !== customKey) {
+                                if (savedKey && savedKey !== customKey && !matchedBuiltInKey) {
                                     REAL_MAPS_DATA[savedKey] = geojson;
                                 }
                             });
@@ -4815,6 +4829,10 @@ function toggleSatDataMode(mode) {
                         window.DYNAMIC_PREDICTION_RASTERS = null;
                         window.DYNAMIC_PREDICTION_GRIDS = null;
 
+                        if (typeof window.applyCompanyEstateIsolation === 'function') {
+                            window.applyCompanyEstateIsolation();
+                        }
+
                         ['map-select-comp', 'map-select-std', 'map-select-kpsm'].forEach(selectId => {
                             let select = document.getElementById(selectId);
                             if (select) {
@@ -4822,9 +4840,12 @@ function toggleSatDataMode(mode) {
                                 if (!existingOpt) {
                                     existingOpt = document.createElement('option');
                                     existingOpt.value = customKey;
-                                    select.appendChild(existingOpt);
+                                    existingOpt.innerText = mapDisplayName;
+                                    const firstGrp = select.querySelector('optgroup');
+                                    if (firstGrp) firstGrp.appendChild(existingOpt);
+                                    else select.appendChild(existingOpt);
                                 }
-                                existingOpt.innerText = mapDisplayName;
+                                existingOpt.disabled = false;
                                 existingOpt.selected = true;
                                 select.value = customKey;
                             }
