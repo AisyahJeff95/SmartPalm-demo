@@ -178,7 +178,7 @@ function ensureAuthModalEnhancements() {
                                 <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
                                 <circle cx="12" cy="7" r="4"></circle>
                             </svg>
-                            <input type="text" id="signin-email" required placeholder="e.g. benta1@palmnex.com.my or admin1" value="" class="sp-sched-input" style="height: 48px; font-size: 14.5px; width: 100%; padding-left: 42px; padding-right: 14px; background: #0c1017; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; color: #f8fafc;" />
+                            <input type="text" id="signin-email" required placeholder="Enter your username or email" value="" class="sp-sched-input" style="height: 48px; font-size: 14.5px; width: 100%; padding-left: 42px; padding-right: 14px; background: #0c1017; border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; color: #f8fafc;" />
                         </div>
                     </div>
 
@@ -235,13 +235,13 @@ function ensureAuthModalEnhancements() {
         authDiv = document.createElement('div');
         authDiv.id = 'auth-modal';
         authDiv.className = 'modal-overlay';
-        authDiv.setAttribute('data-portal-v5', 'true');
+        authDiv.setAttribute('data-portal-v6', 'true');
         authDiv.style.cssText = 'display: none; flex-direction: row; align-items: stretch; justify-content: flex-start; z-index: 9999999; position: fixed; inset: 0; background: #0c1017; padding: 0;';
         authDiv.innerHTML = portalInnerMarkup;
         document.body.appendChild(authDiv);
-    } else if (!authDiv.hasAttribute('data-portal-v5')) {
+    } else if (!authDiv.hasAttribute('data-portal-v6')) {
         const wasOpen = authDiv.style.display === 'flex';
-        authDiv.setAttribute('data-portal-v5', 'true');
+        authDiv.setAttribute('data-portal-v6', 'true');
         authDiv.style.cssText = `display: ${wasOpen ? 'flex' : 'none'}; flex-direction: row; align-items: stretch; justify-content: flex-start; z-index: 9999999; position: fixed; inset: 0; background: #0c1017; padding: 0;`;
         authDiv.innerHTML = portalInnerMarkup;
     }

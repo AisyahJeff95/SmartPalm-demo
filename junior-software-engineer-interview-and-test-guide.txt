@@ -1,0 +1,339 @@
+===============================================================================
+PALMNEX SMARTPALM & PALMNEXREADS
+JUNIOR SOFTWARE ENGINEER — INTERVIEW QUESTIONS & 1-HOUR PRACTICAL TEST GUIDE
+===============================================================================
+
+OVERVIEW (IN SIMPLE TERMS)
+-------------------------------------------------------------------------------
+What kind of test is this?
+It is a "Mini Plantation Dashboard Coding Test" (1-Hour Hands-On Web & Map
+Practical Assessment).
+
+Instead of asking textbook theory, the candidate is given a simplified 1-page
+version of a plantation dashboard (`candidate_test.html`) that is half-finished
+and asked to complete 4 real-world tasks in 60 minutes:
+
+1. User Access Control (Who Can See What):
+   Make the estate dropdown smart so a Client (`client1`) can only select their
+   own estate (`Estate Alpha`), sees other estates from the same company greyed
+   out, and cannot see other companies at all — while the Master Admin (`admin`)
+   can see and select everything.
+
+2. Interactive Map Clicking:
+   Make the map polygons clickable so when a user clicks a plantation block on
+   the map (e.g. "Block 19A"), the block highlights and the sidebar displays
+   that block's Name, Area (Ha), and N, P, K nutrient numbers.
+
+3. Saving Client Data for the Admin:
+   Make the "Save this information" button work so when a Client enters their
+   fertilizer dosage and notes and clicks Save, the data is stored — and when
+   switched to the Admin account (`admin`), the Admin automatically sees the
+   Client's saved message.
+
+4. Admin Report Validation & UI Styling:
+   Ensure the Admin sees the "Generate Report" button (hidden from Clients),
+   and if the Admin clicks it without selecting a block on the map first, show
+   a warning alert.
+
+One-Sentence Description for HR / Management / Candidate:
+"It is a 1-hour hands-on HTML/JavaScript/Leaflet Map practical test where the
+candidate completes a miniature version of our plantation dashboard (map
+interaction, client vs. admin permissions, and saving form data)."
+
+
+===============================================================================
+PART 1: ALL-ROUNDER INTERVIEW QUESTIONS (30 - 40 MINUTES)
+===============================================================================
+
+SECTION A: FRONTEND & INTERACTIVE GIS MAPPING (HTML / CSS / JS / LEAFLET)
+-------------------------------------------------------------------------------
+Q1: "In our dashboard, users upload estate boundary files (.shp / GeoJSON) and
+    click individual blocks on a map to view nutrient levels. Have you worked
+    with Leaflet, Mapbox, or GeoJSON before? If not, how would you approach
+    rendering polygons on a map and updating a sidebar when a polygon is
+    clicked?"
+    * What to listen for:
+      - Parsing the file into JSON/GeoJSON and adding a layer to the map.
+      - Attaching a click event listener to each polygon feature (`onEachFeature`).
+      - Storing the selected block in a variable/state and updating the sidebar
+        DOM elements (`getElementById` / `textContent`).
+
+Q1 Follow-up: "What happens if a client uploads a shapefile from Sabah/Sarawak
+    and the blocks appear in the middle of the sea instead of on land?"
+    * What to listen for:
+      - Recognizes it as a Coordinate Reference System (CRS) / map projection
+        mismatch (e.g. local meter projection vs. WGS84 Lat/Lng EPSG:4326, or
+        swapped `[lng, lat]` vs `[lat, lng]` coordinates).
+
+Q2: "Sometimes we hide options in a native `<select>` dropdown using CSS
+    `display: none`, and it works on Windows Chrome but still shows up on Mac
+    Safari/Chrome. Why does that happen, and how would you fix it?"
+    * What to listen for:
+      - macOS uses native OS menus for `<select>` elements which ignore CSS
+        `display: none` on `<option>` and `<optgroup>`.
+      - Fix: Dynamically remove/re-insert the DOM nodes in JavaScript, or use
+        the `disabled` attribute to grey out options.
+
+
+SECTION B: DATABASE, AUTHENTICATION & MULTI-COMPANY SECURITY (SUPABASE / SQL)
+-------------------------------------------------------------------------------
+Q3: "We have multiple plantation companies (e.g., Company A, Company B) logging
+    into the same web app, plus a Master Admin who can see everything. How
+    would you design the database table and user permissions so `client1` can
+    only see their own data, while `admin` sees all companies?"
+    * What to listen for:
+      - A `profiles` / `users` table storing `role` / `access_tier` (Admin vs
+        Client), `company_code`, and a private `storage_group` or `user_id`.
+      - Filtering queries by user/company AND enforcing Supabase Row-Level
+        Security (RLS) policies so data isolation is protected at the database
+        level, not just hidden on the frontend.
+
+Q4: "When a client fills in fertilizer dosage and block notes and clicks 'Save',
+    how do you make sure the Master Admin sees those exact inputs automatically
+    when the Admin selects that estate later?"
+    * What to listen for:
+      - Saving (`upsert`) a structured JSON payload keyed by `estate_key` and
+        `storage_group` into the database.
+      - Triggering an `async/await` fetch when the Admin selects the estate in
+        the dropdown to auto-populate the form inputs.
+
+
+SECTION C: PYTHON BACKEND, SATELLITE DATA & AI/ML PIPELINE
+-------------------------------------------------------------------------------
+Q5: "Our backend runs a Python script that takes an estate boundary and date,
+    processes Sentinel-2 satellite bands using a Random Forest model
+    (`scikit-learn`), and outputs nutrient heatmap images (`.png` / `.tif`).
+    How comfortable are you with Python (`numpy`, `pandas`, `scikit-learn`,
+    `Flask` / `FastAPI`)?"
+    * What to listen for:
+      - Can explain how a Python API endpoint receives a `POST` request with
+        JSON parameters (`estate_name`, `date`, `bounds`), runs the model, and
+        returns base64 image overlays or file URLs back to the frontend.
+
+Q6: "A satellite prediction takes 15-25 seconds to finish running in Python.
+    How do you design the frontend so the user doesn't think the website is
+    frozen or click the 'Run Prediction' button 10 times?"
+    * What to listen for:
+      - Disabling the button immediately while running.
+      - Showing a progress bar / live status modal with step updates.
+      - Using `AbortController` to allow cancelling the request cleanly.
+      - Handling timeouts or network errors with `try / catch` and `finally`.
+
+
+SECTION D: DEBUGGING, DEPLOYMENT & DAILY WORKFLOW (GIT / CLOUD)
+-------------------------------------------------------------------------------
+Q7: "Imagine I message you: 'The Run Prediction button works on my laptop
+    (`localhost`), but when deployed to our live site, nothing happens when I
+    click it.' Walk me through step-by-step how you would debug this."
+    * What to listen for:
+      1. Open Chrome DevTools (Console and Network tabs).
+      2. Check for JS syntax errors, CORS errors, Mixed Content blocks (`https`
+         frontend calling `http://localhost`), or 404/500 API errors.
+      3. Check the cloud backend server logs (e.g. Hugging Face Spaces logs).
+
+Q8: "We maintain a `development/` folder and a production root folder in Git.
+    How do you make sure your changes don't accidentally overwrite my work or
+    break the live demo before an important presentation?"
+    * What to listen for:
+      - Making and testing edits in `development/` first.
+      - Checking `git status` and `git diff` before committing.
+      - Verifying zero syntax/console errors before syncing to production files.
+
+
+SECTION E: ATTITUDE & ATTENTION TO DETAIL
+-------------------------------------------------------------------------------
+Q9: "A lot of our tasks involve translating agronomic or client requests (like
+    moving UI cards, generating PDF reports, or fixing map legends) into
+    working code quickly. When I give you a screenshot with 3 UI changes, how
+    do you make sure you don't miss any detail?"
+    * What to listen for:
+      - Turns the request into a checklist, tests both Client View and Admin
+        View before marking as done, and verifies visual alignment.
+
+
+===============================================================================
+PART 2: 1-HOUR IN-OFFICE PRACTICAL CODING TEST (100 POINTS TOTAL)
+===============================================================================
+
+CANDIDATE INSTRUCTIONS (GIVE THIS TO THE CANDIDATE)
+-------------------------------------------------------------------------------
+Duration : 60 Minutes
+File     : Open `candidate_test.html` in VS Code and Google Chrome.
+Allowed  : You may use Google / Leaflet documentation / MDN docs.
+
+Please complete the following 4 tasks inside `candidate_test.html`:
+
+Task 1: Role-Based Dropdown Isolation (25 Points | ~15 mins)
+- When the Active Account is switched (`#user-select`):
+  * If `client1` (Client) is selected:
+    1) Completely hide/remove `<optgroup>` sections belonging to OTHER
+       companies (e.g. Company B Plantations).
+    2) Under Company A Estates, keep `Estate Alpha` enabled (`disabled = false`),
+       and grey out (`disabled = true`) `Estate Beta` and `Estate Gamma`.
+  * If `admin` (Master Admin) is selected:
+    1) Restore and enable ALL companies and ALL estates in `#estate-select`.
+
+Task 2: Interactive Block Selection & Sidebar Sync (25 Points | ~15 mins)
+- In the Leaflet `L.geoJSON` layer (`onEachFeature`):
+  * When a user clicks a block polygon on the map:
+    1) Highlight the clicked polygon border/fill (e.g. yellow `#fde047`) and
+       reset the other polygon to its default style.
+    2) Update `#selected-block-name` to show the clicked block's `name` and
+       `areaHa` (e.g. "Selected Block: Block 19A (28.4 Ha)").
+    3) Update `#val-n`, `#val-p`, and `#val-k` with the block's `n`, `p`, and
+       `k` values.
+
+Task 3: Client vs. Admin View & Save Logic (30 Points | ~20 mins)
+- When `client1` (Client View) is active:
+  * Show `#btn-save-client` ("Save this information") and hide
+    `#btn-generate-report`.
+  * Set `#remarks-title` text to "Client Notes / Remarks" and make
+    `#remarks-input` editable (`readOnly = false`).
+  * Clicking "Save this information" (`saveClientData()`) should save the
+    selected estate, `dosage`, `remarks`, and `selectedBlock` into
+    `localStorage` and show an alert:
+    "Your information is saved in the database for report production."
+- When `admin` (Admin View) is active:
+  * Hide `#btn-save-client` and show `#btn-generate-report`.
+  * Set `#remarks-title` text to "Message from Client" and make
+    `#remarks-input` read-only (`readOnly = true`).
+  * Automatically load the saved client data from `localStorage` into
+    `#dosage-input` and `#remarks-input`. If the client left no remarks,
+    display: "no specific blocks grouping desired by client. Please proceed
+    to generate overall estate report."
+
+Task 4: Report Validation & UI Polish (20 Points | ~10 mins)
+- When `admin` clicks "Generate Report (Admin Only)" (`generateAdminReport()`):
+  * If no block has been clicked on the map yet (`selectedBlock === null`),
+    show a warning alert: "Please click a block on the map first before
+    generating the report."
+  * Still allow the Admin to click any block on the map even if the client did
+    not select one.
+  * If a block is selected, show a summary alert with the Estate, Block Name,
+    N/P/K values, Dosage, and Message from Client.
+
+
+GRADING RUBRIC (5-MINUTE EVALUATION AFTER THE TEST)
+-------------------------------------------------------------------------------
+* 80 - 100 pts (Strong Hire):
+  Completed all 4 tasks; dropdown isolation works cleanly when switching
+  between `client1` and `admin`, clicking map polygons highlights them and
+  updates the sidebar, and `localStorage` saves/loads properly.
+* 60 - 79 pts (Hire / Trainable Junior):
+  Completed Tasks 1, 2, and most of Task 3; knows how to use Chrome DevTools
+  (`Console`) to debug and writes clean, readable code.
+* Below 50 pts (Pass / Do Not Hire):
+  Struggles with basic JavaScript `document.getElementById`, event listeners,
+  or cannot figure out how to use Leaflet's `layer.on('click')` within an hour.
+
+
+===============================================================================
+PART 3: STARTER CODE TO SAVE AS `candidate_test.html`
+===============================================================================
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Junior Engineer Practical Test (60 Mins)</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <style>
+    body { margin: 0; font-family: system-ui, sans-serif; background: #0f131a; color: #f8fafc; display: flex; height: 100vh; }
+    .sidebar { width: 360px; padding: 16px; background: #141821; border-right: 1px solid rgba(255,255,255,0.1); overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+    .ui-card { background: #1c222e; border: 1px solid rgba(255,255,255,0.12); border-radius: 12px; padding: 12px; }
+    .ui-label { font-size: 13px; font-weight: 700; margin-bottom: 8px; display: block; }
+    select, input, textarea, button { width: 100%; box-sizing: border-box; padding: 8px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: #0f131a; color: #fff; font-size: 13px; margin-top: 4px; }
+    button { background: #10b981; border: none; font-weight: 700; cursor: pointer; margin-top: 10px; }
+    #map { flex: 1; height: 100vh; }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <!-- User Switcher (Simulates Login) -->
+    <div class="ui-card">
+      <label class="ui-label">Active Account (Switch to test Role UI)</label>
+      <select id="user-select" onchange="onUserChanged()">
+        <option value="client1">Client: client1@example.com (Owns: Estate Alpha)</option>
+        <option value="admin">Admin: admin@example.com (Master Admin)</option>
+      </select>
+    </div>
+
+    <!-- TASK 1: Filter this dropdown by company & estate ownership -->
+    <div class="ui-card">
+      <label class="ui-label">Select Map</label>
+      <select id="estate-select">
+        <option value="">-- Choose an Estate --</option>
+        <optgroup label="Company A Estates" data-company="company_a">
+          <option value="estate_alpha">Estate Alpha</option>
+          <option value="estate_beta">Estate Beta</option>
+          <option value="estate_gamma">Estate Gamma</option>
+        </optgroup>
+        <optgroup label="Company B Plantations" data-company="company_b">
+          <option value="estate_delta">Estate Delta</option>
+          <option value="estate_epsilon">Estate Epsilon</option>
+        </optgroup>
+      </select>
+    </div>
+
+    <!-- TASK 2: Update these values when a block polygon is clicked -->
+    <div class="ui-card">
+      <label class="ui-label">Nutrient Level Detection</label>
+      <div id="selected-block-name" style="font-size:12px; color:#94a3b8; margin-bottom:6px;">Selected Block: None</div>
+      <div style="display:flex; justify-content:space-between; font-size:13px;">
+        <span>N: <strong id="val-n">--</strong>%</span>
+        <span>P: <strong id="val-p">--</strong>%</span>
+        <span>K: <strong id="val-k">--</strong>%</span>
+      </div>
+    </div>
+
+    <!-- TASK 3 & 4: Client vs Admin View & Save to localStorage -->
+    <div class="ui-card" id="grouping-card">
+      <label class="ui-label" id="remarks-title">Client Notes / Remarks</label>
+      <input type="number" id="dosage-input" placeholder="Current Dosage (kg/palm/yr)" />
+      <textarea id="remarks-input" rows="3" placeholder="Enter block grouping notes..."></textarea>
+      <button id="btn-save-client" onclick="saveClientData()">Save this information</button>
+      <button id="btn-generate-report" onclick="generateAdminReport()" style="background:#2563eb; display:none;">Generate Report (Admin Only)</button>
+    </div>
+  </div>
+
+  <div id="map"></div>
+
+  <script>
+    const map = L.map('map').setView([4.729, 117.520], 14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    const SAMPLE_BLOCKS = {
+      type: "FeatureCollection",
+      features: [
+        { type: "Feature", properties: { name: "Block 19A", areaHa: 28.4, n: 2.54, p: 0.16, k: 1.08 },
+          geometry: { type: "Polygon", coordinates: [[[117.515, 4.725], [117.522, 4.725], [117.522, 4.732], [117.515, 4.732], [117.515, 4.725]]] } },
+        { type: "Feature", properties: { name: "Block 20B", areaHa: 34.1, n: 2.18, p: 0.13, k: 0.82 },
+          geometry: { type: "Polygon", coordinates: [[[117.523, 4.725], [117.530, 4.725], [117.530, 4.732], [117.523, 4.732], [117.523, 4.725]]] } }
+      ]
+    };
+
+    let selectedBlock = null;
+    L.geoJSON(SAMPLE_BLOCKS, {
+      onEachFeature: (feature, layer) => {
+        // TODO (Candidate Task 2): Add click handler to highlight clicked block and update #selected-block-name, #val-n, #val-p, #val-k
+      }
+    }).addTo(map);
+
+    function onUserChanged() {
+      // TODO (Candidate Task 1 & 3):
+      // 1. Filter #estate-select based on whether user is 'client1' or 'admin'
+      // 2. Toggle Client View vs Admin View (#btn-save-client vs #btn-generate-report, readOnly remarks, etc.)
+    }
+
+    function saveClientData() {
+      // TODO (Candidate Task 3): Save dosage, remarks, and selectedBlock to localStorage and alert confirmation
+    }
+
+    function generateAdminReport() {
+      // TODO (Candidate Task 4): Alert error if no block is selected; otherwise show summary report alert
+    }
+  </script>
+</body>
+</html>
+===============================================================================
