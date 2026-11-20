@@ -148,12 +148,11 @@ function ensureAuthModalEnhancements() {
             </div>
         </aside>
 
-        <!-- Right Main Area: Animated Satellite Oil Palm Plantation Movie Backdrop & Centered Account Access Card -->
-        <div style="flex: 1; height: 100vh; position: relative; display: flex; align-items: center; justify-content: center; padding: 32px; background: linear-gradient(135deg, rgba(8, 12, 20, 0.34) 0%, rgba(10, 15, 24, 0.44) 100%), url('login-bg.jpg') center/cover no-repeat; overflow-y: auto; overflow-x: hidden;">
-            <video autoplay loop muted playsinline poster="login-bg.jpg" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; pointer-events: none;">
-                <source src="login-bg.mp4" type="video/mp4" />
-            </video>
-            <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(8, 12, 20, 0.30) 0%, rgba(10, 15, 24, 0.42) 100%); z-index: 1; pointer-events: none;"></div>
+        <!-- Right Main Area: Animated AI Neural Network Oil Palm Backdrop & Centered Account Access Card -->
+        <div style="flex: 1; height: 100vh; position: relative; display: flex; align-items: center; justify-content: center; padding: 32px; background: #04130d url('/neural_network_loop_poster.jpg') center/cover no-repeat; overflow-y: auto; overflow-x: hidden;">
+            <style>.palmnex-login-bg-video::-webkit-media-controls,.palmnex-login-bg-video::-webkit-media-controls-start-playback-button,.palmnex-login-bg-video::-webkit-media-controls-overlay-play-button{display:none!important;-webkit-appearance:none!important;opacity:0!important;pointer-events:none!important}</style>
+            <video class="palmnex-login-bg-video" autoplay loop muted playsinline webkit-playsinline preload="auto" disablepictureinpicture disableremoteplayback poster="/neural_network_loop_poster.jpg" src="/neural_network_loop_720p.mp4" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; pointer-events: none;"></video>
+            <div style="position: absolute; inset: 0; background: linear-gradient(135deg, rgba(6, 16, 14, 0.28) 0%, rgba(8, 14, 22, 0.40) 100%); z-index: 1; pointer-events: none;"></div>
             <div class="modal-content" style="max-width: 480px; width: 100%; background: rgba(18, 24, 36, 0.94); backdrop-filter: blur(8px); color: #f8fafc; border: 1px solid rgba(255,255,255,0.12); border-radius: 18px; padding: 42px 40px 32px 40px; position: relative; z-index: 2; box-shadow: 0 28px 72px rgba(0,0,0,0.68); font-family: 'Inter', sans-serif;">
                 <button type="button" id="auth-modal-close-btn" style="position: absolute; top: 20px; right: 20px; background: none; border: none; font-size: 20px; color: #94a3b8; cursor: pointer;" onclick="closeAuthModal()" title="Close">✕</button>
 
@@ -1733,6 +1732,27 @@ function openAuthModal(defaultTab = 'signin') {
         }
         switchAuthTab(defaultTab || 'signin');
         renderAuthModalSessionBanner();
+        const bgVid = modal.querySelector('.palmnex-login-bg-video');
+        if (bgVid) {
+            bgVid.muted = true;
+            bgVid.defaultMuted = true;
+            bgVid.loop = true;
+            bgVid.playsInline = true;
+            bgVid.setAttribute('playsinline', '');
+            bgVid.setAttribute('webkit-playsinline', '');
+            const kick = () => {
+                bgVid.muted = true;
+                const p = bgVid.play();
+                if (p && typeof p.catch === 'function') p.catch(() => {});
+            };
+            kick();
+            if (!bgVid.dataset.boundLoop) {
+                bgVid.dataset.boundLoop = '1';
+                ['loadeddata', 'canplay'].forEach(ev => bgVid.addEventListener(ev, kick, { passive: true }));
+                bgVid.addEventListener('ended', () => { bgVid.currentTime = 0; kick(); });
+                document.addEventListener('visibilitychange', () => { if (!document.hidden && modal.style.display !== 'none') kick(); });
+            }
+        }
     }
 }
 
