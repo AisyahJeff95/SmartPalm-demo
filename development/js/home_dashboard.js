@@ -1714,7 +1714,7 @@
                 : `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg>`;
 
             return `
-                <a href="${item.href}" class="sp-notif-dd-item ${item.unread ? 'unread' : ''}" onclick="handleNotifItemClick(event, '${item.id}', '${item.href}')">
+                <a href="${item.href}" target="_blank" rel="noopener noreferrer" class="sp-notif-dd-item ${item.unread ? 'unread' : ''}" onclick="handleNotifItemClick(event, '${item.id}', '${item.href}')">
                     <div class="sp-notif-dd-icon ${item.type}">
                         ${iconSvg}
                     </div>
@@ -1742,12 +1742,13 @@
     };
 
     window.handleNotifItemClick = function (event, notifId, targetHref) {
+        if (event) event.preventDefault();
         const readSet = getReadNotifSet();
         readSet.add(notifId);
         saveReadNotifSet(readSet);
         renderTopNotifDropdown();
         if (targetHref) {
-            window.location.href = targetHref;
+            window.open(targetHref, '_blank', 'noopener');
         }
     };
 

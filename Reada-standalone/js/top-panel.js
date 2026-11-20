@@ -253,7 +253,7 @@
                     return;
                 }
             }
-            window.location.href = `notifications.html?id=${encodeURIComponent(notifId)}`;
+            window.open(`notifications.html?id=${encodeURIComponent(notifId)}`, '_blank', 'noopener');
         };
     }
 
@@ -641,7 +641,7 @@
                 </div>
             </div>
             <div class="sp-acc-dd-menu">
-                <a href="profile.html" class="sp-acc-dd-item" onclick="window.closeAccountDropdown()">
+                <a href="profile.html" target="_blank" rel="noopener noreferrer" class="sp-acc-dd-item" onclick="window.closeAccountDropdown()">
                     <span class="sp-acc-dd-item-icon">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                     </span>
@@ -650,7 +650,7 @@
                         <span class="sp-acc-dd-item-sub">Account details, role &amp; security</span>
                     </span>
                 </a>
-                <a href="notifications.html?filter=runs" class="sp-acc-dd-item" onclick="window.closeAccountDropdown()">
+                <a href="notifications.html?filter=runs" target="_blank" rel="noopener noreferrer" class="sp-acc-dd-item" onclick="window.closeAccountDropdown()">
                     <span class="sp-acc-dd-item-icon">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                     </span>
@@ -1858,7 +1858,7 @@
                 resultsBox.innerHTML = `<div class="sp-search-result-item" style="color:#94a3b8;">No matching estate found</div>`;
             } else {
                 resultsBox.innerHTML = matches.map(e => `
-                    <div class="sp-search-result-item" onclick="window.location.href='index.html?estate=${encodeURIComponent(e.key)}'">
+                    <div class="sp-search-result-item" onclick="window.open('index.html?estate=${encodeURIComponent(e.key)}', '_blank', 'noopener')">
                         <span><b>${e.name}</b> <span style="color:#94a3b8;font-size:11px;">(${e.state})</span></span>
                         <span style="color:#34d399;font-weight:700;">${e.blocksCount} blk</span>
                     </div>
@@ -1875,8 +1875,40 @@
         });
     }
 
+    // Ensure all Top Bar Pills, KPSM Dropdown items, Left Sidebar navigation items, Account Dropdown links,
+    // and Notification links open in a new tab (_blank) so current dashboard prediction progress is never lost.
+    function enforceNewTabNavigationLinks() {
+        const navSelectors = [
+            '.sp-top-nav-pills a',
+            '#sp-top-kpsm-dropdown a',
+            '.cms-sidebar .cms-nav a',
+            '#sp-top-account-dropdown a',
+            '#sp-top-notif-dropdown a'
+        ];
+        document.querySelectorAll(navSelectors.join(', ')).forEach(a => {
+            const href = a.getAttribute('href');
+            if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
+            a.setAttribute('target', '_blank');
+            a.setAttribute('rel', 'noopener noreferrer');
+        });
+
+        // Also update the Left Sidebar "KPSM System" main row onclick so clicking outside the caret opens kpsm-home.html in a new tab
+        document.querySelectorAll('.cms-sidebar .cms-nav-group > .cms-nav-item').forEach(kpsmRow => {
+            kpsmRow.onclick = function (event) {
+                if (event && event.target && event.target.closest('.kpsm-caret')) {
+                    const el = document.getElementById('kpsm-sub-menu');
+                    if (el) el.style.display = (el.style.display === 'none' ? 'flex' : 'none');
+                } else {
+                    window.open('kpsm-home.html', '_blank', 'noopener');
+                }
+            };
+        });
+    }
+    window.enforceNewTabNavigationLinks = enforceNewTabNavigationLinks;
+
     document.addEventListener('DOMContentLoaded', () => {
         ensureTopPanelModals();
+        enforceNewTabNavigationLinks();
         renderTopNotificationDropdownShared();
         bindSharedTopSearch();
 
