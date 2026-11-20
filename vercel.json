@@ -132,11 +132,15 @@
     },
     {
       "source": "/demo",
-      "destination": "/Reada-standalone/index.html"
+      "destination": "/Reada-standalone/command-center.html"
     },
     {
       "source": "/demo/index",
-      "destination": "/Reada-standalone/index.html"
+      "destination": "/Reada-standalone/command-center.html"
+    },
+    {
+      "source": "/demo/index.html",
+      "destination": "/Reada-standalone/command-center.html"
     },
     {
       "source": "/demo/(.*)",
@@ -144,7 +148,15 @@
     },
     {
       "source": "/",
-      "destination": "/Reada-standalone/index.html"
+      "destination": "/Reada-standalone/command-center.html"
+    },
+    {
+      "source": "/index",
+      "destination": "/Reada-standalone/command-center.html"
+    },
+    {
+      "source": "/index.html",
+      "destination": "/Reada-standalone/command-center.html"
     },
     {
       "source": "/comprehensive",

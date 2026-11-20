@@ -102,6 +102,18 @@
     {
       "source": "/reada.html",
       "destination": "/palmnexreads/index.html"
+    },
+    {
+      "source": "/",
+      "destination": "/command-center.html"
+    },
+    {
+      "source": "/index",
+      "destination": "/command-center.html"
+    },
+    {
+      "source": "/index.html",
+      "destination": "/command-center.html"
     }
   ],
   "headers": [
