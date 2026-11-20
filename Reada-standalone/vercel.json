@@ -10,7 +10,7 @@
           "value": "demo.palmnex.com.my"
         }
       ],
-      "destination": "https://app.palmnex.com.my/$1",
+      "destination": "https://oilpalm.palmnex.com.my/$1",
       "permanent": false
     }
   ],

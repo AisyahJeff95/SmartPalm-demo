@@ -305,7 +305,7 @@ function clearPalmnexSsoState() {
     } catch (e) {}
 }
 
-// Append SSO handoff query parameters to all PalmNexReaDS links on the page (app.palmnex.com.my/PalmnexReaDS)
+// Append SSO handoff query parameters to all PalmNexReaDS links on the page (oilpalm.palmnex.com.my/PalmnexReaDS)
 function decoratePalmnexReadsLinks(ssoUser) {
     const u = ssoUser || currentUser || { username: 'Admin', company: 'Palmnex Sdn Bhd', email: 'admin1@palmnex.com.my' };
     const rawName = u.username || u.user_metadata?.full_name || (u.email ? u.email.split('@')[0] : 'Admin');
@@ -321,10 +321,11 @@ function decoratePalmnexReadsLinks(ssoUser) {
                 pathLower.includes('palmnexreads') ||
                 pathLower.includes('/reada') ||
                 url.hostname === 'www.palmnex.com.my' ||
-                url.hostname === 'palmnex.com.my'
+                url.hostname === 'palmnex.com.my' ||
+                url.hostname === 'oilpalm.palmnex.com.my'
             ) {
                 url.searchParams.set('sso', '1');
-                url.searchParams.set('from', 'app');
+                url.searchParams.set('from', 'oilpalm');
                 url.searchParams.set('user', rawName);
                 url.searchParams.set('company', company);
                 // Keep relative path if originally relative to current origin
