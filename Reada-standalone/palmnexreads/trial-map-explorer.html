@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base href="/palmnexreads/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=3">
+  <link rel="icon" href="/favicon.ico?v=3" sizes="any">
+  <link rel="apple-touch-icon" sizes="128x128" href="/favicon.png?v=3">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trial Plots GIS Map Explorer — PalmnexReaDS · MPOB</title>
+  
+  <!-- Primary Palmnex Design System CSS -->
+  <link rel="stylesheet" href="assets/css/reada.css">
+  
+  <!-- Leaflet CSS for High-Resolution Satellite Map Engine -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+</head>
+<body class="map-page-body">
+
+  <!-- ================= Top Navigation Bar ================= -->
+  <header class="map-navbar">
+    <a href="home.html" class="map-nav-brand" title="Return to PalmnexReaDS Home">
+      <img src="assets/img/palmnex-logo.png" alt="Palmnex Logo" class="map-nav-logo">
+      <div>
+        <div class="map-nav-title">PalmnexReaDS <span style="color: #4ade80; font-size: 0.85em; font-weight: 500;">· Trial Plots GIS Explorer</span></div>
+        <div class="map-nav-subtitle">MPOB Agronomy Research Stations &amp; Satellite Canopy Geolocation</div>
+      </div>
+    </a>
+
+    <div class="map-nav-tools">
+      <!-- Polygon Boundary Drawing Button -->
+      <button type="button" class="map-btn map-btn-primary" onclick="window.trialMapController.startDrawingMode()" title="Draw custom trial block boundaries directly on the satellite canopy">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+        <span>Draw Boundary (Polygon)</span>
+      </button>
+
+      <!-- Shapefile / DBF Upload Button -->
+      <button type="button" class="map-btn map-btn-accent" onclick="window.trialMapController.openUploadModal()" title="Upload ESRI Shapefile (.shp, .dbf, .zip) or GeoJSON">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span>Upload Shapefile / DBF</span>
+      </button>
+
+      <!-- Export Boundaries Button -->
+      <button type="button" class="map-btn" onclick="window.trialMapController.exportBoundariesCSV()" title="Export drawn or imported boundaries as CSV">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span>Export Boundaries (.CSV)</span>
+      </button>
+
+      <!-- Return to ReaDA System -->
+      <a href="list-available-data.html" class="map-btn" style="background: rgba(255, 255, 255, 0.12);" title="Back to ReaDA Trial List">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+        <span>Back to ReaDA</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- ================= Split Screen Layout ================= -->
+  <div class="map-explorer-layout">
+    
+    <!-- LEFT SIDEBAR: List of Available Trials & Search -->
+    <aside class="map-sidebar">
+      
+      <div class="map-sidebar-header">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+          <span style="font-size: 0.82rem; font-weight: 700; color: #0f172a; text-transform: uppercase; letter-spacing: 0.04em;">
+            Available Trials
+          </span>
+          <span id="map-trial-count-badge" style="font-size: 0.68rem; font-weight: 700; background: #e2e8f0; color: #334155; padding: 2px 7px; border-radius: 10px;">
+            10 Trials
+          </span>
+        </div>
+
+        <!-- Search Input -->
+        <div class="map-sidebar-search-box">
+          <svg class="map-sidebar-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="map-search-input" class="map-sidebar-search-input" placeholder="Filter trials by code, estate, year...">
+        </div>
+
+        <!-- Add New Trial Notice Banner (Explicit user requirement) -->
+        <div class="map-add-trial-notice">
+          <svg class="map-notice-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div class="map-notice-content">
+            <div class="map-notice-title">Adding a New Trial?</div>
+            <div class="map-notice-text">
+              To register or add a new agronomic trial, please open the <strong>Main Information</strong> tab.
+            </div>
+            <a href="trial-main-info.html" target="_blank" class="map-notice-link-btn" title="Open Main Information form in new tab">
+              <span>Go to Main Information</span>
+              <span style="font-size: 0.75em;">↗</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scrollable List of Trials -->
+      <div id="map-trials-list" class="map-trials-list">
+        <!-- Rendered dynamically by trial-map.js -->
+      </div>
+    </aside>
+
+    <!-- RIGHT MAIN: Map Canvas & Floating HUD -->
+    <main class="map-canvas-container">
+      
+      <!-- Interactive Polygon Drawing HUD (Hidden by default, shown during drawing mode) -->
+      <div id="map-drawing-hud" class="map-drawing-hud" style="display: none;">
+        <div class="map-hud-info">
+          <div class="map-hud-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 15px; height: 15px;"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+            <span>Drawing Trial Block Boundary</span>
+          </div>
+          <div id="map-hud-instruction" class="map-hud-desc">
+            Click on the map canopy to place the first boundary vertex.
+          </div>
+        </div>
+
+        <div class="map-hud-area-badge" id="map-hud-area-val">
+          0.00 ha
+        </div>
+
+        <div class="map-hud-actions">
+          <button type="button" class="map-btn" onclick="window.trialMapController.undoLastDrawingPoint()" title="Undo last placed corner point" style="padding: 5px 9px; font-size: 0.72rem;">
+            Undo Point
+          </button>
+          <button type="button" class="map-btn map-btn-primary" onclick="window.trialMapController.finishDrawing()" title="Finish and compute polygon area" style="padding: 5px 10px; font-size: 0.72rem;">
+            Finish &amp; Save
+          </button>
+          <button type="button" class="map-btn" onclick="window.trialMapController.cancelDrawing()" title="Cancel boundary drawing" style="background: rgba(239, 68, 68, 0.2); border-color: #ef4444; color: #fca5a5; padding: 5px 9px; font-size: 0.72rem;">
+            Cancel
+          </button>
+        </div>
+      </div>
+
+      <!-- Status Pill -->
+      <div class="map-status-pill">
+        <span class="map-status-dot"></span>
+        <span>High-Resolution Satellite Imagery &amp; Geolocation Points Active</span>
+      </div>
+
+      <!-- Leaflet & Google Satellite Map Canvas -->
+      <div id="map-canvas"></div>
+    </main>
+
+  </div>
+
+  <!-- ================= Upload Shapefile / DBF Modal Dialog ================= -->
+  <div id="map-upload-modal" class="map-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="shp-modal-title">
+    <div class="map-modal-box">
+      <div class="map-modal-header">
+        <div id="shp-modal-title" class="map-modal-title">
+          Upload Trial Block Shapefile (.shp / .dbf)
+        </div>
+        <button type="button" class="map-modal-close" onclick="window.trialMapController.closeUploadModal()" aria-label="Close dialog">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="6"/></svg>
+        </button>
+      </div>
+
+      <div class="map-modal-body">
+        <p style="margin-top: 0; line-height: 1.45; color: #475569; font-size: 0.78rem;">
+          Overlay GIS boundaries for experimental blocks onto the satellite canopy.
+          Select an ESRI Shapefile archive (<strong>.zip</strong> containing <code style="background: #f1f5f9; padding: 1px 4px; border-radius: 3px;">.shp</code> and <code style="background: #f1f5f9; padding: 1px 4px; border-radius: 3px;">.dbf</code>), or select individual <code style="background: #f1f5f9; padding: 1px 4px; border-radius: 3px;">.shp</code> and <code style="background: #f1f5f9; padding: 1px 4px; border-radius: 3px;">.dbf</code> files together, or standard <code style="background: #f1f5f9; padding: 1px 4px; border-radius: 3px;">.geojson</code>.
+        </p>
+
+        <!-- Drag & Drop Zone -->
+        <div id="shp-drop-zone" class="upload-drop-zone" onclick="document.getElementById('shp-file-input').click()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width: 38px; height: 38px; color: #166534; margin-bottom: 8px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <div style="font-weight: 700; color: #0f172a; font-size: 0.85rem; margin-bottom: 2px;">
+            Click to Browse or Drag &amp; Drop Shapefile Here
+          </div>
+          <div style="font-size: 0.72rem; color: #64748b;">
+            Supports .zip (SHP + DBF), .shp + .dbf, or .geojson
+          </div>
+          <input type="file" id="shp-file-input" multiple accept=".zip,.shp,.dbf,.shx,.geojson,.json" style="display: none;">
+        </div>
+
+        <div id="shp-upload-status" style="margin-top: 10px; font-size: 0.76rem;"></div>
+      </div>
+
+      <div class="map-modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="window.trialMapController.closeUploadModal()">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  
+  <!-- Client-side Shapefile Parser (shpjs) -->
+  <script src="https://unpkg.com/shpjs@latest/dist/shp.js"></script>
+
+  <!-- Supabase Cloud SDK & Sync Config -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/supabase-config.js"></script>
+
+  <!-- ReaDA Master Trial Registry Data -->
+  <script src="assets/js/trial-data.js"></script>
+
+  <!-- PalmnexReaDS Trial Map Controller -->
+  <script src="assets/js/trial-map.js"></script>
+
+</body>
+</html>

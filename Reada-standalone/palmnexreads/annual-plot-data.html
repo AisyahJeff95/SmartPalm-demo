@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base href="/palmnexreads/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=3">
+  <link rel="icon" href="/favicon.ico?v=3" sizes="any">
+  <link rel="apple-touch-icon" sizes="128x128" href="/favicon.png?v=3">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Annual Plot Data · PalmnexReaDS: Palmnex Research and Database System</title>
+  <meta name="description" content="PalmnexReaDS: Palmnex Research and Database System — Annual Plot Data: FFB, leaf tissue nutrients, vegetative growth, and soil summaries.">
+  <link rel="stylesheet" href="assets/css/reada.css?v=20261016c">
+  <style>
+    .annual-input-cell {
+      width: 78px;
+      padding: 4px 6px;
+      font-size: 0.8rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      text-align: right;
+      font-family: var(--font-mono);
+      background-color: #ffffff;
+      color: var(--text);
+      transition: all 0.15s ease;
+    }
+    .annual-input-cell:focus {
+      border-color: var(--brand-green);
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(22, 101, 52, 0.1);
+      background-color: var(--brand-green-bg);
+    }
+    .badge-category {
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .badge-ffb { background-color: #fff7ed; color: #c2410c; border: 1px solid #ffedd5; }
+    .badge-leaf { background-color: #f0fdf4; color: #15803d; border: 1px solid #dcfce7; }
+    .badge-veg { background-color: #ecfeff; color: #0e7490; border: 1px solid #cffafe; }
+    .badge-soil { background-color: #fefce8; color: #a16207; border: 1px solid #fef9c3; }
+
+    .summary-calc-col {
+      background-color: #f8fafc;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      text-align: right;
+    }
+    .summary-calc-col.highlight-col {
+      background-color: #f0fdf4;
+      color: var(--brand-green);
+      font-weight: 700;
+    }
+    .table-footer-stat {
+      background-color: var(--bg-subtle);
+      font-weight: 700;
+      border-top: 2px solid var(--border-strong);
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- ================= Sidebar Navigation ================= -->
+  <aside class="app-sidebar">
+    <div class="sidebar-header">
+      <div class="brand-icon">
+        <img src="assets/img/palmnex-logo.png" alt="PalmnexReaDS Logo">
+      </div>
+      <div>
+        <div class="brand-title">PalmnexReaDS</div>
+        <div class="brand-subtitle">Palmnex Research and Database System</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Agronomy Modules</div>
+      <ul class="nav-menu">
+        <li>
+          <a href="index.html" class="nav-item">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span>Home</span>
+          </a>
+        </li>
+        <li>
+          <a href="list-available-data.html" class="nav-item">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+            <span>List of Available Trial Data</span>
+          </a>
+        </li>
+        <li>
+          <a href="trial-main-info.html" class="nav-item">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg>
+            <span>Main Information</span>
+          </a>
+        </li>
+        <li>
+          <a href="yield-recording.html" class="nav-item">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
+            <div class="nav-item-text">
+              <span>Yield Recording Program</span>
+              <span class="nav-item-sub">FFB Harvest</span>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="vegetative-sampling.html" class="nav-item">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12"/><path d="M12 12C12 7 8 4 3 4c0 5 4 8 9 8z"/><path d="M12 12c0-4 3-7 8-7 0 4-3 7-8 7z"/></svg>
+            <div class="nav-item-text">
+              <span>Vegetative Field Sampling</span>
+              <span class="nav-item-sub">Frond 17</span>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="annual-plot-data.html" class="nav-item nav-item-annual active">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>
+            <div class="nav-item-text">
+              <span>Annual Plot Data</span>
+              <span class="nav-item-sub">Annual Summaries</span>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="trial-map-explorer.html" target="_blank" rel="noopener noreferrer" class="nav-item">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+            <div class="nav-item-text">
+              <span>Trial Plots Map</span>
+              <span class="nav-item-sub">GIS Explorer ↗</span>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="user-manual.html" class="nav-item">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            <span>User Manual</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="nav-section-title" style="margin-top: 10px; padding: 2px 10px 4px; font-size: 0.68rem;">Preferences &amp; System</div>
+      <ul class="nav-menu-secondary" style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px;">
+        <li style="list-style: none; margin: 0; padding: 0;">
+          <a href="javascript:void(0)" class="nav-item-sm" style="display: flex; align-items: center; gap: 8px; padding: 5px 8px; font-size: 0.78rem; line-height: 1.25; text-decoration: none;" title="System Settings">
+            <svg class="nav-item-icon" style="width: 14px; height: 14px; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span>Settings</span>
+          </a>
+        </li>
+        <li style="list-style: none; margin: 0; padding: 0;">
+          <a href="javascript:void(0)" class="nav-item-sm" style="display: flex; align-items: center; gap: 8px; padding: 5px 8px; font-size: 0.78rem; line-height: 1.25; text-decoration: none;" title="User Account Profile">
+            <svg class="nav-item-icon" style="width: 14px; height: 14px; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>User Account</span>
+          </a>
+        </li>
+        <li style="list-style: none; margin: 0; padding: 0;">
+          <a href="javascript:void(0)" class="nav-item-sm" style="display: flex; align-items: center; gap: 8px; padding: 5px 8px; font-size: 0.78rem; line-height: 1.25; text-decoration: none;" title="Language (Malay / English)">
+            <svg class="nav-item-icon" style="width: 14px; height: 14px; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span style="flex: 1;">Language</span>
+            <span class="nav-item-badge">Malay / English</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <strong>Malaysian Palm Oil Board</strong><br>
+      MPOB · Agronomy Trial Database System
+    </div>
+  </aside>
+
+  <!-- ================= Main Application Area ================= -->
+  <main class="app-main">
+
+    <!-- Top App Header -->
+    <header class="app-header app-header-stacked">
+      <div class="header-meta">
+        <h1>Agronomy Trial Annual Plot Data</h1>
+        <p>Annual multi-disciplinary summaries for Fresh Fruit Bunch (FFB) Yield, Leaf Tissue Nutrients, Vegetative Morphometrics, and Soil Pedology.</p>
+      </div>
+
+      <!-- Expanded Choose Trial Toolbar -->
+      <div class="trial-selector-expanded">
+        <div class="trial-selector-left">
+          <label for="select-working-trial" class="trial-selector-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="trial-selector-icon"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg>
+            Choose Trial:
+          </label>
+          <select id="select-working-trial" class="form-control trial-selector-dropdown">
+            <!-- Populated dynamically -->
+          </select>
+          <span class="trial-selector-hint">Select a trial to view, enter, or export annual plot-level multi-disciplinary data</span>
+        </div>
+        <button type="button" class="btn btn-primary-outline" id="btn-update-code-list" title="Refresh Trial Code List from Annual Registers">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 15px; height: 15px;"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          UpDate List
+        </button>
+      </div>
+    </header>
+
+    <!-- Key Metrics Strip -->
+    <section class="metrics-strip" aria-label="Annual Plot Data Quick Stats">
+      <div class="metric-pill">
+        <span class="metric-val" id="stat-trial-code" style="color: var(--brand-green);">DTP1</span>
+        <span class="metric-label">Trial Code</span>
+      </div>
+      <div class="metric-pill">
+        <span class="metric-val" id="stat-estate">Teluk Intan</span>
+        <span class="metric-label">Estate / Station</span>
+      </div>
+      <div class="metric-pill">
+        <span class="metric-val" id="stat-annual-period">03/1996 — 02/1997</span>
+        <span class="metric-label">Recording Period</span>
+      </div>
+      <div class="metric-pill">
+        <span class="metric-val" id="stat-ffb-yield" style="color: #c2410c;">44.8 t/ha</span>
+        <span class="metric-label">Mean FFB Yield</span>
+      </div>
+      <div class="metric-pill">
+        <span class="metric-val" id="stat-leaf-n" style="color: #15803d;">2.75%</span>
+        <span class="metric-label">F17 Leaf N</span>
+      </div>
+      <div class="metric-pill">
+        <span class="metric-val" id="stat-mean-lai" style="color: var(--brand-green);">5.42</span>
+        <span class="metric-label">Canopy LAI</span>
+      </div>
+    </section>
+
+    <!-- Operations Dashboard -->
+    <div class="workspace-container">
+
+      <!-- ================= Annual Plot Performance Analytics Card ================= -->
+      <section class="annual-chart-card" id="annual-chart-card" aria-label="Annual Plot Performance Analytics">
+        <div class="annual-chart-header">
+          <div class="annual-chart-title-group">
+            <div class="annual-chart-title-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="chart-header-icon"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+              <h2 class="annual-chart-title">Annual Plot Performance Analytics</h2>
+              <span class="annual-chart-badge" id="chart-trial-badge">DTP1</span>
+            </div>
+            <p class="annual-chart-subtitle">
+              Live multi-disciplinary plot comparisons against trial averages and MPOB agronomic benchmarks.
+            </p>
+          </div>
+
+          <!-- Controls & Metric Selector Tabs -->
+          <div class="annual-chart-controls">
+            <div class="chart-pill-selector" role="tablist" aria-label="Select Plot Metric to Visualize">
+              <button type="button" class="chart-pill-btn active" data-chart-metric="ffb">
+                <span class="pill-dot pill-dot-ffb"></span>
+                FFB Yield (t/ha)
+              </button>
+              <button type="button" class="chart-pill-btn" data-chart-metric="leaf">
+                <span class="pill-dot pill-dot-leaf"></span>
+                Foliar Nutrients (N, P, K, Mg)
+              </button>
+              <button type="button" class="chart-pill-btn" data-chart-metric="veg">
+                <span class="pill-dot pill-dot-veg"></span>
+                Canopy LAI &amp; FDW
+              </button>
+              <button type="button" class="chart-pill-btn" data-chart-metric="soil">
+                <span class="pill-dot pill-dot-soil"></span>
+                Soil Chemistry (pH &amp; CEC)
+              </button>
+            </div>
+
+            <button type="button" class="btn btn-secondary-outline btn-sm" id="btn-toggle-chart-collapse" title="Collapse / Expand Visualizer" style="font-size: 0.76rem; padding: 4px 10px; display: inline-flex; align-items: center; gap: 5px;">
+              <svg id="chart-collapse-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 13px; height: 13px;"><polyline points="6 9 12 15 18 9"/></svg>
+              <span id="chart-collapse-label">Minimize</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Collapsible Body -->
+        <div class="annual-chart-body" id="annual-chart-body">
+          <!-- KPI Insight Bar -->
+          <div class="annual-chart-kpi-bar" id="annual-chart-kpi-bar">
+            <!-- Populated dynamically -->
+          </div>
+
+          <!-- Responsive SVG Chart Canvas -->
+          <div class="annual-chart-svg-container" id="annual-chart-svg-container">
+            <svg id="annual-plot-svg" viewBox="0 0 940 310" class="annual-plot-svg"></svg>
+            <div class="chart-tooltip" id="annual-chart-tooltip" style="display: none;"></div>
+          </div>
+
+          <!-- Legend and Guidance Note -->
+          <div class="annual-chart-footer" id="annual-chart-footer">
+            <div class="chart-legend" id="annual-chart-legend">
+              <!-- Populated dynamically -->
+            </div>
+            <div class="chart-hint">
+              Hover over any plot column for detailed field parameters and treatment values.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div style="background-color: #ffffff; border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 24px;">
+        
+        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 16px;">
+          <div>
+            <h2 style="font-size: 1.15rem; font-weight: 700; color: var(--text);">AGRONOMY TRIAL ANNUAL DATA PROCEDURES</h2>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+              Select an action below to enter annual plot data, view multi-disciplinary records, or manage archives.
+            </p>
+          </div>
+          <span class="badge-tag" style="background-color: var(--brand-green-bg); color: var(--brand-green); border: 1px solid var(--brand-green-border); font-weight: 600; font-size: 0.76rem; padding: 4px 10px; border-radius: 999px;">
+            Plot-Level Database
+          </span>
+        </div>
+
+        <!-- 3 Functional Groupboxes for Annual Plot Data (ANNUAL_P.WFM) -->
+        <div class="main-info-container">
+
+          <!-- Groupbox 1: Annual Plot Data Records & Entry -->
+          <div class="op-groupbox">
+            <div class="op-groupbox-header">
+              <span class="op-groupbox-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg>
+                Annual Plot Records &amp; Data Entry
+              </span>
+            </div>
+            <div class="op-button-list">
+              <button type="button" class="op-btn" id="btn-new-annual-entry">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                  <span>New Annual Data Entry</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button type="button" class="op-btn" id="btn-edit-annual-data">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  <span>Edit Annual Plot Data</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button type="button" class="op-btn" id="btn-view-annual-data">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                  <span>View Multi-Disciplinary Records</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Groupbox 2: Analysis, Reporting & CSV Export -->
+          <div class="op-groupbox">
+            <div class="op-groupbox-header">
+              <span class="op-groupbox-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                Reporting &amp; CSV Data Export
+              </span>
+            </div>
+            <div class="op-button-list">
+              <button type="button" class="op-btn" id="btn-print-annual-report">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                  <span>Print Annual Plot Data Report</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button type="button" class="op-btn" id="btn-create-ascii">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+                  <span>Export Scientific Data (*.csv)</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Groupbox 3: Data Exchange & System Backups -->
+          <div class="op-groupbox">
+            <div class="op-groupbox-header">
+              <span class="op-groupbox-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Data Exchange &amp; System Backups
+              </span>
+            </div>
+            <div class="op-button-list">
+              <button type="button" class="op-btn" id="btn-save-annual-dbf">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+                  <span>Export Data As *.csv File</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button type="button" class="op-btn" id="btn-make-annual-backup">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  <span>Export Trial Archive (.CSV)</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button type="button" class="op-btn" id="btn-read-annual-backup">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/></svg>
+                  <span>Read Data From Backup / Excel</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button type="button" class="op-btn" id="btn-delete-annual-data" style="color: var(--danger);">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+                  <span>Delete Annual Plot Data</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Exit Procedure Bottom Bar -->
+        <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 18px;">
+          <span style="font-size: 0.8rem; color: var(--text-muted);">
+            Active Tables: <strong>DATAFFB.DBF</strong> (Yield) · <strong>DATALEAF.DBF</strong> (Foliar) · <strong>DATAVM.DBF</strong> (Veg) · <strong>DATASOIL.DBF</strong> (Pedology)
+          </span>
+          <a href="list-available-data.html" class="btn" style="text-decoration: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+            Return To Main
+          </a>
+        </div>
+
+      </div>
+
+      <!-- Active Annual Plot Records Master Display with 4 Category Tabs -->
+      <div style="background-color: #ffffff; border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 16px;">
+        
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text);">Annual Plot Records Explorer</h3>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+              Multi-disciplinary plot summaries for Trial <strong id="active-summary-trial">DTP1</strong>, Period <strong id="active-summary-period">1996/1997</strong>.
+            </p>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <label for="summary-filter-plot" style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Filter Plot:</label>
+            <select id="summary-filter-plot" class="form-control" style="font-size: 0.82rem; height: 34px; padding: 4px 8px; min-width: 110px;">
+              <option value="all">All Plots</option>
+              <option value="1">Plot 1</option>
+              <option value="2">Plot 2</option>
+              <option value="3">Plot 3</option>
+              <option value="4">Plot 4</option>
+              <option value="5">Plot 5</option>
+              <option value="6">Plot 6</option>
+            </select>
+            <button type="button" class="btn btn-primary" id="btn-quick-edit-category">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Open Plot Editor
+            </button>
+          </div>
+        </div>
+
+        <!-- Category Tabs Bar -->
+        <div class="category-tabs-bar">
+          <button type="button" class="category-tab-btn active" data-cat="ffb">
+            <span>Fresh Fruit Bunch (FFB) Yield</span>
+            <span class="category-tab-badge">DATAFFB</span>
+          </button>
+          <button type="button" class="category-tab-btn" data-cat="leaf">
+            <span>Palms Tissue Nutrients</span>
+            <span class="category-tab-badge">DATALEAF</span>
+          </button>
+          <button type="button" class="category-tab-btn" data-cat="veg">
+            <span>Vegetative Measurements</span>
+            <span class="category-tab-badge">DATAVM</span>
+          </button>
+          <button type="button" class="category-tab-btn" data-cat="soil">
+            <span>Soil Nutrient Analysis</span>
+            <span class="category-tab-badge">DATASOIL</span>
+          </button>
+        </div>
+
+        <!-- Main Category Table Wrap -->
+        <div class="grid-table-wrap" style="max-height: 440px;">
+          <table class="grid-table" id="table-annual-summary">
+            <thead id="thead-annual-summary">
+              <!-- Rendered dynamically depending on category -->
+            </thead>
+            <tbody id="tbody-annual-summary">
+              <!-- Rendered dynamically -->
+            </tbody>
+            <tfoot id="tfoot-annual-summary">
+              <!-- Rendered dynamically -->
+            </tfoot>
+          </table>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+
+<!-- =========================================================================
+     MODAL 1: New Annual Data Entry Selection Dialog (Screenshots 20 & 21)
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-new-annual-entry" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 960px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+        <span>New Annual Data Entry Configuration</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <!-- 1. Top Agronomy Trial Table -->
+      <div style="border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; background-color: var(--bg-subtle);">
+        <span style="font-size: 0.82rem; font-weight: 700; color: var(--text); display: block; margin-bottom: 8px;">Select Agronomy Trial Code:</span>
+        <div class="grid-table-wrap" style="max-height: 140px;">
+          <table class="grid-table">
+            <thead>
+              <tr><th>Trial Code</th><th>Estate</th><th>Planting Year</th></tr>
+            </thead>
+            <tbody id="new-entry-trials-tbody">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- 2. 4 Data Type Header Boxes -->
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
+        <div style="background-color: #475569; color: #ffffff; padding: 8px; border-radius: 4px; text-align: center; font-size: 0.78rem; font-weight: 700;">
+          F.F.B. Yield<br>Recording Period
+        </div>
+        <div style="background-color: #475569; color: #ffffff; padding: 8px; border-radius: 4px; text-align: center; font-size: 0.78rem; font-weight: 700;">
+          Palms Tissue<br>Sampling Date
+        </div>
+        <div style="background-color: #475569; color: #ffffff; padding: 8px; border-radius: 4px; text-align: center; font-size: 0.78rem; font-weight: 700;">
+          Vegetative Meas.<br>Sampling Date
+        </div>
+        <div style="background-color: #475569; color: #ffffff; padding: 8px; border-radius: 4px; text-align: center; font-size: 0.78rem; font-weight: 700;">
+          Soil<br>Sampling Date
+        </div>
+      </div>
+
+      <div style="text-align: center; font-size: 0.84rem; font-weight: 700; color: var(--text);">
+        &gt;&gt; Mark Data Type Button For New Date Entry &lt;&lt;
+      </div>
+
+      <!-- 3. 4 Columns with Radio + Dynamic Date Inputs + Continue Button -->
+      <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; align-items: start;">
+        
+        <!-- Col 1: Yield Parameters -->
+        <div style="background-color: var(--surface-alt); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 10px; display: flex; flex-direction: column; gap: 10px; text-align: center;">
+          <label style="font-size: 0.82rem; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;">
+            <input type="radio" name="new-entry-cat" value="ffb" checked>
+            Yield Parameters
+          </label>
+          <div id="new-cat-date-ffb" style="display: flex; flex-direction: column; gap: 6px;">
+            <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Mn / Year (Start — End)</div>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+              <input type="number" id="new-ffb-start-mn" value="3" min="1" max="12" style="width: 64px; padding: 6px 4px; text-align: center;" class="form-control">
+              <span>/</span>
+              <input type="number" id="new-ffb-start-yr" value="1997" min="1980" max="2030" style="width: 84px; padding: 6px 4px; text-align: center;" class="form-control">
+            </div>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 4px;">
+              <input type="number" id="new-ffb-end-mn" value="2" min="1" max="12" style="width: 64px; padding: 6px 4px; text-align: center;" class="form-control">
+              <span>/</span>
+              <input type="number" id="new-ffb-end-yr" value="1998" min="1980" max="2030" style="width: 84px; padding: 6px 4px; text-align: center;" class="form-control">
+            </div>
+          </div>
+          <button type="button" class="btn btn-primary" id="btn-cont-ffb" style="width: 100%;">Continue</button>
+        </div>
+
+        <!-- Col 2: Tissue Sampling -->
+        <div style="background-color: var(--surface-alt); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 8px; display: flex; flex-direction: column; gap: 10px; text-align: center;">
+          <label style="font-size: 0.82rem; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;">
+            <input type="radio" name="new-entry-cat" value="leaf">
+            Tissue Sampl
+          </label>
+          <div id="new-cat-date-leaf" style="display: flex; flex-direction: column; gap: 6px;">
+            <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Dy / Mn / Year</div>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 3px;">
+              <input type="number" id="new-leaf-dy" value="10" min="1" max="31" style="width: 56px; padding: 6px 3px; text-align: center;" class="form-control">
+              <span>/</span>
+              <input type="number" id="new-leaf-mn" value="9" min="1" max="12" style="width: 56px; padding: 6px 3px; text-align: center;" class="form-control">
+              <span>/</span>
+              <input type="number" id="new-leaf-yr" value="1997" min="1980" max="2030" style="width: 78px; padding: 6px 3px; text-align: center;" class="form-control">
+            </div>
+          </div>
+          <button type="button" class="btn btn-secondary" id="btn-cont-leaf" style="width: 100%;" disabled>Continue</button>
+        </div>
+
+        <!-- Col 3: Veg. Meas. -->
+        <div style="background-color: var(--surface-alt); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 8px; display: flex; flex-direction: column; gap: 10px; text-align: center;">
+          <label style="font-size: 0.82rem; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;">
+            <input type="radio" name="new-entry-cat" value="veg">
+            Veg. Meas.
+          </label>
+          <div id="new-cat-date-veg" style="display: flex; flex-direction: column; gap: 6px;">
+            <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Dy / Mn / Year</div>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 3px;">
+              <input type="number" id="new-veg-dy" value="22" min="1" max="31" style="width: 56px; padding: 6px 3px; text-align: center;" class="form-control">
+              <span>/</span>
+              <input type="number" id="new-veg-mn" value="7" min="1" max="12" style="width: 56px; padding: 6px 3px; text-align: center;" class="form-control">
+              <span>/</span>
+              <input type="number" id="new-veg-yr" value="1997" min="1980" max="2030" style="width: 78px; padding: 6px 3px; text-align: center;" class="form-control">
+            </div>
+          </div>
+          <button type="button" class="btn btn-secondary" id="btn-cont-veg" style="width: 100%;" disabled>Continue</button>
+        </div>
+
+        <!-- Col 4: Soil Sample -->
+        <div style="background-color: var(--surface-alt); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 8px; display: flex; flex-direction: column; gap: 10px; text-align: center;">
+          <label style="font-size: 0.82rem; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer;">
+            <input type="radio" name="new-entry-cat" value="soil">
+            Soil Sample
+          </label>
+          <div id="new-cat-date-soil" style="display: flex; flex-direction: column; gap: 6px;">
+            <div style="font-size: 0.72rem; color: var(--text-muted); font-weight: 600;">Dy / Mn / Year</div>
+            <div style="display: flex; align-items: center; justify-content: center; gap: 3px;">
+              <input type="number" id="new-soil-dy" value="15" min="1" max="31" style="width: 56px; padding: 6px 3px; text-align: center;" class="form-control">
+              <span>/</span>
+              <input type="number" id="new-soil-mn" value="11" min="1" max="12" style="width: 56px; padding: 6px 3px; text-align: center;" class="form-control">
+              <span>/</span>
+              <input type="number" id="new-soil-yr" value="1997" min="1980" max="2030" style="width: 78px; padding: 6px 3px; text-align: center;" class="form-control">
+            </div>
+          </div>
+          <button type="button" class="btn btn-secondary" id="btn-cont-soil" style="width: 100%;" disabled>Continue</button>
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Exit Procedure</button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL 2: Edit Annual Plot Data Category Selector (EditAnnualDataSelectionDialog)
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-edit-annual-selection" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 680px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        <span>Edit Annual Plot Data - Select Category</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <div style="display: grid; grid-template-columns: 3fr 2fr; gap: 16px;">
+        <div style="border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; background-color: var(--bg-subtle);">
+          <span style="font-size: 0.82rem; font-weight: 700; color: var(--text); display: block; margin-bottom: 8px;">Select Trial Code:</span>
+          <div class="grid-table-wrap" style="max-height: 180px;">
+            <table class="grid-table">
+              <thead>
+                <tr><th>Trial</th><th>Estate</th></tr>
+              </thead>
+              <tbody id="edit-selection-trials-tbody">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div style="background-color: var(--surface-alt); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; display: flex; flex-direction: column; gap: 10px;">
+          <span style="font-size: 0.84rem; font-weight: 700; color: var(--text);">Select Category to Edit:</span>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 0.84rem; font-weight: 500; cursor: pointer;">
+            <input type="radio" name="edit-cat-choice" value="ffb" checked>
+            F.F.B. Yield Data
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 0.84rem; font-weight: 500; cursor: pointer;">
+            <input type="radio" name="edit-cat-choice" value="leaf">
+            Palms Tissue Nutrients
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 0.84rem; font-weight: 500; cursor: pointer;">
+            <input type="radio" name="edit-cat-choice" value="veg">
+            Vegetative Measurements
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 0.84rem; font-weight: 500; cursor: pointer;">
+            <input type="radio" name="edit-cat-choice" value="soil">
+            Soil Nutrient Analysis
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btn-confirm-edit-selection">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><polyline points="20 6 9 17 4 12"/></svg>
+        Open Category Editor
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL 3: Plot Grid Editor (Shared Category In-Place Editor)
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-plot-grid-editor" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 1080px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        <span id="editor-modal-title">Annual Plot Data Editor</span>
+        <span class="badge-tag" id="badge-editor-trial-cat" style="background-color: var(--brand-green-bg); color: var(--brand-green); border: 1px solid var(--brand-green-border); font-size: 0.74rem; font-weight: 700; padding: 2px 8px; border-radius: 4px;">
+          DTP1 · FFB Yield
+        </span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <!-- Top info bar -->
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; background-color: var(--bg-subtle); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+        <div style="display: flex; gap: 20px; font-size: 0.88rem; flex-wrap: wrap;">
+          <div><span style="color: var(--text-muted);">Trial:</span> <strong id="editor-trial-label">DTP1</strong></div>
+          <div><span style="color: var(--text-muted);">Category:</span> <strong id="editor-category-label">FFB Yield</strong></div>
+          <div><span style="color: var(--text-muted);">Period/Date:</span> <strong id="editor-period-label">1996/1997</strong></div>
+        </div>
+
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn btn-secondary" id="btn-editor-add-plot">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 13px; height: 13px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Plot Row
+          </button>
+          <button type="button" class="btn btn-secondary" id="btn-editor-recalc">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 13px; height: 13px;"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+            Recalculate
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Editable Table -->
+      <div class="grid-table-wrap" style="max-height: 420px;">
+        <table class="grid-table" id="table-plot-editor">
+          <thead id="thead-plot-editor">
+            <!-- Dynamic columns based on category -->
+          </thead>
+          <tbody id="tbody-plot-editor">
+            <!-- Dynamic rows -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btn-save-plot-editor">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+        Save Plot Records
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL 4: Printable Annual Report Preview (PrintAnnualPdfDialog)
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-print-annual" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 940px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        <span>Printable Annual Plot Data Report Preview</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <div class="report-sheet" id="printable-annual-sheet">
+        <div class="report-header">
+          <div>
+            <div class="report-title">MALAYSIAN PALM OIL BOARD (MPOB)</div>
+            <div style="font-size: 0.95rem; font-weight: 700; margin-top: 4px; color: #1e293b;">
+              ANNUAL AGRONOMY TRIAL PLOT DATA SUMMARY REPORT
+            </div>
+            <div class="report-meta">
+              Trial Code: <strong id="print-trial-code">DTP1</strong> &nbsp;|&nbsp;
+              Estate: <strong id="print-estate">Teluk Intan</strong> &nbsp;|&nbsp;
+              Active Period: <strong id="print-period">03/1996 — 02/1997</strong>
+            </div>
+          </div>
+          <div style="text-align: right; font-size: 0.76rem; color: #64748b;">
+            <div>MPOB ReaDA System</div>
+            <div>Tables: DATAFFB / DATALEAF / DATAVM / DATASOIL</div>
+            <div id="print-generated-on">Generated: 16/10/1997</div>
+          </div>
+        </div>
+
+        <!-- 4 Summary KPI Badges -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; border: 1px solid #cbd5e1; padding: 12px; border-radius: 4px; background-color: #f8fafc;">
+          <div>
+            <div style="font-size: 0.7rem; color: #64748b; font-weight: 600;">MEAN FFB YIELD</div>
+            <div style="font-size: 1.15rem; font-weight: 700; color: #c2410c;" id="print-stat-ffb">44.8 t/ha</div>
+          </div>
+          <div>
+            <div style="font-size: 0.7rem; color: #64748b; font-weight: 600;">LEAF F17 N%</div>
+            <div style="font-size: 1.15rem; font-weight: 700; color: #15803d;" id="print-stat-leaf-n">2.75%</div>
+          </div>
+          <div>
+            <div style="font-size: 0.7rem; color: #64748b; font-weight: 600;">CANOPY LAI</div>
+            <div style="font-size: 1.15rem; font-weight: 700; color: #047857;" id="print-stat-lai">5.42</div>
+          </div>
+          <div>
+            <div style="font-size: 0.7rem; color: #64748b; font-weight: 600;">SOIL MEAN pH</div>
+            <div style="font-size: 1.15rem; font-weight: 700; color: #a16207;" id="print-stat-ph">4.35</div>
+          </div>
+        </div>
+
+        <!-- Printable Table -->
+        <div style="font-size: 0.85rem; font-weight: 700; margin-bottom: 6px; color: var(--text);" id="print-table-title">
+          Fresh Fruit Bunch (FFB) Plot Yield Summary
+        </div>
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.76rem; margin-bottom: 24px;">
+          <thead id="thead-print-table">
+            <!-- Dynamic header -->
+          </thead>
+          <tbody id="tbody-print-table">
+            <!-- Dynamic rows -->
+          </tbody>
+        </table>
+
+        <!-- Signoff Footer -->
+        <div style="display: flex; justify-content: space-between; margin-top: 40px; font-size: 0.76rem; color: #334155; padding-top: 16px; border-top: 1px solid #cbd5e1;">
+          <div>
+            <div>Compiled By: _________________________</div>
+            <div style="font-size: 0.7rem; color: #64748b; margin-top: 2px;">Agronomy Research Officer</div>
+          </div>
+          <div>
+            <div>Approved By: _________________________</div>
+            <div style="font-size: 0.7rem; color: #64748b; margin-top: 2px;">Head of Agronomy &amp; Plant Nutrition Division</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Close</button>
+      <button type="button" class="btn btn-primary" id="btn-trigger-print">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print Report / Save PDF
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL 5: Create CSV Scientific Export Dialog (CreateAsciiDialog)
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-create-ascii" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 580px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+        <span>Export Scientific Data File (*.csv)</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <div class="form-field">
+        <label>Export Destination</label>
+        <div style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--brand-green); font-weight: 600; padding: 8px 12px; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+          Downloads Folder (*.csv)
+        </div>
+      </div>
+      <div class="form-field">
+        <label for="ascii-category">Select Data Category to Format</label>
+        <select class="form-control" id="ascii-category">
+          <option value="ffb" selected>Fresh Fruit Bunch Yield (DATAFFB.CSV)</option>
+          <option value="leaf">Palms Tissue Nutrients (DATALEAF.CSV)</option>
+          <option value="veg">Vegetative Morphometrics (DATAVM.CSV)</option>
+          <option value="soil">Soil Chemical Analysis (DATASOIL.CSV)</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label for="ascii-delimiter">Field Delimiter</label>
+        <select class="form-control" id="ascii-delimiter">
+          <option value="comma" selected>Comma Separated Values (*.csv)</option>
+          <option value="tab">Tab Delimited (*.tsv / *.csv)</option>
+          <option value="space">Space Delimited</option>
+        </select>
+      </div>
+      <div style="font-size: 0.74rem; color: var(--text-faint);">
+        * Produces standard CSV scientific data files suitable for spreadsheet analysis, SAS, GenStat, and MPOB biometric regression packages.
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btn-confirm-create-ascii">Export &amp; Download CSV</button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL 6: Save CSV Export Dialog (SaveAnnualDbfDialog)
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-save-annual-dbf" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 520px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+        <span>Export Annual Plot Data As *.csv File</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <div class="form-field">
+        <label>Export Destination</label>
+        <div style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--brand-green); font-weight: 600; padding: 8px 12px; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+          Downloads Folder (*.csv)
+        </div>
+      </div>
+      <div class="form-field">
+        <label for="export-annual-cat">Select Table to Export</label>
+        <select class="form-control" id="export-annual-cat">
+          <option value="ffb" selected>DATAFFB.CSV (FFB Yield)</option>
+          <option value="leaf">DATALEAF.CSV (Tissue Nutrients)</option>
+          <option value="veg">DATAVM.CSV (Vegetative Measurements)</option>
+          <option value="soil">DATASOIL.CSV (Soil Nutrients)</option>
+          <option value="all">All 4 Combined (ANNDATA.CSV)</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Export Scope</label>
+        <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.82rem; margin-top: 4px;">
+          <label style="display: flex; align-items: center; gap: 8px;">
+            <input type="radio" name="export-annual-scope" value="active" checked>
+            Current Trial (<span id="export-scope-trial">DTP1</span>) Only
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px;">
+            <input type="radio" name="export-annual-scope" value="all">
+            All Trials Registered in ReaDA
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btn-confirm-export-annual">Export CSV File</button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL 7: Make Trial BackUp Data Dialog (BackupAnnualDataDialog)
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-make-backup" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 520px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span>Export Trial Archive (.CSV)</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <div class="form-field">
+        <label>Backup Destination</label>
+        <div style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--brand-green); font-weight: 600; padding: 8px 12px; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+          Downloads Folder (BCANN.CSV)
+        </div>
+      </div>
+      <div style="background-color: var(--surface-alt); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; font-size: 0.82rem;">
+        <div style="font-weight: 700; color: var(--text); margin-bottom: 6px;">Backup Scope Summary:</div>
+        <div>• Trial: <strong id="make-backup-trial">DTP1</strong></div>
+        <div>• Datasets: FFB Yield, Foliar Nutrients, Vegetative Canopy, Soil Analysis</div>
+        <div>• Total Records: <strong id="make-backup-records">24 Plot Records</strong></div>
+        <div style="margin-top: 6px; color: var(--text-muted); font-size: 0.76rem;">* Standard CSV backup file containing all 4 annual plot datasets.</div>
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btn-confirm-make-backup">Export BackUp Archive (.CSV)</button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL 8: Read Data From BackUp File Dialog
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-read-backup" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 580px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/></svg>
+        <span>Read Data From Backup / Excel File</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <div class="form-field">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+          <label style="margin-bottom: 0;">Upload Excel Backup File (.xlsx / .xls / .csv):</label>
+          <button type="button" class="btn btn-sample-excel" id="btn-download-annual-backup-sample" style="font-size: 0.75rem; padding: 5px 11px; display: inline-flex; align-items: center; gap: 5px; background-color: #facc15; border: 1px solid #eab308; color: #422006; font-weight: 700;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 13px; height: 13px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download Sample Excel (.xlsx)
+          </button>
+        </div>
+        <div id="annual-backup-drop-zone" class="upload-drop-zone" onclick="document.getElementById('backup-excel-file-upload').click()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width: 38px; height: 38px; color: var(--brand-green); margin: 0 auto 8px; display: block;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <div id="annual-backup-drop-title" style="font-weight: 700; color: var(--text); font-size: 0.88rem; margin-bottom: 4px;">
+            Click to Browse or Drag &amp; Drop Excel File Here
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">
+            Supports Excel Spreadsheets (.xlsx, .xls) or CSV (.csv)
+          </div>
+          <input type="file" id="backup-excel-file-upload" accept=".xlsx,.xls,.csv" style="display: none;">
+        </div>
+        <div style="margin-top: 8px; font-size: 0.74rem; color: var(--text-muted); background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; padding: 6px 10px; font-family: var(--font-mono);">
+          Expected Columns: PLOT, FFB_THA, N_PCT, P_PCT, K_PCT, LAI, PH_H2O, CEC
+        </div>
+      </div>
+
+      <div style="background-color: var(--surface-alt); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; font-size: 0.82rem;">
+        <div style="font-weight: 700; color: var(--text); margin-bottom: 8px;">Information Available In BackUp File:</div>
+        <div class="grid-table-wrap" style="max-height: 140px; margin-bottom: 8px;">
+          <table class="grid-table">
+            <thead>
+              <tr><th>Trial Code</th><th>Estate</th><th>Available Years</th></tr>
+            </thead>
+            <tbody id="tbody-read-backup-trials">
+              <tr style="background-color: var(--brand-green-bg); font-weight: 600;">
+                <td style="color: var(--brand-green);">DTP1</td>
+                <td>Teluk Intan</td>
+                <td>1988 — 1997</td>
+              </tr>
+              <tr>
+                <td>FT1</td>
+                <td>Sg. Papan</td>
+                <td>1989 — 1996</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.78rem;">
+          <span style="color: var(--text-muted);">Integrity Check:</span>
+          <span id="annual-backup-status-text" style="color: var(--brand-green); font-weight: 600;">Waiting for Excel file upload</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btn-confirm-read-backup">Restore BackUp Records</button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL 9: Read 'Non-ReaDA' Excel / CSV File Dialog
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-read-nonreada" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 860px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+        <span>Read Annual Plot Data From Excel Spreadsheet (*.xlsx / *.xls)</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <div class="form-field">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+          <label style="margin-bottom: 0;">Upload Excel File (.xlsx / .xls / .csv) to Read:</label>
+          <button type="button" class="btn btn-sample-excel" id="btn-download-annual-nonreada-sample" style="font-size: 0.75rem; padding: 5px 11px; display: inline-flex; align-items: center; gap: 5px; background-color: #facc15; border: 1px solid #eab308; color: #422006; font-weight: 700;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 13px; height: 13px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download Sample Excel (.xlsx)
+          </button>
+        </div>
+        <div id="annual-nonreada-drop-zone" class="upload-drop-zone" onclick="document.getElementById('annual-excel-file-upload').click()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width: 36px; height: 36px; color: var(--brand-green); margin: 0 auto 8px; display: block;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <div id="annual-nonreada-drop-title" style="font-weight: 700; color: var(--text); font-size: 0.88rem; margin-bottom: 4px;">
+            Click to Browse or Drag &amp; Drop Excel File Here
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">
+            Upload external spreadsheet (.xlsx, .xls, or .csv) to automatically populate plot columns into ReaDA
+          </div>
+          <input type="file" id="annual-excel-file-upload" accept=".xlsx,.xls,.csv" style="display: none;">
+        </div>
+      </div>
+
+      <div style="border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden;">
+        <div style="background-color: var(--surface-alt); padding: 10px 14px; font-size: 0.8rem; font-weight: 700; color: var(--text); border-bottom: 1px solid var(--border);" id="preview-sheet-title">
+          Excel Spreadsheet Preview
+        </div>
+        <div class="grid-table-wrap" style="max-height: 220px; border: none;">
+          <table class="grid-table" style="font-size: 0.78rem;" id="table-nonreada-preview">
+            <thead>
+              <tr>
+                <th>PLOT</th>
+                <th style="text-align: right;">FFB_THA</th>
+                <th style="text-align: right;">N_PCT</th>
+                <th style="text-align: right;">P_PCT</th>
+                <th style="text-align: right;">K_PCT</th>
+                <th style="text-align: right;">LAI</th>
+                <th style="text-align: right;">PH_H2O</th>
+                <th style="text-align: right;">CEC</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-nonreada-preview">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btn-confirm-import-nonreada">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><polyline points="20 6 9 17 4 12"/></svg>
+        Import Excel Records
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL 10: Delete Annual Plot Data Confirmation
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-delete-annual" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 500px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text" style="color: var(--danger);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--danger);"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+        <span>Confirm Annual Plot Data Deletion</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <div style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: var(--radius-sm); padding: 12px; font-size: 0.82rem; color: #991b1b;">
+        <strong>Warning:</strong> You are about to delete annual plot records for Trial <strong id="delete-annual-trial-label">DTP1</strong>.
+      </div>
+      <div class="form-field">
+        <label>Deletion Scope</label>
+        <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.82rem; margin-top: 4px;">
+          <label style="display: flex; align-items: center; gap: 8px;">
+            <input type="radio" name="delete-annual-scope" value="category" checked>
+            Delete only active category (<span id="delete-annual-cat-label">FFB Yield</span>)
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px;">
+            <input type="radio" name="delete-annual-scope" value="all">
+            Delete all 4 annual plot tables for this trial
+          </label>
+        </div>
+      </div>
+      <div class="form-field">
+        <label for="delete-annual-confirm-text">Type DELETE to confirm:</label>
+        <input type="text" class="form-control" id="delete-annual-confirm-text" placeholder="DELETE">
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Cancel</button>
+      <button type="button" class="btn btn-danger" id="btn-confirm-delete-annual">Yes / Delete Permanently</button>
+    </div>
+  </div>
+</div>
+
+<!-- Floating Toast Notification -->
+<div class="toast-msg" id="toast" role="status" aria-live="polite">
+  <span id="toast-msg">Operation completed</span>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/supabase-config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="assets/js/trial-data.js"></script>
+<script src="assets/js/annual-plot-data.js"></script>
+</body>
+</html>

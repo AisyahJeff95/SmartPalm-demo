@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base href="/palmnexreads/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=3">
+  <link rel="icon" href="/favicon.ico?v=3" sizes="any">
+  <link rel="apple-touch-icon" sizes="128x128" href="/favicon.png?v=3">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Main Information · PalmnexReaDS: Palmnex Research and Database System</title>
+  <meta name="description" content="PalmnexReaDS: Palmnex Research and Database System — Main Information: Manage trial information, factorial treatment levels, and palm numbering.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="assets/css/reada.css?v=20261016c">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- ================= ReaDA Main Menu Sidebar (Figure 1) ================= -->
+  <aside class="app-sidebar" aria-label="ReaDA Main Menu">
+    <div class="sidebar-header">
+      <div class="brand-icon" aria-hidden="true">
+        <img src="assets/img/palmnex-logo.png" alt="PalmnexReaDS Logo">
+      </div>
+      <div>
+        <div class="brand-title">PalmnexReaDS</div>
+        <div class="brand-subtitle">Palmnex Research and Database System</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Application Modules">
+      <div class="nav-section-title">Main Navigation</div>
+      <ul class="nav-menu">
+        <li>
+          <a href="index.html" class="nav-item">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span>Home</span>
+          </a>
+        </li>
+        <li>
+          <a href="list-available-data.html" class="nav-item">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+            <span>List of Available Trial Data</span>
+          </a>
+        </li>
+        <li>
+          <a href="trial-main-info.html" class="nav-item active" aria-current="page">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg>
+            <span>Main Information</span>
+          </a>
+        </li>
+        <li>
+          <a href="yield-recording.html" class="nav-item">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
+            <div class="nav-item-text">
+              <span>Yield Recording Program</span>
+              <span class="nav-item-sub">FFB Harvest</span>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="vegetative-sampling.html" class="nav-item">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12"/><path d="M12 12C12 7 8 4 3 4c0 5 4 8 9 8z"/><path d="M12 12c0-4 3-7 8-7 0 4-3 7-8 7z"/></svg>
+            <div class="nav-item-text">
+              <span>Vegetative Field Sampling</span>
+              <span class="nav-item-sub">Frond 17</span>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="annual-plot-data.html" class="nav-item nav-item-annual">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>
+            <div class="nav-item-text">
+              <span>Annual Plot Data</span>
+              <span class="nav-item-sub">Annual Summaries</span>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="trial-map-explorer.html" target="_blank" rel="noopener noreferrer" class="nav-item">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+            <div class="nav-item-text">
+              <span>Trial Plots Map</span>
+              <span class="nav-item-sub">GIS Explorer ↗</span>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="user-manual.html" class="nav-item">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            <span>User Manual</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="nav-section-title" style="margin-top: 10px; padding: 2px 10px 4px; font-size: 0.68rem;">Preferences &amp; System</div>
+      <ul class="nav-menu-secondary" style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px;">
+        <li style="list-style: none; margin: 0; padding: 0;">
+          <a href="javascript:void(0)" class="nav-item-sm" style="display: flex; align-items: center; gap: 8px; padding: 5px 8px; font-size: 0.78rem; line-height: 1.25; text-decoration: none;" title="System Settings">
+            <svg class="nav-item-icon" style="width: 14px; height: 14px; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span>Settings</span>
+          </a>
+        </li>
+        <li style="list-style: none; margin: 0; padding: 0;">
+          <a href="javascript:void(0)" class="nav-item-sm" style="display: flex; align-items: center; gap: 8px; padding: 5px 8px; font-size: 0.78rem; line-height: 1.25; text-decoration: none;" title="User Account Profile">
+            <svg class="nav-item-icon" style="width: 14px; height: 14px; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>User Account</span>
+          </a>
+        </li>
+        <li style="list-style: none; margin: 0; padding: 0;">
+          <a href="javascript:void(0)" class="nav-item-sm" style="display: flex; align-items: center; gap: 8px; padding: 5px 8px; font-size: 0.78rem; line-height: 1.25; text-decoration: none;" title="Language (Malay / English)">
+            <svg class="nav-item-icon" style="width: 14px; height: 14px; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span style="flex: 1;">Language</span>
+            <span class="nav-item-badge">Malay / English</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <strong>Malaysian Palm Oil Board</strong><br>
+      MPOB · Agronomy Trial Database System
+    </div>
+  </aside>
+
+  <!-- ================= Main Application Area ================= -->
+  <main class="app-main">
+
+    <!-- Top App Header -->
+    <header class="app-header app-header-stacked">
+      <div class="header-meta">
+        <h1>Main Information · Trial Code, Trial Treatments, Trial Palm Number</h1>
+        <p>Experimental design setup, factorial treatment definitions, and palm numbering registers (MPOB Agronomy Engine Figures 3–14).</p>
+      </div>
+
+      <!-- Choose Trial Selection Bar expanded directly under the title and description -->
+      <div class="trial-selector-expanded">
+        <div class="trial-selector-left">
+          <label for="select-working-trial" class="trial-selector-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="trial-selector-icon"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg>
+            Choose Trial:
+          </label>
+          <select id="select-working-trial" class="form-control trial-selector-dropdown">
+            <!-- Populated by main-info.js -->
+          </select>
+          <span class="trial-selector-hint">Select a trial to manage its experimental design, factorial treatments, and palm registers</span>
+        </div>
+        <button type="button" class="btn btn-primary-outline" id="btn-update-code-list" title="Refresh Trial Code List from DATAINFO.DBF">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 15px; height: 15px;"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          Update Code List
+        </button>
+      </div>
+    </header>
+
+    <!-- Key Metrics Strip -->
+    <section class="metrics-strip" aria-label="Trial Quick Stats">
+      <div class="metric-pill">
+        <span class="metric-val" id="stat-trial-code" style="color: var(--brand-green);">DTP1</span>
+        <span class="metric-label">Trial Code</span>
+      </div>
+      <div class="metric-pill">
+        <span class="metric-val" id="stat-estate">Teluk Intan</span>
+        <span class="metric-label">Estate / Station</span>
+      </div>
+      <div class="metric-pill">
+        <span class="metric-val" id="stat-planting-year">1988</span>
+        <span class="metric-label">Planting Year</span>
+      </div>
+      <div class="metric-pill">
+        <span class="metric-val" id="stat-factors-count">6</span>
+        <span class="metric-label">Treatment Factors</span>
+      </div>
+      <div class="metric-pill">
+        <span class="metric-val" id="stat-plots-count">29</span>
+        <span class="metric-label">Plot Treatments</span>
+      </div>
+      <div class="metric-pill">
+        <span class="metric-val" id="stat-palms-count">24</span>
+        <span class="metric-label">Palms Registered</span>
+      </div>
+    </section>
+
+    <!-- Operations Dashboard (Figure 3: TRIAL MAIN INFORMATION) -->
+    <div class="workspace-container">
+
+      <div style="background-color: #ffffff; border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 24px;">
+        
+        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 16px;">
+          <div>
+            <h2 style="font-size: 1.15rem; font-weight: 700; color: var(--text);">TRIAL MAIN INFORMATION</h2>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+              Select an action below to manage trial information, factorial plot treatments, or palm numbering registers.
+            </p>
+          </div>
+          <span class="badge-tag" style="background-color: var(--brand-green-bg); color: var(--brand-green); border: 1px solid var(--brand-green-border);">
+            System Actions
+          </span>
+        </div>
+
+        <!-- 3 Functional Groupboxes from Figure 3 -->
+        <div class="main-info-container">
+
+          <!-- Groupbox 1: Trial Info (Trial Code) -->
+          <div class="op-groupbox">
+            <div class="op-groupbox-header">
+              <span class="op-groupbox-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                Trial Info (Trial Code)
+              </span>
+            </div>
+            <div class="op-button-list">
+              <button type="button" class="op-btn" id="btn-new-trial-info">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                  <span>New Trial Info</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button type="button" class="op-btn" id="btn-edit-trial-info">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  <span>Edit Trial Info</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button type="button" class="op-btn" id="btn-save-info-dbf">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+                  <span>Export Info As *.csv File</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button type="button" class="op-btn" id="btn-delete-trial-info">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+                  <span>Delete Trial Info</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button type="button" class="op-btn" id="btn-read-info-backup">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  <span>Read Info From Excel / Backup</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Groupbox 2: Plot Treatment -->
+          <div class="op-groupbox">
+            <div class="op-groupbox-header">
+              <span class="op-groupbox-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+                Plot Treatment
+              </span>
+            </div>
+            <div class="op-button-list">
+              <button type="button" class="op-btn" id="btn-entry-plot-treatment">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                  <span>Entry / Editing Plot Treatment</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button type="button" class="op-btn" id="btn-save-treatment-dbf">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+                  <span>Export Treatment As *.csv File</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button type="button" class="op-btn" id="btn-read-treatment-backup">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/></svg>
+                  <span>Read Treatment From Backup</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button type="button" class="op-btn" id="btn-delete-plot-treatment">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+                  <span>Delete Trial Plot Treatment</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Groupbox 3: Palm Numbering -->
+          <div class="op-groupbox">
+            <div class="op-groupbox-header">
+              <span class="op-groupbox-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 29V14"/><circle cx="16" cy="17" r="2"/></svg>
+                Palm Numbering
+              </span>
+            </div>
+            <div class="op-button-list">
+              <button type="button" class="op-btn" id="btn-entry-palm-numbering">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+                  <span>Entry/Edit On Palm Numbering</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button type="button" class="op-btn" id="btn-save-palm-dbf">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/></svg>
+                  <span>Export Palm Number As *.csv File</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button type="button" class="op-btn" id="btn-read-palm-backup">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/></svg>
+                  <span>Read Palm Number From Backup</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button type="button" class="op-btn" id="btn-delete-palm-numbering">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+                  <span>Delete Plot Palm Numbering</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Exit Procedure Bottom Bar -->
+        <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 18px;">
+          <span style="font-size: 0.8rem; color: var(--text-muted);">
+            Working in database file: <strong>DATAINFO.DBF</strong> (Trial Code Master Table)
+          </span>
+          <a href="list-available-data.html" class="btn" style="text-decoration: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+            Exit Main Info Procedure
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+
+<!-- =========================================================================
+     POP-UP 1: Trial Main Information (Figure 4 - 2.1 & 2.2)
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-trial-info" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg>
+        <span id="modal-trial-info-title">Trial Main Information</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <!-- Trial Code, Estate, Planting Year -->
+      <div class="form-row">
+        <div class="form-field">
+          <label for="info-trial-code">Trial Code</label>
+          <input type="text" id="info-trial-code" class="form-control" style="font-weight: 700; font-family: var(--font-mono); color: var(--brand-green);">
+        </div>
+        <div class="form-field" style="grid-column: span 2;">
+          <label for="info-estate">Estate</label>
+          <input type="text" id="info-estate" class="form-control" placeholder="e.g. Teluk Intan">
+        </div>
+        <div class="form-field">
+          <label for="info-planting-year">Planting Year</label>
+          <input type="number" id="info-planting-year" class="form-control" placeholder="e.g. 1988">
+        </div>
+      </div>
+
+      <!-- Geolocation & Location Points Selector -->
+      <div style="border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; margin-bottom: 16px; background-color: var(--bg-subtle);">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; color: var(--brand-green);"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span style="font-size: 0.82rem; font-weight: 600; color: var(--text);">Field Geolocation Coordinates (GPS Points)</span>
+          </div>
+          <button type="button" class="btn" id="btn-pick-location-map" style="font-size: 0.74rem; padding: 4px 11px; display: inline-flex; align-items: center; gap: 5px; background: #ffffff; border: 1px solid var(--brand-green); color: var(--brand-green); font-weight: 600; cursor: pointer;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 13px; height: 13px;"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+            Choose Location on Map
+          </button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1.3fr; gap: 12px; align-items: end;">
+          <div class="form-field">
+            <label for="info-latitude" style="font-size: 0.74rem;">Latitude (North &deg;)</label>
+            <input type="number" step="0.000001" id="info-latitude" class="form-control" placeholder="e.g. 4.025800" style="font-family: var(--font-mono); font-size: 0.82rem;">
+          </div>
+          <div class="form-field">
+            <label for="info-longitude" style="font-size: 0.74rem;">Longitude (East &deg;)</label>
+            <input type="number" step="0.000001" id="info-longitude" class="form-control" placeholder="e.g. 101.018900" style="font-family: var(--font-mono); font-size: 0.82rem;">
+          </div>
+          <div class="form-field">
+            <label for="select-preset-location" style="font-size: 0.74rem;">Or Preset Research Station</label>
+            <select id="select-preset-location" class="form-control" style="font-size: 0.78rem;">
+              <option value="">— Select Station Preset —</option>
+              <option value="4.0258,101.0189">Teluk Intan, Perak (4.0258, 101.0189)</option>
+              <option value="1.5167,104.1833">Sg. Papan, Kota Tinggi, Johor (1.5167, 104.1833)</option>
+              <option value="2.2333,103.2667">Bukit Paloh, Kluang, Johor (2.2333, 103.2667)</option>
+              <option value="2.0333,103.3167">MPOB Kluang, Johor (2.0333, 103.3167)</option>
+              <option value="5.9500,117.4167">Pamol, Sabah (5.9500, 117.4167)</option>
+              <option value="5.4833,118.0667">Malamba, Sabah (5.4833, 118.0667)</option>
+              <option value="5.0200,118.3200">MPOB Lahad Datu, Sabah (5.0200, 118.3200)</option>
+              <option value="4.2500,117.8800">MPOB Tawau, Sabah (4.2500, 117.8800)</option>
+              <option value="4.0200,101.0250">LPK Teluk Intan, Perak (4.0200, 101.0250)</option>
+              <option value="3.4167,101.3167">Gerdong, RISDA, Selangor (3.4167, 101.3167)</option>
+              <option value="2.9800,101.7300">MPOB Bangi Headquarters, Selangor (2.9800, 101.7300)</option>
+              <option value="3.1500,102.8500">MPOB Keratong, Pahang (3.1500, 102.8500)</option>
+              <option value="4.3800,113.9800">MPOB Miri, Sarawak (4.3800, 113.9800)</option>
+              <option value="1.5500,110.3500">MPOB Kuching, Sarawak (1.5500, 110.3500)</option>
+            </select>
+          </div>
+        </div>
+        <div style="font-size: 0.70rem; color: var(--text-faint); margin-top: 6px;">
+          Coordinates are stored in the Supabase <code style="font-family: var(--font-mono); font-size: 0.70rem;">trials</code> table and plotted on the interactive Trial Map Explorer.
+        </div>
+      </div>
+
+      <!-- Treatment Factor Inputs & Description -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <div style="border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; background-color: var(--bg-subtle);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+            <label for="info-factor-count" style="font-size: 0.8rem; font-weight: 600; color: var(--text);">Total No. Of Treatment Factor</label>
+            <input type="number" id="info-factor-count" class="form-control" min="1" max="7" value="6" style="width: 65px; text-align: center; padding: 4px;">
+          </div>
+          <div id="info-factors-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <!-- Rendered by main-info.js -->
+          </div>
+        </div>
+
+        <div style="border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px; display: flex; flex-direction: column; background-color: var(--bg-subtle);">
+          <label for="info-factor-details" style="font-size: 0.8rem; font-weight: 600; color: var(--text); margin-bottom: 6px;">Treatment Factor Information</label>
+          <textarea id="info-factor-details" class="form-control" style="flex: 1;" placeholder="Rep = Replicate&#10;D = Density&#10;N = Nitrogen&#10;P = Phosphorus&#10;K = Potassium&#10;L = Lime"></textarea>
+          <span style="font-size: 0.72rem; color: var(--text-faint); margin-top: 6px;">Key in detailed explanations of treatment labels.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <span style="font-size: 0.82rem; color: var(--text-muted); margin-right: auto;">Save Data ?</span>
+      <button type="button" class="btn btn-secondary btn-modal-cancel">No</button>
+      <button type="button" class="btn btn-primary" id="btn-save-trial-info">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><polyline points="20 6 9 17 4 12"/></svg>
+        Yes
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     POP-UP 2: EDITING PLOT TREATMENT DETAIL
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-plot-treatment" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 980px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+        <span>Plot Treatment Details</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <!-- Trial Header bar & Planting Density selector -->
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+        <div style="display: flex; gap: 20px; font-size: 0.88rem;">
+          <div><span style="color: var(--text-muted);">Trial Code:</span> <strong id="treatment-modal-code" style="color: var(--brand-green); font-family: var(--font-mono);">DTP1</strong></div>
+          <div><span style="color: var(--text-muted);">Estate:</span> <strong id="treatment-modal-estate">Teluk Intan</strong></div>
+        </div>
+
+        <!-- Planting Density Radio Group -->
+        <div class="density-toggle-box">
+          <label class="density-radio-label">
+            <input type="radio" name="density-mode-opt" id="density-mode-constant" value="constant">
+            <span>Constant Planting Density:</span>
+          </label>
+          <input type="number" id="density-constant-val" class="form-control" value="160" style="width: 75px; text-align: center; padding: 4px 6px;">
+
+          <label class="density-radio-label">
+            <input type="radio" name="density-mode-opt" id="density-mode-varies" value="varies" checked>
+            <span>Densities Varies As Treatment</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Trial Treatment Details Table -->
+      <div style="border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden;">
+        <div style="padding: 10px 14px; background-color: var(--bg-subtle); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between;">
+          <span style="font-size: 0.84rem; font-weight: 600; color: var(--text);">Trial Treatment Details</span>
+          <button type="button" class="btn" id="btn-add-treatment-row" style="font-size: 0.76rem; padding: 4px 10px;">
+            + Add New Plot Row
+          </button>
+        </div>
+
+        <div class="grid-table-wrap" id="treatment-table-wrap">
+          <table class="grid-table">
+            <thead>
+              <tr id="treatment-table-header-row">
+                <!-- Populated dynamically -->
+              </tr>
+            </thead>
+            <tbody id="treatment-table-body">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <span style="font-size: 0.82rem; color: var(--text-muted); margin-right: auto;">Save Treatment Data ?</span>
+      <button type="button" class="btn btn-secondary btn-modal-cancel">No</button>
+      <button type="button" class="btn btn-primary" id="btn-save-plot-treatment">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><polyline points="20 6 9 17 4 12"/></svg>
+        Yes
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     POP-UP 3: ENTERING / EDITING PALM NUMBER
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-palm-numbering" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 900px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 29V14"/><circle cx="16" cy="17" r="2"/></svg>
+        <span>Palm Numbering Register</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+        <div style="display: flex; gap: 20px; font-size: 0.88rem;">
+          <div><span style="color: var(--text-muted);">Trial Code:</span> <strong id="palm-modal-code" style="color: var(--brand-green); font-family: var(--font-mono);">DTP1</strong></div>
+          <div><span style="color: var(--text-muted);">Estate:</span> <strong id="palm-modal-estate">Teluk Intan</strong></div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn" id="btn-generate-palms" style="font-size: 0.76rem; padding: 5px 10px;">
+            Auto-Generate Palm Series
+          </button>
+          <button type="button" class="btn" id="btn-add-palm-row" style="font-size: 0.76rem; padding: 5px 10px;">
+            + Add Palm
+          </button>
+        </div>
+      </div>
+
+      <div class="grid-table-wrap" id="palm-table-wrap">
+        <table class="grid-table">
+          <thead>
+            <tr>
+              <th style="width: 50px;">Rec</th>
+              <th style="width: 44px; text-align: center;">Del</th>
+              <th style="width: 80px;">Plot No</th>
+              <th style="width: 80px;">Sub Plot</th>
+              <th style="width: 110px;">Palm No</th>
+              <th>Progeny Variety</th>
+            </tr>
+          </thead>
+          <tbody id="palm-table-body">
+            <!-- Populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <span style="font-size: 0.82rem; color: var(--text-muted); margin-right: auto;">Save Palm Numbers ?</span>
+      <button type="button" class="btn btn-secondary btn-modal-cancel">No</button>
+      <button type="button" class="btn btn-primary" id="btn-save-palm">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><polyline points="20 6 9 17 4 12"/></svg>
+        Yes
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     POP-UP 4: Save As *.dbf File (Figures 5, 8, 12 - 2.3, 2.7, 2.12)
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-save-dbf" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 580px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+        <span id="save-dbf-title">Export As *.csv File</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <div style="background-color: var(--bg-subtle); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 16px; display: flex; gap: 20px; font-size: 0.86rem;">
+        <div><span style="color: var(--text-muted);">Trial Code:</span> <strong id="save-dbf-code" style="color: var(--brand-green); font-family: var(--font-mono);">DTP1</strong></div>
+        <div><span style="color: var(--text-muted);">Estate:</span> <strong id="save-dbf-estate">Teluk Intan</strong></div>
+      </div>
+
+      <div class="form-field">
+        <label>Export Destination:</label>
+        <div style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--brand-green); font-weight: 600; padding: 8px 12px; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+          Downloads Folder (*.csv)
+        </div>
+        <span style="font-size: 0.74rem; color: var(--text-faint); margin-top: 4px; display: block;">File will be exported in standardized CSV format directly to your computer's Downloads folder.</span>
+      </div>
+
+      <div style="background-color: var(--bg-subtle); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 16px;">
+        <span style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">Content to be exported:</span>
+        <p id="save-dbf-summary" style="font-size: 0.82rem; color: var(--text); line-height: 1.4;"></p>
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <span style="font-size: 0.82rem; color: var(--text-muted); margin-right: auto;">Start Export Data ?</span>
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btn-confirm-save-dbf">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><polyline points="20 6 9 17 4 12"/></svg>
+        Export CSV
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     POP-UP 5: Read From Back Up File (Figures 6, 9, 13 - 2.5, 2.8, 2.13)
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-backup" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 620px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span id="backup-modal-title">Read From Back Up File</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <div class="form-field">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+          <label style="margin-bottom: 0;">Upload Excel Backup File (.xlsx / .xls / .csv):</label>
+          <button type="button" class="btn btn-sample-excel" id="btn-download-backup-sample" style="font-size: 0.75rem; padding: 5px 11px; display: inline-flex; align-items: center; gap: 5px; background-color: #facc15; border: 1px solid #eab308; color: #422006; font-weight: 700;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 13px; height: 13px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download Sample Excel (.xlsx)
+          </button>
+        </div>
+        <div id="backup-drop-zone" class="upload-drop-zone" onclick="document.getElementById('backup-file-upload').click()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width: 38px; height: 38px; color: var(--brand-green); margin: 0 auto 8px; display: block;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <div id="backup-drop-title" style="font-weight: 700; color: var(--text); font-size: 0.88rem; margin-bottom: 4px;">
+            Click to Browse or Drag &amp; Drop Excel File Here
+          </div>
+          <div id="backup-drop-subtitle" style="font-size: 0.75rem; color: var(--text-muted);">
+            Supports Excel Spreadsheets (.xlsx, .xls) or CSV (.csv)
+          </div>
+          <input type="file" id="backup-file-upload" accept=".xlsx,.xls,.csv" style="display: none;">
+        </div>
+        <div id="backup-expected-cols" style="margin-top: 8px; font-size: 0.74rem; color: var(--text-muted); background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; padding: 6px 10px; font-family: var(--font-mono);">
+          Expected Columns: PLOT_NO, SUB_PLOT, FACTOR1, FACTOR2, FACTOR3, FACTOR4, FACTOR5, FACTOR6, DENSITY
+        </div>
+      </div>
+
+      <div id="backup-preview-box" style="display: none; background-color: var(--brand-green-bg); border: 1px solid var(--brand-green-border); border-radius: var(--radius-sm); padding: 14px;">
+        <p id="backup-preview-text" style="font-size: 0.82rem; color: var(--brand-green); line-height: 1.5;"></p>
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Exit Read Back Up</button>
+      <button type="button" class="btn btn-primary" id="btn-start-replace-backup">
+        Start Replacing Data From Backup File
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     POP-UP 6: Read From Excel File (*.xlsx / *.xls)
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-non-reada" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 900px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/></svg>
+        <span id="non-reada-modal-title">Read From Excel File (*.xlsx / *.xls)</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <div class="form-row">
+        <div class="form-field" style="grid-column: span 2;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+            <label style="margin-bottom: 0;">Upload Excel File (.xlsx / .xls / .csv) to Read:</label>
+            <button type="button" class="btn btn-sample-excel" id="btn-download-nonreada-sample" style="font-size: 0.75rem; padding: 5px 11px; display: inline-flex; align-items: center; gap: 5px; background-color: #facc15; border: 1px solid #eab308; color: #422006; font-weight: 700;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 13px; height: 13px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download Sample Excel (.xlsx)
+            </button>
+          </div>
+          <div id="non-reada-drop-zone" class="upload-drop-zone" onclick="document.getElementById('non-reada-file-upload').click()" style="padding: 16px 12px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width: 30px; height: 30px; color: var(--brand-green); margin: 0 auto 6px; display: block;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div id="non-reada-drop-title" style="font-weight: 700; color: var(--text); font-size: 0.84rem; margin-bottom: 2px;">
+              Click to Browse or Drag &amp; Drop Excel File Here
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-muted);">
+              Supports .xlsx, .xls, or .csv
+            </div>
+            <input type="file" id="non-reada-file-upload" accept=".xlsx,.xls,.csv" style="display: none;">
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Target Trial Code</label>
+          <div id="non-reada-code" style="padding: 8px 12px; background-color: var(--bg-subtle); border-radius: var(--radius-sm); font-family: var(--font-mono); font-weight: 700; color: var(--brand-green);">DTP1</div>
+        </div>
+        <div class="form-field">
+          <label>Estate</label>
+          <div id="non-reada-estate" style="padding: 8px 12px; background-color: var(--bg-subtle); border-radius: var(--radius-sm);">Teluk Intan</div>
+        </div>
+      </div>
+
+      <div class="mapping-columns">
+        <!-- Field Mapping Table -->
+        <div style="border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; background-color: var(--bg-subtle);">
+          <span style="font-size: 0.82rem; font-weight: 600; color: var(--text); display: block; margin-bottom: 10px;">Setting Details DBase Field</span>
+          <table class="grid-table" style="background-color: #ffffff;">
+            <thead>
+              <tr><th>ReaDA Field</th><th>External DBF Field</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>PLOT</code></td><td><input type="text" class="cell-edit-input" value="PLOT_ID"></td></tr>
+              <tr><td><code>SUBPLOT</code></td><td><input type="text" class="cell-edit-input" value="BLOCK"></td></tr>
+              <tr><td><code>REP</code></td><td><input type="text" class="cell-edit-input" value="REP_CODE"></td></tr>
+              <tr><td><code>D</code></td><td><input type="text" class="cell-edit-input" value="DENS_LVL"></td></tr>
+              <tr><td><code>N</code></td><td><input type="text" class="cell-edit-input" value="N_LVL"></td></tr>
+              <tr><td><code>P</code></td><td><input type="text" class="cell-edit-input" value="P_LVL"></td></tr>
+              <tr><td><code>K</code></td><td><input type="text" class="cell-edit-input" value="K_LVL"></td></tr>
+              <tr><td><code>DENSITY</code></td><td><input type="text" class="cell-edit-input" value="SPACING"></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- External Raw Records Preview -->
+        <div style="border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; background-color: var(--bg-subtle);">
+          <span style="font-size: 0.82rem; font-weight: 600; color: var(--text); display: block; margin-bottom: 10px;">View On Data in DBF File To Be Read</span>
+          <div class="grid-table-wrap" style="max-height: 240px;">
+            <table class="grid-table" style="background-color: #ffffff;">
+              <thead id="non-reada-table-head"></thead>
+              <tbody id="non-reada-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btn-start-reading-file">
+        Start Reading File & Map Data
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     POP-UP 7: Delete Confirmation Modal (2.4, 2.10, 2.15)
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-confirm-delete" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 520px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text" style="color: #dc2626;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+        <span id="delete-modal-title">Confirm Deletion</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <p id="delete-modal-msg" style="font-size: 0.92rem; color: var(--text);"></p>
+      <div style="background-color: #fee2e2; border: 1px solid #fecaca; border-radius: var(--radius-sm); padding: 12px 14px;">
+        <p id="delete-modal-warning" style="font-size: 0.8rem; color: #991b1b; line-height: 1.45;"></p>
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Cancel-Exit</button>
+      <button type="button" class="btn btn-danger" id="btn-confirm-delete">
+        Yes / Delete Permanently
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     POP-UP 8: Choose Location Points on Map
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-pick-location" role="dialog" aria-modal="true" aria-hidden="true" style="z-index: 1050;">
+  <div class="modal-dialog" style="max-width: 820px; width: 92%;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <span>Pick Location Points on Satellite Map</span>
+      </div>
+      <button type="button" class="modal-close-icon" id="btn-close-map-picker" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll" style="padding: 14px;">
+      <!-- Location Search Box -->
+      <div style="position: relative; margin-bottom: 12px;">
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <div style="position: relative; flex: 1;">
+            <input type="text" id="picker-search-input" class="form-control" 
+                   placeholder="Search location, estate, town or GPS (e.g. Teluk Intan, Lahad Datu, 4.02, 101.03)..." 
+                   style="padding-left: 36px; padding-right: 32px; font-size: 0.82rem; height: 38px; border-radius: var(--radius-sm);"
+                   autocomplete="off">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" 
+                 style="position: absolute; left: 11px; top: 11px; width: 16px; height: 16px; color: var(--text-muted); pointer-events: none;">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <button type="button" id="btn-picker-search-clear" style="display: none; position: absolute; right: 8px; top: 9px; background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 2px;" title="Clear search">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <button type="button" class="btn btn-primary" id="btn-picker-search" style="font-size: 0.78rem; padding: 0 16px; height: 38px; display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <span>Search</span>
+          </button>
+        </div>
+
+        <!-- Search Results Dropdown List -->
+        <div id="picker-search-results" style="display: none; position: absolute; top: calc(100% + 4px); left: 0; right: 0; background: #ffffff; border: 1px solid var(--border); border-radius: var(--radius-sm); box-shadow: 0 10px 25px rgba(0,0,0,0.15); z-index: 2000; max-height: 230px; overflow-y: auto;">
+        </div>
+      </div>
+
+      <div style="font-size: 0.80rem; color: var(--text-muted); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+        <span>Click anywhere on the satellite imagery or drag the pin to adjust position.</span>
+        <span id="picker-coord-display" style="font-family: var(--font-mono); font-weight: 600; color: var(--brand-green); font-size: 0.82rem;">Lat: 4.025800 , Lng: 101.018900</span>
+      </div>
+      <div id="picker-map-canvas" style="height: 380px; width: 100%; border-radius: var(--radius-sm); border: 1px solid var(--border);"></div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel" id="btn-cancel-location-pick">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btn-confirm-location-pick">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><polyline points="20 6 9 17 4 12"/></svg>
+        Confirm & Use Selected Coordinates
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast notification -->
+<div class="toast-msg" id="toast" role="status" aria-live="polite">
+  <span id="toast-msg">Operation completed</span>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/supabase-config.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="assets/js/trial-data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="assets/js/main-info.js"></script>
+</body>
+</html>

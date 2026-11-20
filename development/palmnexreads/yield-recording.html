@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base href="/palmnexreads/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=3">
+  <link rel="icon" href="/favicon.ico?v=3" sizes="any">
+  <link rel="apple-touch-icon" sizes="128x128" href="/favicon.png?v=3">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Yield Recording Program · PalmnexReaDS: Palmnex Research and Database System</title>
+  <meta name="description" content="PalmnexReaDS: Palmnex Research and Database System — Yield Recording Program: Fresh Fruit Bunch (FFB) harvesting rounds and annual yield computation.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="assets/css/reada.css?v=20261016c">
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- ================= ReaDA Main Menu Sidebar ================= -->
+  <aside class="app-sidebar" aria-label="ReaDA Main Menu">
+    <div class="sidebar-header">
+      <div class="brand-icon" aria-hidden="true">
+        <img src="assets/img/palmnex-logo.png" alt="PalmnexReaDS Logo">
+      </div>
+      <div>
+        <div class="brand-title">PalmnexReaDS</div>
+        <div class="brand-subtitle">Palmnex Research and Database System</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav" aria-label="Application Modules">
+      <div class="nav-section-title">Main Navigation</div>
+      <ul class="nav-menu">
+        <li>
+          <a href="index.html" class="nav-item">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span>Home</span>
+          </a>
+        </li>
+        <li>
+          <a href="list-available-data.html" class="nav-item">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+            <span>List of Available Trial Data</span>
+          </a>
+        </li>
+        <li>
+          <a href="trial-main-info.html" class="nav-item">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg>
+            <span>Main Information</span>
+          </a>
+        </li>
+        <li>
+          <a href="yield-recording.html" class="nav-item active" aria-current="page">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
+            <div class="nav-item-text">
+              <span>Yield Recording Program</span>
+              <span class="nav-item-sub">FFB Harvest</span>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="vegetative-sampling.html" class="nav-item">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12"/><path d="M12 12C12 7 8 4 3 4c0 5 4 8 9 8z"/><path d="M12 12c0-4 3-7 8-7 0 4-3 7-8 7z"/></svg>
+            <div class="nav-item-text">
+              <span>Vegetative Field Sampling</span>
+              <span class="nav-item-sub">Frond 17</span>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="annual-plot-data.html" class="nav-item nav-item-annual">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>
+            <div class="nav-item-text">
+              <span>Annual Plot Data</span>
+              <span class="nav-item-sub">Annual Summaries</span>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="trial-map-explorer.html" target="_blank" rel="noopener noreferrer" class="nav-item">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+            <div class="nav-item-text">
+              <span>Trial Plots Map</span>
+              <span class="nav-item-sub">GIS Explorer ↗</span>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="user-manual.html" class="nav-item">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            <span>User Manual</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="nav-section-title" style="margin-top: 10px; padding: 2px 10px 4px; font-size: 0.68rem;">Preferences &amp; System</div>
+      <ul class="nav-menu-secondary" style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px;">
+        <li style="list-style: none; margin: 0; padding: 0;">
+          <a href="javascript:void(0)" class="nav-item-sm" style="display: flex; align-items: center; gap: 8px; padding: 5px 8px; font-size: 0.78rem; line-height: 1.25; text-decoration: none;" title="System Settings">
+            <svg class="nav-item-icon" style="width: 14px; height: 14px; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span>Settings</span>
+          </a>
+        </li>
+        <li style="list-style: none; margin: 0; padding: 0;">
+          <a href="javascript:void(0)" class="nav-item-sm" style="display: flex; align-items: center; gap: 8px; padding: 5px 8px; font-size: 0.78rem; line-height: 1.25; text-decoration: none;" title="User Account Profile">
+            <svg class="nav-item-icon" style="width: 14px; height: 14px; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>User Account</span>
+          </a>
+        </li>
+        <li style="list-style: none; margin: 0; padding: 0;">
+          <a href="javascript:void(0)" class="nav-item-sm" style="display: flex; align-items: center; gap: 8px; padding: 5px 8px; font-size: 0.78rem; line-height: 1.25; text-decoration: none;" title="Language (Malay / English)">
+            <svg class="nav-item-icon" style="width: 14px; height: 14px; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span style="flex: 1;">Language</span>
+            <span class="nav-item-badge">Malay / English</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <strong>Malaysian Palm Oil Board</strong><br>
+      MPOB · Agronomy Trial Database System
+    </div>
+  </aside>
+
+  <!-- ================= Main Application Area ================= -->
+  <main class="app-main">
+
+    <!-- Top App Header -->
+    <header class="app-header app-header-stacked">
+      <div class="header-meta">
+        <h1>Yield Recording Program</h1>
+        <p>Fresh Fruit Bunch (FFB) harvesting rounds, bunch counts (NOB), bunch weight, and annual yield computation.</p>
+      </div>
+
+      <!-- Choose Trial Selection Bar expanded directly under the title and description -->
+      <div class="trial-selector-expanded">
+        <div class="trial-selector-left">
+          <label for="select-working-trial" class="trial-selector-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="trial-selector-icon"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg>
+            Choose Trial:
+          </label>
+          <select id="select-working-trial" class="form-control trial-selector-dropdown">
+            <!-- Populated by yield-recording.js -->
+          </select>
+          <span class="trial-selector-hint">Select a trial to enter harvest rounds, update bunch weights, or compute annual FFB metrics</span>
+        </div>
+        <button type="button" class="btn btn-primary-outline" id="btn-update-code-list" title="Refresh Trial Code List from DATARYLD.DBF">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 15px; height: 15px;"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          Update Code List
+        </button>
+      </div>
+    </header>
+
+    <!-- Key Metrics Strip -->
+    <section class="metrics-strip" aria-label="Yield Quick Stats">
+      <div class="metric-pill">
+        <span class="metric-val" id="stat-trial-code" style="color: var(--brand-green);">DTP1</span>
+        <span class="metric-label">Trial Code</span>
+      </div>
+      <div class="metric-pill">
+        <span class="metric-val" id="stat-estate">Teluk Intan</span>
+        <span class="metric-label">Estate / Station</span>
+      </div>
+      <div class="metric-pill">
+        <span class="metric-val" id="stat-harvest-year">1997</span>
+        <span class="metric-label">Harvest Year</span>
+      </div>
+      <div class="metric-pill">
+        <span class="metric-val" id="stat-rounds-count">2</span>
+        <span class="metric-label">Harvesting Rounds</span>
+      </div>
+      <div class="metric-pill">
+        <span class="metric-val" id="stat-records-count">12</span>
+        <span class="metric-label">Recorded Harvests</span>
+      </div>
+      <div class="metric-pill">
+        <span class="metric-val" id="stat-missing-palms">2</span>
+        <span class="metric-label">Missing / Sterile Palms</span>
+      </div>
+    </section>
+
+    <!-- Operations Dashboard -->
+    <div class="workspace-container">
+
+      <div style="background-color: #ffffff; border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 24px;">
+        
+        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 16px;">
+          <div>
+            <h2 style="font-size: 1.15rem; font-weight: 700; color: var(--text);">YIELD RECORDING PROCEDURES</h2>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+              Select an action below to record harvesting rounds, compute annual FFB metrics, or manage backups.
+            </p>
+          </div>
+          <span class="badge-tag" style="background-color: var(--brand-green-bg); color: var(--brand-green); border: 1px solid var(--brand-green-border);">
+            Harvesting System
+          </span>
+        </div>
+
+        <!-- 3 Functional Groupboxes for Yield Recording -->
+        <div class="main-info-container">
+
+          <!-- Groupbox 1: Harvesting Data Entry & Editing -->
+          <div class="op-groupbox">
+            <div class="op-groupbox-header">
+              <span class="op-groupbox-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                Harvesting Data Entry & Editing
+              </span>
+            </div>
+            <div class="op-button-list">
+              <button type="button" class="op-btn" id="btn-new-round-entry">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                  <span>New Round Harvesting Data Entry</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button type="button" class="op-btn" id="btn-edit-yield-data">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  <span>Edit Yield Recording Data</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button type="button" class="op-btn" id="btn-palm-missing">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                  <span>Palm Missing / Vacancy Census</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Groupbox 2: Yield Calculations & Analysis -->
+          <div class="op-groupbox">
+            <div class="op-groupbox-header">
+              <span class="op-groupbox-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/><path d="M16 10h.01M12 10h.01M8 10h.01M12 14h.01M8 14h.01M12 18h.01M8 18h.01"/></svg>
+                Yield Calculations & Analysis
+              </span>
+            </div>
+            <div class="op-button-list">
+              <button type="button" class="op-btn" id="btn-calc-annual-yield">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
+                  <span>Calculate / Generate Annual FFB Yield</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button type="button" class="op-btn" id="btn-print-yield-report">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                  <span>Export Yield Analysis As *.csv</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Groupbox 3: Data Exchange & System Files -->
+          <div class="op-groupbox">
+            <div class="op-groupbox-header">
+              <span class="op-groupbox-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Data Exchange & System Files
+              </span>
+            </div>
+            <div class="op-button-list">
+              <button type="button" class="op-btn" id="btn-save-yield-dbf">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+                  <span>Export Yield Data As *.csv File</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button type="button" class="op-btn" id="btn-read-yield-backup">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/></svg>
+                  <span>Read Yield Data From Backup / Excel</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button type="button" class="op-btn" id="btn-delete-yield-data">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+                  <span>Delete Yield Recording Data</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Exit Procedure Bottom Bar -->
+        <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 18px;">
+          <span style="font-size: 0.8rem; color: var(--text-muted);">
+            Active Table: <strong>DATARYLD.DBF</strong> (Harvesting Rounds Master Table)
+          </span>
+          <a href="list-available-data.html" class="btn" style="text-decoration: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+            Exit Yield Procedure
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+
+<!-- =========================================================================
+     MODAL 1: Yield Recording Selection Dialog (REC_FYLD)
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-yield-selection" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 680px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg>
+        <span id="yield-selection-title">Select Trial & Recording Period</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <div style="display: grid; grid-template-columns: 3fr 2fr; gap: 16px;">
+        <!-- Left: Trial List -->
+        <div style="border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; background-color: var(--bg-subtle);">
+          <span style="font-size: 0.82rem; font-weight: 700; color: var(--text); display: block; margin-bottom: 8px;">Select Trial Code</span>
+          <div class="grid-table-wrap" style="max-height: 200px;">
+            <table class="grid-table">
+              <thead>
+                <tr><th>Trial</th><th>Estate</th></tr>
+              </thead>
+              <tbody id="selection-trials-tbody">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Right: Year Selection -->
+        <div style="border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; background-color: var(--bg-subtle);">
+          <span style="font-size: 0.82rem; font-weight: 700; color: var(--text); display: block; margin-bottom: 8px;">Recording Year</span>
+          <div class="grid-table-wrap" style="max-height: 200px;">
+            <table class="grid-table">
+              <thead>
+                <tr><th>Year</th></tr>
+              </thead>
+              <tbody id="selection-years-tbody">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recording Period Input Bar: [ MM ] / [ YYYY ] - [ MM ] / [ YYYY ] -->
+      <div style="background-color: var(--surface-alt); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 18px;">
+        <span style="font-size: 0.84rem; font-weight: 700; color: var(--text); display: block; margin-bottom: 8px; text-align: center;">Enter Recording Period</span>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+          <input type="number" id="sel-period-start-mn" class="form-control" min="1" max="12" value="3" style="width: 72px; padding: 6px 6px; text-align: center;">
+          <span style="font-weight: 700; color: var(--text-muted);">/</span>
+          <input type="number" id="sel-period-start-yr" class="form-control" min="1980" max="2030" value="1997" style="width: 96px; padding: 6px 6px; text-align: center;">
+          <span style="font-weight: 700; color: var(--text-muted); margin: 0 4px;">—</span>
+          <input type="number" id="sel-period-end-mn" class="form-control" min="1" max="12" value="2" style="width: 72px; padding: 6px 6px; text-align: center;">
+          <span style="font-weight: 700; color: var(--text-muted);">/</span>
+          <input type="number" id="sel-period-end-yr" class="form-control" min="1980" max="2030" value="1998" style="width: 96px; padding: 6px 6px; text-align: center;">
+        </div>
+        <p style="font-size: 0.76rem; color: var(--text-faint); text-align: center; margin-top: 6px;">
+          Annual harvesting cycle typically spans 12 calendar months (e.g. March 1997 to February 1998).
+        </p>
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Return To Menu</button>
+      <button type="button" class="btn btn-primary" id="btn-confirm-yield-selection">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><polyline points="20 6 9 17 4 12"/></svg>
+        Start Data Entry
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL 2: Interactive Harvesting Grid Editor (REC_NRYD)
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-yield-editor" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 1040px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        <span id="yield-editor-title">Harvesting Yield Data Entry & Editing</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <!-- Trial Header bar & Controls -->
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; background-color: var(--bg-subtle); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+        <div style="display: flex; gap: 20px; font-size: 0.88rem; flex-wrap: wrap;">
+          <div><span style="color: var(--text-muted);">Trial Code:</span> <strong id="editor-trial-code" style="color: var(--brand-green); font-family: var(--font-mono);">DTP1</strong></div>
+          <div><span style="color: var(--text-muted);">Estate:</span> <strong id="editor-estate">Teluk Intan</strong></div>
+          <div><span style="color: var(--text-muted);">Period:</span> <strong id="editor-period">03/1997 — 02/1998</strong></div>
+        </div>
+
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <label for="editor-filter-round" style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Filter Round:</label>
+          <select id="editor-filter-round" class="form-control" style="font-weight: 600; min-width: 130px; height: 32px; padding: 4px 8px;">
+            <option value="all">All Rounds</option>
+            <option value="1">Round 1</option>
+            <option value="2">Round 2</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Action buttons above table -->
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+        <span style="font-size: 0.82rem; font-weight: 600; color: var(--text);">Fresh Fruit Bunch (FFB) Harvesting Grid</span>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="btn" id="btn-editor-autofill" style="font-size: 0.78rem; padding: 5px 12px;" title="Auto-populate palms for the next bi-weekly round">
+            ⚡ Auto-Fill Palm Round
+          </button>
+          <button type="button" class="btn" id="btn-editor-add-row" style="font-size: 0.78rem; padding: 5px 12px;">
+            + Add Harvest Row
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Editable Harvest Grid Table -->
+      <div class="grid-table-wrap" id="editor-table-wrap" style="max-height: 340px;">
+        <table class="grid-table">
+          <thead>
+            <tr>
+              <th style="width: 48px;">Rec</th>
+              <th style="width: 44px; text-align: center;">Del</th>
+              <th style="width: 65px;">Plot</th>
+              <th style="width: 60px;">Sub</th>
+              <th style="width: 75px;">Palm</th>
+              <th style="width: 65px;">Round</th>
+              <th style="width: 105px;">Date</th>
+              <th style="width: 80px; text-align: center;">NOB</th>
+              <th style="width: 95px; text-align: center;">Bunch Wt (kg)</th>
+              <th style="width: 90px; text-align: center;">Loose (kg)</th>
+              <th style="width: 80px;">Harvester</th>
+              <th>Remarks</th>
+            </tr>
+          </thead>
+          <tbody id="editor-harvest-tbody">
+            <!-- Populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Live Summary KPI Bar -->
+      <div style="background-color: var(--surface-alt); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 18px; display: flex; align-items: center; justify-content: space-around; flex-wrap: wrap; gap: 14px;">
+        <div>
+          <span style="font-size: 0.74rem; color: var(--text-muted); display: block;">Total Bunches (NOB):</span>
+          <strong id="live-total-nob" style="font-size: 1.1rem; color: var(--text); font-family: var(--font-mono);">0</strong>
+        </div>
+        <div>
+          <span style="font-size: 0.74rem; color: var(--text-muted); display: block;">Total Bunch Wt:</span>
+          <strong id="live-total-wt" style="font-size: 1.1rem; color: var(--brand-green); font-family: var(--font-mono);">0.0 kg</strong>
+        </div>
+        <div>
+          <span style="font-size: 0.74rem; color: var(--text-muted); display: block;">Total Loose Fruit:</span>
+          <strong id="live-total-loose" style="font-size: 1.1rem; color: var(--text); font-family: var(--font-mono);">0.0 kg</strong>
+        </div>
+        <div>
+          <span style="font-size: 0.74rem; color: var(--text-muted); display: block;">Mean Bunch Wt (MBW):</span>
+          <strong id="live-mbw" style="font-size: 1.1rem; color: #b45309; font-family: var(--font-mono);">0.00 kg</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <span style="font-size: 0.82rem; color: var(--text-muted); margin-right: auto;">Save Yield Data ?</span>
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btn-save-harvest-data">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><polyline points="20 6 9 17 4 12"/></svg>
+        Save Harvest Data
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL 3: Calculate Annual FFB Yield (TOTAL_TO_FILE)
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-yield-calc" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 720px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
+        <span>Annual FFB Yield Calculation & Generation</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <p style="font-size: 0.88rem; color: var(--text); line-height: 1.5;">
+        Computes cumulative bunch counts, total FFB weight, Mean Bunch Weight (MBW), and extrapolates annual hectare yield based on planting density and recorded palm mortality.
+      </p>
+
+      <div style="background-color: var(--bg-subtle); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 16px; display: flex; gap: 20px; font-size: 0.86rem;">
+        <div><span style="color: var(--text-muted);">Trial:</span> <strong id="calc-trial-code" style="color: var(--brand-green); font-family: var(--font-mono);">DTP1</strong></div>
+        <div><span style="color: var(--text-muted);">Estate:</span> <strong id="calc-estate">Teluk Intan</strong></div>
+        <div><span style="color: var(--text-muted);">Density:</span> <strong id="calc-density">160 palms/ha</strong></div>
+      </div>
+
+      <!-- KPI Computation Grid -->
+      <div class="yield-calc-grid">
+        <div class="yield-calc-card">
+          <span class="yield-calc-val" id="calc-nob">24</span>
+          <span class="yield-calc-lbl">Harvested Bunches</span>
+          <span class="yield-calc-sub">Sum of all round counts</span>
+        </div>
+        <div class="yield-calc-card">
+          <span class="yield-calc-val" id="calc-weight">404.9 kg</span>
+          <span class="yield-calc-lbl">Total FFB Weight</span>
+          <span class="yield-calc-sub">Bunches + loose fruit</span>
+        </div>
+        <div class="yield-calc-card">
+          <span class="yield-calc-val" id="calc-mbw" style="color: #b45309;">16.87 kg</span>
+          <span class="yield-calc-lbl">Mean Bunch Wt (MBW)</span>
+          <span class="yield-calc-sub">Average kg / bunch</span>
+        </div>
+        <div class="yield-calc-card highlight">
+          <span class="yield-calc-val" id="calc-yield-tonnes">29.45</span>
+          <span class="yield-calc-lbl">Annual FFB Yield</span>
+          <span class="yield-calc-sub">Tons / Hectare / Year</span>
+        </div>
+      </div>
+
+      <div style="background-color: #f0fdf4; border: 1px solid #bbf7d0; border-radius: var(--radius-sm); padding: 12px 16px; font-size: 0.8rem; color: #166534; line-height: 1.5;">
+        <strong>Agronomic Calculation Formula (MPOB Standard):</strong><br>
+        Annual Yield = [ Total Plot FFB (kg) &times; Planting Density (palms/ha) ] / [ Bearing Palms Monitored &times; 1,000 ]<br>
+        <em>Generated annual dataset will be saved into DATAFFB.DBF for statistical ANOVA analysis.</em>
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Close</button>
+      <button type="button" class="btn btn-primary" id="btn-commit-annual-yield">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><polyline points="20 6 9 17 4 12"/></svg>
+        Generate & Save into DATAFFB.DBF
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL 4: Palm Missing / Vacancy Census (PALM_MISSING)
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-palm-missing" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 780px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        <span>Palm Missing / Mortality Census Register</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+        <span style="font-size: 0.84rem; color: var(--text-muted);">
+          Register dead, sterile, diseased, or replanted palms to adjust bearing palm census.
+        </span>
+        <button type="button" class="btn" id="btn-add-missing-row" style="font-size: 0.78rem; padding: 4px 12px;">
+          + Add Missing Palm
+        </button>
+      </div>
+
+      <div class="grid-table-wrap" style="max-height: 280px;">
+        <table class="grid-table">
+          <thead>
+            <tr>
+              <th style="width: 48px;">Rec</th>
+              <th style="width: 44px; text-align: center;">Del</th>
+              <th style="width: 70px;">Plot</th>
+              <th style="width: 60px;">Sub</th>
+              <th style="width: 85px;">Palm No</th>
+              <th style="width: 110px;">Census Date</th>
+              <th>Status / Cause</th>
+              <th style="width: 90px; text-align: center;">Replaced</th>
+            </tr>
+          </thead>
+          <tbody id="missing-palms-tbody">
+            <!-- Populated dynamically -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Close</button>
+      <button type="button" class="btn btn-primary" id="btn-save-missing-palms">
+        Save Census Records
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL 5: Printable / Export Yield Report Preview (PRINT_PALM_YLD)
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-yield-print" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 880px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        <span>Export Yield Recording Analysis Report (*.csv)</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <!-- Printable Sheet -->
+      <div class="report-sheet" id="printable-yield-report">
+        <div class="report-header">
+          <div>
+            <div class="report-title">MALAYSIAN PALM OIL BOARD (MPOB)</div>
+            <div class="report-meta">AGRONOMY TRIAL DATABASE — FRESH FRUIT BUNCH (FFB) HARVEST REPORT</div>
+          </div>
+          <div style="text-align: right; font-size: 0.8rem; color: #64748b;">
+            <div>Report Date: <strong id="report-print-date">14/10/2026</strong></div>
+            <div>Format: <strong>Standard CSV Table</strong></div>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 16px; background-color: #f8fafc; padding: 10px 14px; border: 1px solid #e2e8f0;">
+          <div>Trial: <strong id="report-trial-code" style="color: #166534;">DTP1</strong></div>
+          <div>Estate: <strong id="report-estate">Teluk Intan</strong></div>
+          <div>Harvest Cycle: <strong id="report-cycle">March 1997 — February 1998</strong></div>
+          <div>Density: <strong id="report-density">160 palms/ha</strong></div>
+        </div>
+
+        <div style="margin-bottom: 16px;">
+          <table class="grid-table" style="width: 100%; border-collapse: collapse;">
+            <thead>
+              <tr style="background-color: #f1f5f9;">
+                <th style="padding: 6px 8px; border: 1px solid #cbd5e1;">Rnd</th>
+                <th style="padding: 6px 8px; border: 1px solid #cbd5e1;">Date</th>
+                <th style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: right;">Palms Harvested</th>
+                <th style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: right;">Total Bunches (NOB)</th>
+                <th style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: right;">Bunch Wt (kg)</th>
+                <th style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: right;">Loose (kg)</th>
+                <th style="padding: 6px 8px; border: 1px solid #cbd5e1; text-align: right;">MBW (kg)</th>
+              </tr>
+            </thead>
+            <tbody id="report-rounds-tbody">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+
+        <div style="border-top: 2px solid #0f172a; padding-top: 10px; display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: 700;">
+          <span>ANNUAL SUMMARY TOTALS</span>
+          <span id="report-summary-text">Total FFB: 404.9 kg · Mean Bunch Weight: 16.87 kg · Yield: 29.45 t/ha/yr</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Close</button>
+      <button type="button" class="btn btn-primary" id="btn-trigger-print">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Export Report (.CSV)
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL 6: Save Yield Data As DBF/CSV (MAKE_COPY_FILE)
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-save-yield-dbf" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 580px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+        <span>Export Yield Recording Data As *.csv File</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <div style="background-color: var(--bg-subtle); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 16px; display: flex; gap: 20px; font-size: 0.86rem;">
+        <div><span style="color: var(--text-muted);">Trial Code:</span> <strong id="save-yield-code" style="color: var(--brand-green); font-family: var(--font-mono);">DTP1</strong></div>
+        <div><span style="color: var(--text-muted);">Estate:</span> <strong id="save-yield-estate">Teluk Intan</strong></div>
+      </div>
+
+      <div class="form-field">
+        <label>Export Destination:</label>
+        <div style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--brand-green); font-weight: 600; padding: 8px 12px; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+          Downloads Folder (DATARYLD.CSV)
+        </div>
+        <span style="font-size: 0.74rem; color: var(--text-faint); margin-top: 4px; display: block;">Exports complete FFB harvesting rounds with NOB, bunch weight, and loose fruit metrics as CSV only.</span>
+      </div>
+
+      <div style="background-color: var(--bg-subtle); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px 16px;">
+        <span style="font-size: 0.78rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 4px;">Dataset Summary:</span>
+        <p id="save-yield-summary" style="font-size: 0.82rem; color: var(--text); line-height: 1.4;"></p>
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btn-confirm-save-yield">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><polyline points="20 6 9 17 4 12"/></svg>
+        Export CSV
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL 7: Read Yield Data From BackUp (READ_BACKUP)
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-yield-backup" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 620px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span>Read Yield Recording Data From BackUp</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <div class="form-field">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+          <label style="margin-bottom: 0;">Upload Excel Backup File (.xlsx / .xls / .csv):</label>
+          <button type="button" class="btn btn-sample-excel" id="btn-download-yield-backup-sample" style="font-size: 0.75rem; padding: 5px 11px; display: inline-flex; align-items: center; gap: 5px; background-color: #facc15; border: 1px solid #eab308; color: #422006; font-weight: 700;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 13px; height: 13px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download Sample Excel (.xlsx)
+          </button>
+        </div>
+        <div id="yield-backup-drop-zone" class="upload-drop-zone" onclick="document.getElementById('yield-backup-file-upload').click()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width: 38px; height: 38px; color: var(--brand-green); margin: 0 auto 8px; display: block;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <div id="yield-backup-drop-title" style="font-weight: 700; color: var(--text); font-size: 0.88rem; margin-bottom: 4px;">
+            Click to Browse or Drag &amp; Drop Excel File Here
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">
+            Supports Excel Spreadsheets (.xlsx, .xls) or CSV (.csv)
+          </div>
+          <input type="file" id="yield-backup-file-upload" accept=".xlsx,.xls,.csv" style="display: none;">
+        </div>
+        <div style="margin-top: 8px; font-size: 0.74rem; color: var(--text-muted); background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; padding: 6px 10px; font-family: var(--font-mono);">
+          Expected Columns: PLOT_NO, SUB_PLOT, PALM_NO, ROUND_NO, HARVEST_DATE, NO_BUNCH, BUNCH_WT_KG, LOOSE_FRUIT_KG, HARVESTER_ID, REMARKS
+        </div>
+      </div>
+
+      <div id="yield-backup-preview-box" style="display: none; background-color: var(--brand-green-bg); border: 1px solid var(--brand-green-border); border-radius: var(--radius-sm); padding: 14px;">
+        <p id="yield-backup-preview-text" style="font-size: 0.82rem; color: var(--brand-green); line-height: 1.5;"></p>
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Exit Read BackUp</button>
+      <button type="button" class="btn btn-primary" id="btn-start-replace-yield-backup">
+        Start Replacing Yield Data From Backup
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL 8: Read External Non-ReaDA Yield File (RDB_YIELD_DATA)
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-yield-nonreada" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 900px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/></svg>
+        <span>Read Yield Data From Excel Spreadsheet (*.xlsx / *.xls)</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <div class="form-row">
+        <div class="form-field" style="grid-column: span 2;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+            <label style="margin-bottom: 0;">Upload Excel File (.xlsx / .xls / .csv) to Read:</label>
+            <button type="button" class="btn btn-sample-excel" id="btn-download-yield-nonreada-sample" style="font-size: 0.75rem; padding: 5px 11px; display: inline-flex; align-items: center; gap: 5px; background-color: #facc15; border: 1px solid #eab308; color: #422006; font-weight: 700;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 13px; height: 13px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download Sample Excel (.xlsx)
+            </button>
+          </div>
+          <div id="yield-nonreada-drop-zone" class="upload-drop-zone" onclick="document.getElementById('yield-excel-file-upload').click()" style="padding: 16px 12px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width: 30px; height: 30px; color: var(--brand-green); margin: 0 auto 6px; display: block;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <div id="yield-nonreada-drop-title" style="font-weight: 700; color: var(--text); font-size: 0.84rem; margin-bottom: 2px;">
+              Click to Browse or Drag &amp; Drop Excel File Here
+            </div>
+            <div style="font-size: 0.72rem; color: var(--text-muted);">
+              Supports .xlsx, .xls, or .csv
+            </div>
+            <input type="file" id="yield-excel-file-upload" accept=".xlsx,.xls,.csv" style="display: none;">
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Target Trial Code</label>
+          <div id="yield-nonreada-code" style="padding: 8px 12px; background-color: var(--bg-subtle); border-radius: var(--radius-sm); font-family: var(--font-mono); font-weight: 700; color: var(--brand-green);">DTP1</div>
+        </div>
+        <div class="form-field">
+          <label>Estate</label>
+          <div id="yield-nonreada-estate" style="padding: 8px 12px; background-color: var(--bg-subtle); border-radius: var(--radius-sm);">Teluk Intan</div>
+        </div>
+      </div>
+
+      <div class="mapping-columns">
+        <!-- Field Mapping Table -->
+        <div style="border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; background-color: var(--bg-subtle);">
+          <span style="font-size: 0.82rem; font-weight: 600; color: var(--text); display: block; margin-bottom: 10px;">Setting Details Field Mapping</span>
+          <table class="grid-table" style="background-color: #ffffff;">
+            <thead>
+              <tr><th>ReaDA Field</th><th>External File Field</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>PLOT_NO</code></td><td><input type="text" class="cell-edit-input" value="PLOT"></td></tr>
+              <tr><td><code>PALM_NO</code></td><td><input type="text" class="cell-edit-input" value="PALM"></td></tr>
+              <tr><td><code>ROUND_NO</code></td><td><input type="text" class="cell-edit-input" value="RND"></td></tr>
+              <tr><td><code>HARVEST_DATE</code></td><td><input type="text" class="cell-edit-input" value="HARV_DATE"></td></tr>
+              <tr><td><code>NOB</code></td><td><input type="text" class="cell-edit-input" value="NO_BUNCH"></td></tr>
+              <tr><td><code>BUNCH_WT</code></td><td><input type="text" class="cell-edit-input" value="BWT_KG"></td></tr>
+              <tr><td><code>LOOSE_FRUIT</code></td><td><input type="text" class="cell-edit-input" value="LOOSE_KG"></td></tr>
+              <tr><td><code>HARVESTER_ID</code></td><td><input type="text" class="cell-edit-input" value="HARV_CODE"></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- External Raw Records Preview -->
+        <div style="border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; background-color: var(--bg-subtle);">
+          <span style="font-size: 0.82rem; font-weight: 600; color: var(--text); display: block; margin-bottom: 10px;">External Logger File Preview</span>
+          <div class="grid-table-wrap" style="max-height: 240px;">
+            <table class="grid-table" style="background-color: #ffffff;">
+              <thead id="yield-nonreada-head"></thead>
+              <tbody id="yield-nonreada-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btn-start-import-yield-file">
+        Start Reading File & Map Data
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL 9: Delete Yield Recording Confirmation (DELETE_YIELD_DATA)
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-yield-delete" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 520px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text" style="color: #dc2626;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+        <span>Confirm Deletion</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <p id="delete-yield-msg" style="font-size: 0.92rem; color: var(--text);"></p>
+      <div style="background-color: #fee2e2; border: 1px solid #fecaca; border-radius: var(--radius-sm); padding: 12px 14px;">
+        <p style="font-size: 0.8rem; color: #991b1b; line-height: 1.45;">
+          ⚠️ <strong>Data Integrity Warning:</strong> Deleting harvesting records will permanently remove bunch count and weight measurements for this trial from DATARYLD.DBF. This action cannot be undone.
+        </p>
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Cancel-Exit</button>
+      <button type="button" class="btn btn-danger" id="btn-confirm-delete-yield">
+        Yes / Delete Permanently
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast notification -->
+<div class="toast-msg" id="toast" role="status" aria-live="polite">
+  <span id="toast-msg">Operation completed</span>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/supabase-config.js"></script>
+<script src="assets/js/trial-data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="assets/js/yield-recording.js"></script>
+</body>
+</html>

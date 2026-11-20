@@ -330,7 +330,7 @@ function decoratePalmnexReadsLinks(ssoUser) {
                 url.searchParams.set('company', company);
                 // Keep relative path if originally relative to current origin
                 if (!rawHref.startsWith('http://') && !rawHref.startsWith('https://')) {
-                    const relPath = url.pathname.startsWith('/') ? url.pathname.slice(1) : url.pathname;
+                    const relPath = rawHref.startsWith('/') ? url.pathname : (url.pathname.startsWith('/') ? url.pathname.slice(1) : url.pathname);
                     link.setAttribute('href', `${relPath}${url.search}${url.hash}`);
                 } else {
                     link.setAttribute('href', url.toString());

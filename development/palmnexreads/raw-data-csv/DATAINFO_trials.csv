@@ -1,0 +1,17 @@
+TRIAL_CODE,ESTATE,GROUP_NAME,PLANTING_YEAR,PLANTING_DENSITY,DENSITY_TYPE,FACTORS_COUNT,FACTOR_INFO,RECORDING_PERIOD,FFB_PERIODS_COUNT,LEAF_SAMPLINGS_COUNT,VEG_SAMPLINGS_COUNT,SOIL_SAMPLINGS_COUNT
+DTP1,Teluk Intan,MPOB,1988,148,varies,6,Rep = Replicate | D   = Density | N   = Nitrogen | P   = Phosphorus | K   = Potassium | L   = Lime,3/1997 - 2/1998,9,7,6,4
+FT1,Sg. Papan,MPOB,1989,148,constant,4,Rep = Replicate | N = Nitrogen | P = Phosphorus | K = Potassium,,0,0,0,0
+FT2,Bkt. Paloh,MPOB,1990,136,constant,4,Rep = Replicate | N = Nitrogen | K = Potassium | Mg = Magnesium,,0,0,0,0
+FT3,"Pamol, Sabah",MPOB,1991,142,constant,5,Rep = Replicate | N = Nitrogen | P = Phosphorus | K = Potassium | B = Boron,,0,0,0,0
+FT4,"Malamba, Sabah",MPOB,1992,148,constant,4,,,0,0,0,0
+FT5,"Ldg. Koko, Land",MPOB,1993,148,constant,4,,,0,0,0,0
+LPK1,Teluk Intan,MPOB,1989,160,constant,5,,,0,0,0,0
+RISDA,Gerdong,MPOB,1987,148,constant,4,,,0,0,0,0
+TEP1,Teluk Intan,MPOB,1989,148,constant,4,,,0,0,0,0
+TEP2,Felcra Sg. Mong,MPOB,1990,148,constant,4,,,0,0,0,0
+PR1998/1,Banting Station,MPOB Central,1998,148,constant,3,F3 (N x P x K),1998 - 2024,1,1,1,1
+PR2002/4,Kluang Substation,MPOB Southern,2002,138,constant,3,F4 (N x P x K x Mg),1998 - 2024,1,1,1,1
+PR2005/2,Teluk Intan Station,MPOB Northern,2005,148,constant,3,F2 (N x K),1998 - 2024,1,1,1,1
+1234,Test1,MPOB,2022,148,constant,3,F3,1998 - 2024,1,1,1,1
+test,test,MPOB,2026,148,constant,3,F3,1998 - 2024,1,1,1,1
+BSRD,LAHAD DATU,MPOB,2022,148,constant,3,F3,1998 - 2024,1,1,1,1

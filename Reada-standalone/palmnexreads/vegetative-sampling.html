@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base href="/palmnexreads/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=3">
+  <link rel="icon" href="/favicon.ico?v=3" sizes="any">
+  <link rel="apple-touch-icon" sizes="128x128" href="/favicon.png?v=3">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vegetative Field Sampling · PalmnexReaDS: Palmnex Research and Database System</title>
+  <meta name="description" content="PalmnexReaDS: Palmnex Research and Database System — Vegetative Field Sampling: Frond 17 morphometric measurements and canopy Leaf Area Index.">
+  <link rel="stylesheet" href="assets/css/reada.css?v=20261016c">
+  <style>
+    /* Specific styling for vegetative sampling dense grid */
+    .veg-input-cell {
+      width: 76px;
+      padding: 4px 6px;
+      font-size: 0.8rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      text-align: right;
+      font-family: var(--font-mono);
+      background-color: #ffffff;
+      color: var(--text);
+      transition: all 0.15s ease;
+    }
+    .veg-input-cell:focus {
+      border-color: var(--brand-green);
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(22, 101, 52, 0.1);
+      background-color: var(--brand-green-bg);
+    }
+    .badge-f17 {
+      background-color: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+    }
+    .summary-calc-col {
+      background-color: #f8fafc;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      text-align: right;
+    }
+    .summary-calc-col.highlight-col {
+      background-color: #f0fdf4;
+      color: var(--brand-green);
+      font-weight: 700;
+    }
+    .table-footer-stat {
+      background-color: var(--bg-subtle);
+      font-weight: 700;
+      border-top: 2px solid var(--border-strong);
+    }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- ================= Sidebar Navigation ================= -->
+  <aside class="app-sidebar">
+    <div class="sidebar-header">
+      <div class="brand-icon">
+        <img src="assets/img/palmnex-logo.png" alt="PalmnexReaDS Logo">
+      </div>
+      <div>
+        <div class="brand-title">PalmnexReaDS</div>
+        <div class="brand-subtitle">Palmnex Research and Database System</div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Agronomy Modules</div>
+      <ul class="nav-menu">
+        <li>
+          <a href="index.html" class="nav-item">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span>Home</span>
+          </a>
+        </li>
+        <li>
+          <a href="list-available-data.html" class="nav-item">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+            <span>List of Available Trial Data</span>
+          </a>
+        </li>
+        <li>
+          <a href="trial-main-info.html" class="nav-item">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg>
+            <span>Main Information</span>
+          </a>
+        </li>
+        <li>
+          <a href="yield-recording.html" class="nav-item">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
+            <div class="nav-item-text">
+              <span>Yield Recording Program</span>
+              <span class="nav-item-sub">FFB Harvest</span>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="vegetative-sampling.html" class="nav-item active">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12"/><path d="M12 12C12 7 8 4 3 4c0 5 4 8 9 8z"/><path d="M12 12c0-4 3-7 8-7 0 4-3 7-8 7z"/></svg>
+            <div class="nav-item-text">
+              <span>Vegetative Field Sampling</span>
+              <span class="nav-item-sub">Frond 17</span>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="annual-plot-data.html" class="nav-item nav-item-annual">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>
+            <div class="nav-item-text">
+              <span>Annual Plot Data</span>
+              <span class="nav-item-sub">Annual Summaries</span>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="trial-map-explorer.html" target="_blank" rel="noopener noreferrer" class="nav-item">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+            <div class="nav-item-text">
+              <span>Trial Plots Map</span>
+              <span class="nav-item-sub">GIS Explorer ↗</span>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a href="user-manual.html" class="nav-item">
+            <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            <span>User Manual</span>
+          </a>
+        </li>
+      </ul>
+
+      <div class="nav-section-title" style="margin-top: 10px; padding: 2px 10px 4px; font-size: 0.68rem;">Preferences &amp; System</div>
+      <ul class="nav-menu-secondary" style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px;">
+        <li style="list-style: none; margin: 0; padding: 0;">
+          <a href="javascript:void(0)" class="nav-item-sm" style="display: flex; align-items: center; gap: 8px; padding: 5px 8px; font-size: 0.78rem; line-height: 1.25; text-decoration: none;" title="System Settings">
+            <svg class="nav-item-icon" style="width: 14px; height: 14px; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span>Settings</span>
+          </a>
+        </li>
+        <li style="list-style: none; margin: 0; padding: 0;">
+          <a href="javascript:void(0)" class="nav-item-sm" style="display: flex; align-items: center; gap: 8px; padding: 5px 8px; font-size: 0.78rem; line-height: 1.25; text-decoration: none;" title="User Account Profile">
+            <svg class="nav-item-icon" style="width: 14px; height: 14px; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>User Account</span>
+          </a>
+        </li>
+        <li style="list-style: none; margin: 0; padding: 0;">
+          <a href="javascript:void(0)" class="nav-item-sm" style="display: flex; align-items: center; gap: 8px; padding: 5px 8px; font-size: 0.78rem; line-height: 1.25; text-decoration: none;" title="Language (Malay / English)">
+            <svg class="nav-item-icon" style="width: 14px; height: 14px; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            <span style="flex: 1;">Language</span>
+            <span class="nav-item-badge">Malay / English</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <strong>Malaysian Palm Oil Board</strong><br>
+      MPOB · Agronomy Trial Database System
+    </div>
+  </aside>
+
+  <!-- ================= Main Application Area ================= -->
+  <main class="app-main">
+
+    <!-- Top App Header -->
+    <header class="app-header app-header-stacked">
+      <div class="header-meta">
+        <h1>Vegetative Field Sampling</h1>
+        <p>Frond 17 morphometric measurements, petiole cross-section area, frond dry weight, leaf area, and canopy Leaf Area Index (LAI).</p>
+      </div>
+
+      <!-- Expanded Choose Trial Toolbar -->
+      <div class="trial-selector-expanded">
+        <div class="trial-selector-left">
+          <label for="select-working-trial" class="trial-selector-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="trial-selector-icon"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg>
+            Choose Trial:
+          </label>
+          <select id="select-working-trial" class="form-control trial-selector-dropdown">
+            <!-- Populated dynamically -->
+          </select>
+          <span class="trial-selector-hint">Select a trial to enter Frond 17 measurements, compute allometrics, or view canopy LAI</span>
+        </div>
+        <button type="button" class="btn btn-primary-outline" id="btn-update-code-list" title="Refresh Trial Code List from DATAVM.DBF">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 15px; height: 15px;"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          Update Code List
+        </button>
+      </div>
+    </header>
+
+    <!-- Key Metrics Strip -->
+    <section class="metrics-strip" aria-label="Vegetative Quick Stats">
+      <div class="metric-pill">
+        <span class="metric-val" id="stat-trial-code" style="color: var(--brand-green);">DTP1</span>
+        <span class="metric-label">Trial Code</span>
+      </div>
+      <div class="metric-pill">
+        <span class="metric-val" id="stat-estate">Teluk Intan</span>
+        <span class="metric-label">Estate / Station</span>
+      </div>
+      <div class="metric-pill">
+        <span class="metric-val" id="stat-sampling-year">1997</span>
+        <span class="metric-label">Sampling Year</span>
+      </div>
+      <div class="metric-pill">
+        <span class="metric-val" id="stat-frond-std"><span class="badge-f17">Frond 17</span></span>
+        <span class="metric-label">Standard Frond</span>
+      </div>
+      <div class="metric-pill">
+        <span class="metric-val" id="stat-records-count">6</span>
+        <span class="metric-label">Sampled Palms</span>
+      </div>
+      <div class="metric-pill">
+        <span class="metric-val" id="stat-mean-lai" style="color: var(--brand-green);">5.42</span>
+        <span class="metric-label">Est. Canopy LAI</span>
+      </div>
+    </section>
+
+    <!-- Operations Dashboard -->
+    <div class="workspace-container">
+
+      <div style="background-color: #ffffff; border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 24px;">
+        
+        <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); padding-bottom: 16px;">
+          <div>
+            <h2 style="font-size: 1.15rem; font-weight: 700; color: var(--text);">VEGETATIVE FIELD SAMPLING PROCEDURES</h2>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+              Select an action below to record Frond 17 measurements, compute canopy leaf allometrics, or manage archives.
+            </p>
+          </div>
+          <span class="badge-tag" style="background-color: var(--brand-green-bg); color: var(--brand-green); border: 1px solid var(--brand-green-border); font-weight: 600; font-size: 0.76rem; padding: 4px 10px; border-radius: 999px;">
+            Canopy Morphometrics
+          </span>
+        </div>
+
+        <!-- 3 Functional Groupboxes for Vegetative Sampling (VEG_PROC.WFM) -->
+        <div class="main-info-container">
+
+          <!-- Groupbox 1: Canopy Field Sampling & Data Entry -->
+          <div class="op-groupbox">
+            <div class="op-groupbox-header">
+              <span class="op-groupbox-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22V12"/><path d="M12 12C12 7 8 4 3 4c0 5 4 8 9 8z"/><path d="M12 12c0-4 3-7 8-7 0 4-3 7-8 7z"/></svg>
+                Canopy Field Sampling & Data Entry
+              </span>
+            </div>
+            <div class="op-button-list">
+              <button type="button" class="op-btn" id="btn-new-veg-entry">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                  <span>New Vegetative Sampling Data Entry</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button type="button" class="op-btn" id="btn-edit-veg-data">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  <span>Edit Vegetative Field Data</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button type="button" class="op-btn" id="btn-veg-settings">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                  <span>Sampling Settings & Coefficients</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Groupbox 2: Canopy Allometrics & LAI Computation -->
+          <div class="op-groupbox">
+            <div class="op-groupbox-header">
+              <span class="op-groupbox-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
+                Canopy Allometrics & LAI Computation
+              </span>
+            </div>
+            <div class="op-button-list">
+              <button type="button" class="op-btn" id="btn-calc-veg-mean">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                  <span>Calculate / Generate Annual Vegetative Growth & LAI</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button type="button" class="op-btn" id="btn-print-veg-report">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                  <span>Print Morphometric Sampling Report</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Groupbox 3: Data Exchange & System Files -->
+          <div class="op-groupbox">
+            <div class="op-groupbox-header">
+              <span class="op-groupbox-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Data Exchange & System Files
+              </span>
+            </div>
+            <div class="op-button-list">
+              <button type="button" class="op-btn" id="btn-save-veg-dbf">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+                  <span>Export Vegetative Data As *.csv File</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button type="button" class="op-btn" id="btn-read-veg-backup">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/></svg>
+                  <span>Read Vegetative Data From Backup / Excel</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+              <button type="button" class="op-btn" id="btn-delete-veg-data" style="color: var(--danger);">
+                <div class="op-btn-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+                  <span>Delete Vegetative Data</span>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="op-btn-arrow"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Exit Procedure Bottom Bar -->
+        <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid var(--border); padding-top: 18px;">
+          <span style="font-size: 0.8rem; color: var(--text-muted);">
+            Active Tables: <strong>DATAVM.DBF</strong> (Vegetative Master) &amp; <strong>ACFSDATA.DBF</strong> (Field Sampling Measurements)
+          </span>
+          <a href="list-available-data.html" class="btn" style="text-decoration: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5M21 12H9"/></svg>
+            Exit Vegetative Procedure
+          </a>
+        </div>
+
+      </div>
+
+      <!-- Quick Summary Table of Active Vegetative Records -->
+      <div style="background-color: #ffffff; border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; gap: 16px;">
+        <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text);">Active Frond 17 Sampling Measurements</h3>
+            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+              Live field measurements for Trial <strong id="active-summary-trial">DTP1</strong>, Sampling Year <strong id="active-summary-year">1997</strong>.
+            </p>
+          </div>
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <label for="summary-filter-plot" style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted);">Filter Plot:</label>
+            <select id="summary-filter-plot" class="form-control" style="font-size: 0.82rem; height: 34px; padding: 4px 8px; min-width: 110px;">
+              <option value="all">All Plots</option>
+              <option value="1">Plot 1</option>
+              <option value="2">Plot 2</option>
+            </select>
+            <button type="button" class="btn btn-primary" id="btn-quick-edit-veg">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Open Measurement Editor
+            </button>
+          </div>
+        </div>
+
+        <div class="grid-table-wrap" style="max-height: 440px;">
+          <table class="grid-table" id="table-veg-summary">
+            <thead>
+              <tr>
+                <th style="width: 45px;">Rec #</th>
+                <th>Plot</th>
+                <th>SubPlot</th>
+                <th>Palm No</th>
+                <th>Frond</th>
+                <th style="text-align: right;">Rachis (cm)</th>
+                <th style="text-align: right;">Pet. W (cm)</th>
+                <th style="text-align: right;">Pet. D (cm)</th>
+                <th style="text-align: right; background-color: #f1f5f9;">P &times; D (cm&sup2;)</th>
+                <th style="text-align: right;">Pinnae</th>
+                <th style="text-align: right;">Leaflet L (cm)</th>
+                <th style="text-align: right;">Leaflet W (cm)</th>
+                <th style="text-align: right; background-color: #ecfdf5; color: var(--brand-green);">Leaf Area (m&sup2;)</th>
+                <th style="text-align: right; background-color: #ecfdf5; color: var(--brand-green);">FDW (kg)</th>
+                <th style="text-align: right;">Trunk Ht (m)</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-veg-summary">
+              <!-- Rendered dynamically -->
+            </tbody>
+            <tfoot id="tfoot-veg-summary">
+              <!-- Summary averages rendered dynamically -->
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+
+<!-- =========================================================================
+     MODAL 1: Sampling Year & Date Selector Dialog (VEG_FIND)
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-veg-find" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 680px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg>
+        <span id="veg-selection-title">Select Trial &amp; Sampling Campaign</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <div style="display: grid; grid-template-columns: 3fr 2fr; gap: 16px;">
+        <!-- Left: Trial List -->
+        <div style="border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; background-color: var(--bg-subtle);">
+          <span style="font-size: 0.82rem; font-weight: 700; color: var(--text); display: block; margin-bottom: 8px;">Select Trial Code</span>
+          <div class="grid-table-wrap" style="max-height: 200px;">
+            <table class="grid-table">
+              <thead>
+                <tr><th>Trial</th><th>Estate</th></tr>
+              </thead>
+              <tbody id="selection-veg-trials-tbody">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Right: Year Selection -->
+        <div style="border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 12px; background-color: var(--bg-subtle);">
+          <span style="font-size: 0.82rem; font-weight: 700; color: var(--text); display: block; margin-bottom: 8px;">Recording Year</span>
+          <div class="grid-table-wrap" style="max-height: 200px;">
+            <table class="grid-table">
+              <thead>
+                <tr><th>Year</th></tr>
+              </thead>
+              <tbody id="selection-veg-years-tbody">
+                <!-- Populated dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sampling Date & Reference Frond -->
+      <div style="background-color: var(--surface-alt); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 16px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <div>
+          <label class="form-label" for="find-veg-date" style="font-size: 0.82rem; font-weight: 700; margin-bottom: 6px; display: block;">Measurement / Sampling Date (DD/MM/YYYY)</label>
+          <input type="text" class="form-control" id="find-veg-date" value="22/07/1997" placeholder="DD/MM/YYYY">
+        </div>
+        <div>
+          <label class="form-label" for="find-veg-frond" style="font-size: 0.82rem; font-weight: 700; margin-bottom: 6px; display: block;">Target Diagnostic Frond</label>
+          <select class="form-control" id="find-veg-frond">
+            <option value="17" selected>Frond 17 (Standard MPOB Reference)</option>
+            <option value="9">Frond 9 (Young Crown Calibration)</option>
+            <option value="33">Frond 33 (Senescent Crown Frond)</option>
+          </select>
+        </div>
+      </div>
+      <p style="font-size: 0.74rem; color: var(--text-faint); margin: 0 4px;">
+        * MPOB standard morphometric protocol utilizes Frond 17 for crown area, biomass allometrics, and Leaf Area Index (LAI).
+      </p>
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Return To Menu</button>
+      <button type="button" class="btn btn-primary" id="btn-confirm-veg-find">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><polyline points="20 6 9 17 4 12"/></svg>
+        Start Data Entry
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL 2: Interactive Frond 17 Grid Editor (VEG_EDIT)
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-veg-edit" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 1100px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22V12"/><path d="M12 12C12 7 8 4 3 4c0 5 4 8 9 8z"/><path d="M12 12c0-4 3-7 8-7 0 4-3 7-8 7z"/></svg>
+        <span>Frond 17 Vegetative Field Measurement Grid</span>
+        <span class="badge-tag" id="badge-edit-trial-year" style="background-color: var(--brand-green-bg); color: var(--brand-green); border: 1px solid var(--brand-green-border); font-size: 0.74rem; font-weight: 700; padding: 2px 8px; border-radius: 4px;">
+          DTP1 · 1997
+        </span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <!-- Trial Header bar & Controls -->
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; background-color: var(--bg-subtle); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border);">
+        <div style="display: flex; gap: 20px; font-size: 0.88rem; flex-wrap: wrap;">
+          <div><span style="color: var(--text-muted);">Sampling Date:</span> <strong id="edit-sampling-date">22/07/1997</strong></div>
+          <div><span style="color: var(--text-muted);">Standard:</span> <strong>Frond 17</strong></div>
+          <div><span style="color: var(--text-muted);">Total Palms:</span> <strong id="edit-total-palms">6</strong></div>
+        </div>
+
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button type="button" class="btn btn-secondary" id="btn-autofill-palms" title="Auto-populate sample palms from palm numbering register">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 13px; height: 13px;"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+            Auto-Fill Palms
+          </button>
+          <button type="button" class="btn btn-secondary" id="btn-add-veg-row">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 13px; height: 13px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Row
+          </button>
+          <button type="button" class="btn btn-secondary" id="btn-recalc-live" title="Recompute P x D and Leaf Area from inputs">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 13px; height: 13px;"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+            Recalculate
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Editable Grid -->
+      <div class="grid-table-wrap" style="max-height: 420px;">
+        <table class="grid-table" id="table-veg-editor">
+          <thead>
+            <tr>
+              <th style="width: 35px;">#</th>
+              <th style="width: 55px;">Plot</th>
+              <th style="width: 55px;">Sub</th>
+              <th style="width: 70px;">Palm</th>
+              <th style="width: 50px;">Frond</th>
+              <th style="text-align: right;">Rachis (cm)</th>
+              <th style="text-align: right;">Pet. W (cm)</th>
+              <th style="text-align: right;">Pet. D (cm)</th>
+              <th style="text-align: right; background-color: #f1f5f9;">P &times; D (cm&sup2;)</th>
+              <th style="text-align: right;">Pinnae</th>
+              <th style="text-align: right;">L. Len (cm)</th>
+              <th style="text-align: right;">L. Wid (cm)</th>
+              <th style="text-align: right; background-color: #ecfdf5;">LA (m&sup2;)</th>
+              <th style="text-align: right; background-color: #ecfdf5;">FDW (kg)</th>
+              <th style="text-align: right;">Trunk (m)</th>
+              <th style="text-align: center; width: 40px;">Act</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-veg-editor">
+            <!-- Rendered dynamically -->
+          </tbody>
+        </table>
+      </div>
+
+      <div style="font-size: 0.74rem; color: var(--text-faint); line-height: 1.4;">
+        * Allometric Formulations: Petiole Cross-Section Area = <code>W &times; D</code>. Frond Leaf Area (m&sup2;) = <code>(2 &times; Pinnae &times; Length &times; Width &times; 0.55) / 10,000</code>. Frond Dry Weight FDW (kg) = <code>0.1023 &times; (P &times; D)<sup>0.749</sup></code>.
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btn-save-veg-grid">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+        Save Sampling Records
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL 3: Annual Vegetative Growth & LAI Calculation (SAVE_VEG_MEAN)
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-veg-calc" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 960px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
+        <span>Annual Vegetative Growth &amp; Canopy LAI Generator</span>
+        <span class="badge-tag" id="badge-calc-trial-year" style="background-color: var(--brand-green-bg); color: var(--brand-green); border: 1px solid var(--brand-green-border); font-size: 0.74rem; font-weight: 700; padding: 2px 8px; border-radius: 4px;">
+          DTP1 · 1997
+        </span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <div style="font-size: 0.84rem; color: var(--text-muted); line-height: 1.5;">
+        Executes MPOB morphometric allometric transformations on Frond 17 measurements to compute mean crown dimensions, annual frond biomass (FDW), and stand canopy Leaf Area Index (LAI).
+      </div>
+
+      <!-- Allometric KPI Metric Cards -->
+      <div class="yield-calc-grid">
+        <div class="veg-calc-card">
+          <span class="veg-calc-lbl">Sampled Palms</span>
+          <span class="veg-calc-val" id="calc-palms-count">6</span>
+          <span class="veg-calc-sub">Calibrated Frond 17 Palms</span>
+        </div>
+        <div class="veg-calc-card">
+          <span class="veg-calc-lbl">Mean Petiole Area (P &times; D)</span>
+          <span class="veg-calc-val" id="calc-mean-petiole">20.14 cm&sup2;</span>
+          <span class="veg-calc-sub">Width: 5.18 cm &times; Depth: 3.88 cm</span>
+        </div>
+        <div class="veg-calc-card">
+          <span class="veg-calc-lbl">Mean Frond Leaf Area</span>
+          <span class="veg-calc-val" id="calc-mean-leaf-area">9.16 m&sup2;</span>
+          <span class="veg-calc-sub">Hardon shape factor k = 0.55</span>
+        </div>
+        <div class="veg-calc-card">
+          <span class="veg-calc-lbl">Frond Dry Weight (FDW)</span>
+          <span class="veg-calc-val" id="calc-mean-fdw">0.97 kg</span>
+          <span class="veg-calc-sub">Corley et al. (1971) equation</span>
+        </div>
+        <div class="veg-calc-card highlight">
+          <span class="veg-calc-lbl" style="color: var(--brand-green);">Canopy Leaf Area Index (LAI)</span>
+          <span class="veg-calc-val" id="calc-mean-lai">5.42</span>
+          <span class="veg-calc-sub">Density: 148 p/ha &times; 40 Fronds/Palm</span>
+        </div>
+        <div class="veg-calc-card">
+          <span class="veg-calc-lbl">Trunk Height &amp; Increment</span>
+          <span class="veg-calc-val" id="calc-mean-trunk">3.48 m</span>
+          <span class="veg-calc-sub">&Delta;H: +0.48 m/yr vs prior year</span>
+        </div>
+      </div>
+
+      <!-- Treatment / Plot Breakdown Table -->
+      <div style="border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden;">
+        <div style="background-color: var(--surface-alt); padding: 10px 14px; font-size: 0.8rem; font-weight: 700; color: var(--text); border-bottom: 1px solid var(--border);">
+          Plot Treatment Canopy Morphometrics Breakdown
+        </div>
+        <div class="grid-table-wrap" style="max-height: 220px; border: none;">
+          <table class="grid-table" style="font-size: 0.78rem;">
+            <thead>
+              <tr>
+                <th>Plot</th>
+                <th>Density (p/ha)</th>
+                <th style="text-align: right;">Palms</th>
+                <th style="text-align: right;">Petiole Area (cm&sup2;)</th>
+                <th style="text-align: right;">Frond LA (m&sup2;)</th>
+                <th style="text-align: right;">Frond FDW (kg)</th>
+                <th style="text-align: right; color: var(--brand-green);">Canopy LAI</th>
+                <th style="text-align: right;">Trunk Ht (m)</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-veg-plot-breakdown">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Close</button>
+      <button type="button" class="btn btn-primary" id="btn-commit-veg-calc">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+        Commit &amp; Save to DATAVM.DBF
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL 4: Sampling Settings & Allometric Coefficients
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-veg-settings" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 520px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>Vegetative Sampling Settings &amp; Coefficients</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <div style="font-size: 0.82rem; color: var(--text-muted);">
+        Standard MPOB allometric parameters for canopy leaf area and biomass modeling.
+      </div>
+      <div class="form-field">
+        <label for="setting-shape-k">Hardon Shape Factor (k)</label>
+        <input type="number" step="0.01" class="form-control" id="setting-shape-k" value="0.55">
+        <span style="font-size: 0.74rem; color: var(--text-faint);">MPOB standard: 0.55 for tenera leaflet area integration.</span>
+      </div>
+      <div class="form-field">
+        <label for="setting-fdw-a">Corley FDW Scalar (a)</label>
+        <input type="number" step="0.0001" class="form-control" id="setting-fdw-a" value="0.1023">
+        <span style="font-size: 0.74rem; color: var(--text-faint);">FDW (kg) = a &times; (P &times; D)<sup>b</sup></span>
+      </div>
+      <div class="form-field">
+        <label for="setting-fdw-b">Corley FDW Exponent (b)</label>
+        <input type="number" step="0.001" class="form-control" id="setting-fdw-b" value="0.749">
+      </div>
+      <div class="form-field">
+        <label for="setting-fronds-palm">Standing Fronds per Palm</label>
+        <input type="number" step="1" class="form-control" id="setting-fronds-palm" value="40">
+        <span style="font-size: 0.74rem; color: var(--text-faint);">Standard mature tenera canopy frond count for LAI.</span>
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary" id="btn-reset-veg-settings">Reset Defaults</button>
+      <button type="button" class="btn btn-primary" id="btn-save-veg-settings">Save Parameters</button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL 5: Printable Morphometric Report Preview
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-veg-print" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 920px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        <span>Printable Morphometric Sampling Report Preview</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <!-- Printable Report Sheet -->
+      <div class="report-sheet" id="printable-veg-sheet">
+        <div class="report-header">
+          <div>
+            <div class="report-title">MALAYSIAN PALM OIL BOARD (MPOB)</div>
+            <div style="font-size: 0.95rem; font-weight: 700; margin-top: 4px; color: #1e293b;">
+              VEGETATIVE FIELD SAMPLING &amp; CANOPY ALLOMETRICS REPORT
+            </div>
+            <div class="report-meta">
+              Trial Code: <strong id="print-trial-code">DTP1</strong> &nbsp;|&nbsp;
+              Estate / Location: <strong id="print-estate">Teluk Intan</strong> &nbsp;|&nbsp;
+              Sampling Year: <strong id="print-year">1997</strong> &nbsp;|&nbsp;
+              Date: <strong id="print-date">22/07/1997</strong>
+            </div>
+          </div>
+          <div style="text-align: right; font-size: 0.76rem; color: #64748b;">
+            <div>MPOB ReaDA Agronomy System</div>
+            <div>Table: DATAVM.DBF</div>
+            <div id="print-generated-on">Generated: 14/10/1997</div>
+          </div>
+        </div>
+
+        <!-- Morphometric Statistical Summary -->
+        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; border: 1px solid #cbd5e1; padding: 12px; border-radius: 4px; background-color: #f8fafc;">
+          <div>
+            <div style="font-size: 0.7rem; color: #64748b; font-weight: 600;">SAMPLED PALMS</div>
+            <div style="font-size: 1.1rem; font-weight: 700; color: #0f172a;" id="print-stat-palms">6 Palms</div>
+          </div>
+          <div>
+            <div style="font-size: 0.7rem; color: #64748b; font-weight: 600;">MEAN PETIOLE (P &times; D)</div>
+            <div style="font-size: 1.1rem; font-weight: 700; color: #0f172a;" id="print-stat-petiole">20.14 cm&sup2;</div>
+          </div>
+          <div>
+            <div style="font-size: 0.7rem; color: #64748b; font-weight: 600;">MEAN FROND LEAF AREA</div>
+            <div style="font-size: 1.1rem; font-weight: 700; color: #0f172a;" id="print-stat-leaf-area">9.16 m&sup2;</div>
+          </div>
+          <div>
+            <div style="font-size: 0.7rem; color: #64748b; font-weight: 600;">CANOPY LAI (m&sup2;/m&sup2;)</div>
+            <div style="font-size: 1.1rem; font-weight: 700; color: #047857;" id="print-stat-lai">5.42</div>
+          </div>
+        </div>
+
+        <!-- Printable Table -->
+        <table style="width: 100%; border-collapse: collapse; font-size: 0.76rem; margin-bottom: 24px;">
+          <thead>
+            <tr style="border-bottom: 2px solid #0f172a; text-align: left;">
+              <th style="padding: 6px 4px;">Rec</th>
+              <th style="padding: 6px 4px;">Plot</th>
+              <th style="padding: 6px 4px;">Palm</th>
+              <th style="padding: 6px 4px;">Frond</th>
+              <th style="padding: 6px 4px; text-align: right;">Rachis (cm)</th>
+              <th style="padding: 6px 4px; text-align: right;">Pet. W (cm)</th>
+              <th style="padding: 6px 4px; text-align: right;">Pet. D (cm)</th>
+              <th style="padding: 6px 4px; text-align: right;">P &times; D (cm&sup2;)</th>
+              <th style="padding: 6px 4px; text-align: right;">Pinnae</th>
+              <th style="padding: 6px 4px; text-align: right;">LA (m&sup2;)</th>
+              <th style="padding: 6px 4px; text-align: right;">FDW (kg)</th>
+              <th style="padding: 6px 4px; text-align: right;">Trunk (m)</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-print-records">
+            <!-- Populated dynamically -->
+          </tbody>
+        </table>
+
+        <!-- Signoff Footer -->
+        <div style="display: flex; justify-content: space-between; margin-top: 40px; font-size: 0.76rem; color: #334155; padding-top: 16px; border-top: 1px solid #cbd5e1;">
+          <div>
+            <div>Recorded By: _________________________</div>
+            <div style="font-size: 0.7rem; color: #64748b; margin-top: 2px;">Field Agronomy Assistant</div>
+          </div>
+          <div>
+            <div>Verified By: _________________________</div>
+            <div style="font-size: 0.7rem; color: #64748b; margin-top: 2px;">Research Officer / Agronomist</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Close</button>
+      <button type="button" class="btn btn-primary" id="btn-trigger-print">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print Report / Save PDF
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL 6: Save DBF / CSV Export Modal
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-veg-save-dbf" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 520px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg>
+        <span>Export Vegetative Measurements</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <div class="form-field">
+        <label>Export Destination</label>
+        <div style="font-family: var(--font-mono); font-size: 0.82rem; color: var(--brand-green); font-weight: 600; padding: 8px 12px; background: var(--surface-alt); border-radius: 4px; border: 1px solid var(--border);">
+          Downloads Folder (*.csv)
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Data Scope</label>
+        <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.82rem; margin-top: 4px;">
+          <label style="display: flex; align-items: center; gap: 8px;">
+            <input type="radio" name="export-veg-scope" value="raw" checked>
+            Raw Frond 17 Sampling Measurements (ACFSDATA.DBF)
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px;">
+            <input type="radio" name="export-veg-scope" value="annual">
+            Annual Morphometric &amp; LAI Summary Records (DATAVM.DBF)
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btn-confirm-export-veg">Export &amp; Download</button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL 7: Read Backup Modal (BCVM.DBF)
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-veg-read-backup" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 560px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/></svg>
+        <span>Read Vegetative Data From BackUp</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <div class="form-field">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+          <label style="margin-bottom: 0;">Upload Excel Backup File (.xlsx / .xls / .csv):</label>
+          <button type="button" class="btn btn-sample-excel" id="btn-download-veg-backup-sample" style="font-size: 0.75rem; padding: 5px 11px; display: inline-flex; align-items: center; gap: 5px; background-color: #facc15; border: 1px solid #eab308; color: #422006; font-weight: 700;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 13px; height: 13px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download Sample Excel (.xlsx)
+          </button>
+        </div>
+        <div id="veg-backup-drop-zone" class="upload-drop-zone" onclick="document.getElementById('veg-backup-file-upload').click()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width: 38px; height: 38px; color: var(--brand-green); margin: 0 auto 8px; display: block;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <div id="veg-backup-drop-title" style="font-weight: 700; color: var(--text); font-size: 0.88rem; margin-bottom: 4px;">
+            Click to Browse or Drag &amp; Drop Excel File Here
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">
+            Supports Excel Spreadsheets (.xlsx, .xls) or CSV (.csv)
+          </div>
+          <input type="file" id="veg-backup-file-upload" accept=".xlsx,.xls,.csv" style="display: none;">
+        </div>
+        <div style="margin-top: 8px; font-size: 0.74rem; color: var(--text-muted); background: var(--surface-alt); border: 1px solid var(--border); border-radius: 4px; padding: 6px 10px; font-family: var(--font-mono);">
+          Expected Columns: PLOT_NO, SUB_PLOT, PALM_NO, FROND, RACHIS_CM, PET_W_CM, PET_D_CM, PINNAE, LLEN_CM, LWID_CM, TRUNK_M
+        </div>
+      </div>
+
+      <div style="background-color: var(--surface-alt); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px; font-size: 0.82rem;">
+        <div style="font-weight: 700; margin-bottom: 8px; color: var(--text);">Information Available In BackUp File</div>
+        <div class="grid-table-wrap" style="max-height: 140px; margin-bottom: 10px;">
+          <table class="grid-table">
+            <thead>
+              <tr><th>Trial Code</th><th>Estate</th><th>Records</th></tr>
+            </thead>
+            <tbody id="tbody-backup-trials">
+              <tr style="background-color: var(--brand-green-bg); font-weight: 600;">
+                <td style="color: var(--brand-green);">DTP1</td>
+                <td>Teluk Intan</td>
+                <td>6 Records</td>
+              </tr>
+              <tr>
+                <td>FT1</td>
+                <td>Sg. Papan</td>
+                <td>4 Records</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 0.78rem;">
+          <span style="color: var(--text-muted);">Backup Archive Status:</span>
+          <span id="veg-backup-status-text" style="color: var(--brand-green); font-weight: 600;">Waiting for Excel file upload</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btn-confirm-read-backup">Restore BackUp Records</button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL 8: Read External Non-ReaDA File Modal
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-veg-read-external" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 900px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>
+        <span>Read Vegetative Data From Excel Spreadsheet (*.xlsx / *.xls)</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <div class="form-field" style="margin-bottom: 8px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 6px;">
+          <label style="margin-bottom: 0;">Upload Excel File (.xlsx / .xls / .csv) to Read:</label>
+          <button type="button" class="btn btn-sample-excel" id="btn-download-veg-external-sample" style="font-size: 0.75rem; padding: 5px 11px; display: inline-flex; align-items: center; gap: 5px; background-color: #facc15; border: 1px solid #eab308; color: #422006; font-weight: 700;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 13px; height: 13px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download Sample Excel (.xlsx)
+          </button>
+        </div>
+        <div id="veg-external-drop-zone" class="upload-drop-zone" onclick="document.getElementById('veg-excel-file-upload').click()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="width: 36px; height: 36px; color: var(--brand-green); margin: 0 auto 8px; display: block;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <div id="veg-external-drop-title" style="font-weight: 700; color: var(--text); font-size: 0.88rem; margin-bottom: 4px;">
+            Click to Browse or Drag &amp; Drop Excel File Here
+          </div>
+          <div style="font-size: 0.75rem; color: var(--text-muted);">
+            Supports Excel Spreadsheets (.xlsx, .xls) or CSV (.csv)
+          </div>
+          <input type="file" id="veg-excel-file-upload" accept=".xlsx,.xls,.csv" style="display: none;">
+        </div>
+      </div>
+
+      <!-- External Field Mapping & Preview -->
+      <div style="border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden;">
+        <div id="veg-external-preview-title" style="background-color: var(--surface-alt); padding: 10px 14px; font-size: 0.8rem; font-weight: 700; color: var(--text); border-bottom: 1px solid var(--border);">
+          Uploaded Excel Rows Preview
+        </div>
+        <div class="grid-table-wrap" style="max-height: 220px; border: none;">
+          <table class="grid-table" style="font-size: 0.78rem;" id="table-external-veg-preview">
+            <thead>
+              <tr>
+                <th>PLOT</th>
+                <th>PALM</th>
+                <th>FROND</th>
+                <th style="text-align: right;">RACHIS_CM</th>
+                <th style="text-align: right;">PET_W_CM</th>
+                <th style="text-align: right;">PET_D_CM</th>
+                <th style="text-align: right;">PINNAE</th>
+                <th style="text-align: right;">LLEN_CM</th>
+                <th style="text-align: right;">LWID_CM</th>
+                <th style="text-align: right;">TRUNK_M</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-external-veg-preview">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="btn-confirm-import-external">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px;"><polyline points="20 6 9 17 4 12"/></svg>
+        Import External Sampling Data
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- =========================================================================
+     MODAL 9: Delete Vegetative Data Confirmation
+     ========================================================================= -->
+<div class="modal-overlay" id="modal-veg-delete" role="dialog" aria-modal="true" aria-hidden="true">
+  <div class="modal-dialog" style="max-width: 500px;">
+    <div class="modal-header-bar">
+      <div class="modal-title-text" style="color: var(--danger);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color: var(--danger);"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg>
+        <span>Confirm Vegetative Data Deletion</span>
+      </div>
+      <button type="button" class="modal-close-icon" aria-label="Close dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="modal-body-scroll">
+      <div style="background-color: #fef2f2; border: 1px solid #fecaca; border-radius: var(--radius-sm); padding: 12px; font-size: 0.82rem; color: #991b1b;">
+        <strong>Warning:</strong> You are about to delete vegetative measurement records for Trial <strong id="delete-veg-trial-label">DTP1</strong>.
+      </div>
+      <div class="form-field">
+        <label>Deletion Scope</label>
+        <div style="display: flex; flex-direction: column; gap: 8px; font-size: 0.82rem; margin-top: 4px;">
+          <label style="display: flex; align-items: center; gap: 8px;">
+            <input type="radio" name="delete-veg-scope" value="year" checked>
+            Delete only active sampling campaign (<span id="delete-veg-year-label">1997</span>)
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px;">
+            <input type="radio" name="delete-veg-scope" value="all">
+            Delete all vegetative records across all years
+          </label>
+        </div>
+      </div>
+      <div class="form-field">
+        <label for="delete-veg-confirm-text">Type DELETE to confirm:</label>
+        <input type="text" class="form-control" id="delete-veg-confirm-text" placeholder="DELETE">
+      </div>
+    </div>
+
+    <div class="modal-footer-bar">
+      <button type="button" class="btn btn-secondary btn-modal-cancel">Cancel</button>
+      <button type="button" class="btn btn-danger" id="btn-confirm-delete-veg">Yes / Delete Permanently</button>
+    </div>
+  </div>
+</div>
+
+<!-- Floating Toast Notification -->
+<div class="toast-msg" id="toast" role="status" aria-live="polite">
+  <span id="toast-msg">Operation completed</span>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/supabase-config.js"></script>
+<script src="assets/js/trial-data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="assets/js/vegetative-sampling.js"></script>
+</body>
+</html>

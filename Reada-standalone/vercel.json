@@ -81,23 +81,27 @@
     },
     {
       "source": "/PalmnexReaDS",
-      "destination": "/PalmnexReaDS.html"
+      "destination": "/palmnexreads/index.html"
     },
     {
       "source": "/PalmnexReaDS.html",
-      "destination": "/PalmnexReaDS.html"
+      "destination": "/palmnexreads/index.html"
     },
     {
       "source": "/palmnexreads",
-      "destination": "/PalmnexReaDS.html"
+      "destination": "/palmnexreads/index.html"
+    },
+    {
+      "source": "/palmnexreads/",
+      "destination": "/palmnexreads/index.html"
     },
     {
       "source": "/reada",
-      "destination": "/PalmnexReaDS.html"
+      "destination": "/palmnexreads/index.html"
     },
     {
       "source": "/reada.html",
-      "destination": "/PalmnexReaDS.html"
+      "destination": "/palmnexreads/index.html"
     }
   ],
   "headers": [

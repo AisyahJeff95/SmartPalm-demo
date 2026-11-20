@@ -1,0 +1,61 @@
+FIELD_INDEX,FIELD_NAME,FIELD_TYPE,TYPE_DESCRIPTION,LENGTH,DECIMALS,BYTE_OFFSET
+1,GROUP,C,Character / Text,20,0,1
+2,TRIAL_CODE,C,Character / Text,7,0,21
+3,ESTATE,C,Character / Text,20,0,28
+4,PL_YEAR,C,Character / Text,4,0,48
+5,TRIAL_TYPE,N,Numeric,1,0,52
+6,PLDEN_TYPE,N,Numeric,1,0,53
+7,TOT_FACTOR,C,Character / Text,2,0,54
+8,F1_LABEL,C,Character / Text,3,0,56
+9,F2_LABEL,C,Character / Text,3,0,59
+10,F3_LABEL,C,Character / Text,3,0,62
+11,F4_LABEL,C,Character / Text,3,0,65
+12,F5_LABEL,C,Character / Text,3,0,68
+13,F6_LABEL,C,Character / Text,3,0,71
+14,F7_LABEL,C,Character / Text,3,0,74
+15,DATA_INFO,M,Memo,10,0,77
+16,SAMPLE_ID,C,Character / Text,10,0,87
+17,POSITION,C,Character / Text,6,0,97
+18,DEPTH,C,Character / Text,6,0,103
+19,LEDGER_NO,N,Numeric,4,0,109
+20,PLOT_NO,N,Numeric,4,0,113
+21,EXTRA_PLOT,C,Character / Text,3,0,117
+22,SUB_PLOT,C,Character / Text,10,0,120
+23,FACTOR1,C,Character / Text,3,0,130
+24,FACTOR2,C,Character / Text,3,0,133
+25,FACTOR3,C,Character / Text,3,0,136
+26,FACTOR4,C,Character / Text,3,0,139
+27,FACTOR5,C,Character / Text,3,0,142
+28,FACTOR6,C,Character / Text,3,0,145
+29,FACTOR7,C,Character / Text,3,0,148
+30,PL_DENSITY,N,Numeric,3,0,151
+31,TOT_IND_V,C,Character / Text,3,0,154
+32,ID_LABEL,C,Character / Text,7,0,157
+33,V1_LABEL,C,Character / Text,4,0,164
+34,V2_LABEL,C,Character / Text,4,0,168
+35,V3_LABEL,C,Character / Text,4,0,172
+36,V4_LABEL,C,Character / Text,4,0,176
+37,V5_LABEL,C,Character / Text,4,0,180
+38,V6_LABEL,C,Character / Text,4,0,184
+39,V7_LABEL,C,Character / Text,4,0,188
+40,V8_LABEL,C,Character / Text,4,0,192
+41,V9_LABEL,C,Character / Text,4,0,196
+42,V10_LABEL,C,Character / Text,4,0,200
+43,V11_LABEL,C,Character / Text,4,0,204
+44,V12_LABEL,C,Character / Text,4,0,208
+45,PLOT_ID,C,Character / Text,7,0,212
+46,IND_VAR1,N,Numeric,4,0,219
+47,IND_VAR2,N,Numeric,4,0,223
+48,IND_VAR3,N,Numeric,4,0,227
+49,IND_VAR4,N,Numeric,4,0,231
+50,IND_VAR5,N,Numeric,4,0,235
+51,IND_VAR6,N,Numeric,4,0,239
+52,IND_VAR7,N,Numeric,4,0,243
+53,IND_VAR8,N,Numeric,4,0,247
+54,IND_VAR9,N,Numeric,4,0,251
+55,IND_VAR10,N,Numeric,4,0,255
+56,IND_VAR11,N,Numeric,4,0,259
+57,IND_VAR12,N,Numeric,4,0,263
+58,PALM_NO,N,Numeric,5,0,267
+59,PROGENY,C,Character / Text,7,0,272
+60,NODATA,C,Character / Text,1,0,279

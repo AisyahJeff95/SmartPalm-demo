@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <base href="/palmnexreads/">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=3">
+  <link rel="icon" href="/favicon.ico?v=3" sizes="any">
+  <link rel="apple-touch-icon" sizes="128x128" href="/favicon.png?v=3">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PalmnexReaDS: Palmnex Research and Database System · MPOB</title>
+  <meta name="description" content="PalmnexReaDS: Palmnex Research and Database System — MPOB Relational Database for Oil Palm Agronomy Research Trials.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="assets/css/reada.css?v=20261016d">
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- ================= ReaDA Main Menu Sidebar ================= -->
+  <aside class="app-sidebar" aria-label="PalmnexReaDS Sidebar">
+    <div class="sidebar-header">
+      <div class="brand-icon" aria-hidden="true">
+        <img src="assets/img/palmnex-logo.png" alt="PalmnexReaDS Logo">
+      </div>
+      <div>
+        <div class="brand-title">PalmnexReaDS</div>
+        <div class="brand-subtitle">Palmnex Research and Database System</div>
+      </div>
+    </div>
+
+    <!-- Navigation Container (Shown only when user is logged in) -->
+    <div id="sidebar-nav-container" style="display: none; flex-direction: column; flex: 1;">
+      <nav class="sidebar-nav" aria-label="Application Modules">
+        <div class="nav-section-title">Main Navigation</div>
+        <ul class="nav-menu">
+          <li>
+            <a href="index.html" class="nav-item active" aria-current="page">
+              <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              <span>Home</span>
+            </a>
+          </li>
+          <li>
+            <a href="list-available-data.html" class="nav-item">
+              <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+              <span>List of Available Trial Data</span>
+            </a>
+          </li>
+          <li>
+            <a href="trial-main-info.html" class="nav-item">
+              <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 9h10M7 13h6"/></svg>
+              <span>Main Information</span>
+            </a>
+          </li>
+          <li>
+            <a href="yield-recording.html" class="nav-item">
+              <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>
+              <div class="nav-item-text">
+                <span>Yield Recording Program</span>
+                <span class="nav-item-sub">FFB Harvest</span>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="vegetative-sampling.html" class="nav-item">
+              <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22V12"/><path d="M12 12C12 7 8 4 3 4c0 5 4 8 9 8z"/><path d="M12 12c0-4 3-7 8-7 0 4-3 7-8 7z"/></svg>
+              <div class="nav-item-text">
+                <span>Vegetative Field Sampling</span>
+                <span class="nav-item-sub">Frond 17</span>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="annual-plot-data.html" class="nav-item nav-item-annual">
+              <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>
+              <div class="nav-item-text">
+                <span>Annual Plot Data</span>
+                <span class="nav-item-sub">Annual Summaries</span>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="trial-map-explorer.html" target="_blank" rel="noopener noreferrer" class="nav-item">
+              <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+              <div class="nav-item-text">
+                <span>Trial Plots Map</span>
+                <span class="nav-item-sub">GIS Explorer ↗</span>
+              </div>
+            </a>
+          </li>
+          <li>
+            <a href="user-manual.html" class="nav-item">
+              <svg class="nav-item-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              <span>User Manual</span>
+            </a>
+          </li>
+        </ul>
+
+        <div class="nav-section-title" style="margin-top: 10px; padding: 2px 10px 4px; font-size: 0.68rem;">Preferences &amp; System</div>
+        <ul class="nav-menu-secondary" style="list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px;">
+          <li style="list-style: none; margin: 0; padding: 0;">
+            <a href="javascript:void(0)" class="nav-item-sm" style="display: flex; align-items: center; gap: 8px; padding: 5px 8px; font-size: 0.78rem; line-height: 1.25; text-decoration: none;" title="System Settings">
+              <svg class="nav-item-icon" style="width: 14px; height: 14px; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              <span>Settings</span>
+            </a>
+          </li>
+          <li style="list-style: none; margin: 0; padding: 0;">
+            <a href="javascript:void(0)" class="nav-item-sm" style="display: flex; align-items: center; gap: 8px; padding: 5px 8px; font-size: 0.78rem; line-height: 1.25; text-decoration: none;" title="User Account Profile">
+              <svg class="nav-item-icon" style="width: 14px; height: 14px; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span>User Account</span>
+            </a>
+          </li>
+          <li style="list-style: none; margin: 0; padding: 0;">
+            <a href="javascript:void(0)" class="nav-item-sm" style="display: flex; align-items: center; gap: 8px; padding: 5px 8px; font-size: 0.78rem; line-height: 1.25; text-decoration: none;" title="Language (Malay / English)">
+              <svg class="nav-item-icon" style="width: 14px; height: 14px; flex-shrink: 0;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              <span style="flex: 1;">Language</span>
+              <span class="nav-item-badge">Malay / English</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+          <span style="font-weight: 600; color: var(--text); font-size: 0.74rem;" id="sidebar-user-label">Admin Session</span>
+          <button type="button" onclick="handleLogout()" title="Log out of session" style="background: none; border: none; color: #dc2626; cursor: pointer; font-size: 0.72rem; display: flex; align-items: center; gap: 4px; padding: 2px 4px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 12px; height: 12px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Logout
+          </button>
+        </div>
+        <strong>Malaysian Palm Oil Board</strong><br>
+        MPOB · Agronomy Trial Database System
+      </div>
+    </div>
+  </aside>
+
+  <!-- ================= Main Area: Full-Window Background Photo with Center Cards ================= -->
+  <main class="app-main app-main-login" style="background-image: url('assets/img/palmnex-hero.png'); background-position: calc(50% + 60px) center;">
+    
+    <!-- Dark Vignette Backdrop Filter -->
+    <div class="login-backdrop-overlay"></div>
+
+    <!-- ================= 1. Center Floating Account Access Card (Shown when NOT logged in) ================= -->
+    <div id="login-card" class="login-card">
+      <div class="login-card-header">
+        <div class="login-brand-icon">
+          <img src="assets/img/palmnex-logo.png" alt="PalmnexReaDS Logo">
+        </div>
+        <h1 class="login-title" style="margin: 0; font-size: 1.35rem;">Account Access</h1>
+        <p class="login-subtitle" style="margin: 0;">
+          Sign in or register to sync your PALMNEX data<br>
+          <span style="font-size: 0.72rem; color: #166534; font-weight: 600;">PalmnexReaDS: Palmnex Research and Database System · MPOB</span>
+        </p>
+      </div>
+
+      <!-- Segmented Tab Switcher (Sign In / Register) -->
+      <div class="auth-tabs" role="tablist">
+        <button type="button" id="auth-tab-signin" class="auth-tab-btn active" role="tab" aria-selected="true" onclick="switchAuthTab('signin')">Sign In</button>
+        <button type="button" id="auth-tab-signup" class="auth-tab-btn" role="tab" aria-selected="false" onclick="switchAuthTab('signup')">Register</button>
+      </div>
+
+      <!-- Alert Notification Banners -->
+      <div id="auth-error-msg" class="auth-alert auth-alert-error" role="alert">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; flex-shrink: 0;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="auth-error-text">Authentication failed</span>
+      </div>
+
+      <div id="auth-success-msg" class="auth-alert auth-alert-success" role="status">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; flex-shrink: 0;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <span id="auth-success-text">Authenticated successfully</span>
+      </div>
+
+      <!-- FORM 1: Sign In -->
+      <form id="auth-form-signin" class="login-form" onsubmit="handleEmailSignIn(event)">
+        <div class="login-field">
+          <label for="signin-email" class="login-label">
+            <span>Username or Email</span>
+            <span style="font-size: 0.72rem; color: var(--text-faint); font-weight: 400;">Supabase / MPOB</span>
+          </label>
+          <div class="login-input-wrap">
+            <svg class="login-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <input type="text" id="signin-email" class="login-input" placeholder="admin1 or email@domain.com" value="admin1" required autocomplete="username">
+          </div>
+        </div>
+
+        <div class="login-field">
+          <label for="signin-password" class="login-label">
+            <span>Password</span>
+            <a href="javascript:void(0)" onclick="handleForgotPassword()" style="font-size: 0.72rem; color: var(--brand-green); text-decoration: none;">Forgot?</a>
+          </label>
+          <div class="login-input-wrap">
+            <svg class="login-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="password" id="signin-password" class="login-input" placeholder="••••••••" value="admin1" required autocomplete="current-password">
+          </div>
+        </div>
+
+        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.78rem; color: var(--text-muted);">
+          <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
+            <input type="checkbox" id="signin-remember" checked style="accent-color: var(--brand-green);">
+            <span>Remember login session</span>
+          </label>
+          <span style="font-size: 0.72rem; color: var(--text-faint);">V2.0 2026</span>
+        </div>
+
+        <div class="login-actions">
+          <button type="submit" class="login-btn-primary" id="btn-auth-signin" style="background-color: #10b981;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 17px; height: 17px;"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            <span id="btn-signin-text">Sign In</span>
+          </button>
+          <button type="button" class="login-btn-demo" id="btn-login-guest" onclick="handleGuestAccess()">
+            <span>Direct Access / Researcher Demo &rarr;</span>
+          </button>
+        </div>
+      </form>
+
+      <!-- FORM 2: Register (Synced with Supabase Auth) -->
+      <form id="auth-form-signup" class="login-form" style="display: none;" onsubmit="handleEmailSignUp(event)">
+        <div class="login-field">
+          <label for="signup-name" class="login-label">
+            <span>Full Name</span>
+          </label>
+          <div class="login-input-wrap">
+            <svg class="login-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <input type="text" id="signup-name" class="login-input" placeholder="e.g. Dr. Siti Aisyah" autocomplete="name">
+          </div>
+        </div>
+
+        <div class="login-field">
+          <label for="signup-email" class="login-label">
+            <span>Username or Email</span>
+          </label>
+          <div class="login-input-wrap">
+            <svg class="login-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M16 8v5a3 3 0 0 0 6 0v-1a10 10 0 1 0-3.92 7.94"/></svg>
+            <input type="email" id="signup-email" class="login-input" required placeholder="name@mpob.gov.my" autocomplete="email">
+          </div>
+        </div>
+
+        <div class="login-field">
+          <label for="signup-password" class="login-label">
+            <span>Password</span>
+          </label>
+          <div class="login-input-wrap">
+            <svg class="login-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="password" id="signup-password" class="login-input" required placeholder="••••••••" autocomplete="new-password">
+          </div>
+        </div>
+
+        <div class="login-field">
+          <label for="signup-confirm-password" class="login-label">
+            <span>Confirm Password</span>
+          </label>
+          <div class="login-input-wrap">
+            <svg class="login-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            <input type="password" id="signup-confirm-password" class="login-input" required placeholder="••••••••" autocomplete="new-password">
+          </div>
+        </div>
+
+        <div class="login-actions">
+          <button type="submit" class="login-btn-primary" id="btn-auth-signup" style="background-color: #0284c7;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 17px; height: 17px;"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+            <span id="btn-signup-text">Register Account</span>
+          </button>
+        </div>
+      </form>
+
+      <div class="login-security-notice">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 14px; height: 14px; color: var(--brand-green); flex-shrink: 0;"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+        <span>Restricted Access: Authorized MPOB Agronomy &amp; Plant Nutrition Personnel Only</span>
+      </div>
+    </div>
+
+    <!-- ================= 2. Direct In-Page Smart Dashboard (Shown AFTER LOGGING IN) ================= -->
+    <div id="home-dashboard-view" class="home-dashboard-layout" style="display: none;">
+      
+      <div class="home-smart-content">
+        
+        <!-- Header Branding & Status -->
+        <div class="home-smart-brand">
+          <div class="home-smart-logo">
+            <img src="assets/img/palmnex-logo.png" alt="PalmnexReaDS Logo">
+          </div>
+          <div class="home-smart-header">
+            <h1>PalmnexReaDS</h1>
+            <p>Palmnex Research and Database System · MPOB</p>
+          </div>
+        </div>
+
+        <div class="home-smart-badge">
+          <span class="user-status-dot"></span>
+          <span id="home-user-badge">Active Session: Lead Agronomist (Admin)</span>
+        </div>
+
+        <!-- Short Welcome Note -->
+        <div class="home-smart-note">
+          <strong>Welcome, <span id="home-welcome-user">Lead Agronomist (Admin)</span>!</strong>
+          Your session is active. You have full access to MPOB oil palm research trial archives, field yield recordings, vegetative measurements, and annual plot analytics.
+        </div>
+
+        <!-- Action Cards Directly on Page -->
+        <div class="home-smart-cards">
+          <!-- Option 1: User Manual -->
+          <a href="user-manual.html" class="home-smart-card">
+            <div class="home-smart-icon" style="background: rgba(22, 101, 52, 0.1); color: #166534;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 22px; height: 22px;"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            </div>
+            <div class="home-smart-info">
+              <div class="home-smart-title">
+                <span>User Manual &amp; Guidelines</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              </div>
+              <div class="home-smart-desc">System documentation, MPOB operational guidelines &amp; field recording standards</div>
+            </div>
+          </a>
+
+          <!-- Section Prompt: Get Started With -->
+          <div class="home-start-label">
+            <span>Get started with</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg>
+          </div>
+
+          <!-- Option 2: List of Available Trial Data -->
+          <a href="list-available-data.html" class="home-smart-card primary-card">
+            <div class="home-smart-icon" style="background: #166534; color: #ffffff;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 22px; height: 22px;"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+            </div>
+            <div class="home-smart-info">
+              <div class="home-smart-title">
+                <span>List of Available Trial Data</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              </div>
+              <div class="home-smart-desc">Explore master trial directory, stations (Kluang, Teluk Intan, Sabah), and datasets</div>
+            </div>
+          </a>
+
+          <!-- Option 3: View Trial Plots on Map (Opens separate tab) -->
+          <a href="trial-map-explorer.html" target="_blank" rel="noopener noreferrer" class="home-smart-card">
+            <div class="home-smart-icon" style="background: rgba(14, 165, 233, 0.12); color: #0284c7;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 22px; height: 22px;"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
+            </div>
+            <div class="home-smart-info">
+              <div class="home-smart-title">
+                <span>View Trial Plots on Map</span>
+                <span style="font-size: 0.72rem; opacity: 0.8; margin-left: 2px;">↗</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px;"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+              </div>
+              <div class="home-smart-desc">Interactive GIS satellite explorer, geolocation points, polygon boundary drawing &amp; shapefile overlay</div>
+            </div>
+          </a>
+        </div>
+
+      </div>
+
+      <!-- Bottom Bar directly on page -->
+      <div class="home-smart-footer">
+        <span style="color: rgba(255, 255, 255, 0.9); text-shadow: 0 1px 3px rgba(0,0,0,0.5); font-size: 0.74rem; font-weight: 500;">
+          Malaysian Palm Oil Board · Palmnex Agronomy Station Engine V2.0
+        </span>
+        <button type="button" onclick="handleLogout()" class="home-logout-btn" style="background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(8px);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 12px; height: 12px;"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Log Out
+        </button>
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+
+<!-- Supabase SDK & Config -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="assets/js/supabase-config.js"></script>
+
+<script>
+
+  // Auto-SSO handoff from oilpalm.palmnex.com.my (?sso=1 or shared .palmnex.com.my cookie)
+  function applySsoHandoff() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const hasSsoParam = params.get('sso') === '1';
+      const hasCookie = document.cookie.split(';').some(c => c.trim().startsWith('reada_logged_in=true'));
+      if (hasSsoParam) {
+        const user = params.get('user') || 'Admin';
+        const company = params.get('company') || '';
+        const email = user.includes('@') ? user : `${user}@palmnex.com.my`;
+        const fullName = company ? `${user} (${company})` : user;
+        localStorage.setItem('reada_logged_in', 'true');
+        localStorage.setItem('palmnex_user_session', JSON.stringify({
+          username: user,
+          company: company,
+          email: email,
+          user_metadata: { full_name: fullName }
+        }));
+        try {
+          const cleanUrl = window.location.pathname + window.location.hash;
+          window.history.replaceState({}, '', cleanUrl);
+        } catch (e) {}
+      } else if (hasCookie && !localStorage.getItem('reada_logged_in')) {
+        const match = document.cookie.match(/(?:^|;\s*)palmnex_sso_user=([^;]+)/);
+        let ssoObj = { username: 'Admin', email: 'admin1@palmnex.com.my', user_metadata: { full_name: 'Lead Agronomist (Admin)' } };
+        if (match) {
+          try {
+            const parsed = JSON.parse(decodeURIComponent(match[1]));
+            const u = parsed.username || 'Admin';
+            const c = parsed.company || '';
+            ssoObj = {
+              username: u,
+              company: c,
+              email: parsed.email || `${u}@palmnex.com.my`,
+              user_metadata: { full_name: c ? `${u} (${c})` : u }
+            };
+          } catch (e) {}
+        }
+        localStorage.setItem('reada_logged_in', 'true');
+        localStorage.setItem('palmnex_user_session', JSON.stringify(ssoObj));
+      }
+    } catch (e) {}
+  }
+
+  function renderAuthState() {
+    const isLoggedIn = !!localStorage.getItem('reada_logged_in');
+    const mainEl = document.querySelector('.app-main-login');
+    const overlayEl = document.querySelector('.login-backdrop-overlay');
+    const navContainer = document.getElementById('sidebar-nav-container');
+    const loginCard = document.getElementById('login-card');
+    const dashboardView = document.getElementById('home-dashboard-view');
+    const userSessionRaw = localStorage.getItem('palmnex_user_session');
+
+    let displayName = 'Lead Agronomist (Admin)';
+    if (userSessionRaw) {
+      try {
+        const u = JSON.parse(userSessionRaw);
+        displayName = u.user_metadata?.full_name || u.email?.split('@')[0] || u.username || 'Lead Agronomist (Admin)';
+      } catch (e) {}
+    } else if (localStorage.getItem('reada_logged_in') === 'guest') {
+      displayName = 'Guest Researcher';
+    }
+
+    if (isLoggedIn) {
+      if (mainEl) mainEl.classList.add('is-authenticated');
+      if (overlayEl) overlayEl.classList.add('is-authenticated');
+      if (navContainer) navContainer.style.display = 'flex';
+      if (loginCard) loginCard.style.display = 'none';
+      if (dashboardView) dashboardView.style.display = 'flex';
+
+      const welcomeUser = document.getElementById('home-welcome-user');
+      const badgeUser = document.getElementById('home-user-badge');
+      const sidebarUser = document.getElementById('sidebar-user-label');
+      if (welcomeUser) welcomeUser.textContent = displayName;
+      if (badgeUser) badgeUser.textContent = `Active Session: ${displayName}`;
+      if (sidebarUser) sidebarUser.textContent = displayName;
+    } else {
+      if (mainEl) mainEl.classList.remove('is-authenticated');
+      if (overlayEl) overlayEl.classList.remove('is-authenticated');
+      if (navContainer) navContainer.style.display = 'none';
+      if (loginCard) loginCard.style.display = 'flex';
+      if (dashboardView) dashboardView.style.display = 'none';
+    }
+  }
+
+  function handleLogout() {
+    localStorage.removeItem('reada_logged_in');
+    document.cookie = 'reada_logged_in=; path=/; domain=.palmnex.com.my; max-age=0; SameSite=Lax';
+    document.cookie = 'palmnex_sso_user=; path=/; domain=.palmnex.com.my; max-age=0; SameSite=Lax';
+    localStorage.removeItem('palmnex_user_session');
+    const client = typeof window.getSupabase === 'function' ? window.getSupabase() : null;
+    if (client && client.auth) {
+      try { client.auth.signOut(); } catch (e) {}
+    }
+    renderAuthState();
+  }
+
+  function showAuthError(msg) {
+    const errorEl = document.getElementById('auth-error-msg');
+    const errorText = document.getElementById('auth-error-text');
+    const successEl = document.getElementById('auth-success-msg');
+    if (successEl) successEl.style.display = 'none';
+    if (!errorEl) return;
+    if (msg) {
+      errorText.textContent = msg;
+      errorEl.style.display = 'flex';
+    } else {
+      errorEl.style.display = 'none';
+    }
+  }
+
+  function showAuthSuccess(msg) {
+    const errorEl = document.getElementById('auth-error-msg');
+    const successEl = document.getElementById('auth-success-msg');
+    const successText = document.getElementById('auth-success-text');
+    if (errorEl) errorEl.style.display = 'none';
+    if (!successEl) return;
+    if (msg) {
+      successText.textContent = msg;
+      successEl.style.display = 'flex';
+    } else {
+      successEl.style.display = 'none';
+    }
+  }
+
+  function switchAuthTab(tabName) {
+    showAuthError(null);
+    showAuthSuccess(null);
+    const tabSignin = document.getElementById('auth-tab-signin');
+    const tabSignup = document.getElementById('auth-tab-signup');
+    const formSignin = document.getElementById('auth-form-signin');
+    const formSignup = document.getElementById('auth-form-signup');
+
+    if (tabName === 'signin') {
+      tabSignin.classList.add('active');
+      tabSignin.setAttribute('aria-selected', 'true');
+      tabSignup.classList.remove('active');
+      tabSignup.setAttribute('aria-selected', 'false');
+      formSignin.style.display = 'flex';
+      formSignup.style.display = 'none';
+    } else {
+      tabSignup.classList.add('active');
+      tabSignup.setAttribute('aria-selected', 'true');
+      tabSignin.classList.remove('active');
+      tabSignin.setAttribute('aria-selected', 'false');
+      formSignup.style.display = 'flex';
+      formSignin.style.display = 'none';
+    }
+  }
+
+  async function handleEmailSignIn(event) {
+    if (event) event.preventDefault();
+    const emailInput = document.getElementById('signin-email');
+    const passwordInput = document.getElementById('signin-password');
+    const rememberMe = document.getElementById('signin-remember')?.checked;
+    const btn = document.getElementById('btn-auth-signin');
+    const btnText = document.getElementById('btn-signin-text');
+
+    const rawInput = emailInput ? emailInput.value.trim() : '';
+    const password = passwordInput ? passwordInput.value : '';
+
+    if (!rawInput || !password) {
+      showAuthError("Please enter your username/email and password.");
+      return;
+    }
+
+    if (rememberMe) {
+      localStorage.setItem('palmnex_remember_me', 'true');
+    } else {
+      localStorage.removeItem('palmnex_remember_me');
+    }
+
+    // Set loading state
+    if (btn) btn.disabled = true;
+    if (btnText) btnText.innerHTML = `Verifying...`;
+
+    // 1. Check if user is testing with standard demo credentials (admin1/admin1)
+    if (rawInput === 'admin1' && (password === 'admin1' || password === 'mpob1998' || password === 'porim1998')) {
+      const demoUser = {
+        id: 'usr_demo_admin1',
+        email: 'admin1@palmnex.mpob.gov.my',
+        username: 'admin1',
+        user_metadata: { full_name: 'Lead Agronomist (Admin)' }
+      };
+      localStorage.setItem('palmnex_user_session', JSON.stringify(demoUser));
+      localStorage.setItem('reada_logged_in', 'true');
+      showAuthSuccess("Welcome admin1! Connecting to PalmnexReaDS...");
+      setTimeout(() => {
+        showAuthSuccess(null);
+        if (btn) btn.disabled = false;
+        if (btnText) btnText.innerHTML = `Sign In`;
+        renderAuthState();
+      }, 500);
+      return;
+    }
+
+    // 2. Format email if plain username
+    let emailToAuth = rawInput;
+    if (!emailToAuth.includes('@')) {
+      if (rawInput.toLowerCase() === 'admin1') {
+        emailToAuth = 'admin1@palmnex.com.my';
+      } else {
+        emailToAuth = `${rawInput}@palmnex.com.my`;
+      }
+    }
+
+    // 3. Supabase Auth attempt
+    const client = typeof window.getSupabase === 'function' ? window.getSupabase() : null;
+    if (client && client.auth) {
+      try {
+        const { data, error } = await client.auth.signInWithPassword({
+          email: emailToAuth,
+          password: password
+        });
+
+        if (error) {
+          showAuthError(error.message || "Invalid credentials with Supabase.");
+          if (btn) btn.disabled = false;
+          if (btnText) btnText.innerHTML = `Sign In`;
+          return;
+        }
+
+        if (data && data.user) {
+          localStorage.setItem('palmnex_user_session', JSON.stringify(data.user));
+          localStorage.setItem('reada_logged_in', 'true');
+          showAuthSuccess("Supabase Verified! Syncing your PALMNEX data...");
+          setTimeout(() => {
+            showAuthSuccess(null);
+            if (btn) btn.disabled = false;
+            if (btnText) btnText.innerHTML = `Sign In`;
+            renderAuthState();
+          }, 500);
+          return;
+        }
+      } catch (err) {
+        console.warn("Supabase Auth error:", err);
+        showAuthError(err.message || "Network error communicating with Supabase.");
+        if (btn) btn.disabled = false;
+        if (btnText) btnText.innerHTML = `Sign In`;
+        return;
+      }
+    }
+
+    // Fallback if client isn't available
+    localStorage.setItem('reada_logged_in', 'true');
+    showAuthSuccess("Authenticated! Entering PalmnexReaDS...");
+    setTimeout(() => {
+      showAuthSuccess(null);
+      if (btn) btn.disabled = false;
+      if (btnText) btnText.innerHTML = `Sign In`;
+      renderAuthState();
+    }, 500);
+  }
+
+  async function handleEmailSignUp(event) {
+    if (event) event.preventDefault();
+    const name = document.getElementById('signup-name')?.value?.trim();
+    const email = document.getElementById('signup-email')?.value?.trim();
+    const password = document.getElementById('signup-password')?.value;
+    const confirmPassword = document.getElementById('signup-confirm-password')?.value;
+    const btn = document.getElementById('btn-auth-signup');
+    const btnText = document.getElementById('btn-signup-text');
+
+    if (!email || !password) {
+      showAuthError("Please fill in email and password.");
+      return;
+    }
+    if (password !== confirmPassword) {
+      showAuthError("Passwords do not match.");
+      return;
+    }
+    if (password.length < 6) {
+      showAuthError("Password must be at least 6 characters.");
+      return;
+    }
+
+    const client = typeof window.getSupabase === 'function' ? window.getSupabase() : null;
+    if (!client || !client.auth) {
+      showAuthError("Supabase client is not available.");
+      return;
+    }
+
+    if (btn) btn.disabled = true;
+    if (btnText) btnText.innerHTML = `Registering...`;
+
+    try {
+      const { data, error } = await client.auth.signUp({
+        email: email,
+        password: password,
+        options: {
+          data: { full_name: name || 'Research Officer' }
+        }
+      });
+
+      if (error) {
+        showAuthError(error.message);
+        if (btn) btn.disabled = false;
+        if (btnText) btnText.innerHTML = `Register Account`;
+        return;
+      }
+
+      showAuthSuccess("Registration received! Please check your email or proceed to Sign In.");
+      setTimeout(() => {
+        switchAuthTab('signin');
+        const emailInput = document.getElementById('signin-email');
+        if (emailInput) emailInput.value = email;
+      }, 1800);
+    } catch (err) {
+      showAuthError(err.message || "Failed to register account.");
+      if (btn) btn.disabled = false;
+      if (btnText) btnText.innerHTML = `Register Account`;
+    }
+  }
+
+  function handleGuestAccess() {
+    localStorage.setItem('reada_logged_in', 'guest');
+    showAuthSuccess("Entering as Guest Researcher...");
+    setTimeout(() => {
+      showAuthSuccess(null);
+      renderAuthState();
+    }, 450);
+  }
+
+  function handleForgotPassword() {
+    alert("To reset your password, contact MPOB Station Admin or request a password reset email via your registered Supabase email address.");
+  }
+
+  // Initialize view state on page load
+  window.addEventListener('DOMContentLoaded', () => { applySsoHandoff(); renderAuthState(); });
+</script>
+
+</body>
+</html>
