@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PalmNex — Interactive 10m Pixel Nutrient & Stress Explorer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-page: #f4f7f5;
+            --text-dark: #0f291e;
+            --text-muted: #4b6358;
+            --accent-green: #10b981;
+            --card-dark: rgba(13, 17, 25, 0.94);
+            --card-border: rgba(255, 255, 255, 0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-page);
+            color: var(--text-dark);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 32px 24px;
+        }
+
+        /* Embed mode: fills 100% of parent iframe/container when ?embed=1 is passed */
+        body.embed-mode {
+            padding: 0;
+            background: transparent;
+        }
+        body.embed-mode .demo-section-layout {
+            grid-template-columns: 1fr;
+            max-width: 100%;
+            gap: 0;
+        }
+        body.embed-mode .about-copy-col {
+            display: none;
+        }
+        body.embed-mode .interactive-stage-card {
+            width: 100%;
+            height: 100vh;
+            max-width: none;
+            border-radius: 22px;
+        }
+
+        .demo-section-layout {
+            width: 100%;
+            max-width: 1180px;
+            display: grid;
+            grid-template-columns: 1fr 1.12fr;
+            gap: 54px;
+            align-items: center;
+        }
+
+        @media (max-width: 960px) {
+            .demo-section-layout {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+        }
+
+        .about-copy-col {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .eyebrow-label {
+            font-size: 13px;
+            font-weight: 700;
+            color: #0d9f6e;
+            letter-spacing: 0.2px;
+        }
+
+        .about-headline {
+            font-family: 'Outfit', 'Inter', sans-serif;
+            font-size: clamp(32px, 4vw, 48px);
+            font-weight: 800;
+            line-height: 1.08;
+            letter-spacing: -0.025em;
+            color: #0b2419;
+        }
+
+        .about-description {
+            font-size: 15px;
+            line-height: 1.68;
+            color: var(--text-muted);
+            max-width: 520px;
+        }
+
+        .audience-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 6px;
+        }
+
+        .audience-pill {
+            padding: 8px 15px;
+            border-radius: 999px;
+            background: #ffffff;
+            border: 1px solid rgba(15, 41, 30, 0.1);
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #163024;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+        }
+
+        /* Interactive stage card */
+        .interactive-stage-card {
+            position: relative;
+            width: 100%;
+            height: 500px;
+            border-radius: 24px;
+            overflow: hidden;
+            background: #07110b;
+            box-shadow: 0 26px 65px rgba(8, 28, 18, 0.24), 0 0 0 1px rgba(15, 41, 30, 0.14);
+            user-select: none;
+        }
+
+        #pixel-map-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            cursor: pointer;
+        }
+
+        /* Top instruction pill on map */
+        .map-top-hint-bar {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            z-index: 4;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 6px 11px;
+            border-radius: 999px;
+            background: rgba(13, 17, 25, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #f1f5f9;
+            font-size: 11px;
+            font-weight: 600;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+            pointer-events: none;
+        }
+
+        .pulse-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulseGlow 1.8s infinite;
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.75); }
+            70% { box-shadow: 0 0 0 7px rgba(16, 185, 129, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+
+        /* Compact legend pill bottom-left (sized so it never collides with the right meter stack) */
+        .pixel-legend-pill {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            z-index: 4;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 6px 10px;
+            border-radius: 10px;
+            background: rgba(13, 17, 25, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            color: #cbd5e1;
+            font-size: 10px;
+            font-weight: 600;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+            pointer-events: none;
+        }
+
+        .leg-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .leg-swatch {
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+        }
+
+        /* Photo 4 floating Nutrient & Stress Meter stack on the right */
+        .photo4-meter-stack {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            bottom: 12px;
+            width: 218px;
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: auto;
+        }
+
+        .meter-glass-card {
+            background: var(--card-dark);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid var(--card-border);
+            border-radius: 15px;
+            padding: 13px 14px;
+            color: #f8fafc;
+            box-shadow: 0 18px 42px rgba(0, 0, 0, 0.68);
+        }
+
+        .meter-card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+
+        .meter-estate-title {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 700;
+            color: #ffffff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .meter-status-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #f8fafc;
+            flex-shrink: 0;
+        }
+
+        .meter-pixel-sub {
+            font-size: 10.5px;
+            font-weight: 600;
+            color: #94a3b8;
+            flex-shrink: 0;
+        }
+
+        .meter-section-heading {
+            font-size: 9.5px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #94a3b8;
+            margin-bottom: 9px;
+        }
+
+        .nutrient-rows {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .nutrient-row {
+            display: grid;
+            grid-template-columns: 24px 1fr 56px;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nut-symbol {
+            font-size: 12px;
+            font-weight: 700;
+            color: #f1f5f9;
+        }
+
+        .nut-bar-track {
+            width: 100%;
+            height: 7px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .nut-bar-fill {
+            height: 100%;
+            border-radius: 999px;
+            width: 50%;
+            transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.35s ease;
+        }
+
+        .nut-value {
+            font-size: 11.5px;
+            font-weight: 700;
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+            transition: color 0.35s ease;
+        }
+
+        /* Photo 4 Overall Stress Level card */
+        .stress-card {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .stress-body {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 2px;
+        }
+
+        .stress-ring-wrap {
+            position: relative;
+            width: 68px;
+            height: 68px;
+            flex-shrink: 0;
+        }
+
+        .stress-ring-svg {
+            width: 68px;
+            height: 68px;
+            transform: rotate(-90deg);
+        }
+
+        .stress-ring-bg {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.1);
+            stroke-width: 7;
+        }
+
+        .stress-ring-fg {
+            fill: none;
+            stroke: #eab308;
+            stroke-width: 7;
+            stroke-linecap: round;
+            stroke-dasharray: 176;
+            stroke-dashoffset: 117;
+            transition: stroke-dashoffset 0.55s cubic-bezier(0.22, 1, 0.36, 1), stroke 0.35s ease;
+        }
+
+        .stress-ring-text {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13.5px;
+            font-weight: 800;
+            color: #eab308;
+            font-variant-numeric: tabular-nums;
+            transition: color 0.35s ease;
+        }
+
+        .stress-info {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .stress-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #94a3b8;
+        }
+
+        .stress-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            align-self: flex-start;
+            padding: 3px 11px;
+            border-radius: 999px;
+            font-size: 11.5px;
+            font-weight: 700;
+            background: rgba(234, 179, 8, 0.14);
+            border: 1px solid rgba(234, 179, 8, 0.45);
+            color: #facc15;
+            transition: all 0.35s ease;
+        }
+    </style>
+</head>
+<body>
+    <script>
+        if (window.location.search.includes('embed=1')) {
+            document.body.classList.add('embed-mode');
+        }
+    </script>
+
+    <section class="demo-section-layout">
+        <div class="about-copy-col">
+            <div class="eyebrow-label">About PalmNex</div>
+            <h2 class="about-headline">Every hectare is different. Fertiliser decisions should be too.</h2>
+            <p class="about-description">
+                Estate-wide averages can hide real differences in crop nutrient condition. PalmNex gives agronomists and estate teams a 10m pixel map of that variation, so fertiliser planning can focus where it matters, backed by field validation.
+            </p>
+            <p class="about-description">
+                Click any <strong>10m pixel</strong> inside the irregular estate boundary to inspect its live foliar <strong>N, P, K, Mg, B, and Ca</strong> levels and canopy stress meter.
+            </p>
+            <div class="audience-pills">
+                <span class="audience-pill">Plantation owners</span>
+                <span class="audience-pill">Management companies</span>
+                <span class="audience-pill">Estate managers</span>
+                <span class="audience-pill">Agronomists</span>
+                <span class="audience-pill">Smallholder programmes</span>
+            </div>
+        </div>
+
+        <div class="interactive-stage-card" id="interactive-stage">
+            <canvas id="pixel-map-canvas"></canvas>
+
+            <div class="map-top-hint-bar">
+                <span class="pulse-dot"></span>
+                <span>Click any 10m pixel to inspect foliar nutrients</span>
+            </div>
+
+            <div class="pixel-legend-pill">
+                <span class="leg-item"><span class="leg-swatch" style="background:#dc2626;"></span>&le;2.3%</span>
+                <span class="leg-item"><span class="leg-swatch" style="background:#facc15;"></span>2.4%</span>
+                <span class="leg-item"><span class="leg-swatch" style="background:#16a34a;"></span>2.6%</span>
+                <span class="leg-item"><span class="leg-swatch" style="background:#2563eb;"></span>&ge;2.8% N</span>
+            </div>
+
+            <!-- Photo 4 Nutrient & Stress Meter Overlay -->
+            <div class="photo4-meter-stack">
+                <div class="meter-glass-card">
+                    <div class="meter-card-top">
+                        <div class="meter-estate-title">
+                            <span class="meter-status-dot" id="meter-dot"></span>
+                            <span id="meter-block-title">Block B-02</span>
+                        </div>
+                        <span class="meter-pixel-sub" id="meter-pixel-coord">Pixel (18, 12)</span>
+                    </div>
+
+                    <div class="meter-section-heading">OVERALL NUTRIENT LEVEL</div>
+
+                    <div class="nutrient-rows">
+                        <div class="nutrient-row">
+                            <span class="nut-symbol">N</span>
+                            <div class="nut-bar-track"><div class="nut-bar-fill" id="bar-N"></div></div>
+                            <span class="nut-value" id="val-N">2.51%</span>
+                        </div>
+                        <div class="nutrient-row">
+                            <span class="nut-symbol">P</span>
+                            <div class="nut-bar-track"><div class="nut-bar-fill" id="bar-P"></div></div>
+                            <span class="nut-value" id="val-P">0.162%</span>
+                        </div>
+                        <div class="nutrient-row">
+                            <span class="nut-symbol">K</span>
+                            <div class="nut-bar-track"><div class="nut-bar-fill" id="bar-K"></div></div>
+                            <span class="nut-value" id="val-K">1.02%</span>
+                        </div>
+                        <div class="nutrient-row">
+                            <span class="nut-symbol">Mg</span>
+                            <div class="nut-bar-track"><div class="nut-bar-fill" id="bar-Mg"></div></div>
+                            <span class="nut-value" id="val-Mg">0.27%</span>
+                        </div>
+                        <div class="nutrient-row">
+                            <span class="nut-symbol">B</span>
+                            <div class="nut-bar-track"><div class="nut-bar-fill" id="bar-B"></div></div>
+                            <span class="nut-value" id="val-B">13.3 ppm</span>
+                        </div>
+                        <div class="nutrient-row">
+                            <span class="nut-symbol">Ca</span>
+                            <div class="nut-bar-track"><div class="nut-bar-fill" id="bar-Ca"></div></div>
+                            <span class="nut-value" id="val-Ca">0.64%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="meter-glass-card stress-card">
+                    <div class="meter-section-heading" style="margin-bottom: 6px;">OVERALL STRESS LEVEL</div>
+                    <div class="stress-body">
+                        <div class="stress-ring-wrap">
+                            <svg class="stress-ring-svg" viewBox="0 0 68 68">
+                                <circle class="stress-ring-bg" cx="34" cy="34" r="28"></circle>
+                                <circle class="stress-ring-fg" id="stress-ring-circle" cx="34" cy="34" r="28"></circle>
+                            </svg>
+                            <div class="stress-ring-text" id="stress-pct-text">33.5%</div>
+                        </div>
+                        <div class="stress-info">
+                            <div class="stress-label">Overall Stress</div>
+                            <span class="stress-badge" id="stress-badge-pill">Moderate</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        (function () {
+            const canvas = document.getElementById('pixel-map-canvas');
+            const ctx = canvas.getContext('2d');
+
+            // Fine 10m pixel grid across the stage
+            const COLS = 56;
+            const ROWS = 46;
+
+            // Irregular organic estate block polygons positioned in the left/center map area (0.04..0.58 x, 0.11..0.88 y)
+            // so the entire irregular outer outline & internal irregular blocks are 100% visible beside the Photo 4 meter cards!
+            const irregularBlocks = [
+                {
+                    name: 'Block A-01',
+                    poly: [
+                        [0.09, 0.18], [0.17, 0.12], [0.28, 0.14], [0.31, 0.24],
+                        [0.27, 0.34], [0.18, 0.36], [0.11, 0.32], [0.06, 0.25]
+                    ]
+                },
+                {
+                    name: 'Block A-02',
+                    poly: [
+                        [0.31, 0.24], [0.28, 0.14], [0.41, 0.11], [0.51, 0.16],
+                        [0.55, 0.26], [0.49, 0.37], [0.38, 0.39], [0.27, 0.34]
+                    ]
+                },
+                {
+                    name: 'Block B-01',
+                    poly: [
+                        [0.06, 0.42], [0.11, 0.32], [0.18, 0.36], [0.27, 0.34],
+                        [0.29, 0.48], [0.24, 0.59], [0.13, 0.61], [0.05, 0.53]
+                    ]
+                },
+                {
+                    name: 'Block B-02',
+                    poly: [
+                        [0.27, 0.34], [0.38, 0.39], [0.49, 0.37], [0.54, 0.46],
+                        [0.57, 0.56], [0.47, 0.64], [0.35, 0.62], [0.24, 0.59], [0.29, 0.48]
+                    ]
+                },
+                {
+                    name: 'Block C-01',
+                    poly: [
+                        [0.09, 0.69], [0.13, 0.61], [0.24, 0.59], [0.35, 0.62],
+                        [0.33, 0.76], [0.25, 0.86], [0.14, 0.85], [0.07, 0.78]
+                    ]
+                },
+                {
+                    name: 'Block C-02',
+                    poly: [
+                        [0.35, 0.62], [0.47, 0.64], [0.55, 0.71], [0.52, 0.82],
+                        [0.42, 0.88], [0.31, 0.83], [0.33, 0.76]
+                    ]
+                }
+            ];
+
+            function pointInPoly(x, y, poly) {
+                let inside = false;
+                for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+                    const xi = poly[i][0], yi = poly[i][1];
+                    const xj = poly[j][0], yj = poly[j][1];
+                    const intersect = ((yi > y) !== (yj > y)) &&
+                        (x < (xj - xi) * (y - yi) / ((yj - yi) || 1e-9) + xi);
+                    if (intersect) inside = !inside;
+                }
+                return inside;
+            }
+
+            function findBlockForNormalizedPoint(nx, ny) {
+                for (let i = 0; i < irregularBlocks.length; i++) {
+                    if (pointInPoly(nx, ny, irregularBlocks[i].poly)) {
+                        return irregularBlocks[i];
+                    }
+                }
+                return null;
+            }
+
+            function hash(x, y) {
+                const s = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
+                return s - Math.floor(s);
+            }
+
+            function smoothNoise(x, y) {
+                const ix = Math.floor(x), iy = Math.floor(y);
+                const fx = x - ix, fy = y - iy;
+                const u = fx * fx * (3 - 2 * fx);
+                const v = fy * fy * (3 - 2 * fy);
+                const a = hash(ix, iy), b = hash(ix + 1, iy);
+                const c = hash(ix, iy + 1), d = hash(ix + 1, iy + 1);
+                return (a * (1 - u) + b * u) * (1 - v) + (c * (1 - u) + d * u) * v;
+            }
+
+            function fbm(x, y) {
+                return 0.58 * smoothNoise(x, y) + 0.28 * smoothNoise(x * 2.1, y * 2.1) + 0.14 * smoothNoise(x * 4.2, y * 4.2);
+            }
+
+            const grid = [];
+            const activePixelsList = [];
+
+            for (let r = 0; r < ROWS; r++) {
+                const row = [];
+                for (let c = 0; c < COLS; c++) {
+                    const nx = (c + 0.5) / COLS;
+                    const ny = (r + 0.5) / ROWS;
+                    const blk = findBlockForNormalizedPoint(nx, ny);
+                    if (!blk) {
+                        row.push(null);
+                        continue;
+                    }
+
+                    const nVal = fbm(c * 0.22 + 1.4, r * 0.22 + 2.7);
+
+                    // Realistic nutrient spatial clusters inside the irregular estate
+                    const distRed1 = Math.hypot(nx - 0.44, ny - 0.25);
+                    const distRed2 = Math.hypot(nx - 0.17, ny - 0.74);
+                    const distYellow1 = Math.hypot(nx - 0.34, ny - 0.44);
+                    const distBlue1 = Math.hypot(nx - 0.20, ny - 0.52);
+                    const distBlue2 = Math.hypot(nx - 0.43, ny - 0.74);
+
+                    let score = 0.58 + (nVal - 0.5) * 0.58;
+                    if (distRed1 < 0.14) score -= (0.14 - distRed1) * 3.1;
+                    if (distRed2 < 0.10) score -= (0.10 - distRed2) * 2.9;
+                    if (distYellow1 < 0.15) score -= (0.15 - distYellow1) * 1.45;
+                    if (distBlue1 < 0.075) score += 0.32;
+                    if (distBlue2 < 0.065) score += 0.30;
+
+                    let color, tier;
+                    const jitter = (hash(c * 3, r * 7) - 0.5);
+
+                    if (score < 0.33) {
+                        tier = 'critical';
+                        color = jitter > 0 ? '#dc2626' : '#ef4444';
+                    } else if (score < 0.48) {
+                        tier = 'moderate';
+                        color = jitter > 0.1 ? '#facc15' : '#eab308';
+                    } else if (score > 0.77) {
+                        tier = 'high';
+                        color = jitter > 0 ? '#2563eb' : '#1d4ed8';
+                    } else {
+                        tier = 'optimal';
+                        color = jitter > 0.2 ? '#22c55e' : (jitter < -0.2 ? '#15803d' : '#16a34a');
+                    }
+
+                    const clamped = Math.max(0.1, Math.min(0.95, score));
+                    const N  = (1.98 + clamped * 0.96 + jitter * 0.05).toFixed(2);
+                    const P  = (0.128 + clamped * 0.058 + jitter * 0.004).toFixed(3);
+                    const K  = (0.78 + clamped * 0.46 + jitter * 0.03).toFixed(2);
+                    const Mg = (0.19 + clamped * 0.14 + jitter * 0.01).toFixed(2);
+                    const B  = (10.4 + clamped * 8.2 + jitter * 0.6).toFixed(1);
+                    const Ca = (0.48 + clamped * 0.29 + jitter * 0.02).toFixed(2);
+                    const stressPct = Math.max(6.5, Math.min(78.0, (1 - clamped) * 76 + (jitter * 3))).toFixed(1);
+
+                    const cellObj = {
+                        c, r, color, tier,
+                        blockName: blk.name,
+                        N: parseFloat(N),
+                        P: parseFloat(P),
+                        K: parseFloat(K),
+                        Mg: parseFloat(Mg),
+                        B: parseFloat(B),
+                        Ca: parseFloat(Ca),
+                        stressPct: parseFloat(stressPct)
+                    };
+                    row.push(cellObj);
+                    activePixelsList.push(cellObj);
+                }
+                grid.push(row);
+            }
+
+            let selectedPixel = activePixelsList.find(p => p.c === 20 && p.r === 20) || activePixelsList[Math.floor(activePixelsList.length / 2)];
+            let hoveredPixel = null;
+            let clickRipples = [];
+            let userInteracted = false;
+
+            function statusColorForPct(pct) {
+                if (pct >= 64) return '#10b981';
+                if (pct >= 42) return '#eab308';
+                return '#ef4444';
+            }
+
+            function updateMeterPanel(px) {
+                if (!px) return;
+                document.getElementById('meter-block-title').textContent = px.blockName;
+                document.getElementById('meter-pixel-coord').textContent = `Pixel (${px.c + 1}, ${px.r + 1})`;
+
+                const specs = [
+                    { key: 'N',  val: px.N.toFixed(2) + '%',    pct: Math.min(100, Math.max(15, ((px.N - 1.8) / 1.2) * 100)) },
+                    { key: 'P',  val: px.P.toFixed(3) + '%',    pct: Math.min(100, Math.max(15, ((px.P - 0.11) / 0.09) * 100)) },
+                    { key: 'K',  val: px.K.toFixed(2) + '%',    pct: Math.min(100, Math.max(15, ((px.K - 0.65) / 0.70) * 100)) },
+                    { key: 'Mg', val: px.Mg.toFixed(2) + '%',   pct: Math.min(100, Math.max(15, ((px.Mg - 0.15) / 0.22) * 100)) },
+                    { key: 'B',  val: px.B.toFixed(1) + ' ppm', pct: Math.min(100, Math.max(15, ((px.B - 8.5) / 12.0) * 100)) },
+                    { key: 'Ca', val: px.Ca.toFixed(2) + '%',   pct: Math.min(100, Math.max(15, ((px.Ca - 0.40) / 0.45) * 100)) }
+                ];
+
+                specs.forEach(s => {
+                    const bar = document.getElementById('bar-' + s.key);
+                    const lbl = document.getElementById('val-' + s.key);
+                    const col = statusColorForPct(s.pct);
+                    if (bar) {
+                        bar.style.width = s.pct.toFixed(1) + '%';
+                        bar.style.backgroundColor = col;
+                    }
+                    if (lbl) {
+                        lbl.textContent = s.val;
+                        lbl.style.color = col;
+                    }
+                });
+
+                // Circular Overall Stress Level ring (r=28 -> circumference ≈ 176)
+                const circum = 176;
+                const offset = circum - (px.stressPct / 100) * circum;
+                const ring = document.getElementById('stress-ring-circle');
+                const pctTxt = document.getElementById('stress-pct-text');
+                const badge = document.getElementById('stress-badge-pill');
+                const dot = document.getElementById('meter-dot');
+
+                let stressCol = '#10b981';
+                let stressLabel = 'Optimal';
+                let badgeBg = 'rgba(16, 185, 129, 0.15)';
+                let badgeBorder = 'rgba(16, 185, 129, 0.45)';
+
+                if (px.stressPct >= 48) {
+                    stressCol = '#ef4444';
+                    stressLabel = 'Critical';
+                    badgeBg = 'rgba(239, 68, 68, 0.16)';
+                    badgeBorder = 'rgba(239, 68, 68, 0.48)';
+                } else if (px.stressPct >= 26) {
+                    stressCol = '#eab308';
+                    stressLabel = 'Moderate';
+                    badgeBg = 'rgba(234, 179, 8, 0.14)';
+                    badgeBorder = 'rgba(234, 179, 8, 0.45)';
+                }
+
+                if (ring) {
+                    ring.style.strokeDashoffset = offset.toFixed(1);
+                    ring.style.stroke = stressCol;
+                }
+                if (pctTxt) {
+                    pctTxt.textContent = px.stressPct.toFixed(1) + '%';
+                    pctTxt.style.color = stressCol;
+                }
+                if (badge) {
+                    badge.textContent = stressLabel;
+                    badge.style.color = stressCol;
+                    badge.style.background = badgeBg;
+                    badge.style.borderColor = badgeBorder;
+                }
+                if (dot) {
+                    dot.style.background = stressCol;
+                    dot.style.boxShadow = `0 0 8px ${stressCol}`;
+                }
+            }
+
+            function resizeCanvas() {
+                const rect = canvas.parentElement.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
+                canvas.width = Math.round(rect.width * dpr);
+                canvas.height = Math.round(rect.height * dpr);
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            }
+
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+            updateMeterPanel(selectedPixel);
+
+            function findNearestActivePixel(c, r) {
+                if (grid[r] && grid[r][c]) return grid[r][c];
+                let best = null, bestDist = 1e9;
+                for (let i = 0; i < activePixelsList.length; i++) {
+                    const p = activePixelsList[i];
+                    const d = Math.hypot(p.c - c, p.r - r);
+                    if (d < bestDist) {
+                        bestDist = d;
+                        best = p;
+                    }
+                }
+                return bestDist <= 4 ? best : null;
+            }
+
+            function selectPixelAt(clientX, clientY, isClick) {
+                const rect = canvas.getBoundingClientRect();
+                const x = clientX - rect.left;
+                const y = clientY - rect.top;
+                const cellW = rect.width / COLS;
+                const cellH = rect.height / ROWS;
+                const c = Math.max(0, Math.min(COLS - 1, Math.floor(x / cellW)));
+                const r = Math.max(0, Math.min(ROWS - 1, Math.floor(y / cellH)));
+                const px = isClick ? findNearestActivePixel(c, r) : (grid[r] && grid[r][c]);
+                if (isClick && px) {
+                    userInteracted = true;
+                    selectedPixel = px;
+                    clickRipples.push({
+                        x: (px.c + 0.5) * cellW,
+                        y: (px.r + 0.5) * cellH,
+                        born: performance.now()
+                    });
+                    updateMeterPanel(px);
+                } else if (!isClick) {
+                    hoveredPixel = px || null;
+                }
+            }
+
+            canvas.addEventListener('click', (e) => selectPixelAt(e.clientX, e.clientY, true));
+            canvas.addEventListener('mousemove', (e) => selectPixelAt(e.clientX, e.clientY, false));
+            canvas.addEventListener('mouseleave', () => { hoveredPixel = null; });
+
+            // Auto-cycle across different blocks/tiers until the user clicks
+            const demoIndices = [0.15, 0.35, 0.52, 0.68, 0.82, 0.25];
+            let demoStep = 0;
+            setInterval(() => {
+                if (userInteracted || activePixelsList.length === 0) return;
+                demoStep = (demoStep + 1) % demoIndices.length;
+                const idx = Math.floor(demoIndices[demoStep] * activePixelsList.length);
+                const px = activePixelsList[idx];
+                if (!px) return;
+                selectedPixel = px;
+                const rect = canvas.getBoundingClientRect();
+                clickRipples.push({
+                    x: (px.c + 0.5) * (rect.width / COLS),
+                    y: (px.r + 0.5) * (rect.height / ROWS),
+                    born: performance.now()
+                });
+                updateMeterPanel(selectedPixel);
+            }, 3100);
+
+            function render(now) {
+                const rect = canvas.getBoundingClientRect();
+                const W = rect.width;
+                const H = rect.height;
+                const cellW = W / COLS;
+                const cellH = H / ROWS;
+
+                // 1. Dark satellite oil palm terrain background around the irregular estate
+                ctx.fillStyle = '#07130c';
+                ctx.fillRect(0, 0, W, H);
+
+                // Subtle surrounding plantation canopy dot texture & terrain gridlines
+                ctx.fillStyle = 'rgba(22, 58, 36, 0.42)';
+                for (let r = 0; r < ROWS; r++) {
+                    for (let c = 0; c < COLS; c++) {
+                        if (!grid[r][c]) {
+                            const tx = (c + 0.5) * cellW;
+                            const ty = (r + 0.5) * cellH;
+                            ctx.beginPath();
+                            ctx.arc(tx, ty, Math.min(cellW, cellH) * 0.24, 0, Math.PI * 2);
+                            ctx.fill();
+                        }
+                    }
+                }
+
+                // 2. Soft outer emerald glow around the irregular estate silhouette
+                ctx.save();
+                ctx.fillStyle = 'rgba(16, 185, 129, 0.08)';
+                ctx.shadowColor = 'rgba(16, 185, 129, 0.35)';
+                ctx.shadowBlur = 22;
+                irregularBlocks.forEach(blk => {
+                    ctx.beginPath();
+                    blk.poly.forEach((pt, i) => {
+                        const px = pt[0] * W;
+                        const py = pt[1] * H;
+                        if (i === 0) ctx.moveTo(px, py);
+                        else ctx.lineTo(px, py);
+                    });
+                    ctx.closePath();
+                    ctx.fill();
+                });
+                ctx.restore();
+
+                // 3. Draw 10m nutrient pixels ONLY inside the irregular estate boundary (stair-stepped edges)
+                for (let r = 0; r < ROWS; r++) {
+                    for (let c = 0; c < COLS; c++) {
+                        const px = grid[r][c];
+                        if (!px) continue;
+                        const x = c * cellW;
+                        const y = r * cellH;
+
+                        ctx.fillStyle = px.color;
+                        ctx.fillRect(x, y, Math.ceil(cellW), Math.ceil(cellH));
+
+                        // Subtle animated AI canopy shimmer wave
+                        const wave = Math.sin(now * 0.0024 + c * 0.26 + r * 0.22);
+                        if (wave > 0.62) {
+                            ctx.fillStyle = `rgba(255, 255, 255, ${(wave - 0.62) * 0.22})`;
+                            ctx.fillRect(x, y, Math.ceil(cellW), Math.ceil(cellH));
+                        }
+
+                        ctx.strokeStyle = 'rgba(6, 16, 10, 0.32)';
+                        ctx.lineWidth = 0.7;
+                        ctx.strokeRect(x, y, cellW, cellH);
+                    }
+                }
+
+                // 4. Draw crisp orange irregular block boundary outlines (clearly showing the irregular estate shape)
+                ctx.save();
+                ctx.strokeStyle = '#fb923c';
+                ctx.lineWidth = 2.0;
+                ctx.lineJoin = 'round';
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.75)';
+                ctx.shadowBlur = 5;
+                irregularBlocks.forEach(blk => {
+                    ctx.beginPath();
+                    blk.poly.forEach((pt, i) => {
+                        const px = pt[0] * W;
+                        const py = pt[1] * H;
+                        if (i === 0) ctx.moveTo(px, py);
+                        else ctx.lineTo(px, py);
+                    });
+                    ctx.closePath();
+                    ctx.stroke();
+                });
+                ctx.restore();
+
+                // 5. Draw hovered pixel highlight
+                if (hoveredPixel) {
+                    const hx = hoveredPixel.c * cellW;
+                    const hy = hoveredPixel.r * cellH;
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 1.6;
+                    ctx.strokeRect(hx + 0.5, hy + 0.5, cellW - 1, cellH - 1);
+                }
+
+                // 6. Draw active selected pixel reticle & click ripples
+                if (selectedPixel) {
+                    const sx = selectedPixel.c * cellW;
+                    const sy = selectedPixel.r * cellH;
+                    const pulse = 0.5 + 0.5 * Math.sin(now * 0.006);
+
+                    ctx.save();
+                    ctx.strokeStyle = '#ffffff';
+                    ctx.lineWidth = 2.2;
+                    ctx.shadowColor = '#10b981';
+                    ctx.shadowBlur = 10;
+                    ctx.strokeRect(sx - 1, sy - 1, cellW + 2, cellH + 2);
+
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${0.4 + 0.4 * pulse})`;
+                    ctx.lineWidth = 1.3;
+                    const pad = 3.5 + pulse * 3.5;
+                    ctx.strokeRect(sx - pad, sy - pad, cellW + pad * 2, cellH + pad * 2);
+                    ctx.restore();
+
+                    clickRipples = clickRipples.filter(rp => (now - rp.born) < 750);
+                    clickRipples.forEach(rp => {
+                        const u = (now - rp.born) / 750;
+                        const rad = 6 + u * 32;
+                        ctx.beginPath();
+                        ctx.arc(rp.x, rp.y, rad, 0, Math.PI * 2);
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${(1 - u) * 0.78})`;
+                        ctx.lineWidth = 2 * (1 - u);
+                        ctx.stroke();
+                    });
+                }
+
+                requestAnimationFrame(render);
+            }
+
+            requestAnimationFrame(render);
+        })();
+    </script>
+</body>
+</html>

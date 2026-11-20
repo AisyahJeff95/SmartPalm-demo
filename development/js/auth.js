@@ -613,13 +613,21 @@ window.restoreCanonicalSelectOptgroups = function (sel) {
         if (o.value !== '') o.remove();
     });
 
-    // Re-append fresh clones of all canonical built-in optgroups
+    // Re-append fresh clones of all canonical built-in optgroups (excluding any maps deleted by user via "✕")
+    const deletedSet = typeof getDeletedMapsSet === 'function' ? getDeletedMapsSet() : new Set();
     sel._canonicalBuiltInOptgroups.forEach(canonGrp => {
-        sel.appendChild(canonGrp.cloneNode(true));
+        const grpClone = canonGrp.cloneNode(true);
+        Array.from(grpClone.querySelectorAll('option')).forEach(o => {
+            if (o.value && deletedSet.has(o.value)) o.remove();
+        });
+        if (grpClone.querySelectorAll('option').length > 0) {
+            sel.appendChild(grpClone);
+        }
     });
 
     // Re-attach custom options into their respective company optgroup
     customOptionsInfo.forEach(info => {
+        if (info.node.value && deletedSet.has(info.node.value)) return;
         const grpCode = info.companyGroup || 'custom';
         let targetGrp = sel.querySelector(`optgroup[data-company-group="${grpCode}"]`);
         if (!targetGrp) {
@@ -1388,17 +1396,24 @@ window.executeDeleteSavedMap = async function (mapKey) {
     const subKey = `sub_${window.getCurrentPalmnexStorageGroup() || 'storage_all'}_${baseKey}`;
     await deleteCompanyCustomMapFromSupabase(mapKey, subKey);
 
-    // 4. Remove option from dropdowns & reset selection if currently active
+    // 4. Remove option from dropdowns (including canonical built-in cache) & reset selection if currently active
     let wasActive = false;
     ['map-select-comp', 'map-select-std', 'map-select-kpsm'].forEach(selId => {
         const sel = document.getElementById(selId);
         if (!sel) return;
         if (sel.value === mapKey) wasActive = true;
+        if (Array.isArray(sel._canonicalBuiltInOptgroups)) {
+            sel._canonicalBuiltInOptgroups.forEach(grp => {
+                Array.from(grp.querySelectorAll('option')).forEach(o => {
+                    if (o.value === mapKey) o.remove();
+                });
+            });
+        }
         Array.from(sel.options).forEach(opt => {
-            if (opt.value === mapKey && opt.getAttribute('data-custom-supabase') === 'true') {
+            if (opt.value === mapKey) {
                 const parentGrp = opt.parentElement;
                 opt.remove();
-                if (parentGrp && parentGrp.tagName === 'OPTGROUP' && parentGrp.getAttribute('data-custom-optgroup') === 'true' && parentGrp.children.length === 0) {
+                if (parentGrp && parentGrp.tagName === 'OPTGROUP' && parentGrp.children.length === 0) {
                     parentGrp.remove();
                 }
             }
@@ -1412,64 +1427,284 @@ window.executeDeleteSavedMap = async function (mapKey) {
 };
 
 window.updateSavedMapsDeleteUI = function () {
-    const sel = document.getElementById('map-select-comp') || document.getElementById('map-select-std') || document.getElementById('map-select-kpsm');
+    // Hide old external delete button & old quicklist if present
     const delBtn = document.getElementById('delete-map-btn-comp');
-    if (delBtn && sel) {
-        const val = sel.value;
-        const selectedOpt = sel.selectedOptions && sel.selectedOptions[0];
-        const isCustomOpt = Boolean(selectedOpt && selectedOpt.getAttribute('data-custom-supabase') === 'true');
-        const hasSavedSub = Boolean(val && window.CLIENT_SUBMISSIONS_BY_MAP_KEY && window.CLIENT_SUBMISSIONS_BY_MAP_KEY[val]);
-        const canDeleteCurrent = Boolean(val && (isCustomOpt || String(val).startsWith('custom_') || hasSavedSub));
+    if (delBtn) delBtn.style.display = 'none';
+    const oldQuick = document.getElementById('sp-saved-maps-quicklist');
+    if (oldQuick) oldQuick.style.display = 'none';
 
-        delBtn.innerHTML = '✕';
-        delBtn.title = 'Delete saved map';
-        delBtn.style.cssText = canDeleteCurrent
-            ? 'display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; margin-left:6px; border-radius:6px; background:rgba(239,68,68,0.16); border:1px solid rgba(239,68,68,0.42); color:#f87171; font-size:12px; font-weight:700; cursor:pointer; flex-shrink:0; padding:0; line-height:1;'
-            : 'display:none;';
-    }
-
-    // Also render compact list of uploaded/saved maps with individual small "✕" buttons right below Select Map
-    const card = document.getElementById('card-map-file-selection');
-    if (!card || !sel) return;
-
-    let listWrap = document.getElementById('sp-saved-maps-quicklist');
-    if (!listWrap) {
-        listWrap = document.createElement('div');
-        listWrap.id = 'sp-saved-maps-quicklist';
-        listWrap.style.cssText = 'margin: -4px 0 10px 0; display:none; flex-direction:column; gap:4px;';
-        const selectRow = sel.closest('.ui-field-row');
-        if (selectRow && selectRow.parentNode) {
-            selectRow.parentNode.insertBefore(listWrap, selectRow.nextSibling);
-        } else {
-            card.appendChild(listWrap);
-        }
-    }
-
-    const customOpts = Array.from(sel.querySelectorAll('option[data-custom-supabase="true"]')).filter(o => !o.disabled);
-    if (customOpts.length === 0) {
-        listWrap.style.display = 'none';
-        listWrap.innerHTML = '';
-        return;
-    }
-
-    listWrap.style.display = 'flex';
-    listWrap.innerHTML = customOpts.map(opt => {
-        const key = opt.value;
-        const name = opt.textContent || key;
-        const compGrp = (opt.getAttribute('data-company-group') || 'palmnex').toLowerCase();
-        const compTag = compGrp === 'palmnex' ? 'Palmnex' : compGrp.toUpperCase();
-        const isActive = (sel.value === key);
-        const safeKey = key.replace(/'/g, "\\'");
-        const safeName = name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-        return `
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; padding:4px 8px; border-radius:6px; background:${isActive ? 'rgba(16,185,129,0.14)' : 'rgba(255,255,255,0.04)'}; border:1px solid ${isActive ? 'rgba(52,211,153,0.45)' : 'rgba(255,255,255,0.09)'}; font-size:11.5px;">
-                <span onclick="const s=document.getElementById('${sel.id}'); if(s){s.value='${safeKey}'; if(typeof onMapSelectChanged==='function') onMapSelectChanged('${safeKey}');}" style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#e2e8f0; cursor:pointer; font-weight:${isActive ? '700' : '500'};" title="Click to load ${safeName}">
-                    <span style="color:#34d399; font-weight:700; font-size:10px; margin-right:4px;">[${compTag}]</span>${name}
-                </span>
-                <button type="button" onclick="event.stopPropagation(); window.promptDeleteSavedMap('${safeKey}', '${safeName}')" title="Delete ${safeName}" style="width:18px; height:18px; border-radius:4px; background:rgba(239,68,68,0.16); border:1px solid rgba(239,68,68,0.38); color:#fca5a5; font-size:10.5px; font-weight:700; line-height:1; padding:0; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">✕</button>
-            </div>
+    if (!document.getElementById('sp-custom-map-dd-styles')) {
+        const st = document.createElement('style');
+        st.id = 'sp-custom-map-dd-styles';
+        st.textContent = `
+            .sp-map-dd-wrapper {
+                position: relative;
+                flex: 1;
+                min-width: 0;
+                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            }
+            .sp-map-dd-trigger {
+                width: 100%;
+                height: 32px;
+                padding: 0 26px 0 10px;
+                border-radius: 7px;
+                background: #14171f;
+                border: 1px solid rgba(255, 255, 255, 0.16);
+                color: #f8fafc;
+                font-size: 12px;
+                font-weight: 500;
+                text-align: left;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                position: relative;
+                box-sizing: border-box;
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                transition: border-color 0.15s ease;
+            }
+            .sp-map-dd-trigger:hover {
+                border-color: rgba(255, 255, 255, 0.32);
+            }
+            .sp-map-dd-trigger-text {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                flex: 1;
+            }
+            .sp-map-dd-trigger-caret {
+                position: absolute;
+                right: 8px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 10px;
+                color: #94a3b8;
+                pointer-events: none;
+            }
+            .sp-map-dd-menu {
+                display: none;
+                position: fixed;
+                min-width: 245px;
+                max-width: 310px;
+                max-height: 480px;
+                overflow-y: auto;
+                background: rgba(24, 28, 36, 0.98);
+                backdrop-filter: blur(20px);
+                -webkit-backdrop-filter: blur(20px);
+                border: 1px solid rgba(255, 255, 255, 0.18);
+                border-radius: 10px;
+                padding: 5px;
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85);
+                z-index: 10000015;
+                user-select: none;
+            }
+            .sp-map-dd-menu.open {
+                display: block;
+            }
+            .sp-map-dd-group-hdr {
+                padding: 7px 10px 3px 10px;
+                font-size: 11px;
+                font-weight: 700;
+                color: #64748b;
+                letter-spacing: 0.1px;
+            }
+            .sp-map-dd-item {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 6px;
+                padding: 5px 8px 5px 10px;
+                border-radius: 6px;
+                font-size: 12.5px;
+                color: #f1f5f9;
+                cursor: pointer;
+                transition: background 0.1s ease;
+            }
+            .sp-map-dd-item:hover:not(.disabled) {
+                background: #2563eb;
+                color: #ffffff;
+            }
+            .sp-map-dd-item.active:not(:hover) {
+                background: rgba(37, 99, 235, 0.25);
+                color: #ffffff;
+                font-weight: 600;
+            }
+            .sp-map-dd-item.disabled {
+                opacity: 0.38;
+                cursor: not-allowed;
+            }
+            .sp-map-dd-item-label {
+                flex: 1;
+                min-width: 0;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            .sp-map-dd-item-del {
+                width: 18px;
+                height: 18px;
+                border-radius: 4px;
+                background: transparent;
+                border: none;
+                color: rgba(248, 250, 252, 0.55);
+                font-size: 11px;
+                font-weight: 700;
+                line-height: 1;
+                padding: 0;
+                cursor: pointer;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                transition: all 0.12s ease;
+            }
+            .sp-map-dd-item:hover .sp-map-dd-item-del {
+                color: #ffffff;
+            }
+            .sp-map-dd-item-del:hover {
+                background: rgba(239, 68, 68, 0.85) !important;
+                color: #ffffff !important;
+            }
         `;
-    }).join('');
+        document.head.appendChild(st);
+    }
+
+    ['map-select-comp', 'map-select-std', 'map-select-kpsm'].forEach(selId => {
+        const sel = document.getElementById(selId);
+        if (!sel) return;
+
+        let wrap = sel.parentElement && sel.parentElement.classList.contains('sp-map-dd-wrapper')
+            ? sel.parentElement
+            : null;
+        if (!wrap) {
+            wrap = document.createElement('div');
+            wrap.className = 'sp-map-dd-wrapper';
+            sel.parentNode.insertBefore(wrap, sel);
+            wrap.appendChild(sel);
+            sel.style.display = 'none';
+
+            const trig = document.createElement('button');
+            trig.type = 'button';
+            trig.className = 'sp-map-dd-trigger';
+            trig.innerHTML = `<span class="sp-map-dd-trigger-text">-- Select Map Boundary --</span><span class="sp-map-dd-trigger-caret">⌄</span>`;
+            wrap.appendChild(trig);
+
+            const menu = document.createElement('div');
+            menu.className = 'sp-map-dd-menu';
+            document.body.appendChild(menu);
+            wrap._ddTrigger = trig;
+            wrap._ddMenu = menu;
+
+            trig.addEventListener('click', (ev) => {
+                ev.stopPropagation();
+                const isOpen = menu.classList.contains('open');
+                document.querySelectorAll('.sp-map-dd-menu.open').forEach(m => m.classList.remove('open'));
+                if (!isOpen) {
+                    window.renderCustomSelectMapMenu(sel, trig, menu);
+                    const rect = trig.getBoundingClientRect();
+                    menu.style.left = `${Math.max(8, rect.left)}px`;
+                    menu.style.top = `${Math.max(8, Math.min(window.innerHeight - 490, rect.top - 6))}px`;
+                    menu.style.width = `${Math.max(245, rect.width + 45)}px`;
+                    menu.classList.add('open');
+                }
+            });
+
+            if (!window._spMapDdOutsideBound) {
+                window._spMapDdOutsideBound = true;
+                document.addEventListener('click', (ev) => {
+                    document.querySelectorAll('.sp-map-dd-menu.open').forEach(m => {
+                        if (!m.contains(ev.target)) m.classList.remove('open');
+                    });
+                });
+            }
+        }
+
+        window.renderCustomSelectMapMenu(sel, wrap._ddTrigger, wrap._ddMenu);
+    });
+};
+
+window.renderCustomSelectMapMenu = function (sel, trig, menu) {
+    if (!sel || !trig || !menu) return;
+    const curVal = sel.value || '';
+    const curOpt = Array.from(sel.options).find(o => o.value === curVal);
+    const txtSpan = trig.querySelector('.sp-map-dd-trigger-text');
+    if (txtSpan) {
+        txtSpan.textContent = (curOpt && curOpt.textContent) ? curOpt.textContent : '-- Select Map Boundary --';
+    }
+
+    let html = `
+        <div class="sp-map-dd-item ${curVal === '' ? 'active' : ''}" data-map-val="">
+            <span class="sp-map-dd-item-label">${curVal === '' ? '✓ ' : ''}-- Select Map Boundary --</span>
+        </div>
+    `;
+
+    Array.from(sel.children).forEach(child => {
+        if (child.tagName === 'OPTGROUP') {
+            const opts = Array.from(child.querySelectorAll('option')).filter(o => o.value !== '');
+            if (opts.length === 0) return;
+            const grpLabel = (child.label || '').replace(/</g, '&lt;');
+            html += `<div class="sp-map-dd-group-hdr">${grpLabel}</div>`;
+            opts.forEach(opt => {
+                const val = opt.value;
+                const name = (opt.textContent || val).replace(/</g, '&lt;');
+                const isAct = (curVal === val);
+                const isDis = Boolean(opt.disabled);
+                const safeVal = val.replace(/"/g, '&quot;');
+                const safeName = name.replace(/"/g, '&quot;');
+                html += `
+                    <div class="sp-map-dd-item ${isAct ? 'active' : ''} ${isDis ? 'disabled' : ''}" data-map-val="${safeVal}" data-disabled="${isDis ? '1' : '0'}">
+                        <span class="sp-map-dd-item-label" title="${safeName}">${isAct ? '✓ ' : ''}${name}</span>
+                        ${!isDis ? `<button type="button" class="sp-map-dd-item-del" data-del-val="${safeVal}" data-del-name="${safeName}" title="Delete ${safeName}">✕</button>` : ''}
+                    </div>
+                `;
+            });
+        } else if (child.tagName === 'OPTION' && child.value !== '') {
+            const val = child.value;
+            const name = (child.textContent || val).replace(/</g, '&lt;');
+            const isAct = (curVal === val);
+            const isDis = Boolean(child.disabled);
+            const safeVal = val.replace(/"/g, '&quot;');
+            const safeName = name.replace(/"/g, '&quot;');
+            html += `
+                <div class="sp-map-dd-item ${isAct ? 'active' : ''} ${isDis ? 'disabled' : ''}" data-map-val="${safeVal}" data-disabled="${isDis ? '1' : '0'}">
+                    <span class="sp-map-dd-item-label" title="${safeName}">${isAct ? '✓ ' : ''}${name}</span>
+                    ${!isDis ? `<button type="button" class="sp-map-dd-item-del" data-del-val="${safeVal}" data-del-name="${safeName}" title="Delete ${safeName}">✕</button>` : ''}
+                </div>
+            `;
+        }
+    });
+
+    menu.innerHTML = html;
+
+    // Bind row selection and "✕" delete button clicks
+    menu.querySelectorAll('.sp-map-dd-item-del').forEach(delBtn => {
+        delBtn.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            ev.preventDefault();
+            const dVal = delBtn.getAttribute('data-del-val');
+            const dName = delBtn.getAttribute('data-del-name');
+            menu.classList.remove('open');
+            window.promptDeleteSavedMap(dVal, dName);
+        });
+    });
+
+    menu.querySelectorAll('.sp-map-dd-item').forEach(item => {
+        item.addEventListener('click', (ev) => {
+            if (ev.target.closest('.sp-map-dd-item-del')) return;
+            if (item.getAttribute('data-disabled') === '1') return;
+            const chosenVal = item.getAttribute('data-map-val') || '';
+            menu.classList.remove('open');
+            sel.value = chosenVal;
+            window.renderCustomSelectMapMenu(sel, trig, menu);
+            if (typeof onMapSelectChanged === 'function') {
+                onMapSelectChanged(chosenVal);
+            } else {
+                sel.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        });
+    });
 };
 
 // Open Auth Modal Dialog
