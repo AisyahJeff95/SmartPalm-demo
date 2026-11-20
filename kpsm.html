@@ -4849,11 +4849,24 @@ function toggleSatDataMode(mode) {
                     feat.properties.name = String(bName);
                 });
 
-                const customKey = 'custom_' + Date.now();
-                REAL_MAPS_DATA[customKey] = geojson;
-                if (typeof ESTATE_BOUNDARIES !== 'undefined') ESTATE_BOUNDARIES[customKey] = geojson;
-                if (window.PREDICTION_CACHE_BY_ESTATE && window.PREDICTION_CACHE_BY_ESTATE[customKey]) {
-                    delete window.PREDICTION_CACHE_BY_ESTATE[customKey];
+                let baseName = window._uploadedShpBaseName || 'Uploaded_Estate';
+                let rawKey = 'custom_' + baseName.toLowerCase().replace(/[^a-z0-9]+/g, '_') + '_' + geojson.features.length + 'b';
+                let mapDisplayName = `${baseName} (${geojson.features.length} blocks)`;
+                geojson.mapName = mapDisplayName;
+                REAL_MAPS_DATA[rawKey] = geojson;
+                if (typeof ESTATE_BOUNDARIES !== 'undefined') ESTATE_BOUNDARIES[rawKey] = geojson;
+
+                let finalKey = rawKey;
+                if (typeof window.saveCustomMapToSupabase === 'function') {
+                    const savedKey = await window.saveCustomMapToSupabase(rawKey, mapDisplayName, geojson);
+                    if (savedKey) {
+                        finalKey = savedKey;
+                        REAL_MAPS_DATA[finalKey] = geojson;
+                        if (typeof ESTATE_BOUNDARIES !== 'undefined') ESTATE_BOUNDARIES[finalKey] = geojson;
+                    }
+                }
+                if (window.PREDICTION_CACHE_BY_ESTATE && window.PREDICTION_CACHE_BY_ESTATE[finalKey]) {
+                    delete window.PREDICTION_CACHE_BY_ESTATE[finalKey];
                 }
                 window.DYNAMIC_PREDICTION_RASTERS = null;
                 window.DYNAMIC_PREDICTION_GRIDS = null;
@@ -4861,15 +4874,12 @@ function toggleSatDataMode(mode) {
                 ['map-select-comp', 'map-select-std', 'map-select-kpsm'].forEach(selId => {
                     const sel = document.getElementById(selId);
                     if (sel) {
-                        const opt = document.createElement('option');
-                        opt.value = customKey;
-                        opt.textContent = `${window._uploadedShpBaseName} (Uploaded)`;
-                        sel.appendChild(opt);
-                        sel.value = customKey;
+                        sel.value = finalKey;
                     }
                 });
 
-                onMapSelectChanged(customKey);
+                onMapSelectChanged(finalKey);
+                if (typeof window.updateSavedMapsDeleteUI === 'function') window.updateSavedMapsDeleteUI();
                 if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp('OFF');
                 if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd('OFF');
             } catch (err) {
@@ -4878,6 +4888,9 @@ function toggleSatDataMode(mode) {
             }
         }
         window.handleIndividualShapefileUpload = handleIndividualShapefileUpload;
+        if (typeof window.loadCustomMapsFromSupabase === 'function') {
+            setTimeout(() => window.loadCustomMapsFromSupabase(), 150);
+        }
 
         // Handle Click Event on block boundaries
         
@@ -5478,6 +5491,7 @@ function toggleSatDataMode(mode) {
                 setElementText('std-k-val', "-- %"); setElementText('std-mg-val', "-- %");
                 setElementText('comp-ca-val', "-- %"); setElementText('comp-b-val', "-- ppm");
                 setElementText('std-ca-val', "-- %"); setElementText('std-b-val', "-- ppm");
+                if (typeof window.updateSavedMapsDeleteUI === 'function') window.updateSavedMapsDeleteUI();
                 return;
             }
 
@@ -5486,6 +5500,9 @@ function toggleSatDataMode(mode) {
                 window.restoreEstatePredictionFromCache(val, false);
             } else if (typeof setNutrientLayerSelectionEnabled === 'function') {
                 setNutrientLayerSelectionEnabled(false, "* Click 'Run Prediction' to generate 10m Sentinel rasters", null);
+            }
+            if (typeof window.updateSavedMapsDeleteUI === 'function') {
+                window.updateSavedMapsDeleteUI();
             }
 
             function zoomToActiveMap() {

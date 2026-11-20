@@ -594,15 +594,12 @@
             rightControls.querySelectorAll('button[onclick*="sp-settings-modal"], #sp-top-history-btn, a[href*="filter=runs"]').forEach(el => {
                 el.style.display = 'none';
             });
-            // Ensure User Manual button opens the Walkthrough Tour prompt modal
+            // Ensure User Manual button directly launches the interactive walkthrough bubble on the current page
             rightControls.querySelectorAll('button[onclick*="manual-modal"]').forEach(btn => {
                 btn.onclick = function (ev) {
                     if (ev) ev.preventDefault();
-                    if (typeof window.openWalkthroughPromptModal === 'function') {
-                        window.openWalkthroughPromptModal();
-                    } else {
-                        const m = document.getElementById('manual-modal');
-                        if (m) m.style.display = 'flex';
+                    if (typeof window.startPalmnexDriverTourForCurrentPage === 'function') {
+                        window.startPalmnexDriverTourForCurrentPage(true);
                     }
                 };
             });
@@ -867,6 +864,44 @@
                 }
                 .driver-popover-prev-btn:hover {
                     background: #e2e8f0 !important;
+                }
+                .sp-driver-extra-actions {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 8px;
+                    margin-top: 10px;
+                    padding-top: 10px;
+                    border-top: 1px solid #e2e8f0;
+                }
+                .sp-driver-skip-btn,
+                .sp-driver-dontshow-btn {
+                    border-radius: 7px !important;
+                    padding: 5px 11px !important;
+                    font-size: 11.5px !important;
+                    font-weight: 700 !important;
+                    font-family: 'Inter', sans-serif !important;
+                    cursor: pointer !important;
+                    transition: all 0.15s ease !important;
+                    line-height: 1.25 !important;
+                }
+                .sp-driver-skip-btn {
+                    background: #f8fafc !important;
+                    color: #475569 !important;
+                    border: 1px solid #cbd5e1 !important;
+                }
+                .sp-driver-skip-btn:hover {
+                    background: #e2e8f0 !important;
+                    color: #0f172a !important;
+                }
+                .sp-driver-dontshow-btn {
+                    background: #fef2f2 !important;
+                    color: #dc2626 !important;
+                    border: 1px solid #fecaca !important;
+                }
+                .sp-driver-dontshow-btn:hover {
+                    background: #fee2e2 !important;
+                    color: #b91c1c !important;
                 }
                 #sp-end-tutorial-floating-wrap {
                     display: none;
@@ -1151,13 +1186,105 @@
                         }
                     }
                 ];
-            } else if (isKpsm || isProfile) {
+            } else if (isKpsm) {
+                const nutCardKpsm = document.getElementById('comp-n-val') ? document.getElementById('comp-n-val').closest('.ui-card') : null;
+                const fertCardKpsm = document.getElementById('fert-list-input') ? document.getElementById('fert-list-input').closest('.ui-card') : null;
+
+                if (document.getElementById('card-map-file-selection')) {
+                    candidateSteps = [
+                        {
+                            element: '#card-map-file-selection',
+                            popover: {
+                                title: 'Step 1: Map File Selection',
+                                description: 'Start at the top card: select your KPSM / Estate Map Boundary from the dropdown list, or upload your .shp and .dbf files one by one.',
+                                side: 'right',
+                                align: 'start'
+                            }
+                        },
+                        {
+                            element: '#card-satellite-data',
+                            popover: {
+                                title: 'Step 2: Satellite Data, Soil Type & Run Prediction',
+                                description: 'Next, select Real-time or Previous satellite date, check the Soil Type, and click "Run Prediction" to compute foliar nutrients.',
+                                side: 'right',
+                                align: 'start'
+                            }
+                        },
+                        {
+                            element: nutCardKpsm,
+                            popover: {
+                                title: 'Step 3: Nutrient Detection',
+                                description: 'Review the predicted N (%), P (%), K (%), Mg (%), Ca (%), and B (ppm) foliar values here.',
+                                side: 'right',
+                                align: 'start'
+                            }
+                        },
+                        {
+                            element: fertCardKpsm,
+                            popover: {
+                                title: 'Step 4: Fertilizer Recommendation Ratio',
+                                description: 'Enter your N:P:K:Mg:B fertilizer ratio or select an MPOB fertilizer formulation from the list.',
+                                side: 'right',
+                                align: 'start'
+                            }
+                        },
+                        {
+                            element: '.ui-generate-report-btn',
+                            popover: {
+                                title: 'Step 5: Generate Report',
+                                description: 'Click a block on the map and click "Generate Report" to view and print your Fertilization PDF Report.',
+                                side: 'right',
+                                align: 'center'
+                            }
+                        },
+                        {
+                            element: '#card-drone-upload',
+                            popover: {
+                                title: 'Step 6: Optional Drone & Estate Name',
+                                description: 'Optionally upload a Drone Image overlay, set Date Taken, and enter your Desired Estate Name for the report.',
+                                side: 'right',
+                                align: 'start'
+                            }
+                        },
+                        {
+                            element: '.sp-top-nav-pills',
+                            popover: {
+                                title: 'Step 7: Switch Pages Anytime!',
+                                description: 'Click Comprehensive Fert, Standard Fert, Home, or any tab above to continue the walkthrough there.',
+                                side: 'bottom',
+                                align: 'start'
+                            }
+                        }
+                    ];
+                } else {
+                    candidateSteps = [
+                        {
+                            element: '.cms-main-content, body',
+                            popover: {
+                                title: 'Step 1: KPSM Module Overview',
+                                description: 'Use this workspace to manage smallholder cooperatives (KPSM), monitoring plots, and database records.',
+                                side: 'bottom',
+                                align: 'center'
+                            }
+                        },
+                        {
+                            element: '.sp-top-nav-pills',
+                            popover: {
+                                title: 'Step 2: Navigate Across Modules',
+                                description: 'Click Home, Comprehensive Fert, or Standard Fert in the top bar to continue the walkthrough.',
+                                side: 'bottom',
+                                align: 'start'
+                            }
+                        }
+                    ];
+                }
+            } else if (isProfile) {
                 candidateSteps = [
                     {
                         element: '.cms-main-content, body',
                         popover: {
-                            title: '1. Module Overview',
-                            description: 'Use this workspace to manage smallholder cooperatives, estate boundaries, and account settings.',
+                            title: '1. Account Profile Overview',
+                            description: 'Manage your account profile, company details, and security settings here.',
                             side: 'bottom',
                             align: 'center'
                         }
@@ -1257,6 +1384,7 @@
                                 highlightedEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
                             } catch (e) {}
                         }
+                        setTimeout(injectWalkthroughBubbleExtraButtons, 15);
                     }
                 };
             });
@@ -1264,8 +1392,39 @@
 
         let _activeDriverInstance = null;
 
-        window.startPalmnexDriverTourForCurrentPage = function () {
+        function injectWalkthroughBubbleExtraButtons() {
+            const popovers = document.querySelectorAll('.driver-popover');
+            popovers.forEach(pop => {
+                if (pop.querySelector('.sp-driver-extra-actions')) return;
+                const extraRow = document.createElement('div');
+                extraRow.className = 'sp-driver-extra-actions';
+                extraRow.innerHTML = `
+                    <button type="button" class="sp-driver-skip-btn" onclick="window.skipPalmnexTutorial()" title="Skip walkthrough for now">Skip</button>
+                    <button type="button" class="sp-driver-dontshow-btn" onclick="window.dontShowPalmnexTutorialAgain()" title="Do not automatically show this walkthrough again">Don't show me again</button>
+                `;
+                pop.appendChild(extraRow);
+            });
+        }
+
+        window.skipPalmnexTutorial = function () {
             try {
+                sessionStorage.setItem('palmnex_walkthrough_skipped_session', 'true');
+            } catch (e) {}
+            window.endPalmnexTutorial();
+        };
+
+        window.dontShowPalmnexTutorialAgain = function () {
+            try {
+                localStorage.setItem('palmnex_walkthrough_dont_show_v2', 'true');
+            } catch (e) {}
+            window.endPalmnexTutorial();
+        };
+
+        window.startPalmnexDriverTourForCurrentPage = function (isManualTrigger) {
+            try {
+                if (isManualTrigger) {
+                    sessionStorage.removeItem('palmnex_walkthrough_skipped_session');
+                }
                 sessionStorage.setItem('palmnex_tour_active_v1', 'true');
             } catch (e) {}
 
@@ -1291,6 +1450,9 @@
                     prevBtnText: '← Previous',
                     doneBtnText: 'Done (Page)',
                     steps: steps,
+                    onPopoverRendered: () => {
+                        injectWalkthroughBubbleExtraButtons();
+                    },
                     onDestroyed: () => {
                         // Keep the bottom-right "End Tutorial" bar visible if palmnex_tour_active_v1 is still true
                         // so the user can freely click Comprehensive / Standard / any page to continue the tour
@@ -1302,6 +1464,7 @@
                     }
                 });
                 _activeDriverInstance.drive();
+                setTimeout(injectWalkthroughBubbleExtraButtons, 30);
             });
         };
 
@@ -1719,40 +1882,34 @@
 
         // Sync user profile pill from localStorage session, apply RBAC module visibility, and decorate www.palmnex.com.my SSO links
         try {
-            const saved = localStorage.getItem('palmnex_user_session');
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                window.updateTopNavUser(parsed);
-                if (typeof window.syncPalmnexSsoState === 'function') window.syncPalmnexSsoState(parsed);
-                if (typeof window.applyModuleAccessControl === 'function') window.applyModuleAccessControl(parsed);
-
-                // If an interactive Driver.js tutorial is currently active across pages, automatically start the steps for this page
+            const triggerAutoTourIfApplicable = () => {
                 const pathLower = (window.location.pathname || '').toLowerCase();
-                const isHomePage = (
-                    pathLower === '/' ||
-                    pathLower.endsWith('/index.html') ||
-                    pathLower.endsWith('/development/') ||
-                    pathLower.endsWith('/reada-standalone/')
+                const isAutoTourDashboard = (
+                    pathLower.includes('comprehensive') ||
+                    pathLower.includes('standard') ||
+                    pathLower.includes('kpsm')
                 );
                 const isTourActive = sessionStorage.getItem('palmnex_tour_active_v1') === 'true';
-                const dontAsk = localStorage.getItem('palmnex_walkthrough_dont_ask_v1') === 'true';
+                const dontShowAgain = localStorage.getItem('palmnex_walkthrough_dont_show_v2') === 'true';
 
-                if (isTourActive && typeof window.startPalmnexDriverTourForCurrentPage === 'function') {
+                if ((isTourActive || (isAutoTourDashboard && !dontShowAgain)) && typeof window.startPalmnexDriverTourForCurrentPage === 'function') {
                     setTimeout(() => {
                         const authModal = document.getElementById('auth-modal');
                         if (!authModal || authModal.style.display !== 'flex') {
                             window.startPalmnexDriverTourForCurrentPage();
                         }
                     }, 380);
-                } else if (isHomePage && !dontAsk && typeof window.openWalkthroughPromptModal === 'function') {
-                    // Auto-popup Walkthrough Tour prompt ONLY on the Home page (unless "Don't ask me again" is checked)
-                    setTimeout(() => {
-                        const authModal = document.getElementById('auth-modal');
-                        if (!authModal || authModal.style.display !== 'flex') {
-                            window.openWalkthroughPromptModal();
-                        }
-                    }, 350);
                 }
+            };
+            window.triggerAutoTourIfApplicable = triggerAutoTourIfApplicable;
+
+            const saved = localStorage.getItem('palmnex_user_session');
+            if (saved) {
+                const parsed = JSON.parse(saved);
+                window.updateTopNavUser(parsed);
+                if (typeof window.syncPalmnexSsoState === 'function') window.syncPalmnexSsoState(parsed);
+                if (typeof window.applyModuleAccessControl === 'function') window.applyModuleAccessControl(parsed);
+                triggerAutoTourIfApplicable();
             } else if (window.PALMNEX_REQUIRE_LOGIN !== false) {
                 window.updateTopNavUser(null);
                 if (typeof window.openAuthModal === 'function') window.openAuthModal('signin');
@@ -1761,6 +1918,7 @@
                 window.updateTopNavUser(defUser);
                 if (typeof window.syncPalmnexSsoState === 'function') window.syncPalmnexSsoState(defUser);
                 if (typeof window.applyModuleAccessControl === 'function') window.applyModuleAccessControl(defUser);
+                triggerAutoTourIfApplicable();
             }
         } catch (e) {
             window.updateTopNavUser(null);

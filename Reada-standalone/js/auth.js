@@ -654,7 +654,7 @@ window.applyCompanyEstateIsolation = function (user) {
     const doesGroupMatchCompany = (grpCodeRaw) => {
         const grpCode = String(grpCodeRaw || '').toLowerCase();
         if (!grpCode) return false;
-        if (grpCode === companyCode) return true;
+        if (grpCode === companyCode || grpCode === 'palmnex') return true;
         if (companyCode.includes('benta') && grpCode === 'benta') return true;
         if (companyCode.includes('fgv') && grpCode === 'fgv') return true;
         if ((companyCode.includes('ssb') || companyCode.includes('softwood')) && grpCode === 'ssb') return true;
@@ -681,6 +681,9 @@ window.applyCompanyEstateIsolation = function (user) {
             if (prevVal && Array.from(sel.options).some(o => o.value === prevVal)) {
                 sel.value = prevVal;
             }
+            if (typeof window.updateSavedMapsDeleteUI === 'function') {
+                window.updateSavedMapsDeleteUI();
+            }
             return;
         }
 
@@ -700,7 +703,7 @@ window.applyCompanyEstateIsolation = function (user) {
         Array.from(sel.options).forEach(opt => {
             if (!opt.value) return; // Keep "-- Select Map Boundary --" placeholder enabled
             const isCustomForUser = opt.getAttribute('data-custom-supabase') === 'true' &&
-                (!opt.getAttribute('data-storage-group') || opt.getAttribute('data-storage-group') === storageGroup);
+                (!opt.getAttribute('data-storage-group') || opt.getAttribute('data-storage-group') === storageGroup || opt.getAttribute('data-company-group') === 'palmnex');
             const isOwned = ownedEstatesSet.has(opt.value) || isCustomForUser;
             opt.disabled = !isOwned;
             opt.style.display = '';
@@ -710,42 +713,202 @@ window.applyCompanyEstateIsolation = function (user) {
         const stillValidOpt = Array.from(sel.options).find(o => o.value === prevVal && !o.disabled);
         sel.value = stillValidOpt ? prevVal : '';
     });
+    if (typeof window.updateSavedMapsDeleteUI === 'function') {
+        window.updateSavedMapsDeleteUI();
+    }
 };
 
 // ============================================================================
-// PHASE 2: PER-USER CUSTOM UPLOADED MAPS & CLIENT INPUT SUBMISSIONS (`public.company_custom_maps`)
+// PHASE 2: PERMANENT UPLOADED MAPS, DELETE ("✕") WITH CONFIRMATION POPUP,
+//          AND REAL-TIME LEFT-PANEL USER <-> ADMIN SUPABASE SYNC (`public.company_custom_maps`)
 // ============================================================================
 window.CUSTOM_SUPABASE_MAPS = window.CUSTOM_SUPABASE_MAPS || [];
 window.CLIENT_SUBMISSIONS_BY_MAP_KEY = window.CLIENT_SUBMISSIONS_BY_MAP_KEY || {};
+
+const SUPABASE_FALLBACK_URL_AUTH = 'https://dkafzakyeuehvpkkhdsa.supabase.co';
+const SUPABASE_FALLBACK_KEY_AUTH = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRrYWZ6YWt5ZXVlaHZwa2toZHNhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5MTA3MTgsImV4cCI6MjEwMzQ4NjcxOH0.CmL8-LZ3XBrLZ1H_3ofUtCFcy5vNJFiMzEvdFbE-pQU';
+
+function getDeletedMapsSet() {
+    try {
+        const raw = localStorage.getItem('palmnex_deleted_maps_v1');
+        if (raw) {
+            const arr = JSON.parse(raw);
+            if (Array.isArray(arr)) return new Set(arr);
+        }
+    } catch (e) {}
+    return new Set();
+}
+
+function markMapDeletedLocally(mapKey, deleted) {
+    try {
+        const s = getDeletedMapsSet();
+        if (deleted) s.add(mapKey);
+        else s.delete(mapKey);
+        localStorage.setItem('palmnex_deleted_maps_v1', JSON.stringify(Array.from(s)));
+    } catch (e) {}
+}
+
+async function upsertCompanyCustomMapToSupabase(rowPayload) {
+    let sdkOk = false;
+    const client = typeof getSupabase === 'function' ? getSupabase() : null;
+    if (client) {
+        try {
+            const { error } = await client
+                .from('company_custom_maps')
+                .upsert([rowPayload], { onConflict: 'storage_group,map_key' });
+            if (!error) sdkOk = true;
+            else console.warn('[SmartPalm Supabase Sync] SDK upsert note, trying REST fallback:', error.message);
+        } catch (e) {}
+    }
+    if (!sdkOk) {
+        try {
+            const apiUrl = `${window.SUPABASE_URL || SUPABASE_FALLBACK_URL_AUTH}/rest/v1/company_custom_maps?on_conflict=storage_group,map_key`;
+            const apiKey = window.SUPABASE_ANON_KEY || SUPABASE_FALLBACK_KEY_AUTH;
+            await fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'apikey': apiKey,
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Prefer': 'resolution=merge-duplicates,return=minimal'
+                },
+                body: JSON.stringify([rowPayload])
+            });
+        } catch (e) {
+            console.warn('[SmartPalm Supabase Sync] REST upsert warning:', e);
+        }
+    }
+}
+
+async function fetchCompanyCustomMapsFromSupabase(isMasterAdmin, storageGroup) {
+    const client = typeof getSupabase === 'function' ? getSupabase() : null;
+    if (client) {
+        try {
+            let query = client
+                .from('company_custom_maps')
+                .select('map_key, map_name, company_code, storage_group, geojson_data, uploaded_by, created_at')
+                .order('created_at', { ascending: false })
+                .limit(120);
+            if (!isMasterAdmin && storageGroup) {
+                query = query.or(`storage_group.eq.${storageGroup},company_code.eq.palmnex`);
+            }
+            const { data, error } = await query;
+            if (!error && Array.isArray(data)) return data;
+        } catch (e) {}
+    }
+    try {
+        const baseUrl = `${window.SUPABASE_URL || SUPABASE_FALLBACK_URL_AUTH}/rest/v1/company_custom_maps`;
+        const apiKey = window.SUPABASE_ANON_KEY || SUPABASE_FALLBACK_KEY_AUTH;
+        const filter = (!isMasterAdmin && storageGroup)
+            ? `&or=(storage_group.eq.${encodeURIComponent(storageGroup)},company_code.eq.palmnex)`
+            : '';
+        const res = await fetch(`${baseUrl}?select=map_key,map_name,company_code,storage_group,geojson_data,uploaded_by,created_at&order=created_at.desc&limit=120${filter}`, {
+            headers: {
+                'apikey': apiKey,
+                'Authorization': `Bearer ${apiKey}`
+            }
+        });
+        if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data)) return data;
+        }
+    } catch (e) {}
+    return [];
+}
+
+async function deleteCompanyCustomMapFromSupabase(mapKey, baseMapKey) {
+    const keysToDelete = [mapKey];
+    if (baseMapKey && baseMapKey !== mapKey) {
+        keysToDelete.push(baseMapKey);
+    }
+    const client = typeof getSupabase === 'function' ? getSupabase() : null;
+    if (client) {
+        for (const k of keysToDelete) {
+            try {
+                await client.from('company_custom_maps').delete().eq('map_key', k);
+            } catch (e) {}
+        }
+    }
+    try {
+        const baseUrl = `${window.SUPABASE_URL || SUPABASE_FALLBACK_URL_AUTH}/rest/v1/company_custom_maps`;
+        const apiKey = window.SUPABASE_ANON_KEY || SUPABASE_FALLBACK_KEY_AUTH;
+        for (const k of keysToDelete) {
+            await fetch(`${baseUrl}?map_key=eq.${encodeURIComponent(k)}`, {
+                method: 'DELETE',
+                headers: {
+                    'apikey': apiKey,
+                    'Authorization': `Bearer ${apiKey}`
+                }
+            });
+        }
+    } catch (e) {}
+}
 
 window.saveCustomMapToSupabase = async function (rawMapKey, mapName, geojsonData) {
     try {
         if (!geojsonData || !geojsonData.features || !geojsonData.features.length) return null;
         const u = window.getCurrentPalmnexUser();
-        const storageGroup = window.getCurrentPalmnexStorageGroup() || 'storage_all';
-        const companyCode = window.getCurrentPalmnexCompanyCode() || 'palmnex';
+        const isMasterAdmin = window.isPalmnexMasterAdmin(u);
+        const storageGroup = isMasterAdmin ? 'storage_all' : (window.getCurrentPalmnexStorageGroup() || 'storage_all');
+        // When uploaded by Admin, company_code is always 'palmnex' (displayed under Company: Palmnex)
+        const companyCode = isMasterAdmin ? 'palmnex' : (window.getCurrentPalmnexCompanyCode() || 'palmnex');
         const uploadedBy = (u && (u.username || u.email)) || 'Admin';
 
-        const cleanSlug = String(rawMapKey || mapName || 'estate')
+        const cleanDisplay = String(mapName || rawMapKey || 'Uploaded Estate')
+            .replace(/^[📌📋]\s*(\[[^\]]+\]\s*)?/, '')
+            .replace(/^Custom:\s*/i, '')
+            .replace(/\.shp$/i, '')
+            .trim();
+
+        const cleanSlug = String(rawMapKey || cleanDisplay || 'estate')
             .toLowerCase()
             .replace(/^custom_/, '')
+            .replace(/^storage_[a-z0-9_]+?_/, '')
             .replace(/[^a-z0-9_]+/g, '_')
             .replace(/^_+|_+$/g, '');
-        const scopedKey = cleanSlug.startsWith(storageGroup)
-            ? `custom_${cleanSlug}`
-            : `custom_${storageGroup}_${cleanSlug}`;
+        const scopedKey = `custom_${storageGroup}_${cleanSlug}`;
 
-        // Record this uploaded estate as owned by this client account
-        window.registerClientUploadedEstate(rawMapKey || mapName || scopedKey, u);
+        // Ensure this map key is not marked as deleted
+        markMapDeletedLocally(scopedKey, false);
+        markMapDeletedLocally(rawMapKey, false);
 
-        // Preserve any existing client_submission on this custom map
-        if (window.CLIENT_SUBMISSIONS_BY_MAP_KEY && window.CLIENT_SUBMISSIONS_BY_MAP_KEY[scopedKey] && !geojsonData.client_submission) {
+        // Record this uploaded estate as owned by this account
+        window.registerClientUploadedEstate(scopedKey, u);
+
+        // Snapshot current left-panel state into client_submission so initial upload state syncs to Admin immediately
+        if (typeof window.collectCurrentClientInputs === 'function') {
+            try {
+                const liveInputs = window.collectCurrentClientInputs();
+                geojsonData.client_submission = Object.assign({}, geojsonData.client_submission || {}, liveInputs, {
+                    base_map_key: scopedKey,
+                    submission_map_key: scopedKey,
+                    map_display_name: cleanDisplay,
+                    submitted_by: uploadedBy,
+                    company_code: companyCode,
+                    company_name: isMasterAdmin ? 'Palmnex' : formatCompanyNameFromCode(companyCode),
+                    storage_group: storageGroup,
+                    submitted_at: new Date().toISOString()
+                });
+                window.CLIENT_SUBMISSIONS_BY_MAP_KEY[scopedKey] = geojsonData.client_submission;
+            } catch (e) {}
+        } else if (window.CLIENT_SUBMISSIONS_BY_MAP_KEY && window.CLIENT_SUBMISSIONS_BY_MAP_KEY[scopedKey] && !geojsonData.client_submission) {
             geojsonData.client_submission = window.CLIENT_SUBMISSIONS_BY_MAP_KEY[scopedKey];
+        }
+
+        geojsonData.is_custom_upload = true;
+        geojsonData.is_submission_only = false;
+        geojsonData.mapName = cleanDisplay;
+        geojsonData.uploaded_company_code = companyCode;
+        geojsonData.uploaded_company_name = isMasterAdmin ? 'Palmnex' : formatCompanyNameFromCode(companyCode);
+
+        if (typeof window.REAL_MAPS_DATA === 'object' && window.REAL_MAPS_DATA) {
+            window.REAL_MAPS_DATA[scopedKey] = geojsonData;
+            if (rawMapKey) window.REAL_MAPS_DATA[rawMapKey] = geojsonData;
         }
 
         const rowPayload = {
             map_key: scopedKey,
-            map_name: mapName || `Custom: ${cleanSlug}`,
+            map_name: cleanDisplay,
             company_code: companyCode,
             storage_group: storageGroup,
             geojson_data: geojsonData,
@@ -753,28 +916,21 @@ window.saveCustomMapToSupabase = async function (rawMapKey, mapName, geojsonData
             created_at: new Date().toISOString()
         };
 
-        // 1. Save to local per-user storage cache immediately
-        const lsKey = `palmnex_custom_maps_${storageGroup}`;
-        try {
-            const existingRaw = localStorage.getItem(lsKey);
-            const list = existingRaw ? (JSON.parse(existingRaw) || []) : [];
-            const filtered = list.filter(item => item && item.map_key !== scopedKey);
-            filtered.unshift(rowPayload);
-            localStorage.setItem(lsKey, JSON.stringify(filtered.slice(0, 25)));
-        } catch (e) {}
-
-        // 2. Upsert to Supabase `public.company_custom_maps`
-        const client = typeof getSupabase === 'function' ? getSupabase() : null;
-        if (client) {
-            const { error } = await client
-                .from('company_custom_maps')
-                .upsert([rowPayload], { onConflict: 'storage_group,map_key' });
-            if (error) {
-                console.warn('[SmartPalm Custom Map Sync] Supabase upsert warning:', error.message);
-            }
+        // 1. Save to local per-user storage cache and global shared cache immediately
+        for (const lsKey of [`palmnex_custom_maps_${storageGroup}`, 'palmnex_custom_maps_all_v2']) {
+            try {
+                const existingRaw = localStorage.getItem(lsKey);
+                const list = existingRaw ? (JSON.parse(existingRaw) || []) : [];
+                const filtered = list.filter(item => item && item.map_key !== scopedKey);
+                filtered.unshift(rowPayload);
+                localStorage.setItem(lsKey, JSON.stringify(filtered.slice(0, 40)));
+            } catch (e) {}
         }
 
-        // Refresh in-memory list & Home Dashboard
+        // 2. Upsert to Supabase `public.company_custom_maps` (SDK + REST fallback)
+        await upsertCompanyCustomMapToSupabase(rowPayload);
+
+        // 3. Refresh in-memory list, dropdowns & Home Dashboard
         await window.loadCustomMapsFromSupabase(u);
         return scopedKey;
     } catch (err) {
@@ -783,13 +939,14 @@ window.saveCustomMapToSupabase = async function (rawMapKey, mapName, geojsonData
     }
 };
 
-// Lightweight (< 2 KB) Client Input Submission saver for both custom maps and built-in maps
+// Complete Left-Panel Client Input Submission saver for both custom uploaded maps and built-in maps
 window.saveClientMapSubmissionToSupabase = async function (rawMapKey, mapDisplayName, submissionPayload) {
     try {
         if (!rawMapKey || !submissionPayload) return null;
         const u = window.getCurrentPalmnexUser();
+        const isMasterAdmin = window.isPalmnexMasterAdmin(u);
         const storageGroup = window.getCurrentPalmnexStorageGroup() || 'storage_all';
-        const companyCode = window.getCurrentPalmnexCompanyCode() || 'palmnex';
+        const companyCode = isMasterAdmin ? 'palmnex' : (window.getCurrentPalmnexCompanyCode() || 'palmnex');
         const uploadedBy = (u && (u.username || u.email)) || 'Client';
 
         // Resolve underlying base map key if user currently selected a `sub_...` option
@@ -799,12 +956,24 @@ window.saveClientMapSubmissionToSupabase = async function (rawMapKey, mapDisplay
             : String(rawMapKey).replace(/^sub_storage_[a-z0-9_]+?_/, '');
 
         const isCustomMap = String(baseMapKey).startsWith('custom_');
+        // Lookup existing custom map row so we preserve its original storage_group and polygon features
+        const existingCustomRow = isCustomMap
+            ? (window.CUSTOM_SUPABASE_MAPS || []).find(r => r && r.map_key === baseMapKey)
+            : null;
+        const effectiveStorageGroup = (existingCustomRow && existingCustomRow.storage_group)
+            ? existingCustomRow.storage_group
+            : storageGroup;
+        const effectiveCompanyCode = (existingCustomRow && existingCustomRow.company_code)
+            ? existingCustomRow.company_code
+            : companyCode;
+
         const targetRowKey = isCustomMap
             ? baseMapKey
             : `sub_${storageGroup}_${baseMapKey}`;
 
-        const cleanDisplayName = String(mapDisplayName || baseMapKey)
+        const cleanDisplayName = String(mapDisplayName || (existingCustomRow && existingCustomRow.map_name) || baseMapKey)
             .replace(/^[📌📋]\s*(\[[^\]]+\]\s*)?/, '')
+            .replace(/^Custom:\s*/i, '')
             .replace(/\s*\(Client Inputs\)$/i, '')
             .trim();
 
@@ -813,9 +982,9 @@ window.saveClientMapSubmissionToSupabase = async function (rawMapKey, mapDisplay
             submission_map_key: targetRowKey,
             map_display_name: cleanDisplayName,
             submitted_by: uploadedBy,
-            company_code: companyCode,
-            company_name: (u && u.company) || companyCode.toUpperCase(),
-            storage_group: storageGroup,
+            company_code: effectiveCompanyCode,
+            company_name: effectiveCompanyCode === 'palmnex' ? 'Palmnex' : ((u && u.company) || formatCompanyNameFromCode(effectiveCompanyCode)),
+            storage_group: effectiveStorageGroup,
             submitted_at: new Date().toISOString()
         });
 
@@ -833,11 +1002,25 @@ window.saveClientMapSubmissionToSupabase = async function (rawMapKey, mapDisplay
         } catch (e) {}
 
         let geojsonPayload = null;
-        if (isCustomMap && window.REAL_MAPS_DATA && window.REAL_MAPS_DATA[baseMapKey]) {
-            geojsonPayload = Object.assign({}, window.REAL_MAPS_DATA[baseMapKey], {
-                client_submission: enrichedSubmission
-            });
-        } else {
+        if (isCustomMap) {
+            // Preserve the custom uploaded map's polygon features — NEVER overwrite with empty features or is_submission_only: true!
+            const existingGeojson = (window.REAL_MAPS_DATA && window.REAL_MAPS_DATA[baseMapKey])
+                || (existingCustomRow && existingCustomRow.geojson_data)
+                || null;
+            if (existingGeojson && Array.isArray(existingGeojson.features) && existingGeojson.features.length > 0) {
+                geojsonPayload = Object.assign({}, existingGeojson, {
+                    is_custom_upload: true,
+                    is_submission_only: false,
+                    mapName: cleanDisplayName,
+                    client_submission: enrichedSubmission
+                });
+                if (window.REAL_MAPS_DATA) {
+                    window.REAL_MAPS_DATA[baseMapKey] = geojsonPayload;
+                }
+            }
+        }
+
+        if (!geojsonPayload) {
             // Zero-bloat (< 2 KB) metadata-only FeatureCollection referencing the built-in estate key
             geojsonPayload = {
                 type: 'FeatureCollection',
@@ -852,33 +1035,26 @@ window.saveClientMapSubmissionToSupabase = async function (rawMapKey, mapDisplay
         const rowPayload = {
             map_key: targetRowKey,
             map_name: isCustomMap ? cleanDisplayName : `${cleanDisplayName} (Client Inputs)`,
-            company_code: companyCode,
-            storage_group: storageGroup,
+            company_code: effectiveCompanyCode,
+            storage_group: effectiveStorageGroup,
             geojson_data: geojsonPayload,
             uploaded_by: uploadedBy,
             created_at: new Date().toISOString()
         };
 
-        // 1. Save to local per-user storage cache
-        const lsKey = `palmnex_custom_maps_${storageGroup}`;
-        try {
-            const existingRaw = localStorage.getItem(lsKey);
-            const list = existingRaw ? (JSON.parse(existingRaw) || []) : [];
-            const filtered = list.filter(item => item && item.map_key !== targetRowKey);
-            filtered.unshift(rowPayload);
-            localStorage.setItem(lsKey, JSON.stringify(filtered.slice(0, 35)));
-        } catch (e) {}
-
-        // 2. Upsert to Supabase `public.company_custom_maps`
-        const client = typeof getSupabase === 'function' ? getSupabase() : null;
-        if (client) {
-            const { error } = await client
-                .from('company_custom_maps')
-                .upsert([rowPayload], { onConflict: 'storage_group,map_key' });
-            if (error) {
-                console.warn('[SmartPalm Client Submission Sync] Supabase upsert warning:', error.message);
-            }
+        // 1. Save to local per-user storage cache and global cache
+        for (const lsKey of [`palmnex_custom_maps_${effectiveStorageGroup}`, 'palmnex_custom_maps_all_v2']) {
+            try {
+                const existingRaw = localStorage.getItem(lsKey);
+                const list = existingRaw ? (JSON.parse(existingRaw) || []) : [];
+                const filtered = list.filter(item => item && item.map_key !== targetRowKey);
+                filtered.unshift(rowPayload);
+                localStorage.setItem(lsKey, JSON.stringify(filtered.slice(0, 45)));
+            } catch (e) {}
         }
+
+        // 2. Upsert to Supabase `public.company_custom_maps` (SDK + REST fallback)
+        await upsertCompanyCustomMapToSupabase(rowPayload);
 
         await window.loadCustomMapsFromSupabase(u);
         return enrichedSubmission;
@@ -888,6 +1064,37 @@ window.saveClientMapSubmissionToSupabase = async function (rawMapKey, mapDisplay
     }
 };
 
+// Live fetch from Supabase when Admin (or User) selects any map on the left panel
+window.fetchLatestClientSubmissionForMap = async function (mapKey) {
+    if (!mapKey) return null;
+    const baseKey = String(mapKey).replace(/^sub_storage_[a-z0-9_]+?_/, '');
+    try {
+        const rows = await fetchCompanyCustomMapsFromSupabase(true, 'storage_all');
+        let bestSub = null;
+        let bestTs = 0;
+        rows.forEach(r => {
+            if (!r || !r.geojson_data) return;
+            const gj = r.geojson_data;
+            const sub = gj.client_submission;
+            if (!sub) return;
+            const rowBase = sub.base_map_key || gj.base_map_key || r.map_key;
+            if (r.map_key === mapKey || r.map_key === baseKey || rowBase === baseKey || rowBase === mapKey) {
+                const ts = new Date(sub.submitted_at || r.created_at || 0).getTime() || 0;
+                if (!bestSub || ts >= bestTs) {
+                    bestSub = sub;
+                    bestTs = ts;
+                }
+            }
+        });
+        if (bestSub) {
+            window.CLIENT_SUBMISSIONS_BY_MAP_KEY[mapKey] = bestSub;
+            window.CLIENT_SUBMISSIONS_BY_MAP_KEY[baseKey] = bestSub;
+            return bestSub;
+        }
+    } catch (e) {}
+    return window.CLIENT_SUBMISSIONS_BY_MAP_KEY[mapKey] || window.CLIENT_SUBMISSIONS_BY_MAP_KEY[baseKey] || null;
+};
+
 window.loadCustomMapsFromSupabase = async function (userOverride) {
     try {
         const u = userOverride || window.getCurrentPalmnexUser();
@@ -895,11 +1102,14 @@ window.loadCustomMapsFromSupabase = async function (userOverride) {
             ? (u.storage_group || resolveUserStorageGroup(u.username || u.email, u.company_code, u.access_tier))
             : window.getCurrentPalmnexStorageGroup();
         const isMasterAdmin = window.isPalmnexMasterAdmin(u);
+        const deletedSet = getDeletedMapsSet();
 
-        // 1. Restore canonical built-in optgroups & remove previously injected custom options so switching users is 100% isolated
+        // 1. Preserve current dropdown selection while rebuilding canonical optgroups
+        const prevSelections = {};
         ['map-select-comp', 'map-select-std', 'map-select-kpsm'].forEach(selId => {
             const sel = document.getElementById(selId);
             if (!sel) return;
+            prevSelections[selId] = sel.value;
             Array.from(sel.querySelectorAll('option[data-custom-supabase="true"]')).forEach(opt => opt.remove());
             Array.from(sel.querySelectorAll('optgroup[data-custom-optgroup="true"]')).forEach(grp => grp.remove());
             window.restoreCanonicalSelectOptgroups(sel);
@@ -917,9 +1127,13 @@ window.loadCustomMapsFromSupabase = async function (userOverride) {
                     }
                 }
             } else {
-                const lsKey = `palmnex_custom_maps_${storageGroup}`;
-                const raw = localStorage.getItem(lsKey);
-                if (raw) localMaps = JSON.parse(raw) || [];
+                for (const k of [`palmnex_custom_maps_${storageGroup}`, 'palmnex_custom_maps_all_v2']) {
+                    const raw = localStorage.getItem(k);
+                    if (raw) {
+                        const arr = JSON.parse(raw) || [];
+                        if (Array.isArray(arr)) localMaps.push(...arr);
+                    }
+                }
             }
         } catch (e) {}
 
@@ -929,6 +1143,7 @@ window.loadCustomMapsFromSupabase = async function (userOverride) {
             if (allSubsRaw) {
                 const parsedSubs = JSON.parse(allSubsRaw) || {};
                 Object.keys(parsedSubs).forEach(k => {
+                    if (deletedSet.has(k)) return;
                     const sub = parsedSubs[k];
                     if (sub && (isMasterAdmin || !sub.storage_group || sub.storage_group === storageGroup)) {
                         window.CLIENT_SUBMISSIONS_BY_MAP_KEY[k] = sub;
@@ -937,30 +1152,15 @@ window.loadCustomMapsFromSupabase = async function (userOverride) {
             }
         } catch (e) {}
 
-        // 3. Query Supabase `public.company_custom_maps`
-        let remoteMaps = [];
-        const client = typeof getSupabase === 'function' ? getSupabase() : null;
-        if (client) {
-            try {
-                let query = client
-                    .from('company_custom_maps')
-                    .select('map_key, map_name, company_code, storage_group, geojson_data, uploaded_by, created_at')
-                    .order('created_at', { ascending: false })
-                    .limit(80);
-                if (!isMasterAdmin && storageGroup) {
-                    query = query.eq('storage_group', storageGroup);
-                }
-                const { data, error } = await query;
-                if (!error && Array.isArray(data)) {
-                    remoteMaps = data;
-                }
-            } catch (e) {}
-        }
+        // 3. Query Supabase `public.company_custom_maps` (SDK + REST fallback)
+        const remoteMaps = await fetchCompanyCustomMapsFromSupabase(isMasterAdmin, storageGroup);
 
         const mergedByKey = new Map();
         [...remoteMaps, ...localMaps].forEach(row => {
             if (!row || !row.map_key || !row.geojson_data) return;
-            if (!isMasterAdmin && row.storage_group && row.storage_group !== storageGroup) return;
+            if (deletedSet.has(row.map_key)) return;
+            const isAdminMap = String(row.company_code || '').toLowerCase() === 'palmnex';
+            if (!isMasterAdmin && !isAdminMap && row.storage_group && row.storage_group !== storageGroup) return;
             if (!mergedByKey.has(row.map_key)) {
                 mergedByKey.set(row.map_key, row);
             }
@@ -969,51 +1169,53 @@ window.loadCustomMapsFromSupabase = async function (userOverride) {
         const finalMaps = Array.from(mergedByKey.values());
         window.CUSTOM_SUPABASE_MAPS = finalMaps;
 
-        // 4. Register in REAL_MAPS_DATA, index client submissions by base estate key, and inject custom maps into their Company <optgroup>
+        // 4. Register in REAL_MAPS_DATA, index client submissions by base estate key, and inject custom maps permanently into their Company <optgroup>
         finalMaps.forEach(row => {
             const key = row.map_key;
             const geojson = row.geojson_data;
-            const isSubOnly = Boolean(geojson && geojson.is_submission_only);
+            const hasFeatures = Boolean(geojson && Array.isArray(geojson.features) && geojson.features.length > 0);
+            const isSubOnly = Boolean((geojson && geojson.is_submission_only && !hasFeatures) || String(key).startsWith('sub_'));
             const clientSub = geojson && geojson.client_submission ? geojson.client_submission : null;
 
             if (clientSub) {
-                window.CLIENT_SUBMISSIONS_BY_MAP_KEY[key] = clientSub;
+                const prevSub = window.CLIENT_SUBMISSIONS_BY_MAP_KEY[key];
+                const newTs = new Date(clientSub.submitted_at || row.created_at || 0).getTime() || 0;
+                const oldTs = prevSub ? (new Date(prevSub.submitted_at || 0).getTime() || 0) : -1;
+                if (newTs >= oldTs) {
+                    window.CLIENT_SUBMISSIONS_BY_MAP_KEY[key] = clientSub;
+                }
                 const baseKey = clientSub.base_map_key || (geojson && geojson.base_map_key) || '';
-                if (baseKey && !window.CLIENT_SUBMISSIONS_BY_MAP_KEY[baseKey]) {
-                    window.CLIENT_SUBMISSIONS_BY_MAP_KEY[baseKey] = clientSub;
+                if (baseKey) {
+                    const prevBaseSub = window.CLIENT_SUBMISSIONS_BY_MAP_KEY[baseKey];
+                    const oldBaseTs = prevBaseSub ? (new Date(prevBaseSub.submitted_at || 0).getTime() || 0) : -1;
+                    if (newTs >= oldBaseTs) {
+                        window.CLIENT_SUBMISSIONS_BY_MAP_KEY[baseKey] = clientSub;
+                    }
                 }
             }
 
-            // Do not create duplicate "📋 ... (Client Inputs)" options in Select Map;
-            // selecting the estate directly under its Company optgroup loads the client's saved inputs.
-            if (isSubOnly || String(key).startsWith('sub_')) {
+            // Submission-only rows for built-in maps attach their data to the built-in estate option
+            if (isSubOnly) {
                 return;
             }
 
-            const rowCompanyCode = deriveCompanyCodeFromUsername(row.company_code || row.uploaded_by || 'palmnex');
-            const rowCompanyName = formatCompanyNameFromCode(rowCompanyCode);
-            const cleanMapName = String(row.map_name || key)
+            const rawComp = String(row.company_code || (geojson && geojson.uploaded_company_code) || '').toLowerCase().trim();
+            const rowCompanyCode = (rawComp === 'palmnex' || String(row.storage_group || '') === 'storage_all')
+                ? 'palmnex'
+                : deriveCompanyCodeFromUsername(rawComp || row.uploaded_by || 'palmnex');
+            const rowCompanyName = rowCompanyCode === 'palmnex'
+                ? 'Palmnex'
+                : formatCompanyNameFromCode(rowCompanyCode);
+
+            const cleanMapName = String(row.map_name || (geojson && geojson.mapName) || key)
                 .replace(/^[📌📋]\s*(\[[^\]]+\]\s*)?/, '')
                 .replace(/^Custom:\s*/i, '')
-                .replace(/\s*\(\d+\s*blocks?\)\s*$/i, '')
                 .replace(/\s*\(Client Inputs\)$/i, '')
                 .trim();
 
-            // Check if this uploaded shapefile corresponds to an existing built-in estate (e.g., "agathis")
-            const matchedBuiltIn = window.resolveBuiltInKeyFromNameOrKey(cleanMapName || key, rowCompanyCode);
-            if (matchedBuiltIn) {
-                if (typeof window.REAL_MAPS_DATA === 'object' && window.REAL_MAPS_DATA && geojson && Array.isArray(geojson.features) && geojson.features.length > 0) {
-                    window.REAL_MAPS_DATA[matchedBuiltIn] = geojson;
-                }
-                if (clientSub && !window.CLIENT_SUBMISSIONS_BY_MAP_KEY[matchedBuiltIn]) {
-                    window.CLIENT_SUBMISSIONS_BY_MAP_KEY[matchedBuiltIn] = clientSub;
-                }
-                return;
-            }
-
             geojson.mapName = cleanMapName;
 
-            if (typeof window.REAL_MAPS_DATA === 'object' && window.REAL_MAPS_DATA) {
+            if (typeof window.REAL_MAPS_DATA === 'object' && window.REAL_MAPS_DATA && hasFeatures) {
                 window.REAL_MAPS_DATA[key] = geojson;
             }
 
@@ -1029,7 +1231,7 @@ window.loadCustomMapsFromSupabase = async function (userOverride) {
                     existing.setAttribute('data-company-group', rowCompanyCode);
                     if (clientSub) existing.setAttribute('data-has-client-submission', 'true');
 
-                    // Segregate custom uploaded map under its Company <optgroup>
+                    // Segregate custom uploaded map under its Company <optgroup> ("Palmnex" for Admin uploads)
                     let targetOptgroup = sel.querySelector(`optgroup[data-company-group="${rowCompanyCode}"]`);
                     if (!targetOptgroup) {
                         targetOptgroup = document.createElement('optgroup');
@@ -1045,6 +1247,19 @@ window.loadCustomMapsFromSupabase = async function (userOverride) {
         });
 
         window.applyCompanyEstateIsolation(u);
+
+        // Restore active dropdown selection if valid
+        ['map-select-comp', 'map-select-std', 'map-select-kpsm'].forEach(selId => {
+            const sel = document.getElementById(selId);
+            const prev = prevSelections[selId];
+            if (sel && prev && Array.from(sel.options).some(o => o.value === prev && !o.disabled)) {
+                sel.value = prev;
+            }
+        });
+
+        if (typeof window.updateSavedMapsDeleteUI === 'function') {
+            window.updateSavedMapsDeleteUI();
+        }
         if (typeof window.applyClientOrAdminReportRoleUI === 'function') {
             window.applyClientOrAdminReportRoleUI();
         }
@@ -1055,6 +1270,206 @@ window.loadCustomMapsFromSupabase = async function (userOverride) {
     } catch (e) {
         return [];
     }
+};
+
+// ============================================================================
+// SAVED / UPLOADED MAP DELETE ("✕") UI & "ARE YOU SURE?" CONFIRMATION POPUP
+// ============================================================================
+function ensureDeleteMapConfirmModal() {
+    if (document.getElementById('sp-delete-map-confirm-modal')) return;
+    const modal = document.createElement('div');
+    modal.id = 'sp-delete-map-confirm-modal';
+    modal.style.cssText = 'display:none; position:fixed; inset:0; z-index:10000020; background:rgba(0,0,0,0.72); backdrop-filter:blur(6px); align-items:center; justify-content:center;';
+    modal.innerHTML = `
+        <div style="max-width:380px; width:90%; background:#141922; color:#f8fafc; border:1px solid rgba(255,255,255,0.16); border-radius:16px; padding:24px 22px 20px 22px; box-shadow:0 24px 60px rgba(0,0,0,0.85); font-family:'Inter',-apple-system,sans-serif; text-align:center;">
+            <div style="width:44px; height:44px; border-radius:12px; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.38); color:#f87171; display:flex; align-items:center; justify-content:center; margin:0 auto 14px auto; font-size:20px; font-weight:700;">
+                ✕
+            </div>
+            <h3 style="margin:0 0 8px 0; font-size:18px; font-weight:700; color:#ffffff;">Are you sure?</h3>
+            <p id="sp-delete-map-confirm-text" style="margin:0 0 20px 0; font-size:13px; color:#94a3b8; line-height:1.5;">
+                Are you sure you want to delete this saved map from the list?
+            </p>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <button type="button" onclick="window.closeDeleteMapConfirmModal()" style="flex:1; height:38px; border-radius:9px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.16); color:#e2e8f0; font-size:13px; font-weight:600; cursor:pointer;">
+                    Cancel
+                </button>
+                <button type="button" id="sp-delete-map-confirm-yes-btn" style="flex:1; height:38px; border-radius:9px; background:linear-gradient(135deg,#ef4444 0%,#dc2626 100%); border:1px solid #f87171; color:#ffffff; font-size:13px; font-weight:700; cursor:pointer; box-shadow:0 6px 16px rgba(239,68,68,0.35);">
+                    Yes, Delete
+                </button>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(modal);
+}
+
+window.closeDeleteMapConfirmModal = function () {
+    const m = document.getElementById('sp-delete-map-confirm-modal');
+    if (m) m.style.display = 'none';
+};
+
+window.promptDeleteSavedMap = function (targetMapKey, targetMapLabel) {
+    const sel = document.getElementById('map-select-comp') || document.getElementById('map-select-std') || document.getElementById('map-select-kpsm');
+    const key = targetMapKey || (sel ? sel.value : '');
+    if (!key) return;
+
+    let label = targetMapLabel;
+    if (!label && sel) {
+        const opt = Array.from(sel.options).find(o => o.value === key);
+        label = opt ? opt.textContent : key;
+    }
+    label = String(label || key).trim();
+
+    ensureDeleteMapConfirmModal();
+    const modal = document.getElementById('sp-delete-map-confirm-modal');
+    const txtEl = document.getElementById('sp-delete-map-confirm-text');
+    const yesBtn = document.getElementById('sp-delete-map-confirm-yes-btn');
+    if (txtEl) {
+        txtEl.innerHTML = `Are you sure you want to delete <b style="color:#ffffff;">"${label}"</b> from the saved map list?`;
+    }
+    if (yesBtn) {
+        yesBtn.onclick = async function () {
+            yesBtn.disabled = true;
+            yesBtn.textContent = 'Deleting...';
+            try {
+                await window.executeDeleteSavedMap(key);
+            } finally {
+                yesBtn.disabled = false;
+                yesBtn.textContent = 'Yes, Delete';
+                window.closeDeleteMapConfirmModal();
+            }
+        };
+    }
+    if (modal) modal.style.display = 'flex';
+};
+
+window.deleteCurrentMap = function () {
+    window.promptDeleteSavedMap();
+};
+
+window.executeDeleteSavedMap = async function (mapKey) {
+    if (!mapKey) return;
+    const baseKey = String(mapKey).replace(/^sub_storage_[a-z0-9_]+?_/, '');
+    markMapDeletedLocally(mapKey, true);
+
+    // 1. Remove from in-memory caches
+    if (window.CUSTOM_SUPABASE_MAPS) {
+        window.CUSTOM_SUPABASE_MAPS = window.CUSTOM_SUPABASE_MAPS.filter(r => r && r.map_key !== mapKey && r.map_key !== `sub_${window.getCurrentPalmnexStorageGroup()}_${baseKey}`);
+    }
+    if (window.CLIENT_SUBMISSIONS_BY_MAP_KEY) {
+        delete window.CLIENT_SUBMISSIONS_BY_MAP_KEY[mapKey];
+        delete window.CLIENT_SUBMISSIONS_BY_MAP_KEY[baseKey];
+    }
+    if (String(mapKey).startsWith('custom_') && window.REAL_MAPS_DATA) {
+        delete window.REAL_MAPS_DATA[mapKey];
+    }
+
+    // 2. Remove from all localStorage caches
+    try {
+        for (let i = 0; i < localStorage.length; i++) {
+            const k = localStorage.key(i);
+            if (k && k.startsWith('palmnex_custom_maps_')) {
+                const arr = JSON.parse(localStorage.getItem(k) || '[]');
+                if (Array.isArray(arr)) {
+                    const filtered = arr.filter(r => r && r.map_key !== mapKey && !(r.geojson_data && r.geojson_data.base_map_key === mapKey));
+                    localStorage.setItem(k, JSON.stringify(filtered));
+                }
+            }
+        }
+        const allSubsRaw = localStorage.getItem('palmnex_client_submissions_all');
+        if (allSubsRaw) {
+            const allSubs = JSON.parse(allSubsRaw) || {};
+            delete allSubs[mapKey];
+            delete allSubs[baseKey];
+            localStorage.setItem('palmnex_client_submissions_all', JSON.stringify(allSubs));
+        }
+    } catch (e) {}
+
+    // 3. Delete from Supabase `public.company_custom_maps`
+    const subKey = `sub_${window.getCurrentPalmnexStorageGroup() || 'storage_all'}_${baseKey}`;
+    await deleteCompanyCustomMapFromSupabase(mapKey, subKey);
+
+    // 4. Remove option from dropdowns & reset selection if currently active
+    let wasActive = false;
+    ['map-select-comp', 'map-select-std', 'map-select-kpsm'].forEach(selId => {
+        const sel = document.getElementById(selId);
+        if (!sel) return;
+        if (sel.value === mapKey) wasActive = true;
+        Array.from(sel.options).forEach(opt => {
+            if (opt.value === mapKey && opt.getAttribute('data-custom-supabase') === 'true') {
+                const parentGrp = opt.parentElement;
+                opt.remove();
+                if (parentGrp && parentGrp.tagName === 'OPTGROUP' && parentGrp.getAttribute('data-custom-optgroup') === 'true' && parentGrp.children.length === 0) {
+                    parentGrp.remove();
+                }
+            }
+        });
+    });
+
+    if (wasActive && typeof onMapSelectChanged === 'function') {
+        onMapSelectChanged('');
+    }
+    window.updateSavedMapsDeleteUI();
+};
+
+window.updateSavedMapsDeleteUI = function () {
+    const sel = document.getElementById('map-select-comp') || document.getElementById('map-select-std') || document.getElementById('map-select-kpsm');
+    const delBtn = document.getElementById('delete-map-btn-comp');
+    if (delBtn && sel) {
+        const val = sel.value;
+        const selectedOpt = sel.selectedOptions && sel.selectedOptions[0];
+        const isCustomOpt = Boolean(selectedOpt && selectedOpt.getAttribute('data-custom-supabase') === 'true');
+        const hasSavedSub = Boolean(val && window.CLIENT_SUBMISSIONS_BY_MAP_KEY && window.CLIENT_SUBMISSIONS_BY_MAP_KEY[val]);
+        const canDeleteCurrent = Boolean(val && (isCustomOpt || String(val).startsWith('custom_') || hasSavedSub));
+
+        delBtn.innerHTML = '✕';
+        delBtn.title = 'Delete saved map';
+        delBtn.style.cssText = canDeleteCurrent
+            ? 'display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; margin-left:6px; border-radius:6px; background:rgba(239,68,68,0.16); border:1px solid rgba(239,68,68,0.42); color:#f87171; font-size:12px; font-weight:700; cursor:pointer; flex-shrink:0; padding:0; line-height:1;'
+            : 'display:none;';
+    }
+
+    // Also render compact list of uploaded/saved maps with individual small "✕" buttons right below Select Map
+    const card = document.getElementById('card-map-file-selection');
+    if (!card || !sel) return;
+
+    let listWrap = document.getElementById('sp-saved-maps-quicklist');
+    if (!listWrap) {
+        listWrap = document.createElement('div');
+        listWrap.id = 'sp-saved-maps-quicklist';
+        listWrap.style.cssText = 'margin: -4px 0 10px 0; display:none; flex-direction:column; gap:4px;';
+        const selectRow = sel.closest('.ui-field-row');
+        if (selectRow && selectRow.parentNode) {
+            selectRow.parentNode.insertBefore(listWrap, selectRow.nextSibling);
+        } else {
+            card.appendChild(listWrap);
+        }
+    }
+
+    const customOpts = Array.from(sel.querySelectorAll('option[data-custom-supabase="true"]')).filter(o => !o.disabled);
+    if (customOpts.length === 0) {
+        listWrap.style.display = 'none';
+        listWrap.innerHTML = '';
+        return;
+    }
+
+    listWrap.style.display = 'flex';
+    listWrap.innerHTML = customOpts.map(opt => {
+        const key = opt.value;
+        const name = opt.textContent || key;
+        const compGrp = (opt.getAttribute('data-company-group') || 'palmnex').toLowerCase();
+        const compTag = compGrp === 'palmnex' ? 'Palmnex' : compGrp.toUpperCase();
+        const isActive = (sel.value === key);
+        const safeKey = key.replace(/'/g, "\\'");
+        const safeName = name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+        return `
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; padding:4px 8px; border-radius:6px; background:${isActive ? 'rgba(16,185,129,0.14)' : 'rgba(255,255,255,0.04)'}; border:1px solid ${isActive ? 'rgba(52,211,153,0.45)' : 'rgba(255,255,255,0.09)'}; font-size:11.5px;">
+                <span onclick="const s=document.getElementById('${sel.id}'); if(s){s.value='${safeKey}'; if(typeof onMapSelectChanged==='function') onMapSelectChanged('${safeKey}');}" style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#e2e8f0; cursor:pointer; font-weight:${isActive ? '700' : '500'};" title="Click to load ${safeName}">
+                    <span style="color:#34d399; font-weight:700; font-size:10px; margin-right:4px;">[${compTag}]</span>${name}
+                </span>
+                <button type="button" onclick="event.stopPropagation(); window.promptDeleteSavedMap('${safeKey}', '${safeName}')" title="Delete ${safeName}" style="width:18px; height:18px; border-radius:4px; background:rgba(239,68,68,0.16); border:1px solid rgba(239,68,68,0.38); color:#fca5a5; font-size:10.5px; font-weight:700; line-height:1; padding:0; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0;">✕</button>
+            </div>
+        `;
+    }).join('');
 };
 
 // Open Auth Modal Dialog

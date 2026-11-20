@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PALMNEX - KPSM Smallholder Database</title>
+    
+    <!-- External CSS & Libraries -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Styling (Vanilla CSS) -->
+    <link rel="stylesheet" href="css/cms-layout.css" />
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="stylesheet" href="css/components.css" />
+    <link rel="stylesheet" href="css/tables-forms.css" />
+    <link rel="stylesheet" href="css/styles.css" />
+
+    <!-- Supabase JS Client & Config -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/auth.js"></script>
+
+    <style>
+        .kpsm-db-header {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%);
+            color: #ffffff;
+            padding: 24px 32px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 25px -5px rgba(67, 56, 202, 0.3);
+        }
+        .kpsm-db-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            margin: 0 0 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .kpsm-db-subtitle {
+            font-size: 14px;
+            color: #c7d2fe;
+            margin: 0;
+        }
+        .kpsm-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .kpsm-stat-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 18px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .kpsm-stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+        }
+        .kpsm-stat-val {
+            font-family: 'Outfit', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: #0f172a;
+            line-height: 1.2;
+        }
+        .kpsm-stat-lbl {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 500;
+        }
+        .kpsm-controls-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+        .kpsm-search-input {
+            flex: 1;
+            min-width: 260px;
+            height: 40px;
+            padding: 0 14px 0 38px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+            background: #f8fafc url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z'/%3E%3C/svg%3E") no-repeat 12px center;
+            background-size: 16px;
+            transition: border-color 0.2s, background-color 0.2s;
+        }
+        .kpsm-search-input:focus {
+            border-color: #4338ca;
+            background-color: #ffffff;
+        }
+        .kpsm-select-filter {
+            height: 40px;
+            padding: 0 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #334155;
+            background-color: #f8fafc;
+            outline: none;
+            cursor: pointer;
+        }
+        .kpsm-export-btn {
+            height: 40px;
+            padding: 0 16px;
+            background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 10px rgba(5, 150, 105, 0.25);
+            transition: transform 0.2s;
+        }
+        .kpsm-export-btn:hover {
+            transform: translateY(-1px);
+        }
+        .kpsm-table-container {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+        .kpsm-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            text-align: left;
+        }
+        .kpsm-table th {
+            background: #f8fafc;
+            color: #334155;
+            font-weight: 700;
+            padding: 14px 16px;
+            border-bottom: 2px solid #e2e8f0;
+            white-space: nowrap;
+        }
+        .kpsm-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            color: #1e293b;
+        }
+        .kpsm-table tbody tr:hover {
+            background: #f8fafc;
+        }
+        .badge-mspo {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        .badge-mspo.certified {
+            background: #dcfce7;
+            color: #15803d;
+            border: 1px solid #bbf7d0;
+        }
+        .badge-mspo.pending {
+            background: #fef9c3;
+            color: #a16207;
+            border: 1px solid #fef08a;
+        }
+    </style>
+</head>
+<body>
+    <div class="cms-layout">
+        <!-- Top Panel -->
+        <div class="cms-top-panel">
+            <div class="sp-top-left-group">
+                <a href="index.html" class="sp-brand-box" title="MPOB PalmNex Home">
+                    <div class="sp-brand-logo-wrap">
+                        <img src="MPOB-3.png" alt="MPOB Logo" />
+                    </div>
+                </a>
+
+                <nav class="sp-top-nav-pills">
+                    <a href="index.html" class="sp-top-pill">
+                        <img src="home-logo-final.png" class="pill-icon" alt="Home" />
+                        <span class="pill-text">Home</span>
+                    </a>
+                    <a href="comprehensive.html" class="sp-top-pill">
+                        <img src="comp-logo-final.png" class="pill-icon" alt="Comprehensive" />
+                        <span class="pill-text">Comprehensive Fert</span>
+                    </a>
+                    <a href="standard.html" class="sp-top-pill">
+                        <img src="std-logo-final.png" class="pill-icon" alt="Standard" />
+                        <span class="pill-text">Standard Fert</span>
+                    </a>
+                    <a href="https://www.palmnex.com.my" target="_blank" rel="noopener noreferrer" class="sp-top-pill">
+                        <img src="reada-logo-final.png" class="pill-icon" alt="PalmNexReaDS" />
+                        <span class="pill-text">PalmNexReaDS</span>
+                    </a>
+                    <div class="sp-top-pill-dropdown" id="sp-top-kpsm-dropdown">
+                        <button type="button" class="sp-top-pill active" onclick="document.getElementById('sp-top-kpsm-dropdown').classList.toggle('open')">
+                            <img src="kpsm-logo-final.png" class="pill-icon" alt="KPSM" />
+                            <span class="pill-text">KPSM System</span>
+                            <span style="font-size: 9px; opacity: 0.7;">▼</span>
+                        </button>
+                        <div class="sp-top-dropdown-menu">
+                            <a href="kpsm-home.html" class="sp-top-dropdown-item">
+                                <span>KPSM Home</span>
+                                <span>→</span>
+                            </a>
+                            <a href="kpsm.html" class="sp-top-dropdown-item">
+                                <span>Monitoring Dashboard</span>
+                                <span>→</span>
+                            </a>
+                            <a href="kpsm-database.html" class="sp-top-dropdown-item">
+                                <span>Smallholder Database</span>
+                                <span>→</span>
+                            </a>
+                        </div>
+                    </div>
+                </nav>
+            </div>
+
+            <div class="sp-top-right-controls">
+                <!-- Search Bar -->
+                <div class="sp-search-box">
+                    <input type="text" id="sp-global-search-input" placeholder="Search estate..." autocomplete="off" />
+                    <span class="search-shortcut">Ctrl+Shift+F</span>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    <div id="sp-search-results-dropdown" class="sp-search-results-dropdown"></div>
+                </div>
+
+                <!-- System Settings & Quota Config Button -->
+                <button type="button" class="sp-icon-btn" onclick="document.getElementById('sp-settings-modal').style.display='flex'" title="System Settings & Prediction Quota">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                </button>
+
+                <!-- User Manual Button -->
+                <button type="button" class="sp-icon-btn" onclick="document.getElementById('manual-modal').style.display='flex'" title="User Manual">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/>
+                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>
+                    </svg>
+                </button>
+
+                <!-- Run History Clock Button -->
+                <a href="notifications.html?filter=runs" target="_blank" class="sp-icon-btn" id="sp-top-history-btn" title="Run History" style="text-decoration: none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"/>
+                        <polyline points="12 6 12 12 16 14"/>
+                    </svg>
+                </a>
+
+                <!-- Notifications Bell Button & Dropdown -->
+                <div class="sp-notif-dropdown-wrap" id="sp-notif-dropdown-wrap">
+                    <button type="button" class="sp-icon-btn" id="sp-notif-bell-btn" onclick="toggleTopNotifDropdown(event)" title="Notifications">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+                        </svg>
+                        <span id="sp-top-notif-badge" class="sp-notif-badge">5</span>
+                    </button>
+                    <div id="sp-top-notif-dropdown" class="sp-top-notif-dropdown">
+                        <div class="sp-notif-dd-header">
+                            <div class="sp-notif-dd-title">
+                                <span>Notifications</span>
+                                <span id="sp-notif-dd-unread-pill" class="sp-notif-dd-count-pill">5 New</span>
+                            </div>
+                            <button type="button" class="sp-notif-dd-mark-btn" onclick="markAllNotificationsRead(event)">Mark all read</button>
+                        </div>
+                        <div id="sp-top-notif-dropdown-list" class="sp-notif-dd-list"></div>
+                        <div class="sp-notif-dd-footer">
+                            <a href="notifications.html" class="sp-notif-dd-view-all">
+                                <span>View All Notifications</span>
+                                <span>→</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Profile / Login Button -->
+                <button type="button" class="sp-profile-btn" onclick="openAuthModal('signin')" title="Account Login / Profile">
+                    <div class="sp-avatar-circle">
+                        <span>AD</span>
+                        <span class="sp-avatar-status"></span>
+                    </div>
+                    <span id="nav-user-email">Admin • Palmnex Sdn Bhd</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Sidebar Navigation -->
+        <aside class="cms-sidebar">
+            <nav class="cms-nav">
+                <a href="index.html" class="cms-nav-item">
+                    <img src="home-logo-final.png" class="icon" /> <span class="nav-label">Home</span>
+                </a>
+                <a href="comprehensive.html" class="cms-nav-item">
+                    <img src="comp-logo-final.png" class="icon" /> <span class="nav-label">Comprehensive Fert</span>
+                </a>
+                <a href="standard.html" class="cms-nav-item">
+                    <img src="std-logo-final.png" class="icon" /> <span class="nav-label">Standard Fert</span>
+                </a>
+                <a href="https://www.palmnex.com.my" target="_blank" rel="noopener noreferrer" class="cms-nav-item">
+                    <img src="reada-logo-final.png" class="icon" style="transform: scale(0.75);" /> <span class="nav-label">PalmNexReaDS</span>
+                </a>
+                
+                <!-- KPSM Nav Group -->
+                                <div class="cms-nav-group">
+                    <div class="cms-nav-item active" style="cursor: pointer;" onclick="if(event.target.closest('.kpsm-caret')){var el=document.getElementById('kpsm-sub-menu'); if(el) el.style.display=(el.style.display==='none'?'flex':'none');}else{location.href='kpsm-home.html';}" title="KPSM Home">
+                        <img src="kpsm-logo-final.png" class="icon" /> 
+                        <span class="nav-label">KPSM System</span>
+                        <span class="kpsm-caret" title="Show / hide KPSM menu" style="margin-left: auto; font-size: 10px; padding: 4px 6px;">▼</span>
+                    </div>
+                    <div class="cms-sub-nav" id="kpsm-sub-menu">
+                        <a href="kpsm-home.html" class="cms-sub-nav-item">
+                            <span class="nav-label">Home</span>
+                        </a>
+                        <a href="kpsm.html" class="cms-sub-nav-item">
+                            <span class="nav-label">Monitoring Dashboard</span>
+                        </a>
+                        <a href="kpsm-database.html" class="cms-sub-nav-item active">
+                            <span class="nav-label">Database</span>
+                        </a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="cms-main-content">
+            <div class="kpsm-db-container" style="flex: 1; min-height: 0; overflow-y: auto; padding: 24px 32px; box-sizing: border-box; width: 100%;">
+                <!-- User Manual Modal -->
+                <div id="manual-modal" class="modal-overlay" style="display: none; align-items: center; justify-content: center; z-index: 9999999; position: fixed; inset: 0; background: rgba(0,0,0,0.5);">
+                    <div class="modal-content" style="max-width: 600px; width: 90%; background: #ffffff; border-radius: 12px; padding: 24px; position: relative; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+                        <button type="button" style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 20px; color: #64748b; cursor: pointer;" onclick="document.getElementById('manual-modal').style.display='none'">✕</button>
+                        <h3 style="margin-top: 0; font-family: 'Outfit', sans-serif; font-size: 20px; color: #1e293b;">User Manual</h3>
+                        <div style="font-family: 'Inter', sans-serif; font-size: 14px; color: #475569; line-height: 1.6; max-height: 60vh; overflow-y: auto;">
+                            <h4>KPSM Smallholder Database</h4>
+                            <p>Access registered smallholder polygon data, MSPO certification status, planted areas, and land classifications fetched directly from POLYGON ISH records.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page Header -->
+                <div class="kpsm-db-header">
+                    <h1 class="kpsm-db-title">🗃️ KPSM Smallholder Database</h1>
+                    <p class="kpsm-db-subtitle">POLYGON ISH Master Agronomic & MSPO Certification Database</p>
+                </div>
+
+                <!-- Metric Stats -->
+                <div class="kpsm-stats-grid">
+                    <div class="kpsm-stat-card">
+                        <div class="kpsm-stat-icon" style="background: #e0e7ff; color: #4338ca;">👥</div>
+                        <div>
+                            <div class="kpsm-stat-val" id="stat-total-rec">36</div>
+                            <div class="kpsm-stat-lbl">Smallholders Registered</div>
+                        </div>
+                    </div>
+                    <div class="kpsm-stat-card">
+                        <div class="kpsm-stat-icon" style="background: #dcfce7; color: #15803d;">📐</div>
+                        <div>
+                            <div class="kpsm-stat-val" id="stat-total-area">142.8 ha</div>
+                            <div class="kpsm-stat-lbl">Total Planted Area</div>
+                        </div>
+                    </div>
+                    <div class="kpsm-stat-card">
+                        <div class="kpsm-stat-icon" style="background: #fef9c3; color: #a16207;">📜</div>
+                        <div>
+                            <div class="kpsm-stat-val" id="stat-mspo-rate">94.4%</div>
+                            <div class="kpsm-stat-lbl">MSPO Certified Rate</div>
+                        </div>
+                    </div>
+                    <div class="kpsm-stat-card">
+                        <div class="kpsm-stat-icon" style="background: #fce7f3; color: #be185d;">🏞️</div>
+                        <div>
+                            <div class="kpsm-stat-val" id="stat-primary-land">Coastal</div>
+                            <div class="kpsm-stat-lbl">Primary Land Type</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controls & Filters Bar -->
+                <div class="kpsm-controls-card">
+                    <input type="text" id="kpsm-search" class="kpsm-search-input" placeholder="Search smallholder, lot no, state, district, or SPOC..." oninput="filterKpsmTable()" />
+                    
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <select id="filter-state" class="kpsm-select-filter" onchange="filterKpsmTable()">
+                            <option value="">All States</option>
+                            <option value="Sabah">Sabah</option>
+                            <option value="Pahang">Pahang</option>
+                            <option value="Johor">Johor</option>
+                            <option value="Selangor">Selangor</option>
+                        </select>
+                        <select id="filter-mspo" class="kpsm-select-filter" onchange="filterKpsmTable()">
+                            <option value="">All MSPO Status</option>
+                            <option value="MSPO Certified">MSPO Certified</option>
+                            <option value="In-Progress">In-Progress</option>
+                        </select>
+                        <select id="filter-land" class="kpsm-select-filter" onchange="filterKpsmTable()">
+                            <option value="">All Land Types</option>
+                            <option value="Inland Mineral">Inland Mineral</option>
+                            <option value="Organic Peat">Organic Peat</option>
+                            <option value="Riverine Alluvial">Riverine Alluvial</option>
+                        </select>
+                        <button class="kpsm-export-btn" onclick="exportKpsmCsv()">
+                            <span>📥</span> <span>Export CSV</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Database Table -->
+                <div class="kpsm-table-container">
+                    <table class="kpsm-table" id="kpsm-db-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;">#</th>
+                                <th>Smallholder Name</th>
+                                <th>State</th>
+                                <th>District</th>
+                                <th>SPOC Name</th>
+                                <th>Lot No.</th>
+                                <th>Planted Area (ha)</th>
+                                <th>MSPO Cert</th>
+                                <th>MSPO License No.</th>
+                                <th>Land Type</th>
+                            </tr>
+                        </thead>
+                        <tbody id="kpsm-db-tbody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- External JS Scripts -->
+    <script src="js/kpsm_dbf_data.js"></script>
+    <script src="js/comprehensive.js"></script>
+    <script>
+        // Default ISH SPOC Database Records (Fetches POLYGON ISH GeoJSON if available, fallback to SPOC master dataset)
+        const SAMPLE_ISH_RECORDS = [
+            { smallholder: "Ahmad Bin Sulaiman", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 101", planted_ar: "3.50", mspo: "MSPO Certified", license_no: "MSPO-50415331-101", land: "Inland Mineral" },
+            { smallholder: "Siti Fatimah Binti Ismail", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 102", planted_ar: "4.20", mspo: "MSPO Certified", license_no: "MSPO-50415331-102", land: "Inland Mineral" },
+            { smallholder: "Tan Ah Kow", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 103", planted_ar: "2.80", mspo: "MSPO Certified", license_no: "MSPO-50415331-103", land: "Riverine Alluvial" },
+            { smallholder: "Ramasamy A/L Subramaniam", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 104", planted_ar: "5.10", mspo: "MSPO Certified", license_no: "MSPO-50415331-104", land: "Inland Mineral" },
+            { smallholder: "Mohd Hafiz Bin Rosli", state: "Sabah", district: "Tawau", spoc: "SPOC A8 Tawau", lot: "LOT 105", planted_ar: "3.90", mspo: "MSPO Certified", license_no: "MSPO-50415331-105", land: "Inland Mineral" },
+            { smallholder: "Wong Chee Keong", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 106", planted_ar: "4.75", mspo: "MSPO Certified", license_no: "MSPO-50415331-106", land: "Inland Mineral" },
+            { smallholder: "Zainab Binti Hassan", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 107", planted_ar: "3.20", mspo: "In-Progress", license_no: "MSPO-50415331-107", land: "Organic Peat" },
+            { smallholder: "Chong Wei Sheng", state: "Pahang", district: "Jerantut", spoc: "SPOC P2 Jengka", lot: "LOT 201", planted_ar: "6.30", mspo: "MSPO Certified", license_no: "MSPO-50415331-201", land: "Inland Mineral" },
+            { smallholder: "Kamal Bin Ibrahim", state: "Pahang", district: "Jerantut", spoc: "SPOC P2 Jengka", lot: "LOT 202", planted_ar: "5.50", mspo: "MSPO Certified", license_no: "MSPO-50415331-202", land: "Inland Mineral" },
+            { smallholder: "Nurul Aini Binti Yusof", state: "Pahang", district: "Jerantut", spoc: "SPOC P2 Jengka", lot: "LOT 203", planted_ar: "4.10", mspo: "MSPO Certified", license_no: "MSPO-50415331-203", land: "Inland Mineral" },
+            { smallholder: "Muthusamy A/L Vengadasalam", state: "Johor", district: "Kluang", spoc: "SPOC J4 Kluang", lot: "LOT 301", planted_ar: "4.80", mspo: "MSPO Certified", license_no: "MSPO-50415331-301", land: "Organic Peat" },
+            { smallholder: "Abdul Rahman Bin Hamid", state: "Johor", district: "Kluang", spoc: "SPOC J4 Kluang", lot: "LOT 302", planted_ar: "3.70", mspo: "MSPO Certified", license_no: "MSPO-50415331-302", land: "Inland Mineral" },
+            { smallholder: "Lim Guan Eng", state: "Selangor", district: "Kuala Langat", spoc: "SPOC S1 Banting", lot: "LOT 401", planted_ar: "5.00", mspo: "MSPO Certified", license_no: "MSPO-50415331-401", land: "Organic Peat" },
+            { smallholder: "Aziz Bin Mustaffa", state: "Sabah", district: "Sandakan", spoc: "SPOC A5 Sandakan", lot: "LOT 501", planted_ar: "3.60", mspo: "MSPO Certified", license_no: "MSPO-50415331-501", land: "Inland Mineral" },
+            { smallholder: "Lee Siew Leng", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 108", planted_ar: "4.40", mspo: "MSPO Certified", license_no: "MSPO-50415331-108", land: "Riverine Alluvial" },
+            { smallholder: "Kassim Bin Abdullah", state: "Sabah", district: "Lahad Datu", spoc: "SPOC A7 Lahad Datu", lot: "LOT 109", planted_ar: "2.90", mspo: "In-Progress", license_no: "MSPO-50415331-109", land: "Inland Mineral" }
+        ];
+
+        let allKpsmRecords = [];
+
+        function initKpsmDatabase() {
+            let records = [];
+
+            if (typeof POLYGON_ISH_REAL_RECORDS !== 'undefined' && POLYGON_ISH_REAL_RECORDS.length > 0) {
+                records = POLYGON_ISH_REAL_RECORDS;
+            } else if (window.REAL_MAPS_DATA && window.REAL_MAPS_DATA['polygon_ish'] && window.REAL_MAPS_DATA['polygon_ish'].features) {
+                records = window.REAL_MAPS_DATA['polygon_ish'].features.map((f, i) => {
+                    let p = f.properties || {};
+                    return {
+                        smallholder: p.SMALLHOLDE || p.Smallholder || p.smallholder || p.name || `Smallholder #${i+1}`,
+                        state: p.STATE || p.State || p.state || "PERAK",
+                        district: p.DISTRICT || p.District || p.district || "BAGAN DATUK",
+                        spoc: p.SPOC_NAME || p.spoc_name || p.spoc || "HUTAN MELINTANG",
+                        lot: p.LOT_NO || p.lot_no || p.lot || str(i+1),
+                        planted_ar: p.PLANTED_AR || p.planted_ar || "0.00",
+                        mspo: (p.MSPO_CERTI || p.mspo_certi || '').trim() ? "MSPO Certified" : "In-Progress",
+                        mspo_certi: p.MSPO_CERTI || p.mspo_certi || '',
+                        license_no: p.LICENSE_NO || p.license_no || p.MSPO_CERTI || `LIC-${i+1}`,
+                        land: p.LAND_TYPE || p.land_type || p.land || "FINAL TITLE",
+                        lat: p.LATITUDE || '',
+                        lng: p.LONGITUDE || ''
+                    };
+                });
+            } else {
+                records = SAMPLE_ISH_RECORDS;
+            }
+
+            allKpsmRecords = records;
+            updateStatsSummary();
+            populateFilterDropdowns();
+            renderKpsmTable(allKpsmRecords);
+        }
+
+        
+        function populateFilterDropdowns() {
+            const stateSel = document.getElementById('filter-state');
+            const districtSel = document.getElementById('filter-district');
+            const landSel = document.getElementById('filter-land');
+
+            if (!allKpsmRecords || allKpsmRecords.length === 0) return;
+
+            const states = [...new Set(allKpsmRecords.map(r => (r.state || '').trim()).filter(Boolean))].sort();
+            const districts = [...new Set(allKpsmRecords.map(r => (r.district || '').trim()).filter(Boolean))].sort();
+            const lands = [...new Set(allKpsmRecords.map(r => (r.land || '').trim()).filter(Boolean))].sort();
+
+            if (stateSel) {
+                stateSel.innerHTML = '<option value="">All States</option>' + states.map(s => `<option value="${s}">${s}</option>`).join('');
+            }
+            if (districtSel) {
+                districtSel.innerHTML = '<option value="">All Districts</option>' + districts.map(d => `<option value="${d}">${d}</option>`).join('');
+            }
+            if (landSel) {
+                landSel.innerHTML = '<option value="">All Land Types</option>' + lands.map(l => `<option value="${l}">${l}</option>`).join('');
+            }
+        }
+
+        function updateStatsSummary() {
+            let totalArea = allKpsmRecords.reduce((acc, r) => acc + parseFloat(r.planted_ar || 0), 0);
+            let certifiedCount = allKpsmRecords.filter(r => (r.mspo || '').toLowerCase().includes('certified')).length;
+            let mspoRate = allKpsmRecords.length > 0 ? ((certifiedCount / allKpsmRecords.length) * 100).toFixed(1) : 0;
+
+            // Compute primary land type from SOIL ISH > SOIL_TYPE
+            let landCounts = {};
+            allKpsmRecords.forEach(r => {
+                let l = (r.land || 'Coastal').trim();
+                landCounts[l] = (landCounts[l] || 0) + 1;
+            });
+            let primaryLand = 'Coastal';
+            let maxC = 0;
+            for (let l in landCounts) {
+                if (landCounts[l] > maxC) {
+                    maxC = landCounts[l];
+                    primaryLand = l;
+                }
+            }
+
+            document.getElementById('stat-total-rec').innerText = allKpsmRecords.length;
+            document.getElementById('stat-total-area').innerText = totalArea.toFixed(1) + ' ha';
+            document.getElementById('stat-mspo-rate').innerText = mspoRate + '%';
+            let landEl = document.getElementById('stat-primary-land');
+            if (landEl) landEl.innerText = primaryLand;
+        }
+
+        function renderKpsmTable(data) {
+            const tbody = document.getElementById('kpsm-db-tbody');
+            if (!data || data.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding: 24px; color: #94a3b8;">No matching smallholder database records found.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = data.map((r, i) => {
+                let isCert = (r.mspo || '').toLowerCase().includes('certified');
+                let badgeClass = isCert ? 'certified' : 'pending';
+                let badgeText = isCert ? '✓ MSPO Certified' : '⏳ In-Progress';
+                return `
+                    <tr>
+                        <td style="font-weight:600; color:#64748b;">${i + 1}</td>
+                        <td style="font-weight:700; color:#0f172a;">${r.smallholder}</td>
+                        <td>${r.state}</td>
+                        <td>${r.district}</td>
+                        <td style="font-weight:600; color:#4338ca;">${r.spoc}</td>
+                        <td><span style="font-family:monospace; font-weight:600; background:#f1f5f9; padding:2px 6px; border-radius:4px;">${r.lot}</span></td>
+                        <td style="font-weight:600; color:#059669;">${r.planted_ar} ha</td>
+                        <td><span class="badge-mspo ${badgeClass}">${badgeText}</span></td>
+                        <td><span style="font-family:monospace; font-size:12px; font-weight:600; color:#475569; background:#f8fafc; padding:2px 8px; border-radius:4px; border:1px solid #e2e8f0;">${r.license_no || 'N/A'}</span></td>
+                        <td>${r.land}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterKpsmTable() {
+            const query = (document.getElementById('kpsm-search').value || '').toLowerCase().trim();
+            const stateF = document.getElementById('filter-state') ? document.getElementById('filter-state').value : '';
+            const districtF = document.getElementById('filter-district') ? document.getElementById('filter-district').value : '';
+            const mspoF = document.getElementById('filter-mspo') ? document.getElementById('filter-mspo').value : '';
+            const landF = document.getElementById('filter-land') ? document.getElementById('filter-land').value : '';
+
+            const filtered = allKpsmRecords.filter(r => {
+                const matchesSearch = !query || 
+                    (r.smallholder && r.smallholder.toLowerCase().includes(query)) ||
+                    (r.state && r.state.toLowerCase().includes(query)) ||
+                    (r.district && r.district.toLowerCase().includes(query)) ||
+                    (r.spoc && r.spoc.toLowerCase().includes(query)) ||
+                    (r.lot && r.lot.toLowerCase().includes(query)) ||
+                    (r.license_no && r.license_no.toLowerCase().includes(query)) ||
+                    (r.mspo_certi && r.mspo_certi.toLowerCase().includes(query));
+
+                const matchesState = !stateF || (r.state || '').toUpperCase() === stateF.toUpperCase();
+                const matchesDistrict = !districtF || (r.district || '').toUpperCase() === districtF.toUpperCase();
+                const matchesMspo = !mspoF || r.mspo === mspoF;
+                const matchesLand = !landF || (r.land || '').toUpperCase() === landF.toUpperCase();
+
+                return matchesSearch && matchesState && matchesDistrict && matchesMspo && matchesLand;
+            });
+
+            renderKpsmTable(filtered);
+        }
+
+        function exportKpsmCsv() {
+            if (!allKpsmRecords || allKpsmRecords.length === 0) return;
+            let headers = ["#", "Smallholder", "State", "District", "SPOC Name", "Lot No.", "Planted Area (ha)", "MSPO Cert", "MSPO License No.", "Land Type"];
+            let rows = allKpsmRecords.map((r, i) => [
+                i + 1,
+                `"${r.smallholder}"`,
+                `"${r.state}"`,
+                `"${r.district}"`,
+                `"${r.spoc}"`,
+                `"${r.lot}"`,
+                r.planted_ar,
+                `"${r.mspo}"`,
+                `"${r.license_no || ''}"`,
+                `"${r.land}"`
+            ]);
+
+            let csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+            let encodedUri = encodeURI(csvContent);
+            let link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "KPSM_Smallholder_Database_POLYGON_ISH.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function toggleKpsmSubNav() {
+            const el = document.getElementById('kpsm-sub-menu');
+            if (el) el.style.display = (el.style.display === 'none') ? 'flex' : 'none';
+        }
+
+        document.addEventListener('DOMContentLoaded', initKpsmDatabase);
+    </script>
+    <script src="js/top-panel.js"></script>
+</body>
+</html>

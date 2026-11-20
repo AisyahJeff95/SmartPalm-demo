@@ -4715,45 +4715,43 @@ function toggleSatDataMode(mode) {
                     feature.properties.name = foundName ? String(foundName) : (`Block ${idx + 1}`);
                 });
 
-                let customKey = 'custom_' + Date.now();
-                let mapDisplayName = `Custom: ${fileName} (${geojson.features.length} blocks)`;
+                let baseClean = (uploadedShapefileName || fileName || 'Uploaded_Estate').replace(/\.(shp|zip|dbf)$/i, '').trim();
+                let rawKey = 'custom_' + baseClean.toLowerCase().replace(/[^a-z0-9]+/g, '_') + '_' + geojson.features.length + 'b';
+                let mapDisplayName = `${baseClean} (${geojson.features.length} blocks)`;
                 geojson.mapName = mapDisplayName;
-                REAL_MAPS_DATA[customKey] = geojson;
+                REAL_MAPS_DATA[rawKey] = geojson;
+
+                let estateInput = document.getElementById('estate-name-input');
+                if (estateInput && !estateInput.value.trim()) {
+                    estateInput.value = baseClean;
+                }
+
+                let finalKey = rawKey;
                 if (typeof window.saveCustomMapToSupabase === 'function') {
-                    window.saveCustomMapToSupabase(customKey, mapDisplayName, geojson).then(savedKey => {
-                        if (savedKey && savedKey !== customKey) {
-                            REAL_MAPS_DATA[savedKey] = geojson;
-                        }
-                    });
+                    const savedKey = await window.saveCustomMapToSupabase(rawKey, mapDisplayName, geojson);
+                    if (savedKey) {
+                        finalKey = savedKey;
+                        REAL_MAPS_DATA[finalKey] = geojson;
+                    }
                 }
                 if (window.PREDICTION_CACHE_BY_ESTATE) {
-                    delete window.PREDICTION_CACHE_BY_ESTATE[customKey];
+                    delete window.PREDICTION_CACHE_BY_ESTATE[finalKey];
                 }
                 window.DYNAMIC_PREDICTION_RASTERS = null;
                 window.DYNAMIC_PREDICTION_GRIDS = null;
 
-                // Update select dropdowns
-                ['map-select-comp', 'map-select-std'].forEach(selectId => {
+                ['map-select-comp', 'map-select-std', 'map-select-kpsm'].forEach(selectId => {
                     let select = document.getElementById(selectId);
                     if (select) {
-                        let opt = document.createElement('option');
-                        opt.value = customKey;
-                        opt.innerText = mapDisplayName;
-                        opt.selected = true;
-                        select.appendChild(opt);
+                        select.value = finalKey;
                     }
                 });
 
                 // Load newly created shapefile
-                onMapSelectChanged(customKey);
+                onMapSelectChanged(finalKey);
+                if (typeof window.updateSavedMapsDeleteUI === 'function') window.updateSavedMapsDeleteUI();
                 if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp('OFF');
                 if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd('OFF');
-
-                // Auto-fill the estate name input with the shapefile filename (editable)
-                let estateInput = document.getElementById('estate-name-input');
-                if (estateInput && !estateInput.value.trim()) {
-                    estateInput.value = uploadedShapefileName;
-                }
 
                 alert(`Shapefile '${fileName}' loaded successfully!\n${geojson.features.length} block boundaries displayed on the map.`);
             } catch (err) {
@@ -4806,59 +4804,45 @@ function toggleSatDataMode(mode) {
                         });
 
                         let baseName = window._UPLOADED_SHP_NAME || 'Uploaded_Estate';
-                        let matchedBuiltInKey = (typeof window.resolveBuiltInKeyFromNameOrKey === 'function')
-                            ? window.resolveBuiltInKeyFromNameOrKey(baseName)
-                            : '';
-                        let customKey = matchedBuiltInKey || ('custom_' + baseName.toLowerCase().replace(/[^a-z0-9]+/g, '_') + '_' + geojson.features.length + 'b');
-                        let mapDisplayName = matchedBuiltInKey ? baseName : `Custom: ${baseName} (${geojson.features.length} blocks)`;
+                        let rawKey = 'custom_' + baseName.toLowerCase().replace(/[^a-z0-9]+/g, '_') + '_' + geojson.features.length + 'b';
+                        let mapDisplayName = `${baseName} (${geojson.features.length} blocks)`;
                         geojson.mapName = mapDisplayName;
-                        REAL_MAPS_DATA[customKey] = geojson;
-                        if (typeof window.registerClientUploadedEstate === 'function') {
-                            window.registerClientUploadedEstate(customKey);
-                        }
-                        if (typeof window.saveCustomMapToSupabase === 'function') {
-                            window.saveCustomMapToSupabase(customKey, mapDisplayName, geojson).then(savedKey => {
-                                if (savedKey && savedKey !== customKey && !matchedBuiltInKey) {
-                                    REAL_MAPS_DATA[savedKey] = geojson;
-                                }
-                            });
-                        }
-                        if (window.PREDICTION_CACHE_BY_ESTATE) {
-                            delete window.PREDICTION_CACHE_BY_ESTATE[customKey];
-                        }
-                        window.DYNAMIC_PREDICTION_RASTERS = null;
-                        window.DYNAMIC_PREDICTION_GRIDS = null;
-
-                        if (typeof window.applyCompanyEstateIsolation === 'function') {
-                            window.applyCompanyEstateIsolation();
-                        }
-
-                        ['map-select-comp', 'map-select-std', 'map-select-kpsm'].forEach(selectId => {
-                            let select = document.getElementById(selectId);
-                            if (select) {
-                                let existingOpt = Array.from(select.options).find(o => o.value === customKey);
-                                if (!existingOpt) {
-                                    existingOpt = document.createElement('option');
-                                    existingOpt.value = customKey;
-                                    existingOpt.innerText = mapDisplayName;
-                                    const firstGrp = select.querySelector('optgroup');
-                                    if (firstGrp) firstGrp.appendChild(existingOpt);
-                                    else select.appendChild(existingOpt);
-                                }
-                                existingOpt.disabled = false;
-                                existingOpt.selected = true;
-                                select.value = customKey;
-                            }
-                        });
-
-                        onMapSelectChanged(customKey);
-                        if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp('OFF');
-                        if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd('OFF');
+                        REAL_MAPS_DATA[rawKey] = geojson;
 
                         let estateInput = document.getElementById('estate-name-input');
                         if (estateInput && !estateInput.value.trim()) {
                             estateInput.value = baseName;
                         }
+
+                        if (typeof window.registerClientUploadedEstate === 'function') {
+                            window.registerClientUploadedEstate(rawKey);
+                        }
+
+                        let finalKey = rawKey;
+                        if (typeof window.saveCustomMapToSupabase === 'function') {
+                            const savedKey = await window.saveCustomMapToSupabase(rawKey, mapDisplayName, geojson);
+                            if (savedKey) {
+                                finalKey = savedKey;
+                                REAL_MAPS_DATA[finalKey] = geojson;
+                            }
+                        }
+                        if (window.PREDICTION_CACHE_BY_ESTATE) {
+                            delete window.PREDICTION_CACHE_BY_ESTATE[finalKey];
+                        }
+                        window.DYNAMIC_PREDICTION_RASTERS = null;
+                        window.DYNAMIC_PREDICTION_GRIDS = null;
+
+                        ['map-select-comp', 'map-select-std', 'map-select-kpsm'].forEach(selectId => {
+                            let select = document.getElementById(selectId);
+                            if (select) {
+                                select.value = finalKey;
+                            }
+                        });
+
+                        onMapSelectChanged(finalKey);
+                        if (typeof window.updateSavedMapsDeleteUI === 'function') window.updateSavedMapsDeleteUI();
+                        if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp('OFF');
+                        if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd('OFF');
                     }
                 }
             } catch (err) {
@@ -5475,14 +5459,55 @@ function toggleSatDataMode(mode) {
                 setElementText('std-k-val', "-- %"); setElementText('std-mg-val', "-- %");
                 setElementText('comp-ca-val', "-- %"); setElementText('comp-b-val', "-- ppm");
                 setElementText('std-ca-val', "-- %"); setElementText('std-b-val', "-- ppm");
+                if (typeof window.applyClientSubmissionToDashboard === 'function') {
+                    window.applyClientSubmissionToDashboard(null);
+                }
+                if (typeof window.updateSavedMapsDeleteUI === 'function') window.updateSavedMapsDeleteUI();
                 return;
             }
 
-            loadShapeBoundaries(val);
+            const selEl = document.getElementById('map-select-comp') || document.getElementById('map-select-std');
+            const selectedOpt = selEl && selEl.selectedOptions ? selEl.selectedOptions[0] : null;
+            const subFromMap = (window.CLIENT_SUBMISSIONS_BY_MAP_KEY && window.CLIENT_SUBMISSIONS_BY_MAP_KEY[val]) || null;
+            const boundaryKey = (subFromMap && subFromMap.base_map_key)
+                || (selectedOpt && selectedOpt.getAttribute('data-base-map-key'))
+                || String(val).replace(/^sub_storage_[a-z0-9_]+?_/, '');
+
+            loadShapeBoundaries(boundaryKey);
             if (typeof window.restoreEstatePredictionFromCache === 'function') {
-                window.restoreEstatePredictionFromCache(val, false);
+                window.restoreEstatePredictionFromCache(boundaryKey, false);
             } else if (typeof setNutrientLayerSelectionEnabled === 'function') {
                 setNutrientLayerSelectionEnabled(false, "* Click 'Run Prediction' to generate 10m Sentinel rasters", null);
+            }
+
+            const activeClientSub = subFromMap
+                || (window.CLIENT_SUBMISSIONS_BY_MAP_KEY && window.CLIENT_SUBMISSIONS_BY_MAP_KEY[boundaryKey])
+                || null;
+            if (typeof window.applyClientSubmissionToDashboard === 'function') {
+                window.applyClientSubmissionToDashboard(activeClientSub);
+            }
+
+            if (typeof window.fetchLatestClientSubmissionForMap === 'function') {
+                window.fetchLatestClientSubmissionForMap(boundaryKey).then(remoteSub => {
+                    const curSel = (document.getElementById('map-select-comp') || document.getElementById('map-select-std') || {}).value;
+                    if (curSel !== val) return;
+                    if (remoteSub) {
+                        if (typeof window.applyClientSubmissionToDashboard === 'function') {
+                            window.applyClientSubmissionToDashboard(remoteSub);
+                        }
+                        if (typeof window.updateSavedMapsDeleteUI === 'function') {
+                            window.updateSavedMapsDeleteUI();
+                        }
+                    } else if (typeof window.isPalmnexMasterAdmin === 'function' && !window.isPalmnexMasterAdmin()) {
+                        if (typeof window.scheduleClientLeftPanelAutoSave === 'function') {
+                            window.scheduleClientLeftPanelAutoSave(500);
+                        }
+                    }
+                }).catch(() => {});
+            }
+
+            if (typeof window.updateSavedMapsDeleteUI === 'function') {
+                window.updateSavedMapsDeleteUI();
             }
 
             function zoomToActiveMap() {
@@ -5504,6 +5529,151 @@ function toggleSatDataMode(mode) {
             if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp('OFF');
             if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd('OFF');
         }
+
+        window.collectCurrentClientInputs = function () {
+            const getVal = (id, fallback = '') => {
+                const el = document.getElementById(id);
+                return (el && el.value !== undefined) ? el.value : fallback;
+            };
+            const getTxt = (id, fallback = '') => {
+                const el = document.getElementById(id);
+                return (el && el.textContent !== undefined) ? el.textContent.trim() : fallback;
+            };
+            const prevChk = document.getElementById('comp-previous-chk');
+            const rtChk = document.getElementById('comp-realtime-chk');
+            const isRealtime = prevChk && prevChk.checked ? false : Boolean(!rtChk || rtChk.checked);
+            const satDate = getVal('comp-sat-date', '');
+            const fertListEl = document.getElementById('fert-list-input');
+            const fertListLabel = (fertListEl && fertListEl.selectedIndex > 0 && fertListEl.options[fertListEl.selectedIndex])
+                ? fertListEl.options[fertListEl.selectedIndex].text
+                : '';
+            const filledBlocks = Array.isArray(selectedBlockSlots)
+                ? selectedBlockSlots.filter(s => s && s.name).map(s => ({
+                    name: s.name,
+                    lat: s.latlng ? s.latlng.lat : selectedLat,
+                    lng: s.latlng ? s.latlng.lng : selectedLng
+                }))
+                : [];
+            return {
+                satelliteMode: isRealtime ? 'realtime' : 'previous',
+                satelliteDate: satDate,
+                identifiedSoilLabel: getTxt('identified-soil-type-val', '--'),
+                nutrientBoxes: {
+                    nText: getTxt('comp-n-val', '-- %'),
+                    pText: getTxt('comp-p-val', '-- %'),
+                    kText: getTxt('comp-k-val', '-- %'),
+                    mgText: getTxt('comp-mg-val', '-- %'),
+                    caText: getTxt('comp-ca-val', '-- %'),
+                    bText: getTxt('comp-b-val', '-- ppm'),
+                    currentNutrients: (typeof currentNutrients === 'object' && currentNutrients) ? Object.assign({}, currentNutrients) : null,
+                    lastPredictionFolder: window._LAST_PREDICTION_FOLDER || '',
+                    lastPredictionBaseUrl: window._LAST_PREDICTION_BASE_URL || ''
+                },
+                fertilizer: {
+                    manualChecked: Boolean((document.getElementById('fert-ratio-lock-chk') || {}).checked),
+                    listChecked: Boolean((document.getElementById('fert-list-lock-chk') || {}).checked),
+                    n: getVal('fert-n-input', ''),
+                    p: getVal('fert-p-input', ''),
+                    k: getVal('fert-k-input', ''),
+                    mg: getVal('fert-mg-input', ''),
+                    b: getVal('fert-b-input', ''),
+                    listValue: getVal('fert-list-input', ''),
+                    listLabel: fertListLabel
+                },
+                selectedBlocks: filledBlocks,
+                estateName: getVal('estate-name-input', ''),
+                estateNameLocked: Boolean((document.getElementById('estate-name-lock-chk') || {}).checked),
+                droneDate: getVal('drone-date-input', '')
+            };
+        };
+
+        let _stdAutoSaveTimer = null;
+        window.scheduleClientLeftPanelAutoSave = function (delayMs = 700) {
+            if (_stdAutoSaveTimer) clearTimeout(_stdAutoSaveTimer);
+            _stdAutoSaveTimer = setTimeout(() => {
+                const selEl = document.getElementById('map-select-comp') || document.getElementById('map-select-std');
+                if (selEl && selEl.value && typeof window.saveClientInputsToAdmin === 'function') {
+                    window.saveClientInputsToAdmin(true);
+                }
+            }, delayMs);
+        };
+
+        window.saveClientInputsToAdmin = async function (isAutoSave) {
+            const selEl = document.getElementById('map-select-comp') || document.getElementById('map-select-std');
+            const activeMapKey = selEl ? selEl.value : '';
+            if (!activeMapKey) return null;
+            const optText = (selEl && selEl.selectedOptions && selEl.selectedOptions[0])
+                ? selEl.selectedOptions[0].textContent
+                : activeMapKey;
+            const payload = window.collectCurrentClientInputs();
+            if (typeof window.saveClientMapSubmissionToSupabase === 'function') {
+                return await window.saveClientMapSubmissionToSupabase(activeMapKey, payload.estateName || optText, payload);
+            }
+            return null;
+        };
+
+        window.applyClientSubmissionToDashboard = function (sub) {
+            const setInputVal = (id, val) => {
+                const el = document.getElementById(id);
+                if (el && val !== undefined && val !== null) el.value = val;
+            };
+            if (!sub) return;
+            const rtChk = document.getElementById('comp-realtime-chk');
+            const prevChk = document.getElementById('comp-previous-chk');
+            const dateInput = document.getElementById('comp-sat-date');
+            const isPrevMode = (sub.satelliteMode === 'previous' || sub.satelliteMode === 'archive');
+            if (rtChk) rtChk.checked = !isPrevMode;
+            if (prevChk) prevChk.checked = isPrevMode;
+            if (dateInput) {
+                dateInput.disabled = !isPrevMode;
+                if (sub.satelliteDate) dateInput.value = sub.satelliteDate;
+            }
+            if (sub.identifiedSoilLabel && sub.identifiedSoilLabel !== '--') {
+                const soilBox = document.getElementById('identified-soil-type-val');
+                if (soilBox) soilBox.textContent = sub.identifiedSoilLabel;
+            }
+            if (sub.nutrientBoxes) {
+                const nb = sub.nutrientBoxes;
+                if (nb.nText && nb.nText !== '-- %') setElementText('comp-n-val', nb.nText);
+                if (nb.pText && nb.pText !== '-- %') setElementText('comp-p-val', nb.pText);
+                if (nb.kText && nb.kText !== '-- %') setElementText('comp-k-val', nb.kText);
+                if (nb.mgText && nb.mgText !== '-- %') setElementText('comp-mg-val', nb.mgText);
+                if (nb.caText && nb.caText !== '-- %') setElementText('comp-ca-val', nb.caText);
+                if (nb.bText && nb.bText !== '-- ppm') setElementText('comp-b-val', nb.bText);
+                if (nb.currentNutrients && typeof currentNutrients === 'object') {
+                    Object.assign(currentNutrients, nb.currentNutrients);
+                }
+            }
+            if (sub.fertilizer) {
+                const f = sub.fertilizer;
+                setInputVal('fert-n-input', f.n || '');
+                setInputVal('fert-p-input', f.p || '');
+                setInputVal('fert-k-input', f.k || '');
+                setInputVal('fert-mg-input', f.mg || '');
+                setInputVal('fert-b-input', f.b || '');
+                setInputVal('fert-list-input', f.listValue || '');
+                const chkManual = document.getElementById('fert-ratio-lock-chk');
+                const chkList = document.getElementById('fert-list-lock-chk');
+                if (chkManual) chkManual.checked = Boolean(f.manualChecked);
+                if (chkList) chkList.checked = Boolean(f.listChecked);
+            }
+            setInputVal('estate-name-input', sub.estateName || '');
+            if (sub.droneDate) setInputVal('drone-date-input', sub.droneDate);
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const sidebarEl = document.querySelector('.sidebar');
+            if (sidebarEl) {
+                sidebarEl.addEventListener('change', (ev) => {
+                    if (ev.target && ev.target.id === 'map-select-comp') return;
+                    window.scheduleClientLeftPanelAutoSave(600);
+                });
+                sidebarEl.addEventListener('input', (ev) => {
+                    if (ev.target && ev.target.id === 'map-select-comp') return;
+                    window.scheduleClientLeftPanelAutoSave(900);
+                });
+            }
+        });
 
 // Continuous Point-by-Point Pixel Raster Heatmap Generator with Point-In-Polygon Canvas Masking
 function createContinuousNutrientRaster(boundaryLayer, layerValue, map) {

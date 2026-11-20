@@ -5098,45 +5098,44 @@ function lockEnteredSatDate() {
                     feature.properties.name = foundName ? String(foundName) : (`Block ${idx + 1}`);
                 });
 
-                let customKey = 'custom_' + Date.now();
-                let mapDisplayName = `Custom: ${fileName} (${geojson.features.length} blocks)`;
+                let baseClean = (uploadedShapefileName || fileName || 'Uploaded_Estate').replace(/\.(shp|zip|dbf)$/i, '').trim();
+                let rawKey = 'custom_' + baseClean.toLowerCase().replace(/[^a-z0-9]+/g, '_') + '_' + geojson.features.length + 'b';
+                let mapDisplayName = `${baseClean} (${geojson.features.length} blocks)`;
                 geojson.mapName = mapDisplayName;
-                REAL_MAPS_DATA[customKey] = geojson;
+                REAL_MAPS_DATA[rawKey] = geojson;
+
+                // Auto-fill the estate name input with the shapefile filename before saving
+                let estateInput = document.getElementById('estate-name-input');
+                if (estateInput && !estateInput.value.trim()) {
+                    estateInput.value = baseClean;
+                }
+
+                let finalKey = rawKey;
                 if (typeof window.saveCustomMapToSupabase === 'function') {
-                    window.saveCustomMapToSupabase(customKey, mapDisplayName, geojson).then(savedKey => {
-                        if (savedKey && savedKey !== customKey) {
-                            REAL_MAPS_DATA[savedKey] = geojson;
-                        }
-                    });
+                    const savedKey = await window.saveCustomMapToSupabase(rawKey, mapDisplayName, geojson);
+                    if (savedKey) {
+                        finalKey = savedKey;
+                        REAL_MAPS_DATA[finalKey] = geojson;
+                    }
                 }
                 if (window.PREDICTION_CACHE_BY_ESTATE) {
-                    delete window.PREDICTION_CACHE_BY_ESTATE[customKey];
+                    delete window.PREDICTION_CACHE_BY_ESTATE[finalKey];
                 }
                 window.DYNAMIC_PREDICTION_RASTERS = null;
                 window.DYNAMIC_PREDICTION_GRIDS = null;
 
-                // Update select dropdowns
-                ['map-select-comp', 'map-select-std'].forEach(selectId => {
+                ['map-select-comp', 'map-select-std', 'map-select-kpsm'].forEach(selectId => {
                     let select = document.getElementById(selectId);
                     if (select) {
-                        let opt = document.createElement('option');
-                        opt.value = customKey;
-                        opt.innerText = mapDisplayName;
-                        opt.selected = true;
-                        select.appendChild(opt);
+                        select.value = finalKey;
                     }
                 });
 
                 // Load newly created shapefile
-                onMapSelectChanged(customKey);
+                onMapSelectChanged(finalKey);
+                if (typeof window.updateSavedMapsDeleteUI === 'function') window.updateSavedMapsDeleteUI();
                 if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp('OFF');
                 if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd('OFF');
-
-                // Auto-fill the estate name input with the shapefile filename (editable)
-                let estateInput = document.getElementById('estate-name-input');
-                if (estateInput && !estateInput.value.trim()) {
-                    estateInput.value = uploadedShapefileName;
-                }
 
                 alert(`Shapefile '${fileName}' loaded successfully!\n${geojson.features.length} block boundaries displayed on the map.`);
             } catch (err) {
@@ -5189,59 +5188,45 @@ function lockEnteredSatDate() {
                         });
 
                         let baseName = window._UPLOADED_SHP_NAME || 'Uploaded_Estate';
-                        let matchedBuiltInKey = (typeof window.resolveBuiltInKeyFromNameOrKey === 'function')
-                            ? window.resolveBuiltInKeyFromNameOrKey(baseName)
-                            : '';
-                        let customKey = matchedBuiltInKey || ('custom_' + baseName.toLowerCase().replace(/[^a-z0-9]+/g, '_') + '_' + geojson.features.length + 'b');
-                        let mapDisplayName = matchedBuiltInKey ? baseName : `Custom: ${baseName} (${geojson.features.length} blocks)`;
+                        let rawKey = 'custom_' + baseName.toLowerCase().replace(/[^a-z0-9]+/g, '_') + '_' + geojson.features.length + 'b';
+                        let mapDisplayName = `${baseName} (${geojson.features.length} blocks)`;
                         geojson.mapName = mapDisplayName;
-                        REAL_MAPS_DATA[customKey] = geojson;
-                        if (typeof window.registerClientUploadedEstate === 'function') {
-                            window.registerClientUploadedEstate(customKey);
-                        }
-                        if (typeof window.saveCustomMapToSupabase === 'function') {
-                            window.saveCustomMapToSupabase(customKey, mapDisplayName, geojson).then(savedKey => {
-                                if (savedKey && savedKey !== customKey && !matchedBuiltInKey) {
-                                    REAL_MAPS_DATA[savedKey] = geojson;
-                                }
-                            });
-                        }
-                        if (window.PREDICTION_CACHE_BY_ESTATE) {
-                            delete window.PREDICTION_CACHE_BY_ESTATE[customKey];
-                        }
-                        window.DYNAMIC_PREDICTION_RASTERS = null;
-                        window.DYNAMIC_PREDICTION_GRIDS = null;
-
-                        if (typeof window.applyCompanyEstateIsolation === 'function') {
-                            window.applyCompanyEstateIsolation();
-                        }
-
-                        ['map-select-comp', 'map-select-std', 'map-select-kpsm'].forEach(selectId => {
-                            let select = document.getElementById(selectId);
-                            if (select) {
-                                let existingOpt = Array.from(select.options).find(o => o.value === customKey);
-                                if (!existingOpt) {
-                                    existingOpt = document.createElement('option');
-                                    existingOpt.value = customKey;
-                                    existingOpt.innerText = mapDisplayName;
-                                    const firstGrp = select.querySelector('optgroup');
-                                    if (firstGrp) firstGrp.appendChild(existingOpt);
-                                    else select.appendChild(existingOpt);
-                                }
-                                existingOpt.disabled = false;
-                                existingOpt.selected = true;
-                                select.value = customKey;
-                            }
-                        });
-
-                        onMapSelectChanged(customKey);
-                        if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp('OFF');
-                        if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd('OFF');
+                        REAL_MAPS_DATA[rawKey] = geojson;
 
                         let estateInput = document.getElementById('estate-name-input');
                         if (estateInput && !estateInput.value.trim()) {
                             estateInput.value = baseName;
                         }
+
+                        if (typeof window.registerClientUploadedEstate === 'function') {
+                            window.registerClientUploadedEstate(rawKey);
+                        }
+
+                        let finalKey = rawKey;
+                        if (typeof window.saveCustomMapToSupabase === 'function') {
+                            const savedKey = await window.saveCustomMapToSupabase(rawKey, mapDisplayName, geojson);
+                            if (savedKey) {
+                                finalKey = savedKey;
+                                REAL_MAPS_DATA[finalKey] = geojson;
+                            }
+                        }
+                        if (window.PREDICTION_CACHE_BY_ESTATE) {
+                            delete window.PREDICTION_CACHE_BY_ESTATE[finalKey];
+                        }
+                        window.DYNAMIC_PREDICTION_RASTERS = null;
+                        window.DYNAMIC_PREDICTION_GRIDS = null;
+
+                        ['map-select-comp', 'map-select-std', 'map-select-kpsm'].forEach(selectId => {
+                            let select = document.getElementById(selectId);
+                            if (select) {
+                                select.value = finalKey;
+                            }
+                        });
+
+                        onMapSelectChanged(finalKey);
+                        if (typeof window.updateSavedMapsDeleteUI === 'function') window.updateSavedMapsDeleteUI();
+                        if (typeof toggleNutrientLayerComp === 'function') toggleNutrientLayerComp('OFF');
+                        if (typeof toggleNutrientLayerStd === 'function') toggleNutrientLayerStd('OFF');
                     }
                 }
             } catch (err) {
@@ -5648,6 +5633,9 @@ function lockEnteredSatDate() {
             if (selectedBlockSlots.filter(s => s && s.feature).length > 1) {
                 refreshCombinedBlockNutrientsAndDisplays();
             }
+            if (typeof window.scheduleClientLeftPanelAutoSave === 'function') {
+                window.scheduleClientLeftPanelAutoSave(500);
+            }
             
             // Update Coordinate Labels
             let coordStr = `Coordinates: Lat=${latlng.lat.toFixed(5)}, Lng=${latlng.lng.toFixed(5)}`;
@@ -5862,6 +5850,7 @@ function lockEnteredSatDate() {
                 setElementText('std-k-val', "-- %"); setElementText('std-mg-val', "-- %");
                 setElementText('comp-ca-val', "-- %"); setElementText('comp-b-val', "-- ppm");
                 setElementText('std-ca-val', "-- %"); setElementText('std-b-val', "-- ppm");
+                if (typeof window.updateSavedMapsDeleteUI === 'function') window.updateSavedMapsDeleteUI();
                 return;
             }
 
@@ -5880,12 +5869,37 @@ function lockEnteredSatDate() {
                 setNutrientLayerSelectionEnabled(false, "* Click 'Run Prediction' to generate 10m Sentinel rasters", null);
             }
 
-            // Auto-populate all saved client inputs (Soil, Fertilizer, Dosage, Blocks, Estate Name, Remarks) if available
+            // Auto-populate all saved client inputs (Soil, Nutrients, Fertilizer, Dosage, Blocks, Estate Name, Remarks) if available
             const activeClientSub = subFromMap
                 || (window.CLIENT_SUBMISSIONS_BY_MAP_KEY && window.CLIENT_SUBMISSIONS_BY_MAP_KEY[boundaryKey])
                 || null;
             if (typeof window.applyClientSubmissionToDashboard === 'function') {
                 window.applyClientSubmissionToDashboard(activeClientSub);
+            }
+
+            // Also fetch live from Supabase in case Client saved new data on another session/device
+            if (typeof window.fetchLatestClientSubmissionForMap === 'function') {
+                window.fetchLatestClientSubmissionForMap(boundaryKey).then(remoteSub => {
+                    const curSel = (document.getElementById('map-select-comp') || document.getElementById('map-select-std') || {}).value;
+                    if (curSel !== val) return;
+                    if (remoteSub) {
+                        if (typeof window.applyClientSubmissionToDashboard === 'function') {
+                            window.applyClientSubmissionToDashboard(remoteSub);
+                        }
+                        if (typeof window.updateSavedMapsDeleteUI === 'function') {
+                            window.updateSavedMapsDeleteUI();
+                        }
+                    } else if (typeof window.isPalmnexMasterAdmin === 'function' && !window.isPalmnexMasterAdmin()) {
+                        // First time Client selects/uploads this map: sync initial left-panel snapshot to Admin
+                        if (typeof window.scheduleClientLeftPanelAutoSave === 'function') {
+                            window.scheduleClientLeftPanelAutoSave(500);
+                        }
+                    }
+                }).catch(() => {});
+            }
+
+            if (typeof window.updateSavedMapsDeleteUI === 'function') {
+                window.updateSavedMapsDeleteUI();
             }
 
             function zoomToActiveMap() {
@@ -5970,9 +5984,16 @@ function lockEnteredSatDate() {
                 const el = document.getElementById(id);
                 return (el && el.value !== undefined) ? el.value : fallback;
             };
-            const isRealtime = Boolean((document.getElementById('comp-sat-realtime') || {}).checked);
-            const satDate = getVal('comp-date-input', '');
+            const getTxt = (id, fallback = '') => {
+                const el = document.getElementById(id);
+                return (el && el.textContent !== undefined) ? el.textContent.trim() : fallback;
+            };
+            const prevChk = document.getElementById('comp-previous-chk') || document.getElementById('comp-sat-archive');
+            const rtChk = document.getElementById('comp-realtime-chk') || document.getElementById('comp-sat-realtime');
+            const isRealtime = prevChk && prevChk.checked ? false : Boolean(!rtChk || rtChk.checked);
+            const satDate = getVal('comp-sat-date', '') || getVal('comp-date-input', '');
             const soilType = window.appliedEdsSoilType || (reportData && reportData.soilType) || 'Inland';
+            const identifiedSoilLabel = getTxt('identified-soil-type-val', '--');
 
             const inlandInputs = {
                 age: getVal('inland-age', '12'),
@@ -6002,6 +6023,18 @@ function lockEnteredSatDate() {
                 cost_ffb: getVal('alluvial-cost-ffb', '800'),
                 cost_sa: getVal('alluvial-cost-sa', '1200'),
                 cost_kcl: getVal('alluvial-cost-kcl', '1600')
+            };
+
+            const nutrientBoxes = {
+                nText: getTxt('comp-n-val', '-- %'),
+                pText: getTxt('comp-p-val', '-- %'),
+                kText: getTxt('comp-k-val', '-- %'),
+                mgText: getTxt('comp-mg-val', '-- %'),
+                caText: getTxt('comp-ca-val', '-- %'),
+                bText: getTxt('comp-b-val', '-- ppm'),
+                currentNutrients: (typeof currentNutrients === 'object' && currentNutrients) ? Object.assign({}, currentNutrients) : null,
+                lastPredictionFolder: window._LAST_PREDICTION_FOLDER || '',
+                lastPredictionBaseUrl: window._LAST_PREDICTION_BASE_URL || ''
             };
 
             const fertListEl = document.getElementById('fert-list-input');
@@ -6037,17 +6070,32 @@ function lockEnteredSatDate() {
             const cleanRemarks = (rawRemarks === DEFAULT_ADMIN_NO_CLIENT_NOTES_MSG) ? '' : rawRemarks;
 
             return {
-                satelliteMode: isRealtime ? 'realtime' : 'archive',
+                satelliteMode: isRealtime ? 'realtime' : 'previous',
                 satelliteDate: satDate,
                 soilType: soilType,
+                identifiedSoilLabel: identifiedSoilLabel,
                 inlandInputs: inlandInputs,
                 alluvialInputs: alluvialInputs,
+                nutrientBoxes: nutrientBoxes,
                 reportData: Object.assign({}, reportData),
                 fertilizer: fertilizer,
                 selectedBlocks: filledBlocks,
                 estateName: getVal('estate-name-input', ''),
+                estateNameLocked: Boolean((document.getElementById('estate-name-lock-chk') || {}).checked),
+                droneDate: getVal('drone-date-input', ''),
                 clientRemarks: cleanRemarks
             };
+        };
+
+        let _clientAutoSaveTimer = null;
+        window.scheduleClientLeftPanelAutoSave = function (delayMs = 700) {
+            if (_clientAutoSaveTimer) clearTimeout(_clientAutoSaveTimer);
+            _clientAutoSaveTimer = setTimeout(() => {
+                const selEl = document.getElementById('map-select-comp') || document.getElementById('map-select-std');
+                if (selEl && selEl.value && typeof window.saveClientInputsToAdmin === 'function') {
+                    window.saveClientInputsToAdmin(true);
+                }
+            }, delayMs);
         };
 
         window.saveClientInputsToAdmin = async function (isAutoSave, sectionKey) {
@@ -6072,14 +6120,16 @@ function lockEnteredSatDate() {
                 ? [`client-submit-status-${sectionKey}`]
                 : ['client-submit-status-fert', 'client-submit-status-blocks', 'client-submit-status-optional'];
 
-            statusIds.forEach(id => {
-                const statusEl = document.getElementById(id);
-                if (statusEl) {
-                    statusEl.style.display = 'block';
-                    statusEl.style.color = '#38bdf8';
-                    statusEl.textContent = '⏳ Saving your information...';
-                }
-            });
+            if (!isAutoSave) {
+                statusIds.forEach(id => {
+                    const statusEl = document.getElementById(id);
+                    if (statusEl) {
+                        statusEl.style.display = 'block';
+                        statusEl.style.color = '#38bdf8';
+                        statusEl.textContent = '⏳ Saving your information...';
+                    }
+                });
+            }
 
             let saved = null;
             if (typeof window.saveClientMapSubmissionToSupabase === 'function') {
@@ -6101,12 +6151,29 @@ function lockEnteredSatDate() {
             return saved;
         };
 
-        window.renderAdminClientSubmissionBanner = function () {
-            const banner = document.getElementById('admin-client-submission-banner');
-            if (banner) {
+        window.renderAdminClientSubmissionBanner = function (sub) {
+            let banner = document.getElementById('admin-client-submission-banner');
+            const reportAdminSec = document.getElementById('report-admin-section');
+            if (!banner && reportAdminSec) {
+                banner = document.createElement('div');
+                banner.id = 'admin-client-submission-banner';
+                banner.style.cssText = 'display:none; margin-bottom:10px; padding:8px 10px; border-radius:8px; background:#ecfdf5; border:1px solid #6ee7b7; color:#065f46; font-size:11.5px; font-weight:600; line-height:1.4;';
+                const titleEl = document.getElementById('report-admin-section-title');
+                if (titleEl && titleEl.nextSibling) {
+                    reportAdminSec.insertBefore(banner, titleEl.nextSibling);
+                } else {
+                    reportAdminSec.insertBefore(banner, reportAdminSec.firstChild);
+                }
+            }
+            if (!banner) return;
+            if (!sub || !sub.submitted_by) {
                 banner.style.display = 'none';
                 banner.innerHTML = '';
+                return;
             }
+            const dtStr = sub.submitted_at ? new Date(sub.submitted_at).toLocaleString('en-MY', { dateStyle: 'medium', timeStyle: 'short' }) : 'Recently';
+            banner.innerHTML = `✓ Synced from <b>${sub.submitted_by}</b> (${sub.company_name || sub.company_code || 'Client'}) • ${dtStr}`;
+            banner.style.display = 'block';
         };
 
         window.applyClientSubmissionToDashboard = function (sub) {
@@ -6124,6 +6191,7 @@ function lockEnteredSatDate() {
                 });
                 setInputVal('client-remarks-dark-input', '');
                 setInputVal('client-remarks-input', isAdmin ? DEFAULT_ADMIN_NO_CLIENT_NOTES_MSG : '');
+                window.renderAdminClientSubmissionBanner(null);
                 if (typeof updateSelectedBlockReportHint === 'function') {
                     updateSelectedBlockReportHint();
                 }
@@ -6131,15 +6199,15 @@ function lockEnteredSatDate() {
             }
 
             // 1. Satellite Mode & Date
-            const rtRadio = document.getElementById('comp-sat-realtime');
-            const arcRadio = document.getElementById('comp-sat-archive');
-            if (sub.satelliteMode === 'archive' && arcRadio) {
-                arcRadio.checked = true;
-            } else if (rtRadio) {
-                rtRadio.checked = true;
-            }
-            if (sub.satelliteDate) {
-                setInputVal('comp-date-input', sub.satelliteDate);
+            const rtChk = document.getElementById('comp-realtime-chk') || document.getElementById('comp-sat-realtime');
+            const prevChk = document.getElementById('comp-previous-chk') || document.getElementById('comp-sat-archive');
+            const dateInput = document.getElementById('comp-sat-date') || document.getElementById('comp-date-input');
+            const isPrevMode = (sub.satelliteMode === 'previous' || sub.satelliteMode === 'archive');
+            if (rtChk) rtChk.checked = !isPrevMode;
+            if (prevChk) prevChk.checked = isPrevMode;
+            if (dateInput) {
+                dateInput.disabled = !isPrevMode;
+                if (sub.satelliteDate) dateInput.value = sub.satelliteDate;
             }
 
             // 2. Inland & Alluvial Modal Inputs
@@ -6182,10 +6250,37 @@ function lockEnteredSatDate() {
                 reportData.soilType = sub.soilType;
                 window.appliedEdsSoilType = sub.soilType;
             }
+            if (sub.identifiedSoilLabel && sub.identifiedSoilLabel !== '--') {
+                const soilBox = document.getElementById('identified-soil-type-val');
+                if (soilBox) soilBox.textContent = sub.identifiedSoilLabel;
+            }
             const chkInland = document.getElementById('chk-eds-inland');
             const chkAlluvial = document.getElementById('chk-eds-alluvial');
             if (chkInland) chkInland.checked = (reportData.soilType === 'Inland');
             if (chkAlluvial) chkAlluvial.checked = (reportData.soilType === 'Alluvial' || reportData.soilType === 'Coastal');
+            if (typeof syncSoilDataCardCheckboxes === 'function') {
+                try { syncSoilDataCardCheckboxes(); } catch (e) {}
+            }
+
+            // 3B. Nutrient Detection Values
+            if (sub.nutrientBoxes) {
+                const nb = sub.nutrientBoxes;
+                if (nb.nText && nb.nText !== '-- %') setElementText('comp-n-val', nb.nText);
+                if (nb.pText && nb.pText !== '-- %') setElementText('comp-p-val', nb.pText);
+                if (nb.kText && nb.kText !== '-- %') setElementText('comp-k-val', nb.kText);
+                if (nb.mgText && nb.mgText !== '-- %') setElementText('comp-mg-val', nb.mgText);
+                if (nb.caText && nb.caText !== '-- %') setElementText('comp-ca-val', nb.caText);
+                if (nb.bText && nb.bText !== '-- ppm') setElementText('comp-b-val', nb.bText);
+                if (nb.currentNutrients && typeof currentNutrients === 'object') {
+                    Object.assign(currentNutrients, nb.currentNutrients);
+                }
+                if (nb.lastPredictionFolder) {
+                    window._LAST_PREDICTION_FOLDER = nb.lastPredictionFolder;
+                }
+                if (nb.lastPredictionBaseUrl) {
+                    window._LAST_PREDICTION_BASE_URL = nb.lastPredictionBaseUrl;
+                }
+            }
 
             // 4. Fertilizer Ratio, MPOB List, Current Dosage & Last Application Date
             if (sub.fertilizer) {
@@ -6204,8 +6299,15 @@ function lockEnteredSatDate() {
                 if (chkList) chkList.checked = Boolean(f.listChecked);
             }
 
-            // 5. Desired Estate Name & Client Remarks
+            // 5. Desired Estate Name, Drone Date & Client Remarks
             setInputVal('estate-name-input', sub.estateName || '');
+            const estateLockChk = document.getElementById('estate-name-lock-chk');
+            if (estateLockChk && sub.estateNameLocked !== undefined) {
+                estateLockChk.checked = Boolean(sub.estateNameLocked);
+            }
+            if (sub.droneDate) {
+                setInputVal('drone-date-input', sub.droneDate);
+            }
             const cleanClientMsg = (sub.clientRemarks && String(sub.clientRemarks).trim() !== '' && sub.clientRemarks !== DEFAULT_ADMIN_NO_CLIENT_NOTES_MSG)
                 ? String(sub.clientRemarks).trim()
                 : '';
@@ -6252,6 +6354,32 @@ function lockEnteredSatDate() {
             // 7. Render Admin Summary Banner
             window.renderAdminClientSubmissionBanner(sub);
         };
+
+        // Bind automatic background sync to Supabase whenever a user modifies left-panel fields or selects blocks
+        document.addEventListener('DOMContentLoaded', () => {
+            const autoSyncInputIds = [
+                'comp-realtime-chk', 'comp-previous-chk', 'comp-sat-date',
+                'fert-n-input', 'fert-p-input', 'fert-k-input', 'fert-mg-input', 'fert-b-input',
+                'fert-ratio-lock-chk', 'fert-list-input', 'fert-list-lock-chk',
+                'fert-current-dosage-input', 'fert-last-applied-date-input',
+                'client-remarks-dark-input', 'estate-name-input', 'estate-name-lock-chk', 'drone-date-input'
+            ];
+            autoSyncInputIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (!el) return;
+                el.addEventListener('change', () => window.scheduleClientLeftPanelAutoSave(500));
+                if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                    el.addEventListener('input', () => window.scheduleClientLeftPanelAutoSave(900));
+                }
+            });
+            const sidebarEl = document.querySelector('.sidebar');
+            if (sidebarEl) {
+                sidebarEl.addEventListener('change', (ev) => {
+                    if (ev.target && ev.target.id === 'map-select-comp') return;
+                    window.scheduleClientLeftPanelAutoSave(600);
+                });
+            }
+        });
 
 // Continuous Point-by-Point Pixel Raster Heatmap Generator with Point-In-Polygon Canvas Masking
 function createContinuousNutrientRaster(boundaryLayer, layerValue, map) {
