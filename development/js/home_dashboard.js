@@ -307,8 +307,10 @@
         if (!mapEl || typeof L === 'undefined') return;
 
         homeMap = L.map('sp-home-map', {
-            center: [4.35, 109.2],
-            zoom: 6,
+            center: [3.8, 109.2],
+            zoom: 5.7,
+            zoomSnap: 0.1,
+            zoomDelta: 0.5,
             zoomControl: false,
             attributionControl: false
         });
@@ -433,7 +435,7 @@
         if (dir === 'in') homeMap.zoomIn();
         else if (dir === 'out') homeMap.zoomOut();
         else if (dir === 'all_malaysia') {
-            homeMap.flyTo([4.35, 109.2], 6, { duration: 1.0 });
+            homeMap.flyTo([3.8, 109.2], 5.7, { duration: 1.0 });
             const sel = document.getElementById('sp-hud-estate-select');
             if (sel) sel.value = 'ALL';
         } else if (dir === 'recenter' || dir === 'reset') {
@@ -482,7 +484,7 @@
             }
 
             // 3. Fallback: re-center to all Malaysia overview
-            homeMap.flyTo([4.35, 109.2], 6, { duration: 0.9 });
+            homeMap.flyTo([3.8, 109.2], 5.7, { duration: 0.9 });
         }
     };
 
@@ -495,7 +497,7 @@
         } else if (region === 'West' || region === 'mpob') {
             window.selectOwnerCluster('mpob_spoc', true);
         } else {
-            homeMap.flyTo([4.35, 109.2], 6, { duration: 1.1 });
+            homeMap.flyTo([3.8, 109.2], 5.7, { duration: 1.1 });
         }
     };
 
