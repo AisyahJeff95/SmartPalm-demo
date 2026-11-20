@@ -3,22 +3,54 @@
   "cleanUrls": true,
   "redirects": [
     {
-      "source": "/PalmnexReaDS",
-      "destination": "https://www.palmnex.com.my",
-      "permanent": false
-    },
-    {
-      "source": "/PalmnexReaDS.html",
-      "destination": "https://www.palmnex.com.my",
-      "permanent": false
-    },
-    {
-      "source": "/palmnexreads",
-      "destination": "https://www.palmnex.com.my",
+      "source": "/(.*)",
+      "has": [
+        {
+          "type": "host",
+          "value": "demo.palmnex.com.my"
+        }
+      ],
+      "destination": "https://app.palmnex.com.my/$1",
       "permanent": false
     }
   ],
   "rewrites": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "palmnex.com.my"
+        }
+      ],
+      "destination": "/landing.html"
+    },
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.palmnex.com.my"
+        }
+      ],
+      "destination": "/landing.html"
+    },
+    {
+      "source": "/landing",
+      "destination": "/landing.html"
+    },
+    {
+      "source": "/PalmnexReaDS",
+      "destination": "/PalmnexReaDS.html"
+    },
+    {
+      "source": "/PalmnexReaDS.html",
+      "destination": "/PalmnexReaDS.html"
+    },
+    {
+      "source": "/palmnexreads",
+      "destination": "/PalmnexReaDS.html"
+    },
     {
       "source": "/reada",
       "destination": "/PalmnexReaDS.html"

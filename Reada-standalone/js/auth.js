@@ -305,22 +305,35 @@ function clearPalmnexSsoState() {
     } catch (e) {}
 }
 
-// Append SSO handoff query parameters to all www.palmnex.com.my links on the page (Option B)
+// Append SSO handoff query parameters to all PalmNexReaDS links on the page (app.palmnex.com.my/PalmnexReaDS)
 function decoratePalmnexReadsLinks(ssoUser) {
     const u = ssoUser || currentUser || { username: 'Admin', company: 'Palmnex Sdn Bhd', email: 'admin1@palmnex.com.my' };
     const rawName = u.username || u.user_metadata?.full_name || (u.email ? u.email.split('@')[0] : 'Admin');
     const company = u.company || 'Palmnex Sdn Bhd';
 
-    const links = document.querySelectorAll('a[href*="palmnex.com.my"]');
+    const links = document.querySelectorAll('a[href*="PalmnexReaDS"], a[href*="palmnexreads"], a[href*="reada"], a[href*="palmnex.com.my"]');
     links.forEach(link => {
         try {
-            const url = new URL(link.getAttribute('href'), window.location.origin);
-            if (url.hostname === 'www.palmnex.com.my' || url.hostname === 'palmnex.com.my') {
+            const rawHref = link.getAttribute('href') || '';
+            const url = new URL(rawHref, window.location.origin);
+            const pathLower = (url.pathname || '').toLowerCase();
+            if (
+                pathLower.includes('palmnexreads') ||
+                pathLower.includes('/reada') ||
+                url.hostname === 'www.palmnex.com.my' ||
+                url.hostname === 'palmnex.com.my'
+            ) {
                 url.searchParams.set('sso', '1');
-                url.searchParams.set('from', 'demo');
+                url.searchParams.set('from', 'app');
                 url.searchParams.set('user', rawName);
                 url.searchParams.set('company', company);
-                link.setAttribute('href', url.toString());
+                // Keep relative path if originally relative to current origin
+                if (!rawHref.startsWith('http://') && !rawHref.startsWith('https://')) {
+                    const relPath = url.pathname.startsWith('/') ? url.pathname.slice(1) : url.pathname;
+                    link.setAttribute('href', `${relPath}${url.search}${url.hash}`);
+                } else {
+                    link.setAttribute('href', url.toString());
+                }
             }
         } catch (e) {}
     });
@@ -2103,8 +2116,36 @@ function enforceSystemLoginGateIfEnabled() {
 document.addEventListener('DOMContentLoaded', async () => {
     ensureAuthModalEnhancements();
 
+    // 0. Check SSO query params or shared .palmnex.com.my SSO cookie if localStorage session is absent
+    let savedLocalSession = localStorage.getItem('palmnex_user_session');
+    if (!savedLocalSession) {
+        try {
+            const cookieMatch = document.cookie.match(/(?:^|;\s*)palmnex_sso_user=([^;]*)/);
+            if (cookieMatch && cookieMatch[1]) {
+                const decodedSso = JSON.parse(decodeURIComponent(cookieMatch[1]));
+                if (decodedSso && (decodedSso.username || decodedSso.email)) {
+                    savedLocalSession = JSON.stringify(decodedSso);
+                    localStorage.setItem('palmnex_user_session', savedLocalSession);
+                }
+            } else {
+                const sp = new URLSearchParams(window.location.search);
+                if (sp.get('sso') === '1' && sp.get('user')) {
+                    const ssoUserFromUrl = {
+                        id: 'usr_sso_' + sp.get('user').toLowerCase(),
+                        username: sp.get('user'),
+                        company: sp.get('company') || 'Palmnex Sdn Bhd',
+                        email: `${sp.get('user').toLowerCase()}@palmnex.com.my`,
+                        access_tier: 'C',
+                        storage_group: 'storage_all'
+                    };
+                    savedLocalSession = JSON.stringify(ssoUserFromUrl);
+                    localStorage.setItem('palmnex_user_session', savedLocalSession);
+                }
+            }
+        } catch (e) {}
+    }
+
     // 1. Check local session first
-    const savedLocalSession = localStorage.getItem('palmnex_user_session');
     if (savedLocalSession) {
         try {
             let userObj = JSON.parse(savedLocalSession);

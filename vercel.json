@@ -3,43 +3,6 @@
   "cleanUrls": true,
   "redirects": [
     {
-      "source": "/PalmnexReaDS",
-      "destination": "https://www.palmnex.com.my",
-      "permanent": false
-    },
-    {
-      "source": "/PalmnexReaDS.html",
-      "destination": "https://www.palmnex.com.my",
-      "permanent": false
-    },
-    {
-      "source": "/palmnexreads",
-      "destination": "https://www.palmnex.com.my",
-      "permanent": false
-    }
-  ],
-  "rewrites": [
-    {
-      "source": "/demo/PalmnexReaDS",
-      "destination": "/demo/PalmnexReaDS.html"
-    },
-    {
-      "source": "/demo/PalmnexReaDS.html",
-      "destination": "/demo/PalmnexReaDS.html"
-    },
-    {
-      "source": "/demo",
-      "destination": "/demo/index.html"
-    },
-    {
-      "source": "/demo/index",
-      "destination": "/demo/index.html"
-    },
-    {
-      "source": "/demo/(.*)",
-      "destination": "/demo/$1"
-    },
-    {
       "source": "/(.*)",
       "has": [
         {
@@ -47,7 +10,8 @@
           "value": "demo.palmnex.com.my"
         }
       ],
-      "destination": "/demo/$1"
+      "destination": "https://app.palmnex.com.my/$1",
+      "permanent": false
     },
     {
       "source": "/(.*)",
@@ -57,11 +21,50 @@
           "value": "palmnex-demo.com.my"
         }
       ],
-      "destination": "/demo/$1"
+      "destination": "https://app.palmnex.com.my/$1",
+      "permanent": false
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "palmnex.com.my"
+        }
+      ],
+      "destination": "/Reada-standalone/landing.html"
     },
     {
       "source": "/",
-      "destination": "/Reada-standalone/index.html"
+      "has": [
+        {
+          "type": "host",
+          "value": "www.palmnex.com.my"
+        }
+      ],
+      "destination": "/Reada-standalone/landing.html"
+    },
+    {
+      "source": "/landing",
+      "destination": "/Reada-standalone/landing.html"
+    },
+    {
+      "source": "/landing.html",
+      "destination": "/Reada-standalone/landing.html"
+    },
+    {
+      "source": "/PalmnexReaDS",
+      "destination": "/Reada-standalone/PalmnexReaDS.html"
+    },
+    {
+      "source": "/PalmnexReaDS.html",
+      "destination": "/Reada-standalone/PalmnexReaDS.html"
+    },
+    {
+      "source": "/palmnexreads",
+      "destination": "/Reada-standalone/PalmnexReaDS.html"
     },
     {
       "source": "/reada",
@@ -72,12 +75,40 @@
       "destination": "/Reada-standalone/PalmnexReaDS.html"
     },
     {
+      "source": "/demo/PalmnexReaDS",
+      "destination": "/Reada-standalone/PalmnexReaDS.html"
+    },
+    {
+      "source": "/demo/PalmnexReaDS.html",
+      "destination": "/Reada-standalone/PalmnexReaDS.html"
+    },
+    {
+      "source": "/demo",
+      "destination": "/Reada-standalone/index.html"
+    },
+    {
+      "source": "/demo/index",
+      "destination": "/Reada-standalone/index.html"
+    },
+    {
+      "source": "/demo/(.*)",
+      "destination": "/Reada-standalone/$1"
+    },
+    {
+      "source": "/",
+      "destination": "/Reada-standalone/index.html"
+    },
+    {
       "source": "/comprehensive",
       "destination": "/Reada-standalone/comprehensive.html"
     },
     {
       "source": "/standard",
       "destination": "/Reada-standalone/standard.html"
+    },
+    {
+      "source": "/kpsm",
+      "destination": "/Reada-standalone/kpsm.html"
     },
     {
       "source": "/(css|js|data|pages)/(.*)",
