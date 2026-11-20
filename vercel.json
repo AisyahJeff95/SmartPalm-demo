@@ -37,7 +37,47 @@
       "destination": "/Reada-standalone/landing.html"
     },
     {
+      "source": "/index",
+      "has": [
+        {
+          "type": "host",
+          "value": "palmnex.com.my"
+        }
+      ],
+      "destination": "/Reada-standalone/landing.html"
+    },
+    {
+      "source": "/index.html",
+      "has": [
+        {
+          "type": "host",
+          "value": "palmnex.com.my"
+        }
+      ],
+      "destination": "/Reada-standalone/landing.html"
+    },
+    {
       "source": "/",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.palmnex.com.my"
+        }
+      ],
+      "destination": "/Reada-standalone/landing.html"
+    },
+    {
+      "source": "/index",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.palmnex.com.my"
+        }
+      ],
+      "destination": "/Reada-standalone/landing.html"
+    },
+    {
+      "source": "/index.html",
       "has": [
         {
           "type": "host",

@@ -2,6 +2,15 @@
 <!-- Live Vercel Deployment Trigger: 20261030_dark_command_center -->
 <html lang="en">
 <head>
+    <script>
+        (function () {
+            var h = (window.location.hostname || '').toLowerCase();
+            var p = (window.location.pathname || '/');
+            if ((h === 'palmnex.com.my' || h === 'www.palmnex.com.my') && (p === '/' || p === '/index' || p === '/index.html')) {
+                window.location.replace('/landing.html');
+            }
+        })();
+    </script>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>MPOB - PalmNex SmartPalm Command Center</title>
