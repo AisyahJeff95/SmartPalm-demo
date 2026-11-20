@@ -126,6 +126,19 @@
           "value": "0"
         }
       ]
+    },
+    {
+      "source": "/(.*)\\.(mp4|webm|jpg|jpeg|png|webp|gif)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, s-maxage=31536000, stale-while-revalidate=86400"
+        },
+        {
+          "key": "Accept-Ranges",
+          "value": "bytes"
+        }
+      ]
     }
   ]
 }
