@@ -121,7 +121,7 @@ footer{border-top:1px solid var(--ln);padding:36px 0;font-size:14px;color:var(--
 <a class="btn" href="https://oilpalm.palmnex.com.my/" target="_blank" rel="noopener">Visit PalmNex Platform ↗</a><button id="bg" aria-label="Toggle menu" aria-expanded="false">☰</button></div></header>
 <main>
 <section class="hero" id="home">
-<div class="w"><div class="hp"><div class="hbg"><div class="hz" aria-hidden="true"></div><video class="hv" id="hv" autoplay loop muted defaultMuted playsinline webkit-playsinline disablePictureInPicture preload="auto" aria-label="Animated AI neural network above colour-coded oil palm nutrient blocks"><source src="/neural_network_loop_1080p.mp4" type="video/mp4"><source src="neural_network_loop_1080p.mp4" type="video/mp4"></video></div><div class="ht"><p class="ey">AI Precision Nutrient Assessment &amp; Fertilizer Recommendation for Oil Palm Plantations</p>
+<div class="w"><div class="hp"><div class="hbg"><div class="hz" aria-hidden="true"></div><img class="hv" src="/neural_network_loop.gif" alt="Animated AI neural network above colour-coded oil palm nutrient blocks" decoding="async" fetchpriority="high"></div><div class="ht"><p class="ey">AI Precision Nutrient Assessment &amp; Fertilizer Recommendation for Oil Palm Plantations</p>
 <h1>AI Precision Nutrient Assessment.<span>Decisions for Every Hectare.</span></h1>
 <p class="lead">PalmNex uses AI to assess nutrient status across your plantation, then turns the AI output into clear fertiliser recommendations, guided by agronomic expertise.</p>
 <div class="act"><a class="btn" href="https://oilpalm.palmnex.com.my/" target="_blank" rel="noopener">Visit PalmNex Platform ↗</a><a class="btn o" href="#technology">Explore Our Technology</a></div>
@@ -247,16 +247,6 @@ function hloop(t){if(hOn){for(let i=PL.length;i--;)if(t-PL[i].t0>PL[i].dur)PL.sp
  if(PL.length<9&&Math.random()<.06){if(Math.random()<.35){const d=DROPS[Math.random()*DROPS.length|0];PL.push({a:NODES[d[0]],b:[d[1],d[2]],t0:t,dur:1500,drop:1})}else{const e=EDGES[Math.random()*EDGES.length|0],f=Math.random()<.5;PL.push({a:NODES[f?e[0]:e[1]],b:NODES[f?e[1]:e[0]],t0:t,dur:900})}}
  hdraw(t)}requestAnimationFrame(hloop)}
 hsz();addEventListener('resize',hsz);new IntersectionObserver(e=>hOn=e[0].isIntersecting).observe($('#home'));if(!RM)requestAnimationFrame(hloop);
-}
-// hero video autoplay enforcement (Safari / iOS Low Power Mode fallback)
-const hvEl=$('#hv');
-if(hvEl){
- hvEl.muted=true;hvEl.defaultMuted=true;hvEl.playsInline=true;hvEl.loop=true;
- const tryPlay=()=>{hvEl.muted=true;const p=hvEl.play();if(p&&p.catch)p.catch(()=>{})};
- tryPlay();
- ['loadedmetadata','canplay',' loadeddata'].forEach(ev=>hvEl.addEventListener(ev.trim(),tryPlay,{once:true}));
- document.addEventListener('visibilitychange',()=>{if(!document.hidden&&hvEl.paused)tryPlay()});
- ['pointerdown','touchstart','scroll','keydown','mousemove'].forEach(ev=>addEventListener(ev,()=>{if(hvEl.paused)tryPlay()},{once:true,passive:true}));
 }
 // contact
 $('#ef').onsubmit=e=>{e.preventDefault();const v=i=>$('#'+i).value,txt=`Name: ${v('fn')}\nEmail: ${v('fe')}\nCompany: ${v('fo')}\nInterested in: ${v('fi')}\n\n${v('fm')}`,fs=$('#fs');
