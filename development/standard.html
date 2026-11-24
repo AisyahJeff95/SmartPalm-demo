@@ -3611,7 +3611,37 @@ function toggleSatDataMode(mode) {
         let hasClickedBlock = false;
         let selectedBlockFeature = null;
         const MAX_SELECTED_BLOCKS = 30;
-        let selectedBlockSlots = []; // Array of { name, feature, latlng } or null (pending map click)
+        const MAX_BLOCK_GROUPS = 15;
+        const BLOCK_GROUP_COLORS = [
+            { name: 'Yellow', hex: '#fde047' },
+            { name: 'Orange', hex: '#fb923c' },
+            { name: 'Red',    hex: '#ef4444' },
+            { name: 'Green',  hex: '#22c55e' },
+            { name: 'Blue',   hex: '#3b82f6' },
+            { name: 'Purple', hex: '#a855f7' },
+            { name: 'Cyan',   hex: '#06b6d4' },
+            { name: 'Pink',   hex: '#ec4899' },
+            { name: 'Lime',   hex: '#84cc16' },
+            { name: 'Teal',   hex: '#14b8a6' },
+            { name: 'Indigo', hex: '#6366f1' },
+            { name: 'Amber',  hex: '#f59e0b' },
+            { name: 'Rose',   hex: '#f43f5e' },
+            { name: 'Sky',    hex: '#0ea5e9' },
+            { name: 'Violet', hex: '#8b5cf6' }
+        ];
+        function _createBlockGroupObj(groupIdx) {
+            const c = BLOCK_GROUP_COLORS[groupIdx % BLOCK_GROUP_COLORS.length];
+            return {
+                id: groupIdx + 1,
+                name: `Group ${groupIdx + 1}`,
+                color: c.hex,
+                colorName: c.name,
+                slots: []
+            };
+        }
+        let blockGroups = [_createBlockGroupObj(0)];
+        let activeBlockGroupIndex = 0;
+        let selectedBlockSlots = blockGroups[0].slots;
         let activeBlockSlotIndex = 0;
         let uploadedShapefileName = "";  // set when user uploads a .shp file
         let selectedLat = 5.10423;
@@ -3619,15 +3649,53 @@ function toggleSatDataMode(mode) {
         let clickedMarkerComp = null;
         let clickedMarkerStd = null;
 
-        function isBlockFeatureSelected(feature) {
-            if (!feature || !Array.isArray(selectedBlockSlots) || selectedBlockSlots.length === 0) return false;
-            const featName = feature.properties && (feature.properties.name || feature.properties.BLOCK || feature.properties.Block);
-            return selectedBlockSlots.some(s => {
-                if (!s || !s.feature) return false;
-                if (s.feature === feature) return true;
-                if (featName !== undefined && featName !== null && s.name && String(s.name).trim() === String(featName).trim()) return true;
-                return false;
+        function ensureActiveBlockGroup() {
+            if (!Array.isArray(blockGroups) || blockGroups.length === 0) {
+                blockGroups = [_createBlockGroupObj(0)];
+                activeBlockGroupIndex = 0;
+            }
+            if (activeBlockGroupIndex < 0 || activeBlockGroupIndex >= blockGroups.length) {
+                activeBlockGroupIndex = 0;
+            }
+            if (!Array.isArray(blockGroups[activeBlockGroupIndex].slots)) {
+                blockGroups[activeBlockGroupIndex].slots = [];
+            }
+            selectedBlockSlots = blockGroups[activeBlockGroupIndex].slots;
+            return blockGroups[activeBlockGroupIndex];
+        }
+
+        function _relabelBlockGroups() {
+            blockGroups.forEach((g, idx) => {
+                const c = BLOCK_GROUP_COLORS[idx % BLOCK_GROUP_COLORS.length];
+                g.id = idx + 1;
+                g.name = `Group ${idx + 1}`;
+                g.color = c.hex;
+                g.colorName = c.name;
             });
+        }
+
+        function getBlockFeatureGroupInfo(feature) {
+            if (!feature || !Array.isArray(blockGroups) || blockGroups.length === 0) return null;
+            const featName = feature.properties && (feature.properties.name || feature.properties.BLOCK || feature.properties.Block || feature.properties.No_Block);
+            const featNorm = (featName !== undefined && featName !== null) ? String(featName).trim().toLowerCase() : '';
+            for (let gIdx = 0; gIdx < blockGroups.length; gIdx++) {
+                const grp = blockGroups[gIdx];
+                if (!grp || !Array.isArray(grp.slots)) continue;
+                const matched = grp.slots.some(s => {
+                    if (!s || !s.feature) return false;
+                    if (s.feature === feature) return true;
+                    if (featNorm && s.name && String(s.name).trim().toLowerCase() === featNorm) return true;
+                    return false;
+                });
+                if (matched) {
+                    return { group: grp, index: gIdx, isActive: (gIdx === activeBlockGroupIndex) };
+                }
+            }
+            return null;
+        }
+
+        function isBlockFeatureSelected(feature) {
+            return Boolean(getBlockFeatureGroupInfo(feature));
         }
 
         function updateBoundaryLayersSelectionStyles() {
@@ -3636,12 +3704,14 @@ function toggleSatDataMode(mode) {
                 groupLayer.eachLayer(layer => {
                     if (!layer || typeof layer.setStyle !== 'function') return;
                     const feat = layer.feature;
-                    if (isBlockFeatureSelected(feat)) {
+                    const gInfo = getBlockFeatureGroupInfo(feat);
+                    if (gInfo) {
+                        const col = gInfo.group.color || "#fde047";
                         layer.setStyle({
-                            color: "#fde047",
-                            weight: 2.5,
-                            fillColor: "#fde047",
-                            fillOpacity: 0.28
+                            color: col,
+                            weight: gInfo.isActive ? 2.8 : 2.2,
+                            fillColor: col,
+                            fillOpacity: gInfo.isActive ? 0.34 : 0.24
                         });
                         if (typeof layer.bringToFront === 'function') {
                             try { layer.bringToFront(); } catch (e) {}
@@ -3661,7 +3731,9 @@ function toggleSatDataMode(mode) {
         }
 
         function resetSelectedBlockSlots() {
-            selectedBlockSlots = [];
+            blockGroups = [_createBlockGroupObj(0)];
+            activeBlockGroupIndex = 0;
+            selectedBlockSlots = blockGroups[0].slots;
             activeBlockSlotIndex = 0;
             hasClickedBlock = false;
             selectedBlockFeature = null;
@@ -3702,10 +3774,12 @@ function toggleSatDataMode(mode) {
         }
 
         function syncSelectedBlocksState() {
-            const filledSlots = selectedBlockSlots.filter(s => s && s.feature);
+            const activeGrp = ensureActiveBlockGroup();
+            const filledSlots = activeGrp.slots.filter(s => s && s.feature);
             if (filledSlots.length === 0) {
                 hasClickedBlock = false;
                 selectedBlockFeature = null;
+                selectedBlock = "";
                 updateBoundaryLayersSelectionStyles();
                 return;
             }
@@ -3721,7 +3795,8 @@ function toggleSatDataMode(mode) {
         }
 
         function refreshCombinedBlockNutrientsAndDisplays() {
-            const filledSlots = selectedBlockSlots.filter(s => s && s.feature);
+            const activeGrp = ensureActiveBlockGroup();
+            const filledSlots = activeGrp.slots.filter(s => s && s.feature);
             if (filledSlots.length === 0) return;
             const refLatLng = filledSlots[filledSlots.length - 1].latlng || { lat: selectedLat, lng: selectedLng };
             updateIdentifiedSoilTypeDisplay(null, refLatLng, selectedBlockFeature);
@@ -3749,16 +3824,86 @@ function toggleSatDataMode(mode) {
             }
         }
 
-        window.addAnotherBlockSlot = function() {
-            if (selectedBlockSlots.length >= MAX_SELECTED_BLOCKS) return;
-            selectedBlockSlots.push(null);
+        window.addNewBlockGroup = function(ev) {
+            if (ev && typeof ev.stopPropagation === 'function') ev.stopPropagation();
+            if (blockGroups.length >= MAX_BLOCK_GROUPS) return;
+            const newGrp = _createBlockGroupObj(blockGroups.length);
+            newGrp.slots.push(null);
+            blockGroups.push(newGrp);
+            activeBlockGroupIndex = blockGroups.length - 1;
+            selectedBlockSlots = newGrp.slots;
+            activeBlockSlotIndex = 0;
+            syncSelectedBlocksState();
+            updateSelectedBlockReportHint();
+            if (typeof window.scheduleClientLeftPanelAutoSave === 'function') {
+                window.scheduleClientLeftPanelAutoSave(600);
+            }
+        };
+
+        window.setActiveBlockGroup = function(gIdx, ev) {
+            if (ev && typeof ev.stopPropagation === 'function') ev.stopPropagation();
+            if (gIdx < 0 || gIdx >= blockGroups.length) return;
+            activeBlockGroupIndex = gIdx;
+            selectedBlockSlots = blockGroups[gIdx].slots;
             const firstNull = selectedBlockSlots.findIndex(s => s === null);
-            activeBlockSlotIndex = firstNull !== -1 ? firstNull : (selectedBlockSlots.length - 1);
+            activeBlockSlotIndex = firstNull !== -1 ? firstNull : -1;
+            syncSelectedBlocksState();
+            updateSelectedBlockReportHint();
+            refreshCombinedBlockNutrientsAndDisplays();
+        };
+
+        window.removeBlockGroup = function(gIdx, ev) {
+            if (ev && typeof ev.stopPropagation === 'function') ev.stopPropagation();
+            if (blockGroups.length <= 1) {
+                window.clearActiveBlockGroup(ev);
+                return;
+            }
+            if (gIdx < 0 || gIdx >= blockGroups.length) return;
+            blockGroups.splice(gIdx, 1);
+            _relabelBlockGroups();
+            if (activeBlockGroupIndex >= blockGroups.length) {
+                activeBlockGroupIndex = blockGroups.length - 1;
+            }
+            selectedBlockSlots = blockGroups[activeBlockGroupIndex].slots;
+            const firstNull = selectedBlockSlots.findIndex(s => s === null);
+            activeBlockSlotIndex = firstNull !== -1 ? firstNull : -1;
+            syncSelectedBlocksState();
+            updateSelectedBlockReportHint();
+            refreshCombinedBlockNutrientsAndDisplays();
+            if (typeof window.scheduleClientLeftPanelAutoSave === 'function') {
+                window.scheduleClientLeftPanelAutoSave(500);
+            }
+        };
+
+        window.clearActiveBlockGroup = function(ev) {
+            if (ev && typeof ev.stopPropagation === 'function') ev.stopPropagation();
+            const grp = ensureActiveBlockGroup();
+            grp.slots = [];
+            selectedBlockSlots = grp.slots;
+            activeBlockSlotIndex = 0;
+            syncSelectedBlocksState();
+            updateSelectedBlockReportHint();
+            if (!hasClickedBlock) {
+                const currentBlocksData = (typeof REAL_MAPS_DATA !== 'undefined' && REAL_MAPS_DATA && REAL_MAPS_DATA.blocks) ? REAL_MAPS_DATA.blocks : null;
+                updateIdentifiedSoilTypeDisplay(currentBlocksData, null, null);
+            }
+            if (typeof window.scheduleClientLeftPanelAutoSave === 'function') {
+                window.scheduleClientLeftPanelAutoSave(500);
+            }
+        };
+
+        window.addAnotherBlockSlot = function() {
+            const grp = ensureActiveBlockGroup();
+            if (grp.slots.length >= MAX_SELECTED_BLOCKS) return;
+            grp.slots.push(null);
+            const firstNull = grp.slots.findIndex(s => s === null);
+            activeBlockSlotIndex = firstNull !== -1 ? firstNull : (grp.slots.length - 1);
             updateSelectedBlockReportHint();
         };
 
         window.setActiveBlockSlot = function(idx) {
-            if (idx >= 0 && idx < selectedBlockSlots.length) {
+            const grp = ensureActiveBlockGroup();
+            if (idx >= 0 && idx < grp.slots.length) {
                 activeBlockSlotIndex = idx;
                 updateSelectedBlockReportHint();
             }
@@ -3766,13 +3911,17 @@ function toggleSatDataMode(mode) {
 
         window.removeBlockSlot = function(idx, ev) {
             if (ev && typeof ev.stopPropagation === 'function') ev.stopPropagation();
-            if (idx <= 0 || idx >= selectedBlockSlots.length) return;
-            selectedBlockSlots.splice(idx, 1);
-            const firstNull = selectedBlockSlots.findIndex(s => s === null);
+            const grp = ensureActiveBlockGroup();
+            if (idx < 0 || idx >= grp.slots.length) return;
+            grp.slots.splice(idx, 1);
+            const firstNull = grp.slots.findIndex(s => s === null);
             activeBlockSlotIndex = firstNull !== -1 ? firstNull : -1;
             syncSelectedBlocksState();
             updateSelectedBlockReportHint();
             refreshCombinedBlockNutrientsAndDisplays();
+            if (typeof window.scheduleClientLeftPanelAutoSave === 'function') {
+                window.scheduleClientLeftPanelAutoSave(500);
+            }
         };
 
         window.clearAllSelectedBlocks = function(ev) {
@@ -3782,55 +3931,114 @@ function toggleSatDataMode(mode) {
             updateSelectedBlockReportHint();
             const currentBlocksData = (typeof REAL_MAPS_DATA !== 'undefined' && REAL_MAPS_DATA && REAL_MAPS_DATA.blocks) ? REAL_MAPS_DATA.blocks : null;
             updateIdentifiedSoilTypeDisplay(currentBlocksData, null, null);
+            if (typeof window.scheduleClientLeftPanelAutoSave === 'function') {
+                window.scheduleClientLeftPanelAutoSave(500);
+            }
         };
 
         function updateSelectedBlockReportHint() {
             const hintEl = document.getElementById('selected-block-report-hint');
             if (!hintEl) return;
-            const filledSlots = selectedBlockSlots.filter(s => s && s.feature);
+            const activeGrp = ensureActiveBlockGroup();
+            const filledSlots = activeGrp.slots.filter(s => s && s.feature);
+            const totalBlocksAllGroups = blockGroups.reduce((sum, g) => sum + (g.slots ? g.slots.filter(s => s && s.feature).length : 0), 0);
+            const showGroupBar = (totalBlocksAllGroups > 0 || blockGroups.length > 1);
+            let html = '';
+
+            if (showGroupBar) {
+                html += `<div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px;">
+                    <span style="font-size: 11px; font-weight: 700; letter-spacing: 0.03em; text-transform: uppercase; color: #a1a1aa;">Block Groups (${blockGroups.length}/${MAX_BLOCK_GROUPS})</span>
+                    ${blockGroups.length < MAX_BLOCK_GROUPS ? `<button type="button" onclick="window.addNewBlockGroup(event)" style="background: rgba(16, 185, 129, 0.16); border: 1px solid rgba(16, 185, 129, 0.45); color: #34d399; font-size: 11px; font-weight: 700; padding: 2px 9px; border-radius: 999px; cursor: pointer; user-select: none;">+ Add Group</button>` : `<span style="font-size: 10.5px; color: #a1a1aa;">Max 15 groups</span>`}
+                </div>`;
+                html += `<div style="display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px;">`;
+                blockGroups.forEach((grp, gIdx) => {
+                    const isAct = (gIdx === activeBlockGroupIndex);
+                    const cnt = grp.slots ? grp.slots.filter(s => s && s.feature).length : 0;
+                    html += `<div onclick="window.setActiveBlockGroup(${gIdx}, event)" title="${grp.name} (${grp.colorName}) — ${cnt} block(s)" style="display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 999px; background: ${isAct ? `${grp.color}26` : 'rgba(255,255,255,0.05)'}; border: 1.5px solid ${isAct ? grp.color : 'rgba(255,255,255,0.15)'}; color: ${isAct ? '#f8fafc' : '#cbd5e1'}; font-size: 11.5px; font-weight: ${isAct ? '700' : '500'}; cursor: pointer; user-select: none;">
+                        <span style="width: 9px; height: 9px; border-radius: 50%; background: ${grp.color}; box-shadow: 0 0 6px ${grp.color}99; flex-shrink: 0;"></span>
+                        <span>${grp.name}</span>
+                        <span style="opacity: 0.8; font-size: 10.5px;">(${cnt})</span>
+                        ${blockGroups.length > 1 ? `<span onclick="window.removeBlockGroup(${gIdx}, event)" title="Delete ${grp.name}" style="margin-left: 2px; color: #94a3b8; font-weight: 700; font-size: 13px; line-height: 1; padding: 0 2px;">×</span>` : ''}
+                    </div>`;
+                });
+                html += `</div>`;
+            }
+
             if (hasClickedBlock && selectedBlock && filledSlots.length > 0) {
                 hintEl.style.color = '#ffffff';
                 hintEl.style.fontWeight = '600';
-                const firstSlot = selectedBlockSlots[0];
+                const firstSlot = activeGrp.slots[0];
                 const firstName = (firstSlot && firstSlot.name) ? firstSlot.name : selectedBlock;
-                let html = `<div style="font-size: 13px; margin-bottom: 4px;">✓ Selected Block for Report (Page 1): <strong>${firstName}</strong></div>`;
+                html += `<div style="font-size: 12.5px; margin-bottom: 5px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+                    <span style="width: 10px; height: 10px; border-radius: 3px; background: ${activeGrp.color}; display: inline-block; flex-shrink: 0;"></span>
+                    <span>✓ <strong>${activeGrp.name}</strong> (${activeGrp.colorName}) — Block 1: <strong>${firstName}</strong></span>
+                </div>`;
 
-                for (let i = 1; i < selectedBlockSlots.length; i++) {
-                    const slot = selectedBlockSlots[i];
+                for (let i = 1; i < activeGrp.slots.length; i++) {
+                    const slot = activeGrp.slots[i];
                     const isPending = (slot === null);
                     const isActive = (activeBlockSlotIndex === i);
                     if (isPending) {
-                        html += `<div onclick="window.setActiveBlockSlot(${i})" style="margin-top: 4px; padding: 4px 8px; border-radius: 5px; background: ${isActive ? 'rgba(16, 185, 129, 0.18)' : 'rgba(255,255,255,0.05)'}; border: 1px dashed ${isActive ? '#10b981' : '#52525b'}; color: ${isActive ? '#34d399' : '#a1a1aa'}; font-size: 12.5px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
-                            <span>${isActive ? '👉 Click another block on map...' : '+ Click to select block on map...'} (Block ${i + 1})</span>
+                        html += `<div onclick="window.setActiveBlockSlot(${i})" style="margin-top: 4px; padding: 4px 8px; border-radius: 5px; background: ${isActive ? 'rgba(16, 185, 129, 0.18)' : 'rgba(255,255,255,0.05)'}; border: 1px dashed ${isActive ? activeGrp.color : '#52525b'}; color: ${isActive ? '#34d399' : '#a1a1aa'}; font-size: 12.5px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+                            <span>${isActive ? `👉 Click a block on map for ${activeGrp.name}...` : '+ Click to select block on map...'} (Block ${i + 1})</span>
                             <span onclick="window.removeBlockSlot(${i}, event)" title="Remove slot" style="color: #9ca3af; font-weight: 700; font-size: 14px; padding: 0 4px; cursor: pointer;">×</span>
                         </div>`;
                     } else {
-                        html += `<div onclick="window.setActiveBlockSlot(${i})" title="Click to re-select Block ${i + 1} on map" style="margin-top: 4px; padding: 4px 8px; border-radius: 5px; background: ${isActive ? 'rgba(16, 185, 129, 0.18)' : 'rgba(255,255,255,0.04)'}; border: 1px solid ${isActive ? '#10b981' : 'rgba(255,255,255,0.1)'}; color: #e4e4e7; font-size: 12.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
+                        html += `<div onclick="window.setActiveBlockSlot(${i})" title="Click to re-select Block ${i + 1} on map" style="margin-top: 4px; padding: 4px 8px; border-radius: 5px; background: ${isActive ? 'rgba(16, 185, 129, 0.18)' : 'rgba(255,255,255,0.04)'}; border: 1px solid ${isActive ? activeGrp.color : 'rgba(255,255,255,0.1)'}; color: #e4e4e7; font-size: 12.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: space-between;">
                             <span>✓ Block ${i + 1}: <strong style="color: #34d399;">${slot.name}</strong></span>
                             <span onclick="window.removeBlockSlot(${i}, event)" title="Remove block" style="color: #9ca3af; font-weight: 700; font-size: 14px; padding: 0 4px; cursor: pointer;">×</span>
                         </div>`;
                     }
                 }
 
-                html += `<div style="margin-top: 6px; display: flex; align-items: center; justify-content: space-between; gap: 8px;">`;
-                if (selectedBlockSlots.length < MAX_SELECTED_BLOCKS) {
-                    html += `<div onclick="window.addAnotherBlockSlot()" style="color: #10b981; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-block; user-select: none;">+ add another block</div>`;
+                html += `<div style="margin-top: 7px; display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-wrap: wrap;">`;
+                if (activeGrp.slots.length < MAX_SELECTED_BLOCKS) {
+                    html += `<div onclick="window.addAnotherBlockSlot()" style="color: #10b981; font-size: 12.5px; font-weight: 600; cursor: pointer; display: inline-block; user-select: none;">+ add another block</div>`;
                 } else {
                     html += `<div></div>`;
                 }
-                html += `<button type="button" onclick="window.clearAllSelectedBlocks(event)" style="background: rgba(239, 68, 68, 0.14); border: 1px solid rgba(239, 68, 68, 0.38); color: #f87171; font-size: 11.5px; font-weight: 600; padding: 3px 10px; border-radius: 6px; cursor: pointer; user-select: none; transition: all 0.15s ease;" onmouseover="this.style.background='rgba(239,68,68,0.26)';this.style.color='#fca5a5';" onmouseout="this.style.background='rgba(239,68,68,0.14)';this.style.color='#f87171';">Clear All</button>`;
-                html += `</div>`;
+                html += `<div style="display: inline-flex; align-items: center; gap: 5px;">`;
+                if (blockGroups.length > 1) {
+                    html += `<button type="button" onclick="window.clearActiveBlockGroup(event)" style="background: rgba(148, 163, 184, 0.14); border: 1px solid rgba(148, 163, 184, 0.35); color: #cbd5e1; font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 6px; cursor: pointer; user-select: none;">Clear ${activeGrp.name}</button>`;
+                }
+                html += `<button type="button" onclick="window.clearAllSelectedBlocks(event)" style="background: rgba(239, 68, 68, 0.14); border: 1px solid rgba(239, 68, 68, 0.38); color: #f87171; font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 6px; cursor: pointer; user-select: none;">Clear All</button>`;
+                html += `</div></div>`;
 
                 if (filledSlots.length > 1) {
-                    html += `<div style="margin-top: 5px; font-size: 12px; line-height: 1.4; color: #a1a1aa; font-weight: 500;">Combined Report Block (${filledSlots.length}/${MAX_SELECTED_BLOCKS}): <strong style="color: #e4e4e7;">${selectedBlock}</strong></div>`;
+                    html += `<div style="margin-top: 5px; font-size: 12px; line-height: 1.4; color: #a1a1aa; font-weight: 500;">${activeGrp.name} Combined (${filledSlots.length}/${MAX_SELECTED_BLOCKS}): <strong style="color: #e4e4e7;">${selectedBlock}</strong></div>`;
                 }
-
-                hintEl.innerHTML = html;
+            } else if (showGroupBar) {
+                hintEl.style.color = '#f8fafc';
+                hintEl.style.fontWeight = '500';
+                html += `<div style="padding: 7px 10px; border-radius: 7px; background: ${activeGrp.color}18; border: 1px dashed ${activeGrp.color}; color: #f8fafc; font-size: 12px; line-height: 1.4;">
+                    <span style="display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: ${activeGrp.color}; margin-right: 6px;"></span>
+                    Click a block on the map to add to <strong>${activeGrp.name} (${activeGrp.colorName})</strong>.
+                </div>`;
             } else {
                 hintEl.style.color = '#a1a1aa';
                 hintEl.style.fontWeight = '400';
-                hintEl.textContent = '* Click a single block on the dashboard map first to generate report.';
+                html = '* Click block(s) on the dashboard map to start Group 1 (Yellow). Up to 15 color-coded groups supported.';
             }
+
+            const populatedGroups = blockGroups.map((g, idx) => ({
+                grp: g,
+                idx: idx,
+                names: (g.slots || []).filter(s => s && s.name).map(s => s.name)
+            })).filter(item => item.names.length > 0);
+            if (blockGroups.length > 1 && populatedGroups.length > 0) {
+                html += `<div style="margin-top: 9px; padding: 8px 9px; border-radius: 8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.10);">`;
+                html += `<div style="font-size: 11px; font-weight: 700; color: #a1a1aa; margin-bottom: 5px;">All Saved Groups (${populatedGroups.length} active • ${totalBlocksAllGroups} blocks)</div>`;
+                populatedGroups.forEach(item => {
+                    const isAct = (item.idx === activeBlockGroupIndex);
+                    html += `<div onclick="window.setActiveBlockGroup(${item.idx}, event)" style="display: flex; align-items: flex-start; gap: 6px; padding: 3px 5px; border-radius: 5px; cursor: pointer; background: ${isAct ? `${item.grp.color}1e` : 'transparent'}; margin-bottom: 2px; font-size: 11.5px; line-height: 1.35;">
+                        <span style="width: 9px; height: 9px; border-radius: 3px; background: ${item.grp.color}; margin-top: 3px; flex-shrink: 0;"></span>
+                        <span style="color: #cbd5e1;"><strong style="color: #f8fafc;">${item.grp.name} (${item.names.length}):</strong> ${item.names.join(', ')}</span>
+                    </div>`;
+                });
+                html += `</div>`;
+            }
+
+            hintEl.innerHTML = html;
         }
 
         // Permanent Soil Series Spatial Identification (MPOB Reconnaissance Soil Malaysia Data)
@@ -4535,15 +4743,20 @@ function toggleSatDataMode(mode) {
                         const _tipHtmlC = `<div style="font-family:sans-serif;font-size:12px;max-width:300px"><b style="font-size:13px">${feature.properties.name}</b>${_tipRowsC ? `<table style="margin-top:4px;border-collapse:collapse">${_tipRowsC}</table>` : ''}</div>`;
                         layer.bindTooltip(_tipHtmlC, { sticky: true, className: 'block-tooltip', direction: 'top' });
                         layer.on('mouseover', function() {
-                            if (isBlockFeatureSelected(feature)) {
-                                this.setStyle({ color: "#fef08a", weight: 3.0, fillOpacity: 0.36, fillColor: "#fde047" });
+                            const gInfo = getBlockFeatureGroupInfo(feature);
+                            if (gInfo) {
+                                const col = gInfo.group.color || "#fde047";
+                                this.setStyle({ color: col, weight: 3.4, fillOpacity: 0.44, fillColor: col });
                             } else {
-                                this.setStyle({ color: "#ff7800", weight: 2.5, fillOpacity: 0.20, fillColor: "#ff7800" });
+                                const activeColor = (ensureActiveBlockGroup().color) || "#ff7800";
+                                this.setStyle({ color: activeColor, weight: 2.5, fillOpacity: 0.22, fillColor: activeColor });
                             }
                         });
                         layer.on('mouseout', function() {
-                            if (isBlockFeatureSelected(feature)) {
-                                this.setStyle({ color: "#fde047", weight: 2.5, fillOpacity: 0.28, fillColor: "#fde047" });
+                            const gInfo = getBlockFeatureGroupInfo(feature);
+                            if (gInfo) {
+                                const col = gInfo.group.color || "#fde047";
+                                this.setStyle({ color: col, weight: gInfo.isActive ? 2.8 : 2.2, fillOpacity: gInfo.isActive ? 0.34 : 0.24, fillColor: col });
                             } else {
                                 this.setStyle({ color: "#ff7800", weight: 1.5, fillOpacity: 0.001, fillColor: "transparent" });
                             }
@@ -4570,15 +4783,20 @@ function toggleSatDataMode(mode) {
                         const _tipHtmlS = `<div style="font-family:sans-serif;font-size:12px;max-width:300px"><b style="font-size:13px">${feature.properties.name}</b>${_tipRowsS ? `<table style="margin-top:4px;border-collapse:collapse">${_tipRowsS}</table>` : ''}</div>`;
                         layer.bindTooltip(_tipHtmlS, { sticky: true, direction: 'top' });
                         layer.on('mouseover', function() {
-                            if (isBlockFeatureSelected(feature)) {
-                                this.setStyle({ color: "#fef08a", weight: 3.0, fillOpacity: 0.36, fillColor: "#fde047" });
+                            const gInfo = getBlockFeatureGroupInfo(feature);
+                            if (gInfo) {
+                                const col = gInfo.group.color || "#fde047";
+                                this.setStyle({ color: col, weight: 3.4, fillOpacity: 0.44, fillColor: col });
                             } else {
-                                this.setStyle({ color: "#12b886", weight: 2.5, fillOpacity: 0.20, fillColor: "#12b886" });
+                                const activeColor = (ensureActiveBlockGroup().color) || "#12b886";
+                                this.setStyle({ color: activeColor, weight: 2.5, fillOpacity: 0.22, fillColor: activeColor });
                             }
                         });
                         layer.on('mouseout', function() {
-                            if (isBlockFeatureSelected(feature)) {
-                                this.setStyle({ color: "#fde047", weight: 2.5, fillOpacity: 0.28, fillColor: "#fde047" });
+                            const gInfo = getBlockFeatureGroupInfo(feature);
+                            if (gInfo) {
+                                const col = gInfo.group.color || "#fde047";
+                                this.setStyle({ color: col, weight: gInfo.isActive ? 2.8 : 2.2, fillOpacity: gInfo.isActive ? 0.34 : 0.24, fillColor: col });
                             } else {
                                 this.setStyle({ color: "#12b886", weight: 1.5, fillOpacity: 0.001, fillColor: "transparent" });
                             }
@@ -5192,21 +5410,33 @@ function toggleSatDataMode(mode) {
 
         // Handle Click Event on block boundaries
         function handleBlockClick(feature, latlng, page, tipHtml) {
+            const activeGrp = ensureActiveBlockGroup();
             const clickedBlockName = (feature && feature.properties && (feature.properties.name || feature.properties.BLOCK || feature.properties.Block)) || "Selected Block";
+            const clickedNorm = String(clickedBlockName).trim().toLowerCase();
+            blockGroups.forEach((grp, gIdx) => {
+                if (gIdx === activeBlockGroupIndex || !grp || !Array.isArray(grp.slots)) return;
+                grp.slots = grp.slots.filter(s => !(s && ((s.feature && s.feature === feature) || (s.name && String(s.name).trim().toLowerCase() === clickedNorm))));
+            });
             const slotEntry = { name: clickedBlockName, feature: feature, latlng: latlng };
-            if (selectedBlockSlots.length === 0) {
-                selectedBlockSlots = [slotEntry];
+            if (activeGrp.slots.length === 0) {
+                activeGrp.slots = [slotEntry];
+                selectedBlockSlots = activeGrp.slots;
                 activeBlockSlotIndex = -1;
             } else {
-                const pendingIdx = (activeBlockSlotIndex >= 0 && activeBlockSlotIndex < selectedBlockSlots.length)
+                const pendingIdx = (activeBlockSlotIndex >= 0 && activeBlockSlotIndex < activeGrp.slots.length)
                     ? activeBlockSlotIndex
-                    : selectedBlockSlots.findIndex(s => s === null);
-                if (pendingIdx !== -1) {
-                    selectedBlockSlots[pendingIdx] = slotEntry;
+                    : activeGrp.slots.findIndex(s => s === null);
+                const dupIdx = activeGrp.slots.findIndex((s, i) => i !== pendingIdx && s && ((s.feature && s.feature === feature) || (s.name && String(s.name).trim().toLowerCase() === clickedNorm)));
+                if (dupIdx !== -1 && pendingIdx === -1) {
+                    activeBlockSlotIndex = -1;
+                } else if (pendingIdx !== -1) {
+                    activeGrp.slots[pendingIdx] = slotEntry;
+                    if (dupIdx !== -1) activeGrp.slots.splice(dupIdx, 1);
                 } else {
-                    selectedBlockSlots[selectedBlockSlots.length - 1] = slotEntry;
+                    activeGrp.slots[activeGrp.slots.length - 1] = slotEntry;
                 }
-                const nextNull = selectedBlockSlots.findIndex(s => s === null);
+                selectedBlockSlots = activeGrp.slots;
+                const nextNull = activeGrp.slots.findIndex(s => s === null);
                 activeBlockSlotIndex = nextNull !== -1 ? nextNull : -1;
             }
             syncSelectedBlocksState();
@@ -5550,13 +5780,36 @@ function toggleSatDataMode(mode) {
             const fertListLabel = (fertListEl && fertListEl.selectedIndex > 0 && fertListEl.options[fertListEl.selectedIndex])
                 ? fertListEl.options[fertListEl.selectedIndex].text
                 : '';
-            const filledBlocks = Array.isArray(selectedBlockSlots)
-                ? selectedBlockSlots.filter(s => s && s.name).map(s => ({
+            const serializedBlockGroups = Array.isArray(blockGroups)
+                ? blockGroups.map((g, idx) => {
+                    const c = BLOCK_GROUP_COLORS[idx % BLOCK_GROUP_COLORS.length];
+                    const blks = Array.isArray(g.slots)
+                        ? g.slots.filter(s => s && s.name).map(s => ({
+                            name: s.name,
+                            lat: s.latlng ? s.latlng.lat : selectedLat,
+                            lng: s.latlng ? s.latlng.lng : selectedLng
+                        }))
+                        : [];
+                    return {
+                        id: idx + 1,
+                        name: `Group ${idx + 1}`,
+                        color: g.color || c.hex,
+                        colorName: g.colorName || c.name,
+                        blocks: blks
+                    };
+                }).filter(g => g.blocks.length > 0)
+                : [];
+            const activeGrpObj = ensureActiveBlockGroup();
+            const filledBlocks = Array.isArray(activeGrpObj.slots)
+                ? activeGrpObj.slots.filter(s => s && s.name).map(s => ({
                     name: s.name,
                     lat: s.latlng ? s.latlng.lat : selectedLat,
                     lng: s.latlng ? s.latlng.lng : selectedLng
                 }))
                 : [];
+            const fallbackBlocks = filledBlocks.length > 0
+                ? filledBlocks
+                : (serializedBlockGroups.length > 0 ? serializedBlockGroups[0].blocks : []);
             return {
                 satelliteMode: isRealtime ? 'realtime' : 'previous',
                 satelliteDate: satDate,
@@ -5583,7 +5836,8 @@ function toggleSatDataMode(mode) {
                     listValue: getVal('fert-list-input', ''),
                     listLabel: fertListLabel
                 },
-                selectedBlocks: filledBlocks,
+                selectedBlocks: fallbackBlocks,
+                blockGroups: serializedBlockGroups,
                 estateName: getVal('estate-name-input', ''),
                 estateNameLocked: Boolean((document.getElementById('estate-name-lock-chk') || {}).checked),
                 droneDate: getVal('drone-date-input', '')
@@ -5662,6 +5916,63 @@ function toggleSatDataMode(mode) {
             }
             setInputVal('estate-name-input', sub.estateName || '');
             if (sub.droneDate) setInputVal('drone-date-input', sub.droneDate);
+
+            // Restore Selected Block Groups on the Standard map (up to 15 color-coded groups + legacy fallback)
+            const activeLayer = compBoundaryLayer || stdBoundaryLayer;
+            const _resolveSavedBlockStd = (savedBlk) => {
+                let matchedFeature = null;
+                let matchedLatLng = (savedBlk && savedBlk.lat && savedBlk.lng) ? { lat: savedBlk.lat, lng: savedBlk.lng } : null;
+                if (activeLayer && typeof activeLayer.eachLayer === 'function') {
+                    activeLayer.eachLayer(layer => {
+                        if (matchedFeature || !layer || !layer.feature) return;
+                        const p = layer.feature.properties || {};
+                        const fName = String(p.name || p.BLOCK || p.Block || p.No_Block || '').trim();
+                        if (fName && String((savedBlk && savedBlk.name) || '').trim().toLowerCase() === fName.toLowerCase()) {
+                            matchedFeature = layer.feature;
+                            if (!matchedLatLng && typeof layer.getBounds === 'function' && layer.getBounds().isValid()) {
+                                matchedLatLng = layer.getBounds().getCenter();
+                            }
+                        }
+                    });
+                }
+                if (!matchedFeature) return null;
+                return {
+                    name: savedBlk.name,
+                    feature: matchedFeature,
+                    latlng: matchedLatLng || { lat: selectedLat, lng: selectedLng }
+                };
+            };
+            const savedGroupsRaw = (Array.isArray(sub.blockGroups) && sub.blockGroups.length > 0)
+                ? sub.blockGroups.slice(0, MAX_BLOCK_GROUPS)
+                : ((Array.isArray(sub.selectedBlocks) && sub.selectedBlocks.length > 0)
+                    ? [{ id: 1, name: 'Group 1', color: BLOCK_GROUP_COLORS[0].hex, colorName: BLOCK_GROUP_COLORS[0].name, blocks: sub.selectedBlocks }]
+                    : []);
+            if (savedGroupsRaw.length > 0 && activeLayer && typeof activeLayer.eachLayer === 'function') {
+                const restoredGroups = [];
+                savedGroupsRaw.forEach((sg, idx) => {
+                    const grp = _createBlockGroupObj(idx);
+                    const blks = Array.isArray(sg.blocks) ? sg.blocks : [];
+                    blks.forEach(savedBlk => {
+                        const resolved = _resolveSavedBlockStd(savedBlk);
+                        if (resolved) grp.slots.push(resolved);
+                    });
+                    if (grp.slots.length > 0) restoredGroups.push(grp);
+                });
+                if (restoredGroups.length > 0) {
+                    blockGroups = restoredGroups;
+                    _relabelBlockGroups();
+                    activeBlockGroupIndex = 0;
+                    selectedBlockSlots = blockGroups[0].slots;
+                    activeBlockSlotIndex = -1;
+                    syncSelectedBlocksState();
+                    updateSelectedBlockReportHint();
+                    refreshCombinedBlockNutrientsAndDisplays();
+                } else {
+                    updateSelectedBlockReportHint();
+                }
+            } else {
+                updateSelectedBlockReportHint();
+            }
         };
 
         document.addEventListener('DOMContentLoaded', () => {
