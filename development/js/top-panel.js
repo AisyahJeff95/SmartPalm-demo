@@ -903,81 +903,8 @@
                     background: #fee2e2 !important;
                     color: #b91c1c !important;
                 }
-                #sp-end-tutorial-floating-wrap {
-                    display: none;
-                    position: fixed;
-                    bottom: 24px;
-                    right: 24px;
-                    z-index: 10000010;
-                    align-items: center;
-                    gap: 10px;
-                    background: rgba(15, 20, 28, 0.96);
-                    backdrop-filter: blur(14px);
-                    -webkit-backdrop-filter: blur(14px);
-                    border: 1px solid rgba(255, 255, 255, 0.18);
-                    border-radius: 999px;
-                    padding: 7px 9px 7px 14px;
-                    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.78);
-                    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-                    user-select: none;
-                }
-                #sp-end-tutorial-floating-wrap.active {
-                    display: inline-flex;
-                }
-                .sp-tour-status-label {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 7px;
-                    font-size: 12px;
-                    font-weight: 600;
-                    color: #cbd5e1;
-                    cursor: pointer;
-                }
-                .sp-tour-status-dot {
-                    width: 8px;
-                    height: 8px;
-                    border-radius: 50%;
-                    background: #10b981;
-                    box-shadow: 0 0 8px #10b981;
-                }
-                .sp-end-tutorial-btn {
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 6px;
-                    padding: 8px 16px;
-                    border-radius: 999px;
-                    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-                    border: 1px solid #f87171;
-                    color: #ffffff;
-                    font-size: 12.5px;
-                    font-weight: 700;
-                    font-family: inherit;
-                    cursor: pointer;
-                    box-shadow: 0 4px 14px rgba(239, 68, 68, 0.4);
-                    transition: all 0.15s ease;
-                }
-                .sp-end-tutorial-btn:hover {
-                    filter: brightness(1.1);
-                    transform: translateY(-1px);
-                }
             `;
             document.head.appendChild(drvStyle);
-        }
-
-        if (!document.getElementById('sp-end-tutorial-floating-wrap')) {
-            const floatWrap = document.createElement('div');
-            floatWrap.id = 'sp-end-tutorial-floating-wrap';
-            floatWrap.innerHTML = `
-                <span class="sp-tour-status-label" onclick="window.startPalmnexDriverTourForCurrentPage()" title="Click to replay walkthrough steps on this page">
-                    <span class="sp-tour-status-dot"></span>
-                    <span>Walkthrough Active (Click any page tab)</span>
-                </span>
-                <button type="button" class="sp-end-tutorial-btn" onclick="window.endPalmnexTutorial()">
-                    <span>✕</span>
-                    <span>End Tutorial</span>
-                </button>
-            `;
-            document.body.appendChild(floatWrap);
         }
 
         function ensureDriverJsLoaded(callback) {
@@ -1090,7 +1017,7 @@
                         element: '.sp-top-nav-pills',
                         popover: {
                             title: 'Step 7: Switch Pages Anytime!',
-                            description: 'You can click Standard Fert, Home, or any tab in the top bar to continue the walkthrough on that page, or click "End Tutorial" at the bottom right.',
+                            description: 'You can click Standard Fert, Home, or any tab in the top bar to continue the walkthrough on that page, or click Done to finish.',
                             side: 'bottom',
                             align: 'start'
                         }
@@ -1159,7 +1086,7 @@
                         element: '.sp-top-nav-pills',
                         popover: {
                             title: 'Step 7: Explore Other Dashboards',
-                            description: 'Click Comprehensive Fert, Home, or any module tab above to continue the walkthrough there, or click "End Tutorial" at the bottom right.',
+                            description: 'Click Comprehensive Fert, Home, or any module tab above to continue the walkthrough there, or click Done to finish.',
                             side: 'bottom',
                             align: 'start'
                         }
@@ -1180,7 +1107,7 @@
                         element: '.sp-top-nav-pills',
                         popover: {
                             title: '2. Continue Walkthrough on Any Page',
-                            description: 'Click Home, Comprehensive Fert, or Standard Fert in the top bar to tour another module, or click End Tutorial at the bottom right.',
+                            description: 'Click Home, Comprehensive Fert, or Standard Fert in the top bar to tour another module, or click Done to finish.',
                             side: 'bottom',
                             align: 'start'
                         }
@@ -1293,7 +1220,7 @@
                         element: '.sp-top-nav-pills',
                         popover: {
                             title: '2. Navigate Across Modules',
-                            description: 'Click Home, Comprehensive Fert, or Standard Fert in the top bar to continue the walkthrough, or click End Tutorial at the bottom right.',
+                            description: 'Click Home, Comprehensive Fert, or Standard Fert in the top bar to continue the walkthrough, or click Done to finish.',
                             side: 'bottom',
                             align: 'start'
                         }
@@ -1360,7 +1287,7 @@
                         element: '.sp-top-nav-pills',
                         popover: {
                             title: '7. Click Any Dashboard to Continue!',
-                            description: 'Click Comprehensive Fert or Standard Fert in the top bar now to continue the interactive walkthrough on that page, or click End Tutorial at the bottom right anytime.',
+                            description: 'Click Comprehensive Fert or Standard Fert in the top bar now to continue the interactive walkthrough on that page, or click Done to finish.',
                             side: 'bottom',
                             align: 'start'
                         }
@@ -1429,8 +1356,6 @@
             } catch (e) {}
 
             document.body.classList.add('sp-driver-tour-active');
-            const floatWrap = document.getElementById('sp-end-tutorial-floating-wrap');
-            if (floatWrap) floatWrap.classList.add('active');
 
             ensureDriverJsLoaded((driverFn) => {
                 if (_activeDriverInstance && typeof _activeDriverInstance.destroy === 'function') {
@@ -1448,19 +1373,14 @@
                     stageRadius: 10,
                     nextBtnText: 'Next →',
                     prevBtnText: '← Previous',
-                    doneBtnText: 'Done (Page)',
+                    doneBtnText: 'Done',
                     steps: steps,
                     onPopoverRendered: () => {
                         injectWalkthroughBubbleExtraButtons();
                     },
                     onDestroyed: () => {
-                        // Keep the bottom-right "End Tutorial" bar visible if palmnex_tour_active_v1 is still true
-                        // so the user can freely click Comprehensive / Standard / any page to continue the tour
-                        const stillActive = sessionStorage.getItem('palmnex_tour_active_v1') === 'true';
-                        if (!stillActive) {
-                            document.body.classList.remove('sp-driver-tour-active');
-                            if (floatWrap) floatWrap.classList.remove('active');
-                        }
+                        try { sessionStorage.removeItem('palmnex_tour_active_v1'); } catch (e) {}
+                        document.body.classList.remove('sp-driver-tour-active');
                     }
                 });
                 _activeDriverInstance.drive();
@@ -1477,8 +1397,6 @@
                 _activeDriverInstance = null;
             }
             document.body.classList.remove('sp-driver-tour-active');
-            const floatWrap = document.getElementById('sp-end-tutorial-floating-wrap');
-            if (floatWrap) floatWrap.classList.remove('active');
         };
 
         window.openWalkthroughPromptModal = function () {
