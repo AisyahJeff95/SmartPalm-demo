@@ -23,6 +23,41 @@
       ],
       "destination": "https://oilpalm.palmnex.com.my/$1",
       "permanent": false
+    },
+    {
+      "source": "/palmnexreads",
+      "destination": "/palmnexreads/",
+      "permanent": false
+    },
+    {
+      "source": "/PalmnexReaDS",
+      "destination": "/palmnexreads/",
+      "permanent": false
+    },
+    {
+      "source": "/PalmnexReaDS.html",
+      "destination": "/palmnexreads/",
+      "permanent": false
+    },
+    {
+      "source": "/reada",
+      "destination": "/palmnexreads/",
+      "permanent": false
+    },
+    {
+      "source": "/reada.html",
+      "destination": "/palmnexreads/",
+      "permanent": false
+    },
+    {
+      "source": "/demo/PalmnexReaDS",
+      "destination": "/palmnexreads/",
+      "permanent": false
+    },
+    {
+      "source": "/demo/PalmnexReaDS.html",
+      "destination": "/palmnexreads/",
+      "permanent": false
     }
   ],
   "rewrites": [
@@ -95,40 +130,12 @@
       "destination": "/Reada-standalone/landing.html"
     },
     {
-      "source": "/PalmnexReaDS",
-      "destination": "/Reada-standalone/palmnexreads/index.html"
-    },
-    {
-      "source": "/PalmnexReaDS.html",
-      "destination": "/Reada-standalone/palmnexreads/index.html"
-    },
-    {
-      "source": "/palmnexreads",
-      "destination": "/Reada-standalone/palmnexreads/index.html"
-    },
-    {
       "source": "/palmnexreads/",
-      "destination": "/Reada-standalone/palmnexreads/index.html"
+      "destination": "https://smart-palm-demo.vercel.app/"
     },
     {
       "source": "/palmnexreads/(.*)",
-      "destination": "/Reada-standalone/palmnexreads/$1"
-    },
-    {
-      "source": "/reada",
-      "destination": "/Reada-standalone/palmnexreads/index.html"
-    },
-    {
-      "source": "/reada.html",
-      "destination": "/Reada-standalone/palmnexreads/index.html"
-    },
-    {
-      "source": "/demo/PalmnexReaDS",
-      "destination": "/Reada-standalone/palmnexreads/index.html"
-    },
-    {
-      "source": "/demo/PalmnexReaDS.html",
-      "destination": "/Reada-standalone/palmnexreads/index.html"
+      "destination": "https://smart-palm-demo.vercel.app/$1"
     },
     {
       "source": "/demo",

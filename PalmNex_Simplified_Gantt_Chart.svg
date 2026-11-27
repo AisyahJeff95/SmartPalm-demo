@@ -1,0 +1,135 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 588" width="1200" height="588">
+  <defs>
+    <style>
+      .sans { font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif; }
+    </style>
+    <clipPath id="table-clip">
+      <rect x="40.0" y="142.0" width="1120.0" height="364.0" rx="8" ry="8"/>
+    </clipPath>
+    <clipPath id="phase5-clip">
+      <rect x="779.1510204081633" y="410.5" width="170.30204081632655" height="26.0" rx="6" ry="6"/>
+    </clipPath>
+  </defs>
+  <rect width="1200" height="588" fill="#FFFFFF"/>
+
+  <!-- Header -->
+  <rect x="40.0" y="34" width="5" height="48" rx="2.5" fill="#1B6B4A"/>
+  <text x="56.0" y="53" class="sans" font-size="22" font-weight="700" fill="#0F172A">PalmNex Project Timeline</text>
+  <text x="56.0" y="77" class="sans" font-size="12.5" font-weight="400" fill="#64748B">Simplified Development &amp; Commercialisation Schedule  &#183;  Jun 2026 &#8211; Feb 2027</text>
+
+  <!-- KPI Pills -->
+  <rect x="729.1117076873779" y="43.0" width="131.34530353546143" height="30.0" rx="15" fill="#ECFDF5" stroke="#A7F3D0" stroke-width="1.2"/>
+  <circle cx="745.1117076873779" cy="58.0" r="4" fill="#1B6B4A"/>
+  <text x="755.1117076873779" y="62.5" class="sans" font-size="12" font-weight="600" fill="#166534">95% Completed</text>
+
+  <rect x="870.4570112228394" y="43.0" width="289.54298877716064" height="30.0" rx="15" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.2"/>
+  <polygon points="886.4570112228394,53.5 890.9570112228394,58.0 886.4570112228394,62.5 881.9570112228394,58.0" fill="#F59E0B" stroke="#92400E" stroke-width="1"/>
+  <text x="897.4570112228394" y="62.5" class="sans" font-size="12" font-weight="600" fill="#92400E">Commercialisation Started &#183; 1 Estate Client</text>
+
+  <line x1="40.0" y1="102.0" x2="1160.0" y2="102.0" stroke="#E2E8F0" stroke-width="1"/>
+
+  <!-- Table Card -->
+  <g clip-path="url(#table-clip)">
+  <rect x="40.0" y="142.0" width="1120.0" height="34.0" fill="#F1F5F9"/>
+  <text x="54.0" y="163.0" class="sans" font-size="10.5" font-weight="700" fill="#475569">PROJECT PHASE</text>
+  <text x="1104.0" y="163.0" class="sans" font-size="10.5" font-weight="700" fill="#475569" text-anchor="middle">STATUS</text>
+  <text x="393.8775510204082" y="163.0" class="sans" font-size="11" font-weight="600" fill="#334155" text-anchor="middle">Jun '26</text>
+  <text x="479.02857142857147" y="163.0" class="sans" font-size="11" font-weight="600" fill="#334155" text-anchor="middle">Jul '26</text>
+  <text x="565.5755102040816" y="163.0" class="sans" font-size="11" font-weight="600" fill="#334155" text-anchor="middle">Aug '26</text>
+  <text x="650.7265306122449" y="163.0" class="sans" font-size="11" font-weight="600" fill="#334155" text-anchor="middle">Sep '26</text>
+  <text x="735.8775510204082" y="163.0" class="sans" font-size="11" font-weight="600" fill="#334155" text-anchor="middle">Oct '26</text>
+  <rect x="779.1510204081633" y="142.0" width="83.75510204081627" height="34.0" fill="#FEF3C7" fill-opacity="0.72"/>
+  <text x="821.0285714285715" y="163.0" class="sans" font-size="11" font-weight="700" fill="#92400E" text-anchor="middle">Nov '26</text>
+  <text x="906.1795918367347" y="163.0" class="sans" font-size="11" font-weight="600" fill="#334155" text-anchor="middle">Dec '26</text>
+  <text x="992.7265306122449" y="163.0" class="sans" font-size="11" font-weight="600" fill="#334155" text-anchor="middle">Jan '27</text>
+  <line x1="40.0" y1="176.0" x2="1160.0" y2="176.0" stroke="#E2E8F0" stroke-width="1"/>
+  <rect x="40.0" y="176.0" width="1120.0" height="55.0" fill="#FFFFFF"/>
+  <rect x="779.1510204081633" y="176.0" width="83.75510204081627" height="55.0" fill="#FFFBEB" fill-opacity="0.55"/>
+  <line x1="40.0" y1="231.0" x2="1160.0" y2="231.0" stroke="#E2E8F0" stroke-width="1"/>
+  <rect x="40.0" y="231.0" width="1120.0" height="55.0" fill="#F8FAFC"/>
+  <rect x="779.1510204081633" y="231.0" width="83.75510204081627" height="55.0" fill="#FFFBEB" fill-opacity="0.55"/>
+  <line x1="40.0" y1="286.0" x2="1160.0" y2="286.0" stroke="#E2E8F0" stroke-width="1"/>
+  <rect x="40.0" y="286.0" width="1120.0" height="55.0" fill="#FFFFFF"/>
+  <rect x="779.1510204081633" y="286.0" width="83.75510204081627" height="55.0" fill="#FFFBEB" fill-opacity="0.55"/>
+  <line x1="40.0" y1="341.0" x2="1160.0" y2="341.0" stroke="#E2E8F0" stroke-width="1"/>
+  <rect x="40.0" y="341.0" width="1120.0" height="55.0" fill="#F8FAFC"/>
+  <rect x="779.1510204081633" y="341.0" width="83.75510204081627" height="55.0" fill="#FFFBEB" fill-opacity="0.55"/>
+  <line x1="40.0" y1="396.0" x2="1160.0" y2="396.0" stroke="#E2E8F0" stroke-width="1"/>
+  <rect x="40.0" y="396.0" width="1120.0" height="55.0" fill="#FFFFFF"/>
+  <rect x="779.1510204081633" y="396.0" width="83.75510204081627" height="55.0" fill="#FFFBEB" fill-opacity="0.55"/>
+  <line x1="40.0" y1="451.0" x2="1160.0" y2="451.0" stroke="#E2E8F0" stroke-width="1"/>
+  <rect x="40.0" y="451.0" width="1120.0" height="55.0" fill="#F8FAFC"/>
+  <rect x="779.1510204081633" y="451.0" width="83.75510204081627" height="55.0" fill="#FFFBEB" fill-opacity="0.55"/>
+  <line x1="352.0" y1="142.0" x2="352.0" y2="506.0" stroke="#E2E8F0" stroke-width="1.2"/>
+  <line x1="435.7551020408163" y1="142.0" x2="435.7551020408163" y2="506.0" stroke="#E2E8F0" stroke-width="0.9"/>
+  <line x1="522.3020408163266" y1="142.0" x2="522.3020408163266" y2="506.0" stroke="#E2E8F0" stroke-width="0.9"/>
+  <line x1="608.8489795918367" y1="142.0" x2="608.8489795918367" y2="506.0" stroke="#E2E8F0" stroke-width="0.9"/>
+  <line x1="692.6040816326531" y1="142.0" x2="692.6040816326531" y2="506.0" stroke="#E2E8F0" stroke-width="0.9"/>
+  <line x1="779.1510204081633" y1="142.0" x2="779.1510204081633" y2="506.0" stroke="#E2E8F0" stroke-width="0.9"/>
+  <line x1="862.9061224489795" y1="142.0" x2="862.9061224489795" y2="506.0" stroke="#E2E8F0" stroke-width="0.9"/>
+  <line x1="949.4530612244898" y1="142.0" x2="949.4530612244898" y2="506.0" stroke="#E2E8F0" stroke-width="0.9"/>
+  <line x1="1036.0" y1="142.0" x2="1036.0" y2="506.0" stroke="#E2E8F0" stroke-width="1.2"/>
+  </g>
+  <rect x="40.0" y="142.0" width="1120.0" height="364.0" rx="8" ry="8" fill="none" stroke="#E2E8F0" stroke-width="1.2"/>
+  <text x="54.0" y="200.0" class="sans" font-size="12.5" font-weight="600" fill="#0F172A">Phase 1: Proof of Concept &amp; Prototype</text>
+  <text x="54.0" y="217.0" class="sans" font-size="10.5" font-weight="400" fill="#64748B">Jun 1 – Jun 30, 2026</text>
+  <rect x="352.0" y="190.5" width="83.75510204081633" height="26.0" rx="6" fill="#1B6B4A"/>
+  <text x="393.8775510204082" y="207.5" class="sans" font-size="10.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">100%</text>
+  <rect x="1058.0" y="191.5" width="92.0" height="24.0" rx="12" fill="#DCFCE7"/>
+  <text x="1104.0" y="207.0" class="sans" font-size="10.5" font-weight="600" fill="#166534" text-anchor="middle">Done</text>
+  <text x="54.0" y="255.0" class="sans" font-size="12.5" font-weight="600" fill="#0F172A">Phase 2: AI Model &amp; Spatial Analytics</text>
+  <text x="54.0" y="272.0" class="sans" font-size="10.5" font-weight="400" fill="#64748B">Jul 1 – Sep 1, 2026</text>
+  <rect x="435.7551020408163" y="245.5" width="173.0938775510204" height="26.0" rx="6" fill="#1B6B4A"/>
+  <text x="522.3020408163266" y="262.5" class="sans" font-size="10.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">100%</text>
+  <rect x="1058.0" y="246.5" width="92.0" height="24.0" rx="12" fill="#DCFCE7"/>
+  <text x="1104.0" y="262.0" class="sans" font-size="10.5" font-weight="600" fill="#166534" text-anchor="middle">Done</text>
+  <text x="54.0" y="310.0" class="sans" font-size="12.5" font-weight="600" fill="#0F172A">Phase 3: Validation &amp; System Testing</text>
+  <text x="54.0" y="327.0" class="sans" font-size="10.5" font-weight="400" fill="#64748B">Sep 1 – Oct 15, 2026</text>
+  <rect x="608.8489795918367" y="300.5" width="122.84081632653056" height="26.0" rx="6" fill="#1B6B4A"/>
+  <text x="670.269387755102" y="317.5" class="sans" font-size="10.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">100%</text>
+  <rect x="1058.0" y="301.5" width="92.0" height="24.0" rx="12" fill="#DCFCE7"/>
+  <text x="1104.0" y="317.0" class="sans" font-size="10.5" font-weight="600" fill="#166534" text-anchor="middle">Done</text>
+  <text x="54.0" y="365.0" class="sans" font-size="12.5" font-weight="600" fill="#0F172A">Phase 4: Deployment &amp; Web Integration</text>
+  <text x="54.0" y="382.0" class="sans" font-size="10.5" font-weight="400" fill="#64748B">Oct 15 – Oct 31, 2026</text>
+  <rect x="731.6897959183673" y="355.5" width="47.461224489795995" height="26.0" rx="6" fill="#1B6B4A"/>
+  <text x="755.4204081632653" y="372.5" class="sans" font-size="10.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">100%</text>
+  <rect x="1058.0" y="356.5" width="92.0" height="24.0" rx="12" fill="#DCFCE7"/>
+  <text x="1104.0" y="372.0" class="sans" font-size="10.5" font-weight="600" fill="#166534" text-anchor="middle">Done</text>
+  <text x="54.0" y="420.0" class="sans" font-size="12.5" font-weight="600" fill="#0F172A">Phase 5: Pilot &amp; Commercialisation</text>
+  <text x="54.0" y="437.0" class="sans" font-size="10.5" font-weight="400" fill="#64748B">Nov 1 – Dec 31, 2026</text>
+  <rect x="779.1510204081633" y="410.5" width="170.30204081632655" height="26.0" rx="6" fill="#FEF3C7"/>
+  <rect x="779.1510204081633" y="410.5" width="72.58775510204077" height="26.0" fill="#D97706" clip-path="url(#phase5-clip)"/>
+  <rect x="779.1510204081633" y="410.5" width="170.30204081632655" height="26.0" rx="6" fill="none" stroke="#F59E0B" stroke-width="1.5"/>
+  <rect x="582.2488843207457" y="410.5" width="172.9021360874176" height="26.0" rx="13" fill="#FFFBEB" stroke="#F59E0B" stroke-width="1.3"/>
+  <polygon points="596.2488843207457,419.0 600.7488843207457,423.5 596.2488843207457,428.0 591.7488843207457,423.5" fill="#F59E0B" stroke="#92400E" stroke-width="1"/>
+  <text x="606.2488843207457" y="427.0" class="sans" font-size="11" font-weight="600" fill="#92400E">Sold to 1 Estate Company</text>
+  <line x1="757.1510204081633" y1="423.5" x2="774.1510204081633" y2="423.5" stroke="#D97706" stroke-width="1.6"/>
+  <polygon points="776.1510204081633,423.5 770.1510204081633,419.5 770.1510204081633,427.5" fill="#D97706"/>
+  <rect x="1058.0" y="411.5" width="92.0" height="24.0" rx="12" fill="#FEF3C7"/>
+  <text x="1104.0" y="427.0" class="sans" font-size="10.5" font-weight="600" fill="#92400E" text-anchor="middle">In Progress</text>
+  <text x="54.0" y="475.0" class="sans" font-size="12.5" font-weight="600" fill="#0F172A">Official Launch (Full Commercial)</text>
+  <text x="54.0" y="492.0" class="sans" font-size="10.5" font-weight="400" fill="#64748B">Jan 1 – Feb 1, 2027</text>
+  <rect x="949.4530612244898" y="465.5" width="86.54693877551017" height="26.0" rx="6" fill="#E0F2FE" stroke="#0284C7" stroke-width="1.4" stroke-dasharray="4 2.5"/>
+  <text x="992.7265306122449" y="482.5" class="sans" font-size="10.5" font-weight="700" fill="#0369A1" text-anchor="middle">Full Launch</text>
+  <rect x="1058.0" y="466.5" width="92.0" height="24.0" rx="12" fill="#E0F2FE"/>
+  <text x="1104.0" y="482.0" class="sans" font-size="10.5" font-weight="600" fill="#0369A1" text-anchor="middle">Upcoming</text>
+  <!-- Current Status Line & Milestone -->
+  <polygon points="846.738775510204,132.0 856.738775510204,132.0 851.738775510204,138.0" fill="#0F172A"/>
+  <line x1="851.738775510204" y1="176.0" x2="851.738775510204" y2="506.0" stroke="#0F172A" stroke-opacity="0.72" stroke-width="1.6" stroke-dasharray="4.5 3.5"/>
+  <polygon points="851.738775510204,415.0 860.238775510204,423.5 851.738775510204,432.0 843.238775510204,423.5" fill="#FFFFFF"/>
+  <polygon points="851.738775510204,417.0 858.238775510204,423.5 851.738775510204,430.0 845.238775510204,423.5" fill="#F59E0B" stroke="#0F172A" stroke-width="1.4"/>
+  <rect x="785.9754698461416" y="111.0" width="131.526611328125" height="22.0" rx="11" fill="#0F172A"/>
+  <text x="851.738775510204" y="125.5" class="sans" font-size="10.5" font-weight="700" fill="#FFFFFF" text-anchor="middle">Now (Nov '26) &#183; 95%</text>
+  <!-- Legend -->
+  <rect x="40.0" y="526.0" width="14" height="11" rx="3" fill="#1B6B4A"/>
+  <text x="60.0" y="535.0" class="sans" font-size="11" font-weight="500" fill="#475569">Completed (Phases 1&#8211;4)</text>
+  <rect x="215.68677973747253" y="526.0" width="14" height="11" rx="3" fill="#D97706" stroke="#F59E0B" stroke-width="1"/>
+  <text x="235.68677973747253" y="535.0" class="sans" font-size="11" font-weight="500" fill="#475569">In Progress (Pilot &amp; Commercialisation)</text>
+  <rect x="470.2699463367462" y="526.0" width="14" height="11" rx="3" fill="#E0F2FE" stroke="#0284C7" stroke-width="1.2" stroke-dasharray="2.5 1.5"/>
+  <text x="490.2699463367462" y="535.0" class="sans" font-size="11" font-weight="500" fill="#475569">Upcoming (Official Launch)</text>
+  <polygon points="667.5936295986176,526.0 673.0936295986176,531.5 667.5936295986176,537.0 662.0936295986176,531.5" fill="#F59E0B" stroke="#0F172A" stroke-width="1.1"/>
+  <text x="679.5936295986176" y="535.0" class="sans" font-size="11" font-weight="500" fill="#475569">Commercial Milestone</text>
+  <line x1="822.7062212228775" y1="531.5" x2="838.7062212228775" y2="531.5" stroke="#0F172A" stroke-width="1.5" stroke-dasharray="3.5 2.5"/>
+  <text x="844.7062212228775" y="535.0" class="sans" font-size="11" font-weight="500" fill="#475569">Current Status (95%)</text>
+  <text x="40.0" y="563" class="sans" font-size="10" font-weight="400" fill="#64748B">Note: Core R&amp;D, validation, and web deployment are complete. Commercialisation is underway with 1 estate company onboarded; future expansion includes regional RF models.</text>
+</svg>

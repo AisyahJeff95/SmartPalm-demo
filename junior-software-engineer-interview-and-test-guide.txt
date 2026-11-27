@@ -42,113 +42,88 @@ interaction, client vs. admin permissions, and saving form data)."
 
 
 ===============================================================================
-PART 1: ALL-ROUNDER INTERVIEW QUESTIONS (30 - 40 MINUTES)
+PART 1: GENERAL PROBLEM-SOLVING INTERVIEW QUESTIONS (25 - 30 MINUTES)
 ===============================================================================
+(2 short questions per section — focus on how they think, not memorized jargon.)
 
-SECTION A: FRONTEND & INTERACTIVE GIS MAPPING (HTML / CSS / JS / LEAFLET)
+SECTION A: FRONTEND & UI PROBLEM SOLVING
 -------------------------------------------------------------------------------
-Q1: "In our dashboard, users upload estate boundary files (.shp / GeoJSON) and
-    click individual blocks on a map to view nutrient levels. Have you worked
-    with Leaflet, Mapbox, or GeoJSON before? If not, how would you approach
-    rendering polygons on a map and updating a sidebar when a polygon is
-    clicked?"
+Q1: "When a user clicks an item on a page (like a card, table row, or map
+    area), how would you highlight it and show its details in a side panel?"
     * What to listen for:
-      - Parsing the file into JSON/GeoJSON and adding a layer to the map.
-      - Attaching a click event listener to each polygon feature (`onEachFeature`).
-      - Storing the selected block in a variable/state and updating the sidebar
-        DOM elements (`getElementById` / `textContent`).
+      - Attach a click listener, store the selected item in a variable/state.
+      - Reset previous highlight, highlight the clicked item, and update the
+        side panel text (`getElementById` / `textContent`).
 
-Q1 Follow-up: "What happens if a client uploads a shapefile from Sabah/Sarawak
-    and the blocks appear in the middle of the sea instead of on land?"
+Q2: "A page looks great on your laptop, but overlaps or breaks on a smaller
+    screen or a different browser. How would you find and fix the problem?"
     * What to listen for:
-      - Recognizes it as a Coordinate Reference System (CRS) / map projection
-        mismatch (e.g. local meter projection vs. WGS84 Lat/Lng EPSG:4326, or
-        swapped `[lng, lat]` vs `[lat, lng]` coordinates).
-
-Q2: "Sometimes we hide options in a native `<select>` dropdown using CSS
-    `display: none`, and it works on Windows Chrome but still shows up on Mac
-    Safari/Chrome. Why does that happen, and how would you fix it?"
-    * What to listen for:
-      - macOS uses native OS menus for `<select>` elements which ignore CSS
-        `display: none` on `<option>` and `<optgroup>`.
-      - Fix: Dynamically remove/re-insert the DOM nodes in JavaScript, or use
-        the `disabled` attribute to grey out options.
+      - Use Browser DevTools (Inspect Element & mobile/responsive view).
+      - Check CSS layout (`flex`/`grid`, fixed widths, overflow) and test
+        across screen sizes/browsers after fixing.
 
 
-SECTION B: DATABASE, AUTHENTICATION & MULTI-COMPANY SECURITY (SUPABASE / SQL)
+SECTION B: DATA, ACCOUNTS & PERMISSIONS
 -------------------------------------------------------------------------------
-Q3: "We have multiple plantation companies (e.g., Company A, Company B) logging
-    into the same web app, plus a Master Admin who can see everything. How
-    would you design the database table and user permissions so `client1` can
-    only see their own data, while `admin` sees all companies?"
+Q3: "An app has regular Clients and an Admin. How would you make sure a Client
+    can only see their own data while the Admin can see everything?"
     * What to listen for:
-      - A `profiles` / `users` table storing `role` / `access_tier` (Admin vs
-        Client), `company_code`, and a private `storage_group` or `user_id`.
-      - Filtering queries by user/company AND enforcing Supabase Row-Level
-        Security (RLS) policies so data isolation is protected at the database
-        level, not just hidden on the frontend.
+      - Store user `role` and `company` / `user_id` in the database.
+      - Filter data on the backend/database (not only hiding buttons in the UI)
+        so Clients cannot access other people's data.
 
-Q4: "When a client fills in fertilizer dosage and block notes and clicks 'Save',
-    how do you make sure the Master Admin sees those exact inputs automatically
-    when the Admin selects that estate later?"
+Q4: "A user fills in a form, clicks Save, refreshes the page, and all their
+    inputs disappear. What could be wrong, and how would you debug it?"
     * What to listen for:
-      - Saving (`upsert`) a structured JSON payload keyed by `estate_key` and
-        `storage_group` into the database.
-      - Triggering an `async/await` fetch when the Admin selects the estate in
-        the dropdown to auto-populate the form inputs.
+      - Check if data was actually saved (Network tab / database / `localStorage`).
+      - Check if the page fetches and re-populates the saved values on load.
 
 
-SECTION C: PYTHON BACKEND, SATELLITE DATA & AI/ML PIPELINE
+SECTION C: BACKEND, APIs & SLOW TASKS
 -------------------------------------------------------------------------------
-Q5: "Our backend runs a Python script that takes an estate boundary and date,
-    processes Sentinel-2 satellite bands using a Random Forest model
-    (`scikit-learn`), and outputs nutrient heatmap images (`.png` / `.tif`).
-    How comfortable are you with Python (`numpy`, `pandas`, `scikit-learn`,
-    `Flask` / `FastAPI`)?"
+Q5: "A button triggers a heavy task on the server that takes 15–20 seconds.
+    How do you keep users from thinking the page froze or clicking it 5 times?"
     * What to listen for:
-      - Can explain how a Python API endpoint receives a `POST` request with
-        JSON parameters (`estate_name`, `date`, `bounds`), runs the model, and
-        returns base64 image overlays or file URLs back to the frontend.
+      - Disable the button right away and show a loading spinner / progress text.
+      - Re-enable the button cleanly when finished or if an error happens.
 
-Q6: "A satellite prediction takes 15-25 seconds to finish running in Python.
-    How do you design the frontend so the user doesn't think the website is
-    frozen or click the 'Run Prediction' button 10 times?"
+Q6: "Your frontend calls an API to load data, and the server times out or
+    returns an error. How should your code handle that?"
     * What to listen for:
-      - Disabling the button immediately while running.
-      - Showing a progress bar / live status modal with step updates.
-      - Using `AbortController` to allow cancelling the request cleanly.
-      - Handling timeouts or network errors with `try / catch` and `finally`.
+      - Wrap calls in `try / catch` and check `response.ok` / HTTP status.
+      - Show a clear, friendly message to the user instead of a blank screen,
+        and log details for debugging.
 
 
-SECTION D: DEBUGGING, DEPLOYMENT & DAILY WORKFLOW (GIT / CLOUD)
+SECTION D: DEBUGGING & TEAM WORKFLOW
 -------------------------------------------------------------------------------
-Q7: "Imagine I message you: 'The Run Prediction button works on my laptop
-    (`localhost`), but when deployed to our live site, nothing happens when I
-    click it.' Walk me through step-by-step how you would debug this."
+Q7: "A feature works on your laptop (`localhost`), but stops working once
+    deployed to the live website. What are the first 3 things you check?"
     * What to listen for:
-      1. Open Chrome DevTools (Console and Network tabs).
-      2. Check for JS syntax errors, CORS errors, Mixed Content blocks (`https`
-         frontend calling `http://localhost`), or 404/500 API errors.
-      3. Check the cloud backend server logs (e.g. Hugging Face Spaces logs).
+      - Browser DevTools Console (JS errors) & Network tab (failed requests,
+        wrong API URL / `localhost` hardcoded, CORS, 404/500).
+      - Environment variables, missing files, or server deployment logs.
 
-Q8: "We maintain a `development/` folder and a production root folder in Git.
-    How do you make sure your changes don't accidentally overwrite my work or
-    break the live demo before an important presentation?"
+Q8: "You are editing a project shared with teammates before an important demo.
+    How do you avoid overwriting their work or breaking the live site?"
     * What to listen for:
-      - Making and testing edits in `development/` first.
-      - Checking `git status` and `git diff` before committing.
-      - Verifying zero syntax/console errors before syncing to production files.
+      - Pull latest changes first, work in a separate branch or `development/`
+        folder, review `git status` / `git diff`, and test before pushing.
 
 
-SECTION E: ATTITUDE & ATTENTION TO DETAIL
+SECTION E: GENERAL PROBLEM SOLVING & ATTITUDE
 -------------------------------------------------------------------------------
-Q9: "A lot of our tasks involve translating agronomic or client requests (like
-    moving UI cards, generating PDF reports, or fixing map legends) into
-    working code quickly. When I give you a screenshot with 3 UI changes, how
-    do you make sure you don't miss any detail?"
+Q9: "If we ask you to build something using a tool or library you have never
+    used before, how do you get started?"
     * What to listen for:
-      - Turns the request into a checklist, tests both Client View and Admin
-        View before marking as done, and verifies visual alignment.
+      - Read the official docs/examples, build a tiny working test first,
+        break the task into smaller pieces, and ask clear questions if stuck.
+
+Q10: "I send you a screenshot with 3 small UI bugs to fix quickly. How do you
+     make sure you fix all 3 properly without breaking anything else?"
+     * What to listen for:
+       - List all 3 items as a checklist, fix and test each one (including
+         both Client and Admin views), and do a quick final visual check.
 
 
 ===============================================================================

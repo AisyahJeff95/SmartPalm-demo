@@ -12,6 +12,31 @@
       ],
       "destination": "https://oilpalm.palmnex.com.my/$1",
       "permanent": false
+    },
+    {
+      "source": "/palmnexreads",
+      "destination": "/palmnexreads/",
+      "permanent": false
+    },
+    {
+      "source": "/PalmnexReaDS",
+      "destination": "/palmnexreads/",
+      "permanent": false
+    },
+    {
+      "source": "/PalmnexReaDS.html",
+      "destination": "/palmnexreads/",
+      "permanent": false
+    },
+    {
+      "source": "/reada",
+      "destination": "/palmnexreads/",
+      "permanent": false
+    },
+    {
+      "source": "/reada.html",
+      "destination": "/palmnexreads/",
+      "permanent": false
     }
   ],
   "rewrites": [
@@ -80,28 +105,12 @@
       "destination": "/landing.html"
     },
     {
-      "source": "/PalmnexReaDS",
-      "destination": "/palmnexreads/index.html"
-    },
-    {
-      "source": "/PalmnexReaDS.html",
-      "destination": "/palmnexreads/index.html"
-    },
-    {
-      "source": "/palmnexreads",
-      "destination": "/palmnexreads/index.html"
-    },
-    {
       "source": "/palmnexreads/",
-      "destination": "/palmnexreads/index.html"
+      "destination": "https://smart-palm-demo.vercel.app/"
     },
     {
-      "source": "/reada",
-      "destination": "/palmnexreads/index.html"
-    },
-    {
-      "source": "/reada.html",
-      "destination": "/palmnexreads/index.html"
+      "source": "/palmnexreads/(.*)",
+      "destination": "https://smart-palm-demo.vercel.app/$1"
     },
     {
       "source": "/",

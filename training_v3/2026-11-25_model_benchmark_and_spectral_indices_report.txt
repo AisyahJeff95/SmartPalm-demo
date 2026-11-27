@@ -1,0 +1,149 @@
+============================================================================================
+SMARTPALM NUTRIENT PREDICTION — MODEL BENCHMARK & SPECTRAL INDICES REPORT (2026-11-25)
+============================================================================================
+Generated On      : 2026-11-25 13:12:49
+Training Dataset  : /Users/drsitiaisyahjaafar/SmartPalm-demo/training_v3/v1_training_data.csv
+Total Clean Rows  : 2914 ({'SABAH SOFTWOODS BERHAD': 2385, 'FGV': 279, 'BWSB': 250})
+Input Schema      : 18 raw satellite bands (12 Sentinel-2 L2A + 6 Sentinel-1 RTC)
+Engineered Schema : 39 features (18 raw bands + 21 spectral & SAR indices via Pipeline)
+Drop-In Module    : training_v3/spectral_features.py (SpectralFeatureEngineer)
+
+1. WHY THIS BENCHMARK WAS RUN
+--------------------------------------------------------------------------------------------
+After expanding v1_training_data.csv from 294 single-estate FGV rows to 2,914 multi-estate
+rows across FGV (279), BWSB (250), and Sabah Softwoods Berhad (2,385 across 2022-2026),
+and removing the 5 lab outlier rows + 15 zero-filled R1 rows, we benchmarked whether adding
+domain-specific optical vegetation & SAR indices and comparing tree/boosting algorithms
+improves generalization accuracy over the raw 18-band Random Forest baseline.
+
+All winning models are saved as self-contained scikit-learn Pipelines in rf_model_<X>.pkl,
+meaning predict_nutrients.py continues to pass the exact same 18 raw Sentinel columns
+while the Pipeline computes all 21 indices automatically inside model.predict().
+
+2. ENGINEERED FEATURES (21 INDICES ADDED TO THE 18 RAW BANDS = 39 TOTAL)
+--------------------------------------------------------------------------------------------
+Note: Sentinel-2 L2A bands (PB >= 04.00) include a +0.10 radiometric offset. Before
+computing normalized ratios, SpectralFeatureEngineer subtracts 0.10 (clipped >= 1e-6)
+so vegetation indices recover true physical surface-reflectance dynamic range.
+
+  A. Optical Vegetation, Chlorophyll, Red-Edge & Moisture Indices (16):
+     1. NDVI       = (B8 - B4) / (B8 + B4)             [Canopy vigor / biomass]
+     2. NDRE1      = (B8 - B5) / (B8 + B5)             [Red-Edge 1 chlorophyll / N]
+     3. NDRE2      = (B8 - B6) / (B8 + B6)             [Red-Edge 2 chlorophyll / N]
+     4. NDRE3      = (B8 - B7) / (B8 + B7)             [Red-Edge 3 canopy structure]
+     5. NDRE_8A5   = (B8A - B5) / (B8A + B5)           [Narrow NIR Red-Edge (N, Mg)]
+     6. CI_RE      = (B7 / B5) - 1                     [Chlorophyll Index Red-Edge]
+     7. CI_G       = (B7 / B3) - 1                     [Chlorophyll Index Green]
+     8. GNDVI      = (B8 - B3) / (B8 + B3)             [Green NDVI / foliar N]
+     9. NDMI       = (B8A - B11) / (B8A + B11)         [Canopy moisture / K & P stress]
+    10. NBR        = (B8A - B12) / (B8A + B12)         [SWIR2 canopy dryness / Mg]
+    11. SWIR_ratio = B11 / B12                         [SWIR1/SWIR2 biochemical ratio]
+    12. SAVI       = 1.5 * (B8 - B4) / (B8 + B4 + 0.5) [Soil-Adjusted Veg Index]
+    13. EVI        = 2.5 * (B8 - B4) / (B8 + 6*B4 - 7.5*B2 + 1) [Enhanced Veg Index]
+    14. MCARI      = ((B5 - B4) - 0.2*(B5 - B3)) * (B5 / B4)    [Chlorophyll absorption]
+    15. BG_ratio   = B2 / B3                           [Blue/Green pigment balance]
+    16. RE_slope   = (B7 - B5) / B6                    [Red-Edge inflection slope]
+
+  B. Sentinel-1 SAR Structural & Polarimetric Indices (5):
+    17. VH_VV_ratio = Sigma0_VH / Sigma0_VV            [Cross/co-pol canopy density]
+    18. RVI_SAR     = 4 * Sigma0_VH / (VV + VH)        [Radar Vegetation Index]
+    19. Sigma0_VV_dB = 10 * log10(Sigma0_VV)           [Log VV backscatter (dB)]
+    20. Sigma0_VH_dB = 10 * log10(Sigma0_VH)           [Log VH backscatter (dB)]
+    21. Pol_Diff_dB  = Sigma0_VH_dB - Sigma0_VV_dB     [Polarization diff (dB)]
+
+3. FULL BENCHMARK COMPARISON (5-FOLD CROSS-VALIDATION & 20% STRATIFIED HOLDOUT)
+--------------------------------------------------------------------------------------------
+
+  Target: N (%) | Valid Samples n = 2914
+  Model                    |   CV5 R² |  CV5 RMSE |   CV5 MAE |  Test R² | Test RMSE
+  --------------------------------------------------------------------------------
+  RF_Raw18                 |   0.2307 |    0.0866 |    0.0692 |   0.2358 |    0.0863  <-- SELECTED
+  ET_Raw18                 |   0.2211 |    0.0871 |    0.0694 |   0.2492 |    0.0855
+  ET_Indices39             |   0.2020 |    0.0882 |    0.0700 |   0.1927 |    0.0887
+  RF_Indices39             |   0.2019 |    0.0882 |    0.0702 |   0.1820 |    0.0893
+  Ensemble_ET_RF_HGB_39    |   0.2011 |    0.0882 |    0.0702 |   0.1837 |    0.0892
+  HGB_Indices39            |   0.1537 |    0.0908 |    0.0723 |   0.1286 |    0.0921
+
+  Target: P (%) | Valid Samples n = 2914
+  Model                    |   CV5 R² |  CV5 RMSE |   CV5 MAE |  Test R² | Test RMSE
+  --------------------------------------------------------------------------------
+  RF_Raw18                 |   0.0446 |    0.0086 |    0.0068 |   0.0852 |    0.0083  <-- SELECTED
+  RF_Indices39             |   0.0360 |    0.0087 |    0.0068 |   0.0475 |    0.0085
+  ET_Raw18                 |   0.0335 |    0.0087 |    0.0068 |   0.0711 |    0.0084
+  Ensemble_ET_RF_HGB_39    |   0.0246 |    0.0087 |    0.0069 |   0.0381 |    0.0085
+  ET_Indices39             |   0.0233 |    0.0087 |    0.0068 |   0.0401 |    0.0085
+  HGB_Indices39            |  -0.0278 |    0.0089 |    0.0070 |  -0.0143 |    0.0088
+
+  Target: K (%) | Valid Samples n = 2914
+  Model                    |   CV5 R² |  CV5 RMSE |   CV5 MAE |  Test R² | Test RMSE
+  --------------------------------------------------------------------------------
+  RF_Raw18                 |   0.1477 |    0.1172 |    0.0950 |   0.1526 |    0.1183  <-- SELECTED
+  RF_Indices39             |   0.1422 |    0.1176 |    0.0958 |   0.1248 |    0.1202
+  Ensemble_ET_RF_HGB_39    |   0.1250 |    0.1187 |    0.0962 |   0.1104 |    0.1212
+  ET_Raw18                 |   0.1179 |    0.1192 |    0.0964 |   0.1113 |    0.1212
+  ET_Indices39             |   0.1134 |    0.1195 |    0.0967 |   0.1000 |    0.1219
+  HGB_Indices39            |   0.0781 |    0.1219 |    0.0981 |   0.0670 |    0.1241
+
+  Target: Mg (%) | Valid Samples n = 2914
+  Model                    |   CV5 R² |  CV5 RMSE |   CV5 MAE |  Test R² | Test RMSE
+  --------------------------------------------------------------------------------
+  RF_Indices39             |   0.2227 |    0.0405 |    0.0320 |   0.2793 |    0.0403  <-- SELECTED
+  RF_Raw18                 |   0.2176 |    0.0407 |    0.0322 |   0.2812 |    0.0402
+  Ensemble_ET_RF_HGB_39    |   0.2151 |    0.0407 |    0.0320 |   0.2728 |    0.0405
+  ET_Raw18                 |   0.2098 |    0.0409 |    0.0321 |   0.2643 |    0.0407
+  ET_Indices39             |   0.2081 |    0.0409 |    0.0321 |   0.2611 |    0.0408
+  HGB_Indices39            |   0.1721 |    0.0418 |    0.0327 |   0.2407 |    0.0414
+
+  Target: Ca (%) | Valid Samples n = 529
+  Model                    |   CV5 R² |  CV5 RMSE |   CV5 MAE |  Test R² | Test RMSE
+  --------------------------------------------------------------------------------
+  RF_Raw18                 |   0.7729 |    0.0559 |    0.0397 |   0.7555 |    0.0606  <-- SELECTED
+  ET_Raw18                 |   0.7700 |    0.0562 |    0.0397 |   0.7617 |    0.0598
+  ET_Indices39             |   0.7522 |    0.0584 |    0.0414 |   0.6960 |    0.0676
+  Ensemble_ET_RF_HGB_39    |   0.7496 |    0.0587 |    0.0415 |   0.7079 |    0.0662
+  HGB_Indices39            |   0.7410 |    0.0597 |    0.0409 |   0.6987 |    0.0673
+  RF_Indices39             |   0.7126 |    0.0629 |    0.0451 |   0.6747 |    0.0699
+
+  Target: B (ppm) | Valid Samples n = 2914
+  Model                    |   CV5 R² |  CV5 RMSE |   CV5 MAE |  Test R² | Test RMSE
+  --------------------------------------------------------------------------------
+  Ensemble_ET_RF_HGB_39    |   0.3124 |    3.1642 |    2.3171 |   0.3290 |    3.2063  <-- SELECTED
+  RF_Indices39             |   0.2995 |    3.1938 |    2.3334 |   0.3098 |    3.2520
+  HGB_Indices39            |   0.2953 |    3.2034 |    2.3374 |   0.3226 |    3.2216
+  ET_Indices39             |   0.2878 |    3.2203 |    2.3591 |   0.3065 |    3.2598
+  RF_Raw18                 |   0.2663 |    3.2686 |    2.3888 |   0.2907 |    3.2968
+  ET_Raw18                 |   0.2544 |    3.2949 |    2.4004 |   0.2852 |    3.3095
+
+
+4. DEPLOYED WINNING MODELS (SAVED TO training_v3/rf_model_<Target>.pkl)
+--------------------------------------------------------------------------------------------
+Target  |     n | Selected Model         | Base CV R² | Win CV R² |     Gain |  CV RMSE |   CV MAE
+--------------------------------------------------------------------------------------------
+N       |  2914 | RF_Raw18               |     0.2307 |    0.2307 |  +0.0000 |   0.0866 |   0.0692
+P       |  2914 | RF_Raw18               |     0.0446 |    0.0446 |  +0.0000 |   0.0086 |   0.0068
+K       |  2914 | RF_Raw18               |     0.1477 |    0.1477 |  +0.0000 |   0.1172 |   0.0950
+Mg      |  2914 | RF_Indices39           |     0.2176 |    0.2227 |  +0.0051 |   0.0405 |   0.0320
+Ca      |   529 | RF_Raw18               |     0.7729 |    0.7729 |  +0.0000 |   0.0559 |   0.0397
+B       |  2914 | Ensemble_ET_RF_HGB_39  |     0.2663 |    0.3124 |  +0.0461 |   3.1642 |   2.3171
+--------------------------------------------------------------------------------------------
+
+Top Important Features per Winning Model:
+  - N  : Band1, Band9, Band2, Band12, Band5
+  - P  : Band1, Band2, Band9, Band11, Band5
+  - K  : Band9, Band1, Band5, Band2, Band11
+  - Mg : SWIR_ratio, Band1, Band11, BG_ratio, Band9
+  - Ca : Band9, Band1, Band6, Band12, Band11
+  - B  : Band1, SWIR_ratio, NDMI, RE_slope, BG_ratio
+
+5. PRACTICAL NOTES & HOW TO IMPROVE FURTHER
+--------------------------------------------------------------------------------------------
+- Drop-in Compatibility: predict_nutrients.py loads rf_model_*.pkl with zero code changes.
+  Keep training_v3/spectral_features.py in the same folder as rf_model_*.pkl.
+- Final Deployed Models: After unbiased 5-Fold CV and 80/20 evaluation, each winning
+  Pipeline is re-fit on 100% of valid samples for maximum real-world accuracy.
+- Previous Backup: Original FGV-only models remain preserved in training_v3/models_v1_backup/.
+- Biggest Future Accuracy Lever: Sabah Softwoods rows currently only include the sampling
+  YEAR (2022-2026) rather than exact sampling MONTH/DAY. Providing exact foliar sampling
+  dates (and Ca lab readings for Sabah Softwoods) will tighten satellite-to-lab alignment
+  and raise R² significantly more than algorithm tuning alone.
+============================================================================================
